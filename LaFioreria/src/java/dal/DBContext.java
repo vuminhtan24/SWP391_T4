@@ -28,7 +28,7 @@ public class DBContext {
         try {
             String user = "root";
             String pass = "1234";
-            String url = "jdbc:mysql://localhost:3306/la_fioreria?user=root&password=1234";
+            String url = "jdbc:mysql://localhost:3306/la_fioreria?user=root&password=123456";
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             connection = DriverManager.getConnection(url, user, pass);
         } catch (ClassNotFoundException | SQLException ex) {
