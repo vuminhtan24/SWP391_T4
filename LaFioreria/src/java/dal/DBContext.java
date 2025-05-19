@@ -17,27 +17,29 @@ import java.util.logging.Logger;
  */
 public class DBContext {
     protected Connection connection;
-    public DBContext()
-    {
-        //@Students: You are allowed to edit user, pass, url variables to fit 
-        //your system configuration
-        //You can also add more methods for Database Interaction tasks. 
-        //But we recommend you to do it in another class
-        // For example : StudentDBContext extends DBContext , 
-        //where StudentDBContext is located in dal package, 
+
+    public DBContext() {
         try {
+            String url = "jdbc:mysql://localhost:3306/la_fioreria?useSSL=false&serverTimezone=UTC";
             String user = "root";
             String pass = "1234";
-            String url = "jdbc:mysql://localhost:3306/la_fioreria?user=root&password=123456";
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+
+            Class.forName("com.mysql.cj.jdbc.Driver"); // MySQL driver mới
             connection = DriverManager.getConnection(url, user, pass);
+
+            System.out.println(" Connected to database!");
         } catch (ClassNotFoundException | SQLException ex) {
-            Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace(); // để thấy lỗi rõ hơn khi debug
         }
     }
     
     public static void main(String[] args) {
         DBContext db = new DBContext();
-        System.out.println(db.connection);
+        if (db.connection != null) {
+            System.out.println("✅ Kết nối thành công");
+        } else {
+            System.out.println("❌ Không kết nối được");
+        }
     }
 }
+
