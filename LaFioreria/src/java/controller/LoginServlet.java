@@ -107,7 +107,7 @@ public class LoginServlet extends HttpServlet {
                     break;
             }
         } else {
-            request.setAttribute("mess", "Invalid username or password");
+            request.setAttribute("mess", "Invalid gmail or password");
             request.getRequestDispatcher("login.jsp").forward(request, response);
         }
     }
