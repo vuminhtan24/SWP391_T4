@@ -108,6 +108,20 @@ public class DAOAccount extends DBContext {
         }
         return null;
     }
+     public String getRoleNameById(int roleId) {
+        String sql = "SELECT Role_name FROM role WHERE Role_id = ?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, roleId);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getString("Role_name");
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return "Unknown";
+    }
 
     public User getAccountByEmail(String email) {
         String sql = "SELECT * FROM user WHERE email = ?";
