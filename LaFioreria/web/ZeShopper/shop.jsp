@@ -287,8 +287,8 @@
                                         <div class="single-products">
                                             <div class="productinfo text-center">
                                                 <img src="${product.getImageUrl()}" alt="" />
-                                                <h2>Money</h2>
-                                                <p>${product.getBouquetName()}</p>
+                                                <h2>${lb.getBouquetName()}</h2>
+                                                <p>Price: </p>
                                                 <a href="#" class="btn btn-default add-to-cart">
                                                     <i class="fa fa-shopping-cart"></i>Add to cart
                                                 </a>
