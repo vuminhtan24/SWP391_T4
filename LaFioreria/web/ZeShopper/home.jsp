@@ -98,7 +98,7 @@
                                     <c:choose>
                                         <c:when test="${sessionScope.currentAcc != null}">
                                             <li><a href="#"><i class="fa fa-user"></i> Hello, ${sessionScope.currentAcc.username}</a></li>
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/logout"><i class="fa fa-unlock"></i> Logout</a></li>
+                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
                                             </c:when>
                                             <c:otherwise>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
