@@ -21,7 +21,7 @@ import util.Validate;
  *
  * @author HP
  */
-@WebServlet(name="Login", urlPatterns={"/login"})
+@WebServlet("/ZeShopper/Register")
 public class Register extends HttpServlet {
    
     /** 
@@ -81,7 +81,7 @@ public class Register extends HttpServlet {
         String password = request.getParameter("password");
         String address = request.getParameter("address");
         String confirmPassword = request.getParameter("confirmPassword");
-        String mess;
+        String messRegister;
         
         if(username.isEmpty() 
                 || fullname.isEmpty()
@@ -90,30 +90,30 @@ public class Register extends HttpServlet {
                 || address.isEmpty()
                 || password.isEmpty() 
                 || confirmPassword.isEmpty()) {
-           mess = "Please fill all of field!";
-           returnInputValue(request, response, email, fullname, "", phone,address, mess);
+           messRegister = "Please fill all of field!";
+           returnInputValue(request, response, email, fullname, "", phone,address, messRegister);
            return;
         }
         if(daoAcc.getAccountByEmail(email) != null) {
-           mess = "This account have exist!";
-           returnInputValue(request, response, email, fullname, "", phone,address, mess);
+           messRegister = "This account have exist!";
+           returnInputValue(request, response, email, fullname, "", phone,address, messRegister);
            return;
         }
         if(!Validate.isValidPhoneNumber(phone)) {
-          mess = "Phone number invalid!";
-          returnInputValue(request, response, email, fullname, username, "",address, mess);
+          messRegister = "Phone number invalid!";
+          returnInputValue(request, response, email, fullname, username, "",address, messRegister);
           return;
         }
         if (!password.equals(confirmPassword)) {
-            mess = "Password and Confirm Password do not match!";
-            returnInputValue(request, response, email, fullname, username, phone,address, mess);
+            messRegister = "Password and Confirm Password do not match!";
+            returnInputValue(request, response, email, fullname, username, phone,address, messRegister);
             return;
         }
         User acc = new User( username, password, fullname, email, phone, address, 7);
         boolean isCreate = daoAcc.createAccount(acc);
         if(!isCreate) {
-            mess = "Create account unsuccess!";
-            returnInputValue(request, response, email, fullname, username, phone,address, mess);
+            messRegister = "Create account unsuccess!";
+            returnInputValue(request, response, email, fullname, username, phone,address, messRegister);
             return;
         } else {
          session.setAttribute("currentAcc", acc);
@@ -122,14 +122,14 @@ public class Register extends HttpServlet {
     }
     public void returnInputValue(HttpServletRequest request, 
             HttpServletResponse response, String email, String fullname, String username, 
-            String phone,String address, String mess)
+            String phone,String address, String messRegister)
     throws ServletException, IOException {
       request.setAttribute("email", email);
       request.setAttribute("fullname", fullname);
       request.setAttribute("username", username);
       request.setAttribute("phone", phone);
       request.setAttribute("address", address);
-      request.setAttribute("mess", mess);
+      request.setAttribute("messRegister", messRegister);
       request.getRequestDispatcher("login.jsp").forward(request, response);
     }
     /** 
