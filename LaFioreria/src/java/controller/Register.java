@@ -21,7 +21,7 @@ import util.Validate;
  *
  * @author HP
  */
-@WebServlet(name="Register", urlPatterns={"/register"})
+@WebServlet(name="Login", urlPatterns={"/login"})
 public class Register extends HttpServlet {
    
     /** 
@@ -59,7 +59,7 @@ public class Register extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        request.getRequestDispatcher("register.jsp").forward(request, response);
+        request.getRequestDispatcher("login.jsp").forward(request, response);
     } 
 
     /** 
@@ -130,7 +130,7 @@ public class Register extends HttpServlet {
       request.setAttribute("phone", phone);
       request.setAttribute("address", address);
       request.setAttribute("mess", mess);
-      request.getRequestDispatcher("register.jsp").forward(request, response);
+      request.getRequestDispatcher("login.jsp").forward(request, response);
     }
     /** 
      * Returns a short description of the servlet.

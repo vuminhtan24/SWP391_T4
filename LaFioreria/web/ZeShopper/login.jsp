@@ -182,7 +182,7 @@
                                                     <input type="text" placeholder="Fullname" value="${fullname}" name="fullname"required/>
                                                     <input type="text" placeholder="Username" value="${username}" name="username"required/>
                                                     <input type="phone" placeholder="Phone" value="${phone}" name="phone"required/>
-                                                    <input type="text" placeholder="Address" value="${phone}" name="phone"required/>
+                                                    <input type="text" placeholder="Address" value="${address}" name="phone"required/>
                                                     <input type="password" placeholder="Password" name="password"required/>
                                                     <input type="password" placeholder="Confirm Password" name="confirmPassword"required/>
 							<button type="submit" class="btn btn-default">Signup</button>
