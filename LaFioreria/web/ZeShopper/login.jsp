@@ -177,10 +177,14 @@
 				<div class="col-sm-4">
 					<div class="signup-form"><!--sign up form-->
 						<h2>New User Signup!</h2>
-						<form action="#">
-							<input type="text" placeholder="Name"/>
-							<input type="email" placeholder="Email Address"/>
-							<input type="password" placeholder="Password"/>
+						<form action="register" method="post">
+                                                    <input type="email" placeholder="Email Address" value="${email}" name="email"required/>
+                                                    <input type="text" placeholder="Fullname" value="${fullname}" name="fullname"required/>
+                                                    <input type="text" placeholder="Username" value="${username}" name="username"required/>
+                                                    <input type="phone" placeholder="Phone" value="${phone}" name="phone"required/>
+                                                    <input type="text" placeholder="Address" value="${phone}" name="phone"required/>
+                                                    <input type="password" placeholder="Password" name="password"required/>
+                                                    <input type="password" placeholder="Confirm Password" name="confirmPassword"required/>
 							<button type="submit" class="btn btn-default">Signup</button>
 						</form>
 					</div><!--/sign up form-->
