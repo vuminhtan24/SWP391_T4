@@ -86,7 +86,7 @@ public class LoginServlet extends HttpServlet {
 
         if (user != null) {
             HttpSession session = request.getSession();
-            session.setAttribute("user", user);
+            session.setAttribute("currentAcc", user);
 
             int roleId = user.getRole();
             String role = daoAcc.getRoleNameById(roleId);
