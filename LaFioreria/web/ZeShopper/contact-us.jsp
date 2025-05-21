@@ -166,8 +166,18 @@
                 <div class="row">    		
                     <div class="col-sm-12">    			   			
                         <h2 class="title text-center">Contact <strong>Us</strong></h2>    			    				    				
-                        <div id="gmap" class="contact-map">
-                        </div>
+                        <div class="address">
+                                <iframe 
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.344983050298!2d105.52674837508753!3d21.01807248062373!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345299efec69a1%3A0x2fd2f7482ad04c43!2zVHLGsOG7nW5nIMSQ4bqhaSBI4buNYyBGUFQgLSBIw6AgTMOgbg!5e0!3m2!1svi!2s!4v1716273663654!5m2!1svi!2s" 
+                                    width="100%" 
+                                    height="250" 
+                                    style="border:0;" 
+                                    allowfullscreen="" 
+                                    loading="lazy" 
+                                    referrerpolicy="no-referrer-when-downgrade">
+                                </iframe>
+                                <p>Trường Đại học FPT, Khu CNC Hòa Lạc, Km29 Đại lộ Thăng Long, Thạch Thất, Hà Nội</p>
+                            </div>
                     </div>			 		
                 </div>    	
                 <div class="row">  	
@@ -301,8 +311,16 @@
                         </div>
                         <div class="col-sm-3">
                             <div class="address">
-                                <img src="${pageContext.request.contextPath}/ZeShopper/images/home/map.png" alt="" />
-                                <p>505 S Atlantic Ave Virginia Beach, VA(Virginia)</p>
+                                <iframe 
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.344983050298!2d105.52674837508753!3d21.01807248062373!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345299efec69a1%3A0x2fd2f7482ad04c43!2zVHLGsOG7nW5nIMSQ4bqhaSBI4buNYyBGUFQgLSBIw6AgTMOgbg!5e0!3m2!1svi!2s!4v1716273663654!5m2!1svi!2s" 
+                                    width="100%" 
+                                    height="250" 
+                                    style="border:0;" 
+                                    allowfullscreen="" 
+                                    loading="lazy" 
+                                    referrerpolicy="no-referrer-when-downgrade">
+                                </iframe>
+                                <p>Trường Đại học FPT, Khu CNC Hòa Lạc, Km29 Đại lộ Thăng Long, Thạch Thất, Hà Nội</p>
                             </div>
                         </div>
                     </div>
