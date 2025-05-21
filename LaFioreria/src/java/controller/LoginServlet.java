@@ -76,7 +76,7 @@ public class LoginServlet extends HttpServlet {
         String password = request.getParameter("password");
 
         if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
-            request.setAttribute("mess", "Please enter username and password");
+            request.setAttribute("messLogin", "Please enter username and password");
             request.getRequestDispatcher("login.jsp").forward(request, response);
             return;
         }
@@ -107,7 +107,7 @@ public class LoginServlet extends HttpServlet {
                     break;
             }
         } else {
-            request.setAttribute("mess", "Invalid gmail or password");
+            request.setAttribute("messLogin", "Invalid gmail or password");
             request.getRequestDispatcher("login.jsp").forward(request, response);
         }
     }
