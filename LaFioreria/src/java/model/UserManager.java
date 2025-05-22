@@ -6,34 +6,24 @@ package model;
 
 /**
  *
- * @author ADMIN
+ * @author LAPTOP
  */
-public class User {
+public class UserManager {
 
-    int userid;
-    String username;
-    String password;
-    String fullname;
-    String email;
-    String phone;
-    String address;
-    int role;
+    private int userid;
+    private String username;
+    private String password;
+    private String fullname;
+    private String email;
+    private String phone;
+    private String address;
+    private String role;
 
-    public User() {
-
+    public UserManager() {
     }
 
-    public User(int userid, String username, String password, String fullname, String email, String phone, String address, int role) {
+    public UserManager(int userid, String username, String password, String fullname, String email, String phone, String address, String role) {
         this.userid = userid;
-        this.username = username;
-        this.password = password;
-        this.fullname = fullname;
-        this.email = email;
-        this.phone = phone;
-        this.address = address;
-        this.role = role;
-    }
-    public User( String username, String password, String fullname, String email, String phone, String address, int role) {
         this.username = username;
         this.password = password;
         this.fullname = fullname;
@@ -99,17 +89,19 @@ public class User {
         this.address = address;
     }
 
-    public int getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(int role) {
+    public void setRole(String role) {
         this.role = role;
     }
 
     @Override
     public String toString() {
-        return "User{" + "user_id=" + userid + ", username=" + username + ", password=" + password + ", fullname=" + fullname + ", email=" + email + ", phone=" + phone + ", address=" + address + ", role=" + role + '}';
+        return "UserManager{" + "userid=" + userid + ", username=" + username + ", password=" + password + ", fullname=" + fullname + ", email=" + email + ", phone=" + phone + ", address=" + address + ", role=" + role + '}';
     }
-
+    
+    
+    
 }
