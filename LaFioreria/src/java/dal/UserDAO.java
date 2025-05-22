@@ -9,7 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import model.Role;
 import model.User;
 import model.UserManager;
 
@@ -45,16 +44,16 @@ public class UserDAO extends DBContext {
 
         return listUser;
     }
-    
-    public void Update(User u){
-        
+
+    public void Update(User u) {
+
         String sql = "update user set Username = ?, Password = ?, Fullname = ?, Email = ?,Phone = ?,Address = ?, Role = ? where User_ID = ?;";
-        
+
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, u.getUsername());
             ps.setString(2, u.getPassword());
-            ps.setString(3,u.getFullname());
+            ps.setString(3, u.getFullname());
             ps.setString(4, u.getEmail());
             ps.setString(5, u.getPhone());
             ps.setString(6, u.getAddress());
@@ -74,8 +73,8 @@ public class UserDAO extends DBContext {
         try {
             PreparedStatement pre = connection.prepareStatement(sql);
             ResultSet rs = pre.executeQuery();
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 String Role_name = rs.getString("Role_name");
                 listRole.add(Role_name);
             }
@@ -84,9 +83,7 @@ public class UserDAO extends DBContext {
         }
         return listRole;
     }
-    
 
-    
     public List<Integer> getIds() {
 
         List<Integer> ids = new ArrayList<>();
@@ -129,6 +126,27 @@ public class UserDAO extends DBContext {
         return null;
     }
 
+    public void insertUser(User u) {
+        String sql = "insert into user (User_ID,Username,Password,Fullname,Email,Phone,Address,Role) values(?,?,?,?,?,?,?,?);";
+
+        try {
+
+            PreparedStatement ps = connection.prepareStatement(sql);
+            
+            ps.setInt(1, u.getUserid());
+            ps.setString(2, u.getUsername());
+            ps.setString(3, u.getPassword());
+            ps.setString(4, u.getFullname());
+            ps.setString(5, u.getEmail());
+            ps.setString(6, u.getPhone());
+            ps.setString(7, u.getAddress());
+            ps.setInt(8, u.getRole());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+
     public static void main(String[] args) {
 
         UserDAO ud = new UserDAO();
@@ -139,7 +157,7 @@ public class UserDAO extends DBContext {
 //        }
 //        UserManager um = ud.getUserById(1);
 //        System.out.println(um.toString());
-        
+
     }
 
 }

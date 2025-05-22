@@ -33,7 +33,10 @@
         <c:if test="${not empty userIds}">
             <p>User IDs are available</p>
         </c:if>
-
+        
+            <h3>
+                <a href="${pageContext.request.contextPath}/TestWeb/addNewUser.jsp">Add new User detail</a>
+            </h3>
 
         <form action="viewuserdetail" method="POST">
             <table border="1">
