@@ -1,7 +1,7 @@
 <%-- 
-    Document   : login
-    Created on : May 19, 2025, 8:38:41 AM
-    Author     : ADMIN
+    Document   : requestPassword
+    Created on : May 22, 2025, 9:10:17 PM
+    Author     : VU MINH TAN
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -33,9 +33,7 @@
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-57-precomposed.png">
     </head><!--/head-->
-
-    <body>
-        <header id="header"><!--header-->
+    <header id="header"><!--header-->
             <div class="header_top"><!--header_top-->
                 <div class="container">
                     <div class="row">
@@ -152,54 +150,30 @@
                 </div>
             </div><!--/header-bottom-->
         </header><!--/header-->
-
-        <section id="form"><!--form-->
+    <body>
+         <section id="form">
             <div class="container">
                 <div class="row">
                     <div class="col-sm-4 col-sm-offset-1">
-                        <div class="login-form"><!--login form-->
-                            <h2>Login to your account</h2>
-                            <form action="LoginServlet" method="post">
-                                <input type="email" placeholder="Email Address" name="email"/>
-                                <input type="password" placeholder="Password" name="password"/>
-                                <span>
-                                    <input type="checkbox" class="checkbox"> 
-                                    Keep me signed in
-                                </span>
-                                <h3 class="text-danger text-center">${messLogin}</h3>
-                                <button type="submit" class="btn btn-default">Login</button>
-                                <div style="margin-top: 10px;">
-                                    <a href="requestPassword.jsp">Forgot your password?</a>
-                                </div>
-
+                        <div class="login-form">
+                            <h2>Request Password Reset</h2>
+                            <form action="RequestPasswordServlet" method="post">
+                                <input type="email" name="email" placeholder="Enter your email address" required />
+                                <c:if test="${not empty message}">
+                                    <div class="alert alert-info" style="margin-top:10px;">${message}</div>
+                                </c:if>
+                                <button type="submit" class="btn btn-default" style="margin-top: 10px;">Send reset link</button>
                             </form>
-                        </div><!--/login form-->
-                    </div>
-                    <div class="col-sm-1">
-                        <h2 class="or">OR</h2>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="signup-form"><!--sign up form-->
-                            <h2>New User Signup!</h2>
-                            <form action="Register" method="post">
-                                <input type="email" placeholder="Email Address" value="${email}" name="email"required/>
-                                <input type="text" placeholder="Fullname" value="${fullname}" name="fullname"required/>
-                                <input type="text" placeholder="Username" value="${username}" name="username"required/>
-                                <input type="phone" placeholder="Phone" value="${phone}" name="phone"required/>
-                                <input type="text" placeholder="Address" value="${address}" name="address"required/>
-                                <input type="password" placeholder="Password" name="password"required/>
-                                <input type="password" placeholder="Confirm Password" name="confirmPassword"required/>
-                                <h3 class="text-danger text-center">${messRegister}</h3>
-                                <button type="submit" class="btn btn-default">Signup</button>
-                            </form>
-                        </div><!--/sign up form-->
+                            <div style="margin-top: 10px;">
+                                <a href="login.jsp">Back to Login</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </section><!--/form-->
-
-
-        <footer id="footer"><!--Footer-->
+        </section>
+    </body>
+    <footer id="footer"><!--Footer-->
             <div class="footer-top">
                 <div class="container">
                     <div class="row">
@@ -356,14 +330,4 @@
             </div>
 
         </footer><!--/Footer-->
-
-
-
-        <script src="js/jquery.js"></script>
-        <script src="js/price-range.js"></script>
-        <script src="js/jquery.scrollUp.min.js"></script>
-        <script src="js/bootstrap.min.js"></script>
-        <script src="js/jquery.prettyPhoto.js"></script>
-        <script src="js/main.js"></script>
-    </body>
 </html>
