@@ -4,20 +4,21 @@
  */
 package controller;
 
-import dal.DAOAccount;
+import dal.UserDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import model.User;
-import jakarta.servlet.annotation.WebServlet;
+import java.util.List;
+import model.UserManager;
 
-@WebServlet("/ZeShopper/LoginServlet")
-public class LoginServlet extends HttpServlet {
+/**
+ *
+ * @author LAPTOP
+ */
+public class ViewUserDetail extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -36,10 +37,10 @@ public class LoginServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet LoginServlet</title>");
+            out.println("<title>Servlet ViewUserDetail</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet LoginServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ViewUserDetail at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -57,7 +58,26 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("login.jsp").forward(request, response);
+        UserDAO ud = new UserDAO();
+        List<Integer> userIds = ud.getIds();
+        request.setAttribute("userIds", userIds);
+        
+        List<String> roleNames = ud.getRoleNames();
+        request.setAttribute("roleNames", roleNames);
+        
+        String id_raw = request.getParameter("id");
+        if (id_raw != null && !id_raw.isEmpty()) {
+            try {
+                int id = Integer.parseInt(id_raw);
+                UserManager um = ud.getUserById(id);
+                request.setAttribute("userManager", um);
+            } catch (NumberFormatException e) {
+                System.out.println(e);
+            }
+
+        }
+        
+        request.getRequestDispatcher("TestWeb/showUserDetail.jsp").forward(request, response);
     }
 
     /**
@@ -69,47 +89,9 @@ public class LoginServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String username = request.getParameter("email");
-        String password = request.getParameter("password");
-
-        if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
-            request.setAttribute("messLogin", "Please enter username and password");
-            request.getRequestDispatcher("login.jsp").forward(request, response);
-            return;
-        }
-
-        DAOAccount daoAcc = new DAOAccount();
-        User user = daoAcc.validate(username, password);
-
-        if (user != null) {
-            HttpSession session = request.getSession();
-            session.setAttribute("currentAcc", user);
-
-            int roleId = user.getRole();
-            String role = daoAcc.getRoleNameById(roleId);
-            switch (role) {
-                case "Admin":
-                case "Sales Manager":
-                case "Seller":
-                case "Marketer":
-                case "Warehouse Staff":
-                    response.sendRedirect("/LaFioreria/DashMin/admin.jsp");
-                    break;
-                case "Guest":
-                case "Customer":
-                    response.sendRedirect("home.jsp");
-                    break;
-                default:
-                    response.sendRedirect("login.jsp");
-                    break;
-            }
-        } else {
-            request.setAttribute("messLogin", "Invalid gmail or password");
-            request.getRequestDispatcher("login.jsp").forward(request, response);
-        }
+        processRequest(request, response);
     }
 
     /**
