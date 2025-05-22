@@ -35,7 +35,7 @@
         </c:if>
         
             <h3>
-                <a href="${pageContext.request.contextPath}/TestWeb/addNewUser.jsp">Add new User detail</a>
+                <a href="${pageContext.request.contextPath}/adduserdetail">Add new User detail</a>
             </h3>
 
         <form action="viewuserdetail" method="POST">

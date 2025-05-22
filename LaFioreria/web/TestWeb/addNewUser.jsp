@@ -65,7 +65,6 @@
 
                         <td>Role: </td>
                         <td>
-                            <c:out value="${roleNames}" default="roleNames is NULL or EMPTY" />
                             <select name="option">
                                 <c:forEach items="${roleNames}" var="role">
                                     <option value="${role}">${role}</option>

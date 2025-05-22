@@ -127,8 +127,33 @@ public class AddUserDetail extends HttpServlet {
             }
 
         } catch (NumberFormatException e) {
-            
+            // Ghi log nếu cần
+            System.err.println("Lỗi định dạng ID: " + e.getMessage());
+
+            // Gửi thông báo lỗi chung cho giao diện (nếu muốn)
+            request.setAttribute("error", "Invalid input data. Please try again.");
+
+            // Gửi lại roleNames để hiển thị lại form
+            List<String> roleNames = ud.getRoleNames();
+            request.setAttribute("roleNames", roleNames);
+
+            // Quay lại form
+            request.getRequestDispatcher("TestWeb/addNewUser.jsp").forward(request, response);
+        } catch (ServletException | IOException e) { // Ghi log nội bộ (hoặc dùng Logger nếu có)
+            // 👈 chỉ nên dùng khi debug, không để trong production
+            // 👈 chỉ nên dùng khi debug, không để trong production
+
+            // Thông báo lỗi tổng quát
+            request.setAttribute("error", "An unexpected error occurred. Please try again.");
+
+            // Truyền lại roleNames nếu muốn giữ lại form
+            List<String> roleNames = ud.getRoleNames();
+            request.setAttribute("roleNames", roleNames);
+
+            // Quay lại form
+            request.getRequestDispatcher("TestWeb/addNewUser.jsp").forward(request, response);
         }
+
     }
 
     /**
