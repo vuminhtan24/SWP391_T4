@@ -6,6 +6,8 @@ package testcode;
 
 import dal.UserDAO;
 import java.util.List;
+import model.User;
+import model.UserManager;
 
 /**
  *
@@ -21,13 +23,17 @@ public class TestUserDao {
 //            Integer get = lst.get(i);
 //            System.out.println(get);
 //        }
-//        UserManager um = ud.getUserById(1);
-//        System.out.println(um.toString());
+        User u = new User(8, "naruto", "1234", "Uzumaki naruto", "naruto@flower.com", "090112301", "konoha village", 7);
+        ud.Update(u);
+        UserManager um = ud.getUserById(8);
+        System.out.println(um.toString());
         List<String> lst = ud.getRoleNames();
         for (int i = 0; i < lst.size(); i++) {
             String get = lst.get(i);
             System.out.print(get + " ");
         }
+//
+//    }
 
     }
 }

@@ -45,6 +45,26 @@ public class UserDAO extends DBContext {
 
         return listUser;
     }
+    
+    public void Update(User u){
+        
+        String sql = "update user set Username = ?, Password = ?, Fullname = ?, Email = ?,Phone = ?,Address = ?, Role = ? where User_ID = ?;";
+        
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, u.getUsername());
+            ps.setString(2, u.getPassword());
+            ps.setString(3,u.getFullname());
+            ps.setString(4, u.getEmail());
+            ps.setString(5, u.getPhone());
+            ps.setString(6, u.getAddress());
+            ps.setInt(7, u.getRole());
+            ps.setInt(8, u.getUserid());
+            ps.execute();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
 
     public List<String> getRoleNames() {
         List<String> listRole = new ArrayList<>();

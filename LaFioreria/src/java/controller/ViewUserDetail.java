@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
+import model.User;
 import model.UserManager;
 
 /**
@@ -61,10 +62,10 @@ public class ViewUserDetail extends HttpServlet {
         UserDAO ud = new UserDAO();
         List<Integer> userIds = ud.getIds();
         request.setAttribute("userIds", userIds);
-        
+
         List<String> roleNames = ud.getRoleNames();
         request.setAttribute("roleNames", roleNames);
-        
+
         String id_raw = request.getParameter("id");
         if (id_raw != null && !id_raw.isEmpty()) {
             try {
@@ -76,7 +77,7 @@ public class ViewUserDetail extends HttpServlet {
             }
 
         }
-        
+
         request.getRequestDispatcher("TestWeb/showUserDetail.jsp").forward(request, response);
     }
 
@@ -91,7 +92,39 @@ public class ViewUserDetail extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        String id_raw = request.getParameter("id");
+        String name_raw = request.getParameter("name");
+        String password = request.getParameter("pass");
+        String fullName = request.getParameter("FullName");
+        String email = request.getParameter("email");
+        String phone_Number = request.getParameter("phone");
+        String Address = request.getParameter("address");
+        String role_raw = request.getParameter("option");
+        
+        UserDAO ud = new UserDAO();
+        
+        try {
+            int id = Integer.parseInt(id_raw);
+            int role = 0;
+            switch (role_raw) {
+                case "Admin" -> role = 1;
+                case "Sales Manager" -> role = 2;
+                case "Seller" -> role = 3;
+                case "Marketer" -> role = 4;
+                case "Warehouse Staff" -> role = 5;
+                case "Guest" -> role = 6;
+                case "Customer" -> role = 7;
+
+            }
+
+            User u = new User(id, name_raw, password, fullName, email,phone_Number, Address, role);
+            ud.Update(u);
+            response.sendRedirect("viewuserdetail");
+            
+        } catch (NumberFormatException e) {
+
+        }
+
     }
 
     /**
