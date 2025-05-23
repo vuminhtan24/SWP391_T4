@@ -39,7 +39,7 @@
 
     <body>
         <%
-    if (session == null || session.getAttribute("user") == null) {
+    if (session == null || session.getAttribute("currentAcc") == null) {
         response.sendRedirect(request.getContextPath()+ "/ZeShopper/login.jsp");
         return;
     }
