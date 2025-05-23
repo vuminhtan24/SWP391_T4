@@ -126,13 +126,66 @@ public class UserDAO extends DBContext {
         return null;
     }
 
+    public List<UserManager> getAllUserManager() {
+        String sql = "select u.User_ID,u.Username,u.Password,u.Fullname,u.Email,u.Phone,u.Address,r.Role_name from user u join role r on u.Role = r.Role_id order by u.User_ID;";
+        List<UserManager> list = new ArrayList<>();
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("User_ID");
+                String user_name = rs.getString("username");
+                String password = rs.getString("password");
+                String fullname = rs.getString("fullname");
+                String email = rs.getString("email");
+                String phone = rs.getString("phone");
+                String address = rs.getString("address");
+                String role = rs.getString("role_name");
+                UserManager user = new UserManager(id, user_name, password, fullname, email, phone, address, role);
+                list.add(user);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return list;
+    }
+
+    public List<UserManager> getUserByRoleId(int role_id) {
+        String sql = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
+               + "FROM user u "
+               + "JOIN role r ON u.Role = r.Role_id "
+               + "WHERE r.Role_id = ? "
+               + "ORDER BY u.User_ID";
+        List<UserManager> list = new ArrayList<>();
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, role_id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("User_ID");
+                String user_name = rs.getString("username");
+                String password = rs.getString("password");
+                String fullname = rs.getString("fullname");
+                String email = rs.getString("email");
+                String phone = rs.getString("phone");
+                String address = rs.getString("address");
+                String role = rs.getString("role_name");
+                UserManager user = new UserManager(id, user_name, password, fullname, email, phone, address, role);
+                list.add(user);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return list;
+    }
+
     public void insertUser(User u) {
         String sql = "insert into user (User_ID,Username,Password,Fullname,Email,Phone,Address,Role) values(?,?,?,?,?,?,?,?);";
 
         try {
 
             PreparedStatement ps = connection.prepareStatement(sql);
-            
+
             ps.setInt(1, u.getUserid());
             ps.setString(2, u.getUsername());
             ps.setString(3, u.getPassword());
