@@ -157,7 +157,7 @@
                     <div class="col-sm-4 col-sm-offset-1">
                         <div class="login-form">
                             <h2>Request Password Reset</h2>
-                            <form action="RequestPasswordServlet" method="post">
+                            <form action="requestPassword" method="post">
                                 <input type="email" name="email" placeholder="Enter your email address" required />
                                 <c:if test="${not empty message}">
                                     <div class="alert alert-info" style="margin-top:10px;">${message}</div>
