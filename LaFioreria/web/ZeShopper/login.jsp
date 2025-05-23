@@ -163,7 +163,7 @@
                                 <input type="email" placeholder="Email Address" name="email"/>
                                 <input type="password" placeholder="Password" name="password"/>
                                 <span>
-                                    <input type="checkbox" class="checkbox"> 
+                                    <input type="checkbox" class="checkbox" name="rememberMe"> 
                                     Keep me signed in
                                 </span>
                                 <h3 class="text-danger text-center">${messLogin}</h3>
