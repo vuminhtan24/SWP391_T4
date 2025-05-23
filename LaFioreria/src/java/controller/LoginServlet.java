@@ -59,7 +59,7 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
          HttpSession session = request.getSession(false);
     if (session != null && session.getAttribute("currentAcc") != null) {
-        response.sendRedirect("home.jsp");
+        response.sendRedirect("home");
         return;
     }
 
@@ -80,7 +80,7 @@ public class LoginServlet extends HttpServlet {
         User user = new DAOAccount().getAccountByEmail(savedEmail);
         if (user != null) {
             request.getSession().setAttribute("currentAcc", user);
-            response.sendRedirect("home.jsp");
+            response.sendRedirect("home");
             return;
         }
     }
@@ -141,7 +141,7 @@ public class LoginServlet extends HttpServlet {
                     break;
                 case "Guest":
                 case "Customer":
-                    response.sendRedirect("home.jsp");
+                    response.sendRedirect("/LaFioreria/home");
                     break;
                 default:
                     response.sendRedirect("login.jsp");
