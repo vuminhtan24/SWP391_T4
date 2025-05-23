@@ -5,6 +5,7 @@
 
 package controller;
 
+import dal.DAOAccount;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,6 +13,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.User;
 
 /**
  *
@@ -68,7 +70,17 @@ public class requestPassword extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+        DAOAccount daoAcc = new DAOAccount();
+        String email = request.getParameter("email");
+        User user = daoAcc.getAccountByEmail(email);
+        if(user==null){
+            request.setAttribute("mess", "Email does not exist or is not registered");
+            request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
+            return;
+        }
+        //send link to this email
+        
+        
     }
 
     /** 
