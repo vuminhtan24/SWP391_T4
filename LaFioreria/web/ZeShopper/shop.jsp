@@ -110,8 +110,8 @@
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
                                                 </ul>
                                             </li>
-                                            </c:when>
-                                            <c:otherwise>
+                                        </c:when>
+                                        <c:otherwise>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
                                             </c:otherwise>
                                         </c:choose>
@@ -238,12 +238,27 @@
 
                         </div>
                     </div>
+
                     <ul class="pagination">
-                        <li class="active"><a href="">1</a></li>
-                        <li><a href="">2</a></li>
-                        <li><a href="">3</a></li>
-                        <li><a href="">&raquo;</a></li>
+                        <c:if test="${currentPage > 1}">
+                            <li>
+                                <a href="product?page=${currentPage - 1}&bouquetName=${param.bouquetName}">&laquo;</a>
+                            </li>
+                        </c:if>
+
+                        <c:forEach var="i" begin="1" end="${totalPages}">
+                            <li class="${i == currentPage ? 'active' : ''}">
+                                <a href="product?page=${i}&bouquetName=${param.bouquetName}">${i}</a>
+                            </li>
+                        </c:forEach>
+
+                        <c:if test="${currentPage < totalPages}">
+                            <li>
+                                <a href="product?page=${currentPage + 1}&bouquetName=${param.bouquetName}">&raquo;</a>
+                            </li>
+                        </c:if>
                     </ul>
+
                 </div><!--features_items-->
             </div>
         </div>
