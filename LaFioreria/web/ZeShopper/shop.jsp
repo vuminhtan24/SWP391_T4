@@ -68,7 +68,7 @@
                     <div class="row">
                         <div class="col-sm-4">
                             <div class="logo pull-left">
-                                <a href="${pageContext.request.contextPath}/ZeShopper/home.jsp"><img src="${pageContext.request.contextPath}/ZeShopper/images/home/logo.png" alt="" /></a>
+                                <a href="${pageContext.request.contextPath}/home"><img src="${pageContext.request.contextPath}/ZeShopper/images/home/logo.png" alt="" /></a>
                             </div>
                             <div class="btn-group pull-right">
                                 <div class="btn-group">
@@ -140,7 +140,7 @@
                             </div>
                             <div class="mainmenu pull-left">
                                 <ul class="nav navbar-nav collapse navbar-collapse">
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/home.jsp">Home</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/home">Home</a></li>
                                     <li class="dropdown"><a href="#" class="active">Shop<i class="fa fa-angle-down"></i></a>
                                         <ul role="menu" class="sub-menu">
                                             <li><a href="${pageContext.request.contextPath}/product" class="active">Products</a></li>
@@ -186,108 +186,25 @@
                     <div class="col-sm-3">
                         <div class="left-sidebar">
                             <h2>Category</h2>
-                            <div class="panel-group category-products" id="accordian"><!--category-productsr-->
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#accordian" href="#sportswear">
-                                                <span class="badge pull-right"><i class="fa fa-plus"></i></span>
-                                                Sportswear
-                                            </a>
-                                        </h4>
-                                    </div>
-                                    <div id="sportswear" class="panel-collapse collapse">
-                                        <div class="panel-body">
-                                            <ul>
-                                                <li><a href="">Nike </a></li>
-                                                <li><a href="">Under Armour </a></li>
-                                                <li><a href="">Adidas </a></li>
-                                                <li><a href="">Puma</a></li>
-                                                <li><a href="">ASICS </a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#accordian" href="#mens">
-                                                <span class="badge pull-right"><i class="fa fa-plus"></i></span>
-                                                Mens
-                                            </a>
-                                        </h4>
-                                    </div>
-                                    <div id="mens" class="panel-collapse collapse">
-                                        <div class="panel-body">
-                                            <ul>
-                                                <li><a href="">Fendi</a></li>
-                                                <li><a href="">Guess</a></li>
-                                                <li><a href="">Valentino</a></li>
-                                                <li><a href="">Dior</a></li>
-                                                <li><a href="">Versace</a></li>
-                                                <li><a href="">Armani</a></li>
-                                                <li><a href="">Prada</a></li>
-                                                <li><a href="">Dolce and Gabbana</a></li>
-                                                <li><a href="">Chanel</a></li>
-                                                <li><a href="">Gucci</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="panel-group category-products" id="accordian"><!--category-productsr-->                            
 
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#accordian" href="#womens">
-                                                <span class="badge pull-right"><i class="fa fa-plus"></i></span>
-                                                Womens
-                                            </a>
-                                        </h4>
-                                    </div>
-                                    <div id="womens" class="panel-collapse collapse">
-                                        <div class="panel-body">
-                                            <ul>
-                                                <li><a href="">Fendi</a></li>
-                                                <li><a href="">Guess</a></li>
-                                                <li><a href="">Valentino</a></li>
-                                                <li><a href="">Dior</a></li>
-                                                <li><a href="">Versace</a></li>
-                                            </ul>
+                                <c:forEach var="category" items="${cateBouquetHome}">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a href="#">${category.getCategoryName()}</a>  <!-- Giả sử thuộc tính tên là 'name' -->
+                                            </h4>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Romantic</a></h4>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Birthday</a></h4>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Congratulations</a></h4>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Sympathy</a></h4>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Anniversary</a></h4>
-                                    </div>
-                                </div>
-                            </div><!--/category-productsr-->
+                                </c:forEach>
+
+                            </div><!--/category-products-->
 
                             <div class="price-range"><!--price-range-->
                                 <h2>Price Range</h2>
-                                <div class="well">
+                                <div class="well text-center">
                                     <input type="text" class="span2" value="" data-slider-min="0" data-slider-max="600" data-slider-step="5" data-slider-value="[250,450]" id="sl2" ><br />
-                                    <b>$ 0</b> <b class="pull-right">$ 600</b>
+                                    <b class="pull-left">$ 0</b> <b class="pull-right">$ 600</b>
                                 </div>
                             </div><!--/price-range-->
 
