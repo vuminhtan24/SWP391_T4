@@ -211,58 +211,58 @@
                                             <img src="${bouquet.getImageUrl()}" alt="Bouquet Image" style="height: 60px; width: auto;" />
                                         </td>
                                         <td>${bouquet.getBouquetName()}</td>
-                                        <td>Price</td>
+                                        <td>${bouquet.getPrice()}</td>
                                     </tr>
                                 </c:forEach>
                             </tbody>
                         </table>
                         <div>
- <c:if test="${totalPages > 1}">
-                    <nav>
-                        <ul class="pagination">
-                            <!-- Nút Previous -->
-                            <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                <a class="page-link" href="?page=${currentPage - 1}">Previous</a>
-                            </li>
-
-                            <!-- Trang 1 -->
-                            <li class="page-item ${currentPage == 1 ? 'active' : ''}">
-                                <a class="page-link" href="?page=1">1</a>
-                            </li>
-
-                            <!-- Dấu "..." nếu currentPage > 3 -->
-                            <c:if test="${currentPage > 3}">
-                                <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                </c:if>
-
-                            <!-- Các trang giữa (trước, hiện tại, sau) -->
-                            <c:forEach var="i" begin="${currentPage - 1}" end="${currentPage + 1}">
-                                <c:if test="${i > 1 && i < totalPages}">
-                                    <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                        <a class="page-link" href="?page=${i}">${i}</a>
-                                    </li>
-                                </c:if>
-                            </c:forEach>
-
-                            <!-- Dấu "..." nếu currentPage < totalPages - 2 -->
-                            <c:if test="${currentPage < totalPages - 2}">
-                                <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                </c:if>
-
-                            <!-- Trang cuối cùng -->
                             <c:if test="${totalPages > 1}">
-                                <li class="page-item ${currentPage == totalPages ? 'active' : ''}">
-                                    <a class="page-link" href="?page=${totalPages}">${totalPages}</a>
-                                </li>
-                            </c:if>
+                                <nav>
+                                    <ul class="pagination">
+                                        <!-- Nút Previous -->
+                                        <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                            <a class="page-link" href="?page=${currentPage - 1}">Previous</a>
+                                        </li>
 
-                            <!-- Nút Next -->
-                            <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                <a class="page-link" href="?page=${currentPage + 1}">Next</a>
-                            </li>
-                        </ul>
-                    </nav>
-                </c:if>
+                                        <!-- Trang 1 -->
+                                        <li class="page-item ${currentPage == 1 ? 'active' : ''}">
+                                            <a class="page-link" href="?page=1">1</a>
+                                        </li>
+
+                                        <!-- Dấu "..." nếu currentPage > 3 -->
+                                        <c:if test="${currentPage > 3}">
+                                            <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+                                            </c:if>
+
+                                        <!-- Các trang giữa (trước, hiện tại, sau) -->
+                                        <c:forEach var="i" begin="${currentPage - 1}" end="${currentPage + 1}">
+                                            <c:if test="${i > 1 && i < totalPages}">
+                                                <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                                    <a class="page-link" href="?page=${i}">${i}</a>
+                                                </li>
+                                            </c:if>
+                                        </c:forEach>
+
+                                        <!-- Dấu "..." nếu currentPage < totalPages - 2 -->
+                                        <c:if test="${currentPage < totalPages - 2}">
+                                            <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+                                            </c:if>
+
+                                        <!-- Trang cuối cùng -->
+                                        <c:if test="${totalPages > 1}">
+                                            <li class="page-item ${currentPage == totalPages ? 'active' : ''}">
+                                                <a class="page-link" href="?page=${totalPages}">${totalPages}</a>
+                                            </li>
+                                        </c:if>
+
+                                        <!-- Nút Next -->
+                                        <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                                            <a class="page-link" href="?page=${currentPage + 1}">Next</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </c:if>
                         </div>
                     </div>
                 </div>
