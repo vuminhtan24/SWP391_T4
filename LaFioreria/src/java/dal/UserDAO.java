@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import model.Role;
 import model.User;
 import model.UserManager;
 
@@ -63,6 +64,28 @@ public class UserDAO extends DBContext {
         } catch (SQLException e) {
             System.out.println(e);
         }
+    }
+    
+    public List<Role> getAllRole(){
+        
+        List<Role> list = new ArrayList<>();
+        String sql = "select * from role;";
+        
+        try {
+            
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            
+            while(rs.next()){
+                int id = rs.getInt("Role_id");
+                String role_name = rs.getString("Role_name");
+                Role r = new Role(id, role_name);
+                list.add(r);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return list;
     }
 
     public List<String> getRoleNames() {

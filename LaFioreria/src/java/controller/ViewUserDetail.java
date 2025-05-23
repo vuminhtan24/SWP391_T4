@@ -122,7 +122,7 @@ public class ViewUserDetail extends HttpServlet {
             response.sendRedirect("viewuserdetail");
             
         } catch (NumberFormatException e) {
-
+            System.out.println(e);
         }
 
     }
