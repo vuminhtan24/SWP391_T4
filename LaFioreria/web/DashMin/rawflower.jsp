@@ -1,25 +1,20 @@
 <%-- 
-    Document   : table
-    Created on : May 19, 2025, 2:41:19 PM
-    Author     : ADMIN
+    Document   : rawflower
+    Created on : May 23, 2025, 9:35:15 AM
+    Author     : Admin
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.List,model.Bouquet" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
         <title>DASHMIN - Bootstrap Admin Template</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
-        <meta content="" name="keywords">
-        <meta content="" name="description">
 
         <!-- Favicon -->
-        <link href="img/favicon.ico" rel="icon">
+        <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
 
         <!-- Google Web Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,12 +29,67 @@
         <link href="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
 
-        <!-- Customized Bootstrap Stylesheet -->
-        <link href="${pageContext.request.contextPath}/DashMin/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Bootstrap from CDN (chỉ dùng 1 bản) -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
+        <style>
+            /* Bảng đẹp và đồng nhất */
+            .table th, .table td {
+                vertical-align: middle;
+                text-align: center;
+                font-size: 14px;
+            }
 
+            /* Ảnh thumbnail cho hoa */
+            .img-thumbnail {
+                width: 60px;
+                height: 60px;
+                object-fit: cover;
+                border-radius: 8px;
+            }
+
+            /* Button group cho Action */
+            .actions-btn {
+                display: flex;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+
+            /* Form tìm kiếm nếu có thêm */
+            .search-form {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1rem;
+                align-items: end;
+            }
+
+            .form-group label {
+                font-size: 13px;
+                font-weight: 500;
+            }
+
+            /* Tăng padding cho card-body */
+            .card-body {
+                padding: 1.5rem;
+            }
+
+            /* Nút thêm hoa nổi bật hơn */
+            .btn-light.btn-sm {
+                font-weight: 500;
+            }
+
+            /* Responsive: bảng cuộn tốt trên thiết bị nhỏ */
+            .table-responsive {
+                overflow-x: auto;
+            }
+
+            /* Tăng độ rõ khi hover vào dòng */
+            .table-hover tbody tr:hover {
+                background-color: #f3f6fa;
+            }
+        </style>        
     </head>
 
     <body>
@@ -61,7 +111,7 @@
                     </a>
                     <div class="d-flex align-items-center ms-4 mb-4">
                         <div class="position-relative">
-                            <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                            <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
                             <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
                         </div>
                         <div class="ms-3">
@@ -81,14 +131,13 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
                         <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/table.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Tables</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/product.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/table.jsp" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Tables</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
                         <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
+                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
-                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
+                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item active">Blank Page</a>
                             </div>
                         </div>
                     </div>
@@ -119,7 +168,7 @@
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -129,7 +178,7 @@
                                 <hr class="dropdown-divider">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -139,7 +188,7 @@
                                 <hr class="dropdown-divider">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -176,7 +225,7 @@
                         </div>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                <img class="rounded-circle me-lg-2" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                <img class="rounded-circle me-lg-2" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                 <span class="d-none d-lg-inline-flex">John Doe</span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
@@ -190,94 +239,69 @@
                 <!-- Navbar End -->
 
 
-                <!-- Table Start -->
+                <!-- Raw Flower Management Start -->
                 <div class="container-fluid pt-4 px-4">
-                    <div class="bg-light rounded h-100 p-4">
-                        <h6 class="mb-4">Bouquet List</h6>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Bouquet ID</th>
-                                    <th scope="col">Image</th>
-                                    <th scope="col">Bouquet Name</th>
-                                    <th scope="col">Price</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach var="bouquet" items="${listBouquet}">
-                                    <tr>
-                                        <td>${bouquet.getBouquetId()}</td>
-                                        <td>
-                                            <img src="${bouquet.getImageUrl()}" alt="Bouquet Image" style="height: 60px; width: auto;" />
-                                        </td>
-                                        <td>${bouquet.getBouquetName()}</td>
-                                        <td>${bouquet.getPrice()}</td>
-                                    </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
-                        <div>
-                            <c:if test="${totalPages > 1}">
-                                <nav>
-                                    <ul class="pagination">
-                                        <!-- Nút Previous -->
-                                        <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                            <a class="page-link" href="?page=${currentPage - 1}">Previous</a>
-                                        </li>
-
-                                        <!-- Trang 1 -->
-                                        <li class="page-item ${currentPage == 1 ? 'active' : ''}">
-                                            <a class="page-link" href="?page=1">1</a>
-                                        </li>
-
-                                        <!-- Dấu "..." nếu currentPage > 3 -->
-                                        <c:if test="${currentPage > 3}">
-                                            <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                            </c:if>
-
-                                        <!-- Các trang giữa (trước, hiện tại, sau) -->
-                                        <c:forEach var="i" begin="${currentPage - 1}" end="${currentPage + 1}">
-                                            <c:if test="${i > 1 && i < totalPages}">
-                                                <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                                    <a class="page-link" href="?page=${i}">${i}</a>
-                                                </li>
-                                            </c:if>
+                    <div class="card shadow-sm rounded-4">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center rounded-top-4">
+                            <h4 class="mb-0">🌸 Raw Flowers Management</h4>
+                            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#addFlowerModal">
+                                <i class="bi bi-plus-circle"></i> Add Flower
+                            </button>
+                        </div>
+                        <div class="card-body bg-light rounded-bottom-4">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle table-bordered border-secondary-subtle">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Thumbnail</th>
+                                            <th>Name</th>
+                                            <th>Unit Price</th>
+                                            <th>Quantity</th>
+                                            <th>Expiration Date</th>
+                                            <th>Import Price</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <c:forEach items="${listRF}" var="item">
+                                            <tr>
+                                                <td>${item.rawId}</td>
+                                                <td><img src="${item.imageUrl}" class="img-thumbnail" alt="${item.rawName}"></td>
+                                                <td>${item.rawName}</td>
+                                                <td>${item.unitPrice}$</td>
+                                                <td>${item.availableQuantity}</td>
+                                                <td>${item.expirationDate}</td>
+                                                <td>${item.importPrice}</td>
+                                                <td class="actions-btn">
+                                                    <a href="update_rawflower?id=${item.rawId}" class="btn btn-warning btn-sm">View detail</a>
+                                                    <form action="${pageContext.request.contextPath}/hidePerfume" method="post" style="display:inline;">
+                                                        <input type="hidden" name="id" value="${item.rawId}"/>
+                                                        <button type="submit" class="btn btn-danger btn-sm">Hide</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
                                         </c:forEach>
-
-                                        <!-- Dấu "..." nếu currentPage < totalPages - 2 -->
-                                        <c:if test="${currentPage < totalPages - 2}">
-                                            <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                            </c:if>
-
-                                        <!-- Trang cuối cùng -->
-                                        <c:if test="${totalPages > 1}">
-                                            <li class="page-item ${currentPage == totalPages ? 'active' : ''}">
-                                                <a class="page-link" href="?page=${totalPages}">${totalPages}</a>
-                                            </li>
-                                        </c:if>
-
-                                        <!-- Nút Next -->
-                                        <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                            <a class="page-link" href="?page=${currentPage + 1}">Next</a>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </c:if>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <!-- Table End -->
+                <!-- Raw Flower Management End -->
+
+
 
                 <!-- Footer Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded-top p-4">
                         <div class="row">
                             <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
+                                &copy; <a href="#">La Fioreria</a>, All Right Reserved. 
                             </div>
                             <div class="col-12 col-sm-6 text-center text-sm-end">
                                 <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-                                Designed By <a href="https://htmlcodex.com">HTML Codex</a>
+                                Designed By <a href="https://htmlcodex.com">La Fioreria</a>
                             </div>
                         </div>
                     </div>
@@ -302,8 +326,9 @@
         <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
-        <!-- Template Javascript -->
+        <!-- Template Main Script -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
     </body>
 </html>
+
 

@@ -35,7 +35,8 @@ public class BouquetDAO extends DBContext {
                 String description = rs.getString("description").trim();
                 String imgurl = rs.getString("image_url");
                 int cid = rs.getInt("cid");
-                Bouquet newBouquet = new Bouquet(bouquet_id, bouquet_name, created_at, expire_date, created_by, description, imgurl, cid);
+                int price = rs.getInt("price");
+                Bouquet newBouquet = new Bouquet(bouquet_id, bouquet_name, created_at, expire_date, created_by, description, imgurl, cid, price);
                 listBouquet.add(newBouquet);
             }
         } catch (SQLException e) {
@@ -74,7 +75,7 @@ public class BouquetDAO extends DBContext {
                 pre.setObject(i + 1, params.get(i));
             }
             ResultSet rs = pre.executeQuery();
-            while (rs.next()) {                
+            while (rs.next()) {
                 int bouquet_id = rs.getInt("Bouquet_ID");
                 String bouquet_name = rs.getString("bouquet_name").trim();
                 Date created_at = rs.getDate("created_at");
@@ -83,13 +84,14 @@ public class BouquetDAO extends DBContext {
                 String description = rs.getString("description").trim();
                 String imgurl = rs.getString("image_url");
                 int cid = rs.getInt("cid");
-                Bouquet searchBouquet = new Bouquet(bouquet_id, bouquet_name, created_at, expire_date, created_by, description, imgurl, cid);
+                int price = rs.getInt("price");
+                Bouquet searchBouquet = new Bouquet(bouquet_id, bouquet_name, created_at, expire_date, created_by, description, imgurl, cid, price);
                 searchListBQ.add(searchBouquet);
             }
         } catch (Exception e) {
             System.out.println(e);
         }
-           return searchListBQ;
+        return searchListBQ;
     }
 
     public static void main(String[] args) {

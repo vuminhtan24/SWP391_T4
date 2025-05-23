@@ -13,6 +13,10 @@
         <servlet-class>controller.ViewUserDetail</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>RawFlowerServlet</servlet-name>
+        <servlet-class>controller.RawFlowerServlet</servlet-class>
+    </servlet> 
+    <servlet>  
         <servlet-name>ContactServlet</servlet-name>
         <servlet-class>controller.ContactServlet</servlet-class>
     </servlet>
@@ -37,6 +41,10 @@
         <url-pattern>/viewuserdetail</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>RawFlowerServlet</servlet-name>
+        <url-pattern>/DashMin/rawflower</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>        
         <servlet-name>ContactServlet</servlet-name>
         <url-pattern>/contact</url-pattern>
     </servlet-mapping>

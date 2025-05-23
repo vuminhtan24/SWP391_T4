@@ -18,11 +18,12 @@ public class Bouquet {
     String Description;
     String imageUrl;
     int cid;
+    int price;
 
     public Bouquet() {
     }
 
-    public Bouquet(int bouquetId, String bouquetName, Date createdAt, Date expirationDate, int createdBy, String Description, String imageUrl, int cid) {
+    public Bouquet(int bouquetId, String bouquetName, Date createdAt, Date expirationDate, int createdBy, String Description, String imageUrl, int cid, int price) {
         this.bouquetId = bouquetId;
         this.bouquetName = bouquetName;
         this.createdAt = createdAt;
@@ -31,6 +32,7 @@ public class Bouquet {
         this.Description = Description;
         this.imageUrl = imageUrl;
         this.cid      = cid;
+        this.price    = price;
     }
 
     public int getBouquetId() {
@@ -96,11 +98,20 @@ public class Bouquet {
     public void setCid(int cid) {
         this.cid = cid;
     }
-    
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
     @Override
     public String toString() {
-        return "Bouquet{" + "bouquetId=" + bouquetId + ", bouquetName=" + bouquetName + ", createdAt=" + createdAt + ", expirationDate=" + expirationDate + ", createdBy=" + createdBy + ", Description=" + Description + ", imageUrl=" + imageUrl + ", CategoryID=" + cid + '}';
+        return "Bouquet{" + "bouquetId=" + bouquetId + ", bouquetName=" + bouquetName + ", createdAt=" + createdAt + ", expirationDate=" + expirationDate + ", createdBy=" + createdBy + ", Description=" + Description + ", imageUrl=" + imageUrl + ", cid=" + cid + ", price=" + price + '}';
     }
+    
     
     
 }
