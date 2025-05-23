@@ -160,7 +160,7 @@
                         <div class="login-form"><!--login form-->
                             <h2>Login to your account</h2>
                             <form action="LoginServlet" method="post">
-                                <input type="email" placeholder="Email Address" name="email"/>
+                                <input type="text" placeholder="Username" name="username"/>
                                 <input type="password" placeholder="Password" name="password"/>
                                 <span>
                                     <input type="checkbox" class="checkbox" name="rememberMe"> 
