@@ -159,8 +159,8 @@
                             <h2>Request Password Reset</h2>
                             <form action="requestPassword" method="post">
                                 <input type="email" name="email" placeholder="Enter your email address" required />
-                                <c:if test="${not empty message}">
-                                    <div class="alert alert-info" style="margin-top:10px;">${message}</div>
+                                <c:if test="${not empty mess}">
+                                    <div class="alert alert-info" style="margin-top:10px;">${mess}</div>
                                 </c:if>
                                 <button type="submit" class="btn btn-default" style="margin-top: 10px;">Send reset link</button>
                             </form>

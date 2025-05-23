@@ -27,6 +27,12 @@ public class TokenForgetPassword {
         this.token = token;
         this.expiryTime = expiryTime;
     }
+     public TokenForgetPassword( int userId, boolean isUsed, String token, LocalDateTime expiryTime) {
+        this.userId = userId;
+        this.isUsed = isUsed;
+        this.token = token;
+        this.expiryTime = expiryTime;
+    }
 
     public int getId() {
         return id;

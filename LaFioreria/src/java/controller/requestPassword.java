@@ -6,6 +6,7 @@
 package controller;
 
 import dal.DAOAccount;
+import dal.DAOTokenForget;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -13,13 +14,15 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
+import model.TokenForgetPassword;
 import model.User;
 
 /**
  *
  * @author VU MINH TAN
  */
-@WebServlet(name="requestPassword", urlPatterns={"/requestPassword"})
+@WebServlet("/ZeShopper/requestPassword")
 public class requestPassword extends HttpServlet {
    
     /** 
@@ -78,8 +81,28 @@ public class requestPassword extends HttpServlet {
             request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
             return;
         }
-        //send link to this email
+        resetService service = new resetService();
+        String token = service.generateToken();
+        String linkReset ="http://localhost:8080/LaFioreria/ZeShopper/resetPassword.jsp?token="+token;
         
+        TokenForgetPassword newTokenForget = new TokenForgetPassword( 
+                user.getUserid(), false, token, service.expireDateTime());
+        //send link to this email
+        DAOTokenForget daoToken = new DAOTokenForget();
+        boolean isInsert = daoToken.insertTokenForget(newTokenForget);
+        if(!isInsert){
+            request.setAttribute("mess", "Have error in sever");
+            request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
+            return;
+        }
+        boolean isSend = service.sendEmail(email, linkReset, user.getFullname());
+        if(!isSend){
+            request.setAttribute("mess", "Can not send request");
+            request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
+            return;
+        }
+        request.setAttribute("mess", "Send request successfully");
+        request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
         
     }
 
