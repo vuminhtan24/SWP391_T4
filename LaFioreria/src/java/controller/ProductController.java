@@ -65,24 +65,49 @@ public class ProductController extends HttpServlet {
             throws ServletException, IOException {
         List<Bouquet> listBouquet = new ArrayList<>();
         List<Category> listCategoryBQ = new ArrayList<>();
-        
+
         BouquetDAO bdao = new BouquetDAO();
         CategoryDAO cdao = new CategoryDAO();
-        
+
         listCategoryBQ = cdao.getBouquetCategory();
         String name = request.getParameter("bouquetName");
-        
+
         request.setAttribute("cateBouquetHome", listCategoryBQ);
         if (name != null && !name.trim().isEmpty()) {
             listBouquet = bdao.searchBouquet(name, null, null, null);
             request.setAttribute("listBouquet", listBouquet);
-            
+
         } else {
-                listBouquet = bdao.getAll();
-                request.setAttribute("listBouquet", listBouquet);
-                
+            listBouquet = bdao.getAll();
+            request.setAttribute("listBouquet", listBouquet);
+
         }
-        
+
+        // PHÂN TRANG
+        int pageSize = 6; // số sản phẩm mỗi trang
+        int currentPage = 1;
+
+        String pageParam = request.getParameter("page");
+        if (pageParam != null) {
+            try {
+                currentPage = Integer.parseInt(pageParam);
+            } catch (NumberFormatException e) {
+                currentPage = 1;
+            }
+        }
+
+        int totalItems = listBouquet.size();
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+
+        int start = (currentPage - 1) * pageSize;
+        int end = Math.min(start + pageSize, totalItems);
+        List<Bouquet> bouquetPage = listBouquet.subList(start, end);
+
+        // Đặt thuộc tính để truyền qua JSP
+        request.setAttribute("listBouquet", bouquetPage);
+        request.setAttribute("currentPage", currentPage);
+        request.setAttribute("totalPages", totalPages);
+
         request.getRequestDispatcher("./ZeShopper/shop.jsp").forward(request, response);
 
     }
