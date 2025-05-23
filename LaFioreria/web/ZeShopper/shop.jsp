@@ -134,7 +134,7 @@
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/home.jsp">Home</a></li>
                                     <li class="dropdown"><a href="#" class="active">Shop<i class="fa fa-angle-down"></i></a>
                                         <ul role="menu" class="sub-menu">
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/shop.jsp" class="active">Products</a></li>
+                                            <li><a href="${pageContext.request.contextPath}/product" class="active">Products</a></li>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/product-details.jsp">Product Details</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp">Checkout</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp">Cart</a></li> 
@@ -154,7 +154,10 @@
                         </div>
                         <div class="col-sm-3">
                             <div class="search_box pull-right">
-                                <input type="text" placeholder="Search"/>
+                                <form action="product" method="get">
+                                    <input type="text" name="bouquetName" placeholder="Tìm kiếm sản phẩm" value="${param.bouquetName}" />
+                                    <button type="submit">Search</button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -289,6 +292,7 @@
                     <div class="col-sm-9 padding-right">
                         <div class="features_items"><!--features_items-->
                             <h2 class="title text-center">Features Items</h2>
+
                             <c:forEach items="${requestScope.listBouquet}" var="lb">
                                 <div class="col-sm-4">
                                     <div class="product-image-wrapper">

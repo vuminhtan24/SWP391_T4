@@ -20,8 +20,8 @@ import model.Bouquet;
  *
  * @author ADMIN
  */
-@WebServlet(name = "ProductController", urlPatterns = {"/product"})
-public class ProductController extends HttpServlet {
+@WebServlet(name = "searchProduct", urlPatterns = {"/searchProduct"})
+public class searchProduct extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -40,10 +40,10 @@ public class ProductController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ProductController</title>");
+            out.println("<title>Servlet searchProduct</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ProductController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet searchProduct at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -61,21 +61,14 @@ public class ProductController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Bouquet> listBouquet = new ArrayList<>();
+        List<Bouquet> searchBouquet = new ArrayList<>();
         BouquetDAO dao = new BouquetDAO();
+        
         String name = request.getParameter("bouquetName");
-
-        if (name != null && !name.trim().isEmpty()) {
-            listBouquet = dao.searchBouquet(name, null, null, null);
-            request.setAttribute("listBouquet", listBouquet);
-            request.getRequestDispatcher("./ZeShopper/shop.jsp").forward(request, response);
-        } else {
-
-            listBouquet = dao.getAll();
-            request.setAttribute("listBouquet", listBouquet);
-            request.getRequestDispatcher("./ZeShopper/shop.jsp").forward(request, response);
-        }
-
+        searchBouquet = dao.searchBouquet(name, null, null, null);
+        
+        request.setAttribute("products", searchBouquet);
+        request.getRequestDispatcher("./ZeShopper/shop.jsp").forward(request, response);
     }
 
     /**
