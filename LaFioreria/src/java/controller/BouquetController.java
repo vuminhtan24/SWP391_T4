@@ -42,7 +42,7 @@ public class BouquetController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet BouquetController</title>");            
+            out.println("<title>Servlet BouquetController</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet BouquetController at " + request.getContextPath() + "</h1>");
@@ -63,16 +63,29 @@ public class BouquetController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-                List<Bouquet> listBouquet = new ArrayList<>();
-  //      List<Category> listCategoryBQ = new ArrayList<>();
+        
+        String pageParam = request.getParameter("page");
+        int currentPage = 1;
+        
+        if (pageParam != null) {
+            try {
+                currentPage = Integer.parseInt(pageParam);
+            } catch (NumberFormatException e) {
+                currentPage = 1;
+            }
+        }
+
+        int itemsPerPage = 6;
+        List<Bouquet> listBouquet = new ArrayList<>();
+        //      List<Category> listCategoryBQ = new ArrayList<>();
 
         BouquetDAO bdao = new BouquetDAO();
- //       CategoryDAO cdao = new CategoryDAO();
+        //       CategoryDAO cdao = new CategoryDAO();
 
-      //  listCategoryBQ = cdao.getBouquetCategory();
+        //  listCategoryBQ = cdao.getBouquetCategory();
         String name = request.getParameter("bouquetName");
 
-  //      request.setAttribute("cateBouquetHome", listCategoryBQ);
+        //      request.setAttribute("cateBouquetHome", listCategoryBQ);
         if (name != null && !name.trim().isEmpty()) {
             listBouquet = bdao.searchBouquet(name, null, null, null);
             request.setAttribute("listBouquet", listBouquet);
@@ -81,7 +94,23 @@ public class BouquetController extends HttpServlet {
             listBouquet = bdao.getAll();
             request.setAttribute("listBouquet", listBouquet);
         }
-        
+
+        int totalItems = listBouquet.size();
+        int totalPages = (int) Math.ceil((double) totalItems / itemsPerPage);
+
+// Cắt danh sách cho trang hiện tại
+        int start = (currentPage - 1) * itemsPerPage;
+        int end = Math.min(start + itemsPerPage, totalItems);
+
+        List<Bouquet> paginatedList = new ArrayList<>();
+        if (start < totalItems) {
+            paginatedList = listBouquet.subList(start, end);
+        }
+
+// Gửi đến JSP
+        request.setAttribute("listBouquet", paginatedList);
+        request.setAttribute("currentPage", currentPage);
+        request.setAttribute("totalPages", totalPages);
         request.getRequestDispatcher("./DashMin/product.jsp").forward(request, response);
     }
 
