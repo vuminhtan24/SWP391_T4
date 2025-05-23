@@ -5,6 +5,7 @@
 package controller;
 
 import dal.BouquetDAO;
+import dal.CategoryDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -15,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import model.Bouquet;
+import model.Category;
 
 /**
  *
@@ -62,19 +64,26 @@ public class ProductController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         List<Bouquet> listBouquet = new ArrayList<>();
-        BouquetDAO dao = new BouquetDAO();
+        List<Category> listCategoryBQ = new ArrayList<>();
+        
+        BouquetDAO bdao = new BouquetDAO();
+        CategoryDAO cdao = new CategoryDAO();
+        
+        listCategoryBQ = cdao.getBouquetCategory();
         String name = request.getParameter("bouquetName");
-
+        
+        request.setAttribute("cateBouquetHome", listCategoryBQ);
         if (name != null && !name.trim().isEmpty()) {
-            listBouquet = dao.searchBouquet(name, null, null, null);
+            listBouquet = bdao.searchBouquet(name, null, null, null);
             request.setAttribute("listBouquet", listBouquet);
-            request.getRequestDispatcher("./ZeShopper/shop.jsp").forward(request, response);
+            
         } else {
-
-            listBouquet = dao.getAll();
-            request.setAttribute("listBouquet", listBouquet);
-            request.getRequestDispatcher("./ZeShopper/shop.jsp").forward(request, response);
+                listBouquet = bdao.getAll();
+                request.setAttribute("listBouquet", listBouquet);
+                
         }
+        
+        request.getRequestDispatcher("./ZeShopper/shop.jsp").forward(request, response);
 
     }
 
