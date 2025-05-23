@@ -57,7 +57,36 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("login.jsp").forward(request, response);
+         HttpSession session = request.getSession(false);
+    if (session != null && session.getAttribute("currentAcc") != null) {
+        response.sendRedirect("home");
+        return;
+    }
+
+    // Check cookies
+    Cookie[] cookies = request.getCookies();
+    String savedEmail = null;
+
+    if (cookies != null) {
+        for (Cookie c : cookies) {
+            if ("userEmail".equals(c.getName())) {
+                savedEmail = c.getValue();
+            }
+        }
+    }
+
+    if (savedEmail != null) {
+        // Bạn có thể kiểm tra savedEmail trong DB và auto-login nếu hợp lệ
+        User user = new DAOAccount().getAccountByEmail(savedEmail);
+        if (user != null) {
+            request.getSession().setAttribute("currentAcc", user);
+            response.sendRedirect("home");
+            return;
+        }
+    }
+
+    // Nếu không tự động login được
+    request.getRequestDispatcher("login.jsp").forward(request, response);
     }
 
     /**
@@ -69,11 +98,12 @@ public class LoginServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String username = request.getParameter("email");
         String password = request.getParameter("password");
+        String remember = request.getParameter("rememberMe");
 
         if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
             request.setAttribute("messLogin", "Please enter username and password");
@@ -87,6 +117,17 @@ public class LoginServlet extends HttpServlet {
         if (user != null) {
             HttpSession session = request.getSession();
             session.setAttribute("currentAcc", user);
+            
+            if ("on".equals(remember)) {
+            Cookie emailCookie = new Cookie("userEmail", username);
+            Cookie sessionIdCookie = new Cookie("JSESSIONID", session.getId());
+
+            emailCookie.setMaxAge(60 * 60 * 24 * 7); // 7 ngày
+            sessionIdCookie.setMaxAge(60 * 60 * 24 * 7); // 7 ngày
+
+            response.addCookie(emailCookie);
+            response.addCookie(sessionIdCookie);
+        }
 
             int roleId = user.getRole();
             String role = daoAcc.getRoleNameById(roleId);
@@ -100,7 +141,7 @@ public class LoginServlet extends HttpServlet {
                     break;
                 case "Guest":
                 case "Customer":
-                    response.sendRedirect("home.jsp");
+                    response.sendRedirect("/LaFioreria/home");
                     break;
                 default:
                     response.sendRedirect("login.jsp");

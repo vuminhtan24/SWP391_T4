@@ -67,7 +67,7 @@
                     <div class="row">
                         <div class="col-sm-4">
                             <div class="logo pull-left">
-                                <a href="${pageContext.request.contextPath}/ZeShopper/home.jsp"><img src="${pageContext.request.contextPath}/ZeShopper/images/home/logo.png" alt="" /></a>
+                                <a href="${pageContext.request.contextPath}/home"><img src="${pageContext.request.contextPath}/ZeShopper/images/home/logo.png" alt="" /></a>
                             </div>
                             <div class="btn-group pull-right">
                                 <div class="btn-group">
@@ -122,7 +122,7 @@
                             </div>
                             <div class="mainmenu pull-left">
                                 <ul class="nav navbar-nav collapse navbar-collapse">
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/home.jsp">Home</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/home">Home</a></li>
                                     <li class="dropdown"><a href="#">Shop<i class="fa fa-angle-down"></i></a>
                                         <ul role="menu" class="sub-menu">
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/shop.jsp">Products</a></li>
@@ -163,7 +163,7 @@
                                 <input type="email" placeholder="Email Address" name="email"/>
                                 <input type="password" placeholder="Password" name="password"/>
                                 <span>
-                                    <input type="checkbox" class="checkbox"> 
+                                    <input type="checkbox" class="checkbox" name="rememberMe"> 
                                     Keep me signed in
                                 </span>
                                 <h3 class="text-danger text-center">${messLogin}</h3>
