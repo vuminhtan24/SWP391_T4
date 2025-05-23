@@ -99,8 +99,17 @@
                                 <ul class="nav navbar-nav">
                                     <c:choose>
                                         <c:when test="${sessionScope.currentAcc != null}">
-                                            <li><a href="#"><i class="fa fa-user"></i> Hello, ${sessionScope.currentAcc.username}</a></li>
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
+                                            <li class="dropdown">
+                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                                    <i class="fa fa-user"></i> Hello, ${sessionScope.currentAcc.username} <b class="caret"></b>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a href="userDetail.jsp"><i class="fa fa-id-card"></i> User Detail</a></li>
+                                                    <li><a href="changePassword.jsp"><i class="fa fa-key"></i> Change Password</a></li>
+                                                    <li class="divider"></li>
+                                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
+                                                </ul>
+                                            </li>
                                             </c:when>
                                             <c:otherwise>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
