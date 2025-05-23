@@ -62,11 +62,11 @@ public class DAOAccount extends DBContext {
         return false;
     }
 
-    public User validate(String email, String password) {
-        String sql = "SELECT * FROM user WHERE email = ? AND password = ?";
+    public User validate(String username, String password) {
+        String sql = "SELECT * FROM user WHERE username = ? AND password = ?";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
-            st.setString(1, email);
+            st.setString(1, username);
             st.setString(2, password);
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
