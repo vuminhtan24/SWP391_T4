@@ -117,7 +117,7 @@ public class Register extends HttpServlet {
             return;
         } else {
          session.setAttribute("currentAcc", acc);
-         response.sendRedirect("home");
+         response.sendRedirect("home.jsp");
         }
     }
     public void returnInputValue(HttpServletRequest request, 
