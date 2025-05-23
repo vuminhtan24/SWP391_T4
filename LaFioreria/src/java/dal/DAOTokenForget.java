@@ -37,4 +37,23 @@ public class DAOTokenForget extends DBContext {
         }
         return false;
     }
+    public TokenForgetPassword getTokenPassword(String token){
+        String sql = "select * from tokenforgetpassword where token ='?'";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, token);
+            ResultSet rs =st.executeQuery();
+            while(rs.next()){
+                return new TokenForgetPassword(
+                        rs.getInt("id"), 
+                        rs.getInt("userID"),
+                        rs.getBoolean("isUsed"),
+                        rs.getString("token"),
+                        rs.getTimestamp("expiryTime").toLocalDateTime());
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return null;
+    }
 }
