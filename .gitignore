@@ -2,7 +2,6 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=java
 
 ### Java ###
-!lib/*.jar
 # Compiled class file
 *.class
 
@@ -23,6 +22,8 @@
 *.zip
 *.tar.gz
 *.rar
+
+!lib/*.jar
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
