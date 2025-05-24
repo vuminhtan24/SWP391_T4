@@ -1,7 +1,7 @@
 <%-- 
-    Document   : contact-us
-    Created on : May 19, 2025, 8:45:19 AM
-    Author     : ADMIN
+    Document   : about-us
+    Created on : May 24, 2025, 11:43:21 PM
+    Author     : VU MINH TAN
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -156,8 +156,8 @@
                                         </ul>
                                     </li> 
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/404.jsp">404</a></li>
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/contact-us.jsp" class="active">Contact</a></li>
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/about-us.jsp">About us</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/contact-us.jsp">Contact</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/about-us.jsp"  class="active">About us</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -171,82 +171,58 @@
             </div><!--/header-bottom-->
         </header><!--/header-->
 
-        <div id="contact-page" class="container">
-            <div class="bg">
-                <div class="row">    		
-                    <div class="col-sm-12">    			   			
-                        <h2 class="title text-center">Contact <strong>Us</strong></h2>    			    				    				
-                        <div class="address">
-                                <iframe 
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.344983050298!2d105.52674837508753!3d21.01807248062373!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345299efec69a1%3A0x2fd2f7482ad04c43!2zVHLGsOG7nW5nIMSQ4bqhaSBI4buNYyBGUFQgLSBIw6AgTMOgbg!5e0!3m2!1svi!2s!4v1716273663654!5m2!1svi!2s" 
-                                    width="100%" 
-                                    height="250" 
-                                    style="border:0;" 
-                                    allowfullscreen="" 
-                                    loading="lazy" 
-                                    referrerpolicy="no-referrer-when-downgrade">
-                                </iframe>
-                                <p>Trường Đại học FPT, Khu CNC Hòa Lạc, Km29 Đại lộ Thăng Long, Thạch Thất, Hà Nội</p>
-                            </div>
-                    </div>			 		
-                </div>    	
-                <div class="row">  	
-                    <div class="col-sm-8">
-                        <div class="contact-form">
-                            <h2 class="title text-center">Get In Touch</h2>
-                            <div class="status alert alert-success" style="display: none"></div>
-                            <form id="main-contact-form" class="contact-form row" name="contact-form" action="ContactServlet" method="post">
-                                <div class="form-group col-md-6">
-                                    <input type="text" name="name" class="form-control" required="required" placeholder="Name">
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <input type="email" name="email" class="form-control" required="required" placeholder="Email">
-                                </div>
-                                <div class="form-group col-md-12">
-                                    <input type="text" name="subject" class="form-control" required="required" placeholder="Subject">
-                                </div>
-                                <div class="form-group col-md-12">
-                                    <textarea name="message" id="message" required="required" class="form-control" rows="8" placeholder="Your Message Here"></textarea>
-                                </div>  
-                                <div class="form-group col-md-12">
-                                    <input type="submit" name="submit" class="btn btn-primary pull-right" value="Submit">
-                                </div>
-                                <h3 class="text-danger text-center">${messContact}</h3>
-                            </form>
-                        </div>
+        <div id="about-page" class="container">
+    <div class="bg">
+        <div class="row">    		
+            <div class="col-sm-12">    			   			
+                <h2 class="title text-center">About <strong>Us</strong></h2>    			    				    				
+                <p class="text-center">
+                    Chúng tôi là LaFioreria – một thương hiệu chuyên cung cấp hoa tươi với sứ mệnh mang lại vẻ đẹp và cảm xúc đến mọi khoảnh khắc trong cuộc sống của bạn.
+                    Được thành lập bởi những người yêu hoa, LaFioreria luôn đặt chất lượng sản phẩm và dịch vụ khách hàng lên hàng đầu.
+                </p>
+                <p class="text-center">
+                    Với đội ngũ sáng tạo và tận tâm, chúng tôi không ngừng đổi mới để mang đến những thiết kế hoa độc đáo, sang trọng và giàu ý nghĩa. 
+                    Hãy cùng chúng tôi chia sẻ những khoảnh khắc đáng nhớ qua những bó hoa tinh tế và đong đầy cảm xúc.
+                </p>
+            </div>			 		
+        </div>    	
+        <div class="row">  	
+            <div class="col-sm-8">
+                <div class="about-details">
+                    <h3>Our Mission</h3>
+                    <p>
+                        Mang đến cho khách hàng những sản phẩm hoa tươi đẹp nhất, góp phần tạo nên những kỷ niệm khó quên trong cuộc sống. 
+                        Chúng tôi tin rằng mỗi bó hoa là một câu chuyện, và nhiệm vụ của chúng tôi là kể câu chuyện đó thật trọn vẹn.
+                    </p>
+                    <h3>Our Vision</h3>
+                    <p>
+                        Trở thành thương hiệu hoa hàng đầu tại Việt Nam, được yêu thích và tin tưởng bởi chất lượng, sáng tạo và dịch vụ tận tâm.
+                    </p>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="contact-info">
+                    <h3>Our Location</h3>
+                    <p>Trường Đại học FPT, Khu CNC Hòa Lạc, Km29 Đại lộ Thăng Long</p>
+                    <p>Thạch Thất, Hà Nội</p>
+                    <p>Mobile: +0919994398</p>
+                    <p>Email: alice@flower.com</p>
+                    
+                    <div class="social-networks">
+                        <h3>Follow Us</h3>
+                        <ul>
+                            <li><a href="#"><i class="fa fa-facebook"></i></a></li>
+                            <li><a href="#"><i class="fa fa-twitter"></i></a></li>
+                            <li><a href="#"><i class="fa fa-google-plus"></i></a></li>
+                            <li><a href="#"><i class="fa fa-youtube"></i></a></li>
+                        </ul>
                     </div>
-                    <div class="col-sm-4">
-                        <div class="contact-info">
-                            <h2 class="title text-center">Contact Info</h2>
-                            <address>
-                                <p>LaFioreria</p>
-                                <p>Trường Đại học FPT, Khu CNC Hòa Lạc, Km29 Đại lộ Thăng Long</p>
-                                <p>Thạch Thất, Hà Nội</p>
-                                <p>Mobile: +0919994398</p>
-                                <p>Email:alice@flower.com</p>
-                            </address>
-                            <div class="social-networks">
-                                <h2 class="title text-center">Social Networking</h2>
-                                <ul>
-                                    <li>
-                                        <a href="#"><i class="fa fa-facebook"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="#"><i class="fa fa-twitter"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="#"><i class="fa fa-google-plus"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="#"><i class="fa fa-youtube"></i></a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>    			
-                </div>  
-            </div>	
-        </div><!--/#contact-page-->
+                </div>
+            </div>    			
+        </div>  
+    </div>	
+</div><!--/#about-page-->
+
 
         <footer id="footer"><!--Footer-->
             <div class="footer-top">
