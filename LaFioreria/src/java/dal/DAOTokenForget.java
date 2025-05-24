@@ -38,7 +38,7 @@ public class DAOTokenForget extends DBContext {
         return false;
     }
     public TokenForgetPassword getTokenPassword(String token){
-        String sql = "select * from tokenforgetpassword where token ='?'";
+        String sql = "select * from tokenforgetpassword where token = ?";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, token);
@@ -55,5 +55,29 @@ public class DAOTokenForget extends DBContext {
             System.out.println(e);
         }
         return null;
+    }
+    public void updateStatus(TokenForgetPassword token){
+        System.out.println("token="+token);
+        String sql = "UPDATE tokenforgetpassword SET isUsed = ? WHERE token = ?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setBoolean(1, token.isIsUsed());
+            st.setString(2, token.getToken());
+            st.executeUpdate();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+     public static void main(String[] args) {
+        // Tạo DAO
+        DAOTokenForget dao = new DAOTokenForget();
+
+        // Tạo đối tượng token cần update
+        TokenForgetPassword token = new TokenForgetPassword();
+        token.setToken("4d8f7f9d-9247-485b-92dd-f8fb021c37f8"); // <-- Thay bằng token có thật trong DB
+        token.setIsUsed(true);    // Đánh dấu là đã dùng
+
+        // Gọi phương thức update
+        dao.updateStatus(token);
     }
 }

@@ -46,6 +46,48 @@ public class UserDAO extends DBContext {
         return listUser;
     }
 
+    public void Update(User u) {
+
+        String sql = "update user set Username = ?, Password = ?, Fullname = ?, Email = ?,Phone = ?,Address = ?, Role = ? where User_ID = ?;";
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, u.getUsername());
+            ps.setString(2, u.getPassword());
+            ps.setString(3, u.getFullname());
+            ps.setString(4, u.getEmail());
+            ps.setString(5, u.getPhone());
+            ps.setString(6, u.getAddress());
+            ps.setInt(7, u.getRole());
+            ps.setInt(8, u.getUserid());
+            ps.execute();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+    
+    public List<Role> getAllRole(){
+        
+        List<Role> list = new ArrayList<>();
+        String sql = "select * from role;";
+        
+        try {
+            
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            
+            while(rs.next()){
+                int id = rs.getInt("Role_id");
+                String role_name = rs.getString("Role_name");
+                Role r = new Role(id, role_name);
+                list.add(r);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return list;
+    }
+
     public List<String> getRoleNames() {
         List<String> listRole = new ArrayList<>();
 
@@ -54,8 +96,8 @@ public class UserDAO extends DBContext {
         try {
             PreparedStatement pre = connection.prepareStatement(sql);
             ResultSet rs = pre.executeQuery();
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 String Role_name = rs.getString("Role_name");
                 listRole.add(Role_name);
             }
@@ -64,9 +106,7 @@ public class UserDAO extends DBContext {
         }
         return listRole;
     }
-    
 
-    
     public List<Integer> getIds() {
 
         List<Integer> ids = new ArrayList<>();
@@ -109,6 +149,128 @@ public class UserDAO extends DBContext {
         return null;
     }
 
+    public List<UserManager> getAllUserManager() {
+        String sql = "select u.User_ID,u.Username,u.Password,u.Fullname,u.Email,u.Phone,u.Address,r.Role_name from user u join role r on u.Role = r.Role_id order by u.User_ID;";
+        List<UserManager> list = new ArrayList<>();
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("User_ID");
+                String user_name = rs.getString("username");
+                String password = rs.getString("password");
+                String fullname = rs.getString("fullname");
+                String email = rs.getString("email");
+                String phone = rs.getString("phone");
+                String address = rs.getString("address");
+                String role = rs.getString("role_name");
+                UserManager user = new UserManager(id, user_name, password, fullname, email, phone, address, role);
+                list.add(user);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return list;
+    }
+
+    public List<UserManager> getUserByRoleId(int role_id) {
+        String sql = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
+                + "FROM user u "
+                + "JOIN role r ON u.Role = r.Role_id "
+                + "WHERE r.Role_id = ? "
+                + "ORDER BY u.User_ID";
+        List<UserManager> list = new ArrayList<>();
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, role_id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("User_ID");
+                String user_name = rs.getString("username");
+                String password = rs.getString("password");
+                String fullname = rs.getString("fullname");
+                String email = rs.getString("email");
+                String phone = rs.getString("phone");
+                String address = rs.getString("address");
+                String role = rs.getString("role_name");
+                UserManager user = new UserManager(id, user_name, password, fullname, email, phone, address, role);
+                list.add(user);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return list;
+    }
+
+    public List<UserManager> getUserByRoleIdSearchName(int role_id, String kw) {
+        List<UserManager> list = new ArrayList<>();
+        String sql;
+        boolean filterByRole = role_id != 0;
+
+        if (filterByRole) {
+            sql = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
+                    + "FROM user u "
+                    + "JOIN role r ON u.Role = r.Role_id "
+                    + "WHERE u.Username LIKE ? AND r.Role_id = ? "
+                    + "ORDER BY u.User_ID";
+        } else {
+            sql = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
+                    + "FROM user u "
+                    + "JOIN role r ON u.Role = r.Role_id "
+                    + "WHERE u.Username LIKE ? "
+                    + "ORDER BY u.User_ID";
+        }
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, "%" + kw + "%"); // Tìm theo từ khóa
+
+            if (filterByRole) {
+                ps.setInt(2, role_id); // Chỉ set nếu có dấu ?
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("User_ID");
+                String user_name = rs.getString("username");
+                String password = rs.getString("password");
+                String fullname = rs.getString("fullname");
+                String email = rs.getString("email");
+                String phone = rs.getString("phone");
+                String address = rs.getString("address");
+                String role = rs.getString("role_name");
+
+                UserManager user = new UserManager(id, user_name, password, fullname, email, phone, address, role);
+                list.add(user);
+            }
+        } catch (SQLException e) {
+            System.out.println("Lỗi SQL: " + e.getMessage());
+        }
+
+        return list;
+    }
+
+    public void insertUser(User u) {
+        String sql = "insert into user (User_ID,Username,Password,Fullname,Email,Phone,Address,Role) values(?,?,?,?,?,?,?,?);";
+
+        try {
+
+            PreparedStatement ps = connection.prepareStatement(sql);
+
+            ps.setInt(1, u.getUserid());
+            ps.setString(2, u.getUsername());
+            ps.setString(3, u.getPassword());
+            ps.setString(4, u.getFullname());
+            ps.setString(5, u.getEmail());
+            ps.setString(6, u.getPhone());
+            ps.setString(7, u.getAddress());
+            ps.setInt(8, u.getRole());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+
     public static void main(String[] args) {
 
         UserDAO ud = new UserDAO();
@@ -119,7 +281,7 @@ public class UserDAO extends DBContext {
 //        }
 //        UserManager um = ud.getUserById(1);
 //        System.out.println(um.toString());
-        
+
     }
 
 }

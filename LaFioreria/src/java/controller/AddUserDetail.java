@@ -19,7 +19,7 @@ import model.UserManager;
  *
  * @author LAPTOP
  */
-public class ViewUserDetail extends HttpServlet {
+public class AddUserDetail extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -38,10 +38,10 @@ public class ViewUserDetail extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ViewUserDetail</title>");
+            out.println("<title>Servlet AddUserDetail</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ViewUserDetail at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet AddUserDetail at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -59,26 +59,12 @@ public class ViewUserDetail extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        UserDAO ud = new UserDAO();
-        List<Integer> userIds = ud.getIds();
-        request.setAttribute("userIds", userIds);
 
+        UserDAO ud = new UserDAO();
         List<String> roleNames = ud.getRoleNames();
         request.setAttribute("roleNames", roleNames);
+        request.getRequestDispatcher("TestWeb/addNewUser.jsp").forward(request, response);
 
-        String id_raw = request.getParameter("id");
-        if (id_raw != null && !id_raw.isEmpty()) {
-            try {
-                int id = Integer.parseInt(id_raw);
-                UserManager um = ud.getUserById(id);
-                request.setAttribute("userManager", um);
-            } catch (NumberFormatException e) {
-                System.out.println(e);
-            }
-
-        }
-
-        request.getRequestDispatcher("TestWeb/showUserDetail.jsp").forward(request, response);
     }
 
     /**
@@ -100,29 +86,72 @@ public class ViewUserDetail extends HttpServlet {
         String phone_Number = request.getParameter("phone");
         String Address = request.getParameter("address");
         String role_raw = request.getParameter("option");
-        
+
         UserDAO ud = new UserDAO();
-        
+
         try {
             int id = Integer.parseInt(id_raw);
             int role = 0;
             switch (role_raw) {
-                case "Admin" -> role = 1;
-                case "Sales Manager" -> role = 2;
-                case "Seller" -> role = 3;
-                case "Marketer" -> role = 4;
-                case "Warehouse Staff" -> role = 5;
-                case "Guest" -> role = 6;
-                case "Customer" -> role = 7;
+                case "Admin" ->
+                    role = 1;
+                case "Sales Manager" ->
+                    role = 2;
+                case "Seller" ->
+                    role = 3;
+                case "Marketer" ->
+                    role = 4;
+                case "Warehouse Staff" ->
+                    role = 5;
+                case "Guest" ->
+                    role = 6;
+                case "Customer" ->
+                    role = 7;
 
             }
 
-            User u = new User(id, name_raw, password, fullName, email,phone_Number, Address, role);
-            ud.Update(u);
-            response.sendRedirect("viewuserdetail");
-            
+            UserManager um = ud.getUserById(id);
+
+            if (um == null) {
+                User u = new User(id, name_raw, password, fullName, email, phone_Number, Address, role);
+                ud.insertUser(u);
+                response.sendRedirect("viewuserdetail");
+
+            } else {
+                request.setAttribute("error", id + " exited");
+
+                List<String> roleNames = ud.getRoleNames();
+                request.setAttribute("roleNames", roleNames);
+
+                request.getRequestDispatcher("TestWeb/addNewUser.jsp").forward(request, response);
+            }
+
         } catch (NumberFormatException e) {
-            System.out.println(e);
+            // Ghi log nếu cần
+            System.err.println("Lỗi định dạng ID: " + e.getMessage());
+
+            // Gửi thông báo lỗi chung cho giao diện (nếu muốn)
+            request.setAttribute("error", "Invalid input data. Please try again.");
+
+            // Gửi lại roleNames để hiển thị lại form
+            List<String> roleNames = ud.getRoleNames();
+            request.setAttribute("roleNames", roleNames);
+
+            // Quay lại form
+            request.getRequestDispatcher("TestWeb/addNewUser.jsp").forward(request, response);
+        } catch (ServletException | IOException e) { // Ghi log nội bộ (hoặc dùng Logger nếu có)
+            // 👈 chỉ nên dùng khi debug, không để trong production
+            // 👈 chỉ nên dùng khi debug, không để trong production
+
+            // Thông báo lỗi tổng quát
+            request.setAttribute("error", "An unexpected error occurred. Please try again.");
+
+            // Truyền lại roleNames nếu muốn giữ lại form
+            List<String> roleNames = ud.getRoleNames();
+            request.setAttribute("roleNames", roleNames);
+
+            // Quay lại form
+            request.getRequestDispatcher("TestWeb/addNewUser.jsp").forward(request, response);
         }
 
     }

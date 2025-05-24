@@ -11,15 +11,16 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
-import model.User;
+import model.Role;
 import model.UserManager;
 
 /**
  *
  * @author LAPTOP
  */
-public class ViewUserDetail extends HttpServlet {
+public class ViewUserList extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -38,10 +39,10 @@ public class ViewUserDetail extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ViewUserDetail</title>");
+            out.println("<title>Servlet ViewUserList</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ViewUserDetail at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ViewUserList at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -59,26 +60,19 @@ public class ViewUserDetail extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        UserDAO ud = new UserDAO();
-        List<Integer> userIds = ud.getIds();
-        request.setAttribute("userIds", userIds);
 
-        List<String> roleNames = ud.getRoleNames();
-        request.setAttribute("roleNames", roleNames);
+        try {
+            UserDAO ud = new UserDAO();
+            List<UserManager> um = ud.getAllUserManager();
+            request.setAttribute("userManagerList", um);
+            List<Role> r = ud.getAllRole();
+            request.setAttribute("roleList", r);
 
-        String id_raw = request.getParameter("id");
-        if (id_raw != null && !id_raw.isEmpty()) {
-            try {
-                int id = Integer.parseInt(id_raw);
-                UserManager um = ud.getUserById(id);
-                request.setAttribute("userManager", um);
-            } catch (NumberFormatException e) {
-                System.out.println(e);
-            }
-
+            request.getRequestDispatcher("TestWeb/showUserList.jsp").forward(request, response);
+        } catch (ServletException | IOException e) {
+            System.out.println(e);
         }
 
-        request.getRequestDispatcher("TestWeb/showUserDetail.jsp").forward(request, response);
     }
 
     /**
@@ -92,39 +86,49 @@ public class ViewUserDetail extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String id_raw = request.getParameter("id");
-        String name_raw = request.getParameter("name");
-        String password = request.getParameter("pass");
-        String fullName = request.getParameter("FullName");
-        String email = request.getParameter("email");
-        String phone_Number = request.getParameter("phone");
-        String Address = request.getParameter("address");
-        String role_raw = request.getParameter("option");
-        
-        UserDAO ud = new UserDAO();
-        
-        try {
-            int id = Integer.parseInt(id_raw);
-            int role = 0;
-            switch (role_raw) {
-                case "Admin" -> role = 1;
-                case "Sales Manager" -> role = 2;
-                case "Seller" -> role = 3;
-                case "Marketer" -> role = 4;
-                case "Warehouse Staff" -> role = 5;
-                case "Guest" -> role = 6;
-                case "Customer" -> role = 7;
 
+        try {
+            UserDAO ud = new UserDAO();
+            List<Role> roleList = ud.getAllRole();
+            request.setAttribute("roleList", roleList);
+
+            String roleId_raw = request.getParameter("txtRoleList");
+
+            System.out.println("roleId_raw = " + roleId_raw);
+
+            if (roleId_raw == null || roleId_raw.trim().isEmpty()) {
+                roleId_raw = "0";
             }
 
-            User u = new User(id, name_raw, password, fullName, email,phone_Number, Address, role);
-            ud.Update(u);
-            response.sendRedirect("viewuserdetail");
-            
+            try {
+                int roleId = Integer.parseInt(roleId_raw);
+                request.setAttribute("roleId", roleId);
+                List<UserManager> userList = new ArrayList<>();
+                String kw = request.getParameter("txtSearchName");
+                request.setAttribute("keyword", kw);
+                if (roleId == 0) {
+                    System.out.println(roleId);
+                    userList = ud.getAllUserManager();
+                    if (kw != null && !kw.trim().isEmpty()) {
+                        userList = ud.getUserByRoleIdSearchName(0, kw);
+                    }
+                } else {
+                    userList = ud.getUserByRoleId(roleId);
+                    if (kw != null && !kw.trim().isEmpty()) {
+                        userList = ud.getUserByRoleIdSearchName(roleId, kw);
+                    }
+                }
+
+                request.setAttribute("userManagerList", userList);
+                request.getRequestDispatcher("TestWeb/showUserList.jsp").forward(request, response);
+            } catch (NumberFormatException e) {
+                System.out.println(e);
+                System.out.println("role id is not integer");
+            }
+
         } catch (NumberFormatException e) {
             System.out.println(e);
         }
-
     }
 
     /**

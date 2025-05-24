@@ -162,8 +162,18 @@ public class DAOAccount extends DBContext {
         }
         return false;
     }
-
-    public boolean updatePassword(User acc) {
+   public void updatePassword(String email, String password) {
+        String sql = "UPDATE la_fioreria.user SET password = ? WHERE email = ?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, password);
+            st.setString(2, email);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+   public boolean changePassword(User acc) {
         String sql = "UPDATE la_fioreria.user SET password = ? WHERE User_ID = ?";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
@@ -175,6 +185,7 @@ public class DAOAccount extends DBContext {
         }
         return false;
     }
+
 
     public static void main(String[] args) {
         DAOAccount dao = new DAOAccount();

@@ -59,7 +59,7 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
          HttpSession session = request.getSession(false);
     if (session != null && session.getAttribute("currentAcc") != null) {
-        response.sendRedirect("home");
+        response.sendRedirect(request.getContextPath() +"/home");
         return;
     }
 

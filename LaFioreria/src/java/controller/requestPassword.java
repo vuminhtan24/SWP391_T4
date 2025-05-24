@@ -83,7 +83,7 @@ public class requestPassword extends HttpServlet {
         }
         resetService service = new resetService();
         String token = service.generateToken();
-        String linkReset ="http://localhost:8080/LaFioreria/ZeShopper/resetPassword.jsp?token="+token;
+        String linkReset ="http://localhost:8080/LaFioreria/ZeShopper/resetPassword?token="+token;
         
         TokenForgetPassword newTokenForget = new TokenForgetPassword( 
                 user.getUserid(), false, token, service.expireDateTime());

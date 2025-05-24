@@ -13,6 +13,14 @@
         <servlet-class>controller.ViewUserDetail</servlet-class>
     </servlet>
     <servlet>
+<!-- <<<<<<< HEAD -->
+        <servlet-name>AddUserDetail</servlet-name>
+        <servlet-class>controller.AddUserDetail</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewUserList</servlet-name>
+        <servlet-class>controller.ViewUserList</servlet-class>
+<!-- ======= -->
         <servlet-name>RawFlowerServlet</servlet-name>
         <servlet-class>controller.RawFlowerServlet</servlet-class>
     </servlet> 
@@ -27,6 +35,7 @@
     <servlet>
         <servlet-name>resetPassword</servlet-name>
         <servlet-class>controller.resetPassword</servlet-class>
+<!-- >>>>>>> 50a845e2632eb888fd8747c5be398f374bb07728 -->
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
@@ -41,6 +50,14 @@
         <url-pattern>/viewuserdetail</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+<!-- <<<<<<< HEAD -->
+        <servlet-name>AddUserDetail</servlet-name>
+        <url-pattern>/adduserdetail</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewUserList</servlet-name>
+        <url-pattern>/ViewUserList</url-pattern>
+<!-- ======= -->
         <servlet-name>RawFlowerServlet</servlet-name>
         <url-pattern>/DashMin/rawlower</url-pattern>
     </servlet-mapping>
@@ -55,6 +72,7 @@
     <servlet-mapping>
         <servlet-name>resetPassword</servlet-name>
         <url-pattern>/resetPassword</url-pattern>
+<!-- >>>>>>> 50a845e2632eb888fd8747c5be398f374bb07728 -->
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>home</welcome-file>

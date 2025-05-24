@@ -5,7 +5,9 @@
 package testcode;
 
 import dal.UserDAO;
+import java.util.ArrayList;
 import java.util.List;
+import model.Role;
 
 /**
  *
@@ -21,12 +23,20 @@ public class TestUserDao {
 //            Integer get = lst.get(i);
 //            System.out.println(get);
 //        }
-//        UserManager um = ud.getUserById(1);
+//        User u = new User(10, "Madara", "1234", "Uchiha Madara", "Madara@flower.com", "090111234", "konoha village", 2);
+//        ud.Update(u);
+//        ud.insertUser(u);
+//        UserManager um = ud.getUserById(10);
 //        System.out.println(um.toString());
-        List<String> lst = ud.getRoleNames();
-        for (int i = 0; i < lst.size(); i++) {
-            String get = lst.get(i);
-            System.out.print(get + " ");
+//        List<UserManager> lst = ud.getUserByRoleIdSearchName(7,"na");
+//        for (UserManager userManager : lst) {
+//            System.out.println(userManager.toString());
+//        }
+//
+//    }
+        List<Role> list = ud.getAllRole();
+        for (Role role : list) {
+            System.out.println(role.toString());
         }
 
     }
