@@ -24,8 +24,10 @@ import model.User;
  */
 @WebServlet("/ZeShopper/resetPassword")
 public class resetPassword extends HttpServlet {
-DAOAccount daoAcc = new DAOAccount();
-        DAOTokenForget daoToken = new DAOTokenForget();
+
+    DAOAccount daoAcc = new DAOAccount();
+    DAOTokenForget daoToken = new DAOTokenForget();
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -65,7 +67,7 @@ DAOAccount daoAcc = new DAOAccount();
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String token = request.getParameter("token");
-        
+
         HttpSession session = request.getSession();
         if (token != null) {
             TokenForgetPassword tokenForgetPassword = daoToken.getTokenPassword(token);
@@ -111,23 +113,42 @@ DAOAccount daoAcc = new DAOAccount();
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirm_password");
-        
+
         //Validate password
-        if(!password.equals(confirmPassword)){
+        if (!password.equals(confirmPassword)) {
             request.setAttribute("mess", "Confirm password must same with password");
             request.setAttribute("email", email);
-            request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
+            request.getRequestDispatcher("ZeShopper/resetPassword.jsp").forward(request, response);
             return;
         }
+
         HttpSession session = request.getSession();
+        String tokenStr = (String) session.getAttribute("token");
+        TokenForgetPassword tokenForgetPassword = daoToken.getTokenPassword(tokenStr);
+        //check token is valid, of time, of used
+        resetService service = new resetService();
+        if (tokenForgetPassword == null) {
+            request.setAttribute("mess", "token invalid");
+            request.getRequestDispatcher("ZeShopper/requestPassword.jsp").forward(request, response);
+            return;
+        }
+        if (tokenForgetPassword.isIsUsed()) {
+            request.setAttribute("mess", "token is used");
+            request.getRequestDispatcher("ZeShopper/requestPassword.jsp").forward(request, response);
+            return;
+        }
+        if (service.isExpireTime(tokenForgetPassword.getExpiryTime())) {
+            request.setAttribute("mess", "token is expiry time");
+            request.getRequestDispatcher("ZeShopper/requestPassword.jsp").forward(request, response);
+            return;
+        }
         //update is used token
-        TokenForgetPassword tokenForgetPassword= new TokenForgetPassword();
-        tokenForgetPassword.setToken((String)session.getAttribute("token"));
+        tokenForgetPassword.setToken(tokenStr);
         tokenForgetPassword.setIsUsed(true);
-        
+
         daoAcc.updatePassword(email, password);
         daoToken.updateStatus(tokenForgetPassword);
-        
+
         //save user in session and redirect to home
         request.getRequestDispatcher("/home").forward(request, response);
     }

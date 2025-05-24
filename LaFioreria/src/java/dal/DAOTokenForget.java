@@ -68,4 +68,16 @@ public class DAOTokenForget extends DBContext {
             System.out.println(e);
         }
     }
+     public static void main(String[] args) {
+        // Tạo DAO
+        DAOTokenForget dao = new DAOTokenForget();
+
+        // Tạo đối tượng token cần update
+        TokenForgetPassword token = new TokenForgetPassword();
+        token.setToken("4d8f7f9d-9247-485b-92dd-f8fb021c37f8"); // <-- Thay bằng token có thật trong DB
+        token.setIsUsed(true);    // Đánh dấu là đã dùng
+
+        // Gọi phương thức update
+        dao.updateStatus(token);
+    }
 }
