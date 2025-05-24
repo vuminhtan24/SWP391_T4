@@ -115,5 +115,5 @@ public class RawFlowerServlet extends HttpServlet {
     public String getServletInfo() {
         return "Servlet for searching perfumes with filters";
     }
-
+    
 }
