@@ -94,12 +94,31 @@ public class ViewUserList extends HttpServlet {
 
             String roleId_raw = request.getParameter("txtRoleList");
 
+            System.out.println("roleId_raw = " + roleId_raw);
+
+            if (roleId_raw == null) {
+                roleId_raw = "0";
+            }
+            
             try {
                 int roleId = Integer.parseInt(roleId_raw);
                 List<UserManager> userList = new ArrayList<>();
-                if(roleId == 0){
+                String kw = request.getParameter("txtSearchName");
+                request.setAttribute("keyword", kw);
+                if (roleId == 0) {
                     userList = ud.getAllUserManager();
+                    if (kw != null && !kw.trim().isEmpty()) {
+                        userList = ud.getUserByRoleIdSearchName(0, kw);
+                    }
+                } else {
+                    userList = ud.getUserByRoleId(roleId);
+                    if (kw != null && !kw.trim().isEmpty()) {
+                        userList = ud.getUserByRoleIdSearchName(roleId, kw);
+                    }
                 }
+
+                request.setAttribute("userManagerList", userList);
+                request.getRequestDispatcher("TestWeb/showUserList.jsp").forward(request, response);
             } catch (NumberFormatException e) {
                 System.out.println(e);
                 System.out.println("role id is not integer");

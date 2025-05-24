@@ -24,7 +24,7 @@
                         <td>Role: </td>
                         <td>
                             <select name="txtRoleList" onchange=document.getElementById("f1").submit()>
-                                <option value="0"> All </option>
+                                <option value="0" > All </option>
                                 <c:forEach items="${roleList}" var="role">
                                     <option value="${role.getRole_id()}" ${role.getRole_id() == role_id ? 'Selected':''} >${role.getRole_Name()}</option>
                                 </c:forEach>
