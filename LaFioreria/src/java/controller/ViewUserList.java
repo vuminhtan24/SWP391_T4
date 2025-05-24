@@ -96,16 +96,18 @@ public class ViewUserList extends HttpServlet {
 
             System.out.println("roleId_raw = " + roleId_raw);
 
-            if (roleId_raw == null) {
+            if (roleId_raw == null || roleId_raw.trim().isEmpty()) {
                 roleId_raw = "0";
             }
-            
+
             try {
                 int roleId = Integer.parseInt(roleId_raw);
+                request.setAttribute("roleId", roleId);
                 List<UserManager> userList = new ArrayList<>();
                 String kw = request.getParameter("txtSearchName");
                 request.setAttribute("keyword", kw);
                 if (roleId == 0) {
+                    System.out.println(roleId);
                     userList = ud.getAllUserManager();
                     if (kw != null && !kw.trim().isEmpty()) {
                         userList = ud.getUserByRoleIdSearchName(0, kw);

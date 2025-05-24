@@ -23,12 +23,15 @@
                     <tr>
                         <td>Role: </td>
                         <td>
-                            <select name="txtRoleList" onchange=document.getElementById("f1").submit()>
-                                <option value="0" > All </option>
+                            <select name="txtRoleList" onchange="document.getElementById('f1').submit()">
+                                <option value="0" <c:if test="${roleId == 0}">selected</c:if>>All</option>
                                 <c:forEach items="${roleList}" var="role">
-                                    <option value="${role.getRole_id()}" ${role.getRole_id() == role_id ? 'Selected':''} >${role.getRole_Name()}</option>
+                                    <option value="${role.role_id}" <c:if test="${role.role_id == roleId}">selected</c:if>>
+                                        ${role.role_Name}
+                                    </option>
                                 </c:forEach>
                             </select>
+
                         </td>
                     </tr>
                     <tr>
@@ -57,7 +60,7 @@
                 </tr>
             </thead>
             <tbody>
-                
+
                 <c:forEach items="${userManagerList}" var="user">
                     <tr>
                         <td>${user.getUserid()}</td>
