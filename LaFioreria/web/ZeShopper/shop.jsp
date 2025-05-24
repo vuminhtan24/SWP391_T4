@@ -23,7 +23,7 @@
         <link href="${pageContext.request.contextPath}/ZeShopper/css/price-range.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/animate.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/main.css" rel="stylesheet">
-        <link href="css/responsive.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/ZeShopper/css/responsive.css" rel="stylesheet">
         <!--[if lt IE 9]>
         <script src="js/html5shiv.js"></script>
         <script src="js/respond.min.js"></script>
@@ -68,7 +68,7 @@
                     <div class="row">
                         <div class="col-sm-4">
                             <div class="logo pull-left">
-                                <a href="${pageContext.request.contextPath}/ZeShopper/home.jsp"><img src="${pageContext.request.contextPath}/ZeShopper/images/home/logo.png" alt="" /></a>
+                                <a href="${pageContext.request.contextPath}/home"><img src="${pageContext.request.contextPath}/ZeShopper/images/home/logo.png" alt="" /></a>
                             </div>
                             <div class="btn-group pull-right">
                                 <div class="btn-group">
@@ -99,10 +99,19 @@
                                 <ul class="nav navbar-nav">
                                     <c:choose>
                                         <c:when test="${sessionScope.currentAcc != null}">
-                                            <li><a href="#"><i class="fa fa-user"></i> Hello, ${sessionScope.currentAcc.username}</a></li>
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
-                                            </c:when>
-                                            <c:otherwise>
+                                            <li class="dropdown">
+                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                                    <i class="fa fa-user"></i> Hello, ${sessionScope.currentAcc.username} <b class="caret"></b>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a href="userDetail.jsp"><i class="fa fa-id-card"></i> User Detail</a></li>
+                                                    <li><a href="changePassword.jsp"><i class="fa fa-key"></i> Change Password</a></li>
+                                                    <li class="divider"></li>
+                                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
+                                                </ul>
+                                            </li>
+                                        </c:when>
+                                        <c:otherwise>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
                                             </c:otherwise>
                                         </c:choose>
@@ -131,10 +140,10 @@
                             </div>
                             <div class="mainmenu pull-left">
                                 <ul class="nav navbar-nav collapse navbar-collapse">
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/home.jsp">Home</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/home">Home</a></li>
                                     <li class="dropdown"><a href="#" class="active">Shop<i class="fa fa-angle-down"></i></a>
                                         <ul role="menu" class="sub-menu">
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/shop.jsp" class="active">Products</a></li>
+                                            <li><a href="${pageContext.request.contextPath}/product" class="active">Products</a></li>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/product-details.jsp">Product Details</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp">Checkout</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp">Cart</a></li> 
@@ -154,7 +163,10 @@
                         </div>
                         <div class="col-sm-3">
                             <div class="search_box pull-right">
-                                <input type="text" placeholder="Search"/>
+                                <form action="product" method="get">
+                                    <input type="text" name="bouquetName" placeholder="Tìm kiếm sản phẩm" value="${param.bouquetName}" />
+                                    <button type="submit">Search</button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -174,108 +186,25 @@
                     <div class="col-sm-3">
                         <div class="left-sidebar">
                             <h2>Category</h2>
-                            <div class="panel-group category-products" id="accordian"><!--category-productsr-->
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#accordian" href="#sportswear">
-                                                <span class="badge pull-right"><i class="fa fa-plus"></i></span>
-                                                Sportswear
-                                            </a>
-                                        </h4>
-                                    </div>
-                                    <div id="sportswear" class="panel-collapse collapse">
-                                        <div class="panel-body">
-                                            <ul>
-                                                <li><a href="">Nike </a></li>
-                                                <li><a href="">Under Armour </a></li>
-                                                <li><a href="">Adidas </a></li>
-                                                <li><a href="">Puma</a></li>
-                                                <li><a href="">ASICS </a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#accordian" href="#mens">
-                                                <span class="badge pull-right"><i class="fa fa-plus"></i></span>
-                                                Mens
-                                            </a>
-                                        </h4>
-                                    </div>
-                                    <div id="mens" class="panel-collapse collapse">
-                                        <div class="panel-body">
-                                            <ul>
-                                                <li><a href="">Fendi</a></li>
-                                                <li><a href="">Guess</a></li>
-                                                <li><a href="">Valentino</a></li>
-                                                <li><a href="">Dior</a></li>
-                                                <li><a href="">Versace</a></li>
-                                                <li><a href="">Armani</a></li>
-                                                <li><a href="">Prada</a></li>
-                                                <li><a href="">Dolce and Gabbana</a></li>
-                                                <li><a href="">Chanel</a></li>
-                                                <li><a href="">Gucci</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="panel-group category-products" id="accordian"><!--category-productsr-->                            
 
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#accordian" href="#womens">
-                                                <span class="badge pull-right"><i class="fa fa-plus"></i></span>
-                                                Womens
-                                            </a>
-                                        </h4>
-                                    </div>
-                                    <div id="womens" class="panel-collapse collapse">
-                                        <div class="panel-body">
-                                            <ul>
-                                                <li><a href="">Fendi</a></li>
-                                                <li><a href="">Guess</a></li>
-                                                <li><a href="">Valentino</a></li>
-                                                <li><a href="">Dior</a></li>
-                                                <li><a href="">Versace</a></li>
-                                            </ul>
+                                <c:forEach var="category" items="${cateBouquetHome}">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a href="#">${category.getCategoryName()}</a>  <!-- Giả sử thuộc tính tên là 'name' -->
+                                            </h4>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Romantic</a></h4>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Birthday</a></h4>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Congratulations</a></h4>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Sympathy</a></h4>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Anniversary</a></h4>
-                                    </div>
-                                </div>
-                            </div><!--/category-productsr-->
+                                </c:forEach>
+
+                            </div><!--/category-products-->
 
                             <div class="price-range"><!--price-range-->
                                 <h2>Price Range</h2>
-                                <div class="well">
+                                <div class="well text-center">
                                     <input type="text" class="span2" value="" data-slider-min="0" data-slider-max="600" data-slider-step="5" data-slider-value="[250,450]" id="sl2" ><br />
-                                    <b>$ 0</b> <b class="pull-right">$ 600</b>
+                                    <b class="pull-left">$ 0</b> <b class="pull-right">$ 600</b>
                                 </div>
                             </div><!--/price-range-->
 
@@ -289,12 +218,13 @@
                     <div class="col-sm-9 padding-right">
                         <div class="features_items"><!--features_items-->
                             <h2 class="title text-center">Features Items</h2>
+
                             <c:forEach items="${requestScope.listBouquet}" var="lb">
                                 <div class="col-sm-4">
                                     <div class="product-image-wrapper">
                                         <div class="single-products">
                                             <div class="productinfo text-center">
-                                                <img src="${product.getImageUrl()}" alt="" />
+                                                <img src="${lb.getImageUrl()}" alt="" />
                                                 <h2>${lb.getBouquetName()}</h2>
                                                 <p>Price: </p>
                                                 <a href="#" class="btn btn-default add-to-cart">
@@ -308,12 +238,27 @@
 
                         </div>
                     </div>
+
                     <ul class="pagination">
-                        <li class="active"><a href="">1</a></li>
-                        <li><a href="">2</a></li>
-                        <li><a href="">3</a></li>
-                        <li><a href="">&raquo;</a></li>
+                        <c:if test="${currentPage > 1}">
+                            <li>
+                                <a href="product?page=${currentPage - 1}&bouquetName=${param.bouquetName}">&laquo;</a>
+                            </li>
+                        </c:if>
+
+                        <c:forEach var="i" begin="1" end="${totalPages}">
+                            <li class="${i == currentPage ? 'active' : ''}">
+                                <a href="product?page=${i}&bouquetName=${param.bouquetName}">${i}</a>
+                            </li>
+                        </c:forEach>
+
+                        <c:if test="${currentPage < totalPages}">
+                            <li>
+                                <a href="product?page=${currentPage + 1}&bouquetName=${param.bouquetName}">&raquo;</a>
+                            </li>
+                        </c:if>
                     </ul>
+
                 </div><!--features_items-->
             </div>
         </div>

@@ -28,13 +28,13 @@ public class DBContext {
         //where StudentDBContext is located in dal package, 
 
         try {
-//            String url = "jdbc:mysql://localhost:3306/la_fioreria?useSSL=false&serverTimezone=UTC";
+            String url = "jdbc:mysql://localhost:3306/la_fioreria?useSSL=false&serverTimezone=UTC";
             String user = "root";
-            String pass = "KHAi@2692004";
+            String pass = "1234";
 
             Class.forName("com.mysql.cj.jdbc.Driver"); // MySQL driver mới
 
-            String url = "jdbc:mysql://localhost:3306/la_fioreria?user=root&password=KHAi@2692004";
+//            String url = "jdbc:mysql://localhost:3306/la_fioreria?user=root&password=1234";
 //            Class.forName("com.mysql.cj.jdbc.Driver");
 
             connection = DriverManager.getConnection(url, user, pass);

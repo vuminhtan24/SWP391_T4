@@ -9,7 +9,7 @@ import model.User;
 public class DAOAccount extends DBContext {
 
     public Vector<User> getAllAccount() {
-        String sql = "SELECT * FROM user";
+        String sql = "SELECT * FROM la_fioreria.user";
         Vector<User> listAccount = new Vector<>();
         try {
             PreparedStatement st = connection.prepareStatement(sql);
@@ -33,7 +33,7 @@ public class DAOAccount extends DBContext {
     }
 
     public boolean deleteAccount(int userId) {
-        String sql = "DELETE FROM [user] WHERE userId = ?";
+        String sql = "DELETE FROM la_fioreria.user WHERE userId = ?";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, userId);
@@ -45,7 +45,7 @@ public class DAOAccount extends DBContext {
     }
 
     public boolean createAccount(User acc) {
-        String sql = "INSERT INTO user (username, password, fullname, email, phone, address, Role) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO la_fioreria.user (username, password, fullname, email, phone, address, Role) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, acc.getUsername());
@@ -62,11 +62,11 @@ public class DAOAccount extends DBContext {
         return false;
     }
 
-    public User validate(String email, String password) {
-        String sql = "SELECT * FROM user WHERE email = ? AND password = ?";
+    public User validate(String username, String password) {
+        String sql = "SELECT * FROM la_fioreria.user WHERE username = ? AND password = ?";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
-            st.setString(1, email);
+            st.setString(1, username);
             st.setString(2, password);
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
@@ -87,7 +87,7 @@ public class DAOAccount extends DBContext {
     }
 
     public User getAccountById(int userId) {
-        String sql = "SELECT * FROM user WHERE User_ID = ?";
+        String sql = "SELECT * FROM la_fioreria.user WHERE User_ID = ?";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, userId);
@@ -109,7 +109,7 @@ public class DAOAccount extends DBContext {
         return null;
     }
      public String getRoleNameById(int roleId) {
-        String sql = "SELECT Role_name FROM role WHERE Role_id = ?";
+        String sql = "SELECT Role_name FROM la_fioreria.role WHERE Role_id = ?";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, roleId);
@@ -124,7 +124,7 @@ public class DAOAccount extends DBContext {
     }
 
     public User getAccountByEmail(String email) {
-        String sql = "SELECT * FROM user WHERE email = ?";
+        String sql = "SELECT * FROM la_fioreria.user WHERE email = ?";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, email);
@@ -147,7 +147,7 @@ public class DAOAccount extends DBContext {
     }
 
     public boolean updateAccount(User acc) {
-        String sql = "UPDATE user SET username = ?, fullname = ?, address = ?, phone = ?, roleId = ? WHERE User_ID = ?";
+        String sql = "UPDATE la_fioreria.user SET username = ?, fullname = ?, address = ?, phone = ?, roleId = ? WHERE User_ID = ?";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, acc.getUsername());
@@ -162,9 +162,19 @@ public class DAOAccount extends DBContext {
         }
         return false;
     }
-
-    public boolean updatePassword(User acc) {
-        String sql = "UPDATE user SET password = ? WHERE User_ID = ?";
+   public void updatePassword(String email, String password) {
+        String sql = "UPDATE la_fioreria.user SET password = ? WHERE email = ?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, password);
+            st.setString(2, email);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+   public boolean changePassword(User acc) {
+        String sql = "UPDATE la_fioreria.user SET password = ? WHERE User_ID = ?";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, acc.getPassword());
@@ -175,6 +185,7 @@ public class DAOAccount extends DBContext {
         }
         return false;
     }
+
 
     public static void main(String[] args) {
         DAOAccount dao = new DAOAccount();
