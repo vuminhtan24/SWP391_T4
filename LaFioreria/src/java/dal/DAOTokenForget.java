@@ -38,7 +38,7 @@ public class DAOTokenForget extends DBContext {
         return false;
     }
     public TokenForgetPassword getTokenPassword(String token){
-        String sql = "select * from tokenforgetpassword where token ='?'";
+        String sql = "select * from tokenforgetpassword where token = ?";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, token);

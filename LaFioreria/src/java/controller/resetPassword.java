@@ -9,6 +9,7 @@ import dal.DAOTokenForget;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,6 +21,7 @@ import model.User;
  *
  * @author VU MINH TAN
  */
+@WebServlet("/ZeShopper/resetPassword")
 public class resetPassword extends HttpServlet {
 
     /**
@@ -89,9 +91,9 @@ public class resetPassword extends HttpServlet {
             return;
         }else{
              request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
+             return;
         }
 
-        request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
     }
 
     /**
