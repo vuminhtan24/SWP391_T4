@@ -11,6 +11,21 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <style>
+            .about-image {
+                width: 500px;
+                max-width: 90%;
+                height: auto;
+                border-radius: 16px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+                transition: transform 0.3s ease;
+            }
+
+            .about-image:hover {
+                transform: scale(1.02);
+            }
+
+        </style>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="">
@@ -109,8 +124,8 @@
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
                                                 </ul>
                                             </li>
-                                            </c:when>
-                                            <c:otherwise>
+                                        </c:when>
+                                        <c:otherwise>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
                                             </c:otherwise>
                                         </c:choose>
@@ -171,57 +186,64 @@
             </div><!--/header-bottom-->
         </header><!--/header-->
 
-        <div id="about-page" class="container">
-    <div class="bg">
-        <div class="row">    		
-            <div class="col-sm-12">    			   			
-                <h2 class="title text-center">About <strong>Us</strong></h2>    			    				    				
-                <p class="text-center">
-                    Chúng tôi là LaFioreria – một thương hiệu chuyên cung cấp hoa tươi với sứ mệnh mang lại vẻ đẹp và cảm xúc đến mọi khoảnh khắc trong cuộc sống của bạn.
-                    Được thành lập bởi những người yêu hoa, LaFioreria luôn đặt chất lượng sản phẩm và dịch vụ khách hàng lên hàng đầu.
-                </p>
-                <p class="text-center">
-                    Với đội ngũ sáng tạo và tận tâm, chúng tôi không ngừng đổi mới để mang đến những thiết kế hoa độc đáo, sang trọng và giàu ý nghĩa. 
-                    Hãy cùng chúng tôi chia sẻ những khoảnh khắc đáng nhớ qua những bó hoa tinh tế và đong đầy cảm xúc.
-                </p>
-            </div>			 		
-        </div>    	
-        <div class="row">  	
-            <div class="col-sm-8">
-                <div class="about-details">
-                    <h3>Our Mission</h3>
-                    <p>
-                        Mang đến cho khách hàng những sản phẩm hoa tươi đẹp nhất, góp phần tạo nên những kỷ niệm khó quên trong cuộc sống. 
-                        Chúng tôi tin rằng mỗi bó hoa là một câu chuyện, và nhiệm vụ của chúng tôi là kể câu chuyện đó thật trọn vẹn.
-                    </p>
-                    <h3>Our Vision</h3>
-                    <p>
-                        Trở thành thương hiệu hoa hàng đầu tại Việt Nam, được yêu thích và tin tưởng bởi chất lượng, sáng tạo và dịch vụ tận tâm.
-                    </p>
+        <div id="about-page" class="container-fluid py-5" style="background: url('images/about/background.jpg') no-repeat center center / cover;">
+            <div class="container">
+                <h2 class="title text-center mb-5 text-white">About <strong>Us</strong></h2>
+                <div class="row align-items-center">
+                    <!-- Text Left -->
+                    <div class="col-md-6 text-white">
+                        <h3>Who We Are</h3>
+                        <p>
+                            We are LaFioreria – a floral brand dedicated to bringing beauty and emotions into every moment of your life.
+                            Founded by passionate flower lovers, we prioritize both product quality and customer service.
+                        </p>
+                        <p>
+                            Our creative and devoted team continually innovates to deliver unique, elegant, and meaningful floral designs.
+                            Share your memorable moments with us through exquisite and heartfelt bouquets.
+                        </p>
+
+                        <h3 class="mt-4">Our Mission</h3>
+                        <p>
+                            To provide customers with the most beautiful fresh flowers, helping to create unforgettable memories.
+                            We believe that every bouquet tells a story, and our mission is to tell it perfectly.
+                        </p>
+
+                        <h3 class="mt-4">Our Vision</h3>
+                        <p>
+                            To become the leading flower brand in Vietnam, loved and trusted for our quality, creativity, and dedicated service.
+                        </p>
+                    </div>
+
+                    <!-- Image Right -->
+                    <div class="col-md-6 text-center">
+                        <img src="images/about/tulip.jpg" 
+                             alt="LaFioreria Flowers" 
+                             class="img-fluid rounded shadow about-image">
+                    </div>
+
                 </div>
-            </div>
-            <div class="col-sm-4">
-                <div class="contact-info">
-                    <h3>Our Location</h3>
-                    <p>Trường Đại học FPT, Khu CNC Hòa Lạc, Km29 Đại lộ Thăng Long</p>
-                    <p>Thạch Thất, Hà Nội</p>
-                    <p>Mobile: +0919994398</p>
-                    <p>Email: alice@flower.com</p>
-                    
-                    <div class="social-networks">
+
+                <div class="row mt-5 text-white">
+                    <div class="col-md-6">
+                        <h3>Our Location</h3>
+                        <p>FPT University, Hoa Lac Hi-Tech Park</p>
+                        <p>Km29 Thang Long Boulevard, Thach That, Hanoi</p>
+                        <p>Mobile: +0919994398</p>
+                        <p>Email: alice@flower.com</p>
+                    </div>
+                    <div class="col-md-6">
                         <h3>Follow Us</h3>
-                        <ul>
-                            <li><a href="#"><i class="fa fa-facebook"></i></a></li>
-                            <li><a href="#"><i class="fa fa-twitter"></i></a></li>
-                            <li><a href="#"><i class="fa fa-google-plus"></i></a></li>
-                            <li><a href="#"><i class="fa fa-youtube"></i></a></li>
+                        <ul class="list-inline">
+                            <li class="list-inline-item"><a href="#"><i class="fa fa-facebook text-white fa-2x"></i></a></li>
+                            <li class="list-inline-item"><a href="#"><i class="fa fa-twitter text-white fa-2x"></i></a></li>
+                            <li class="list-inline-item"><a href="#"><i class="fa fa-google-plus text-white fa-2x"></i></a></li>
+                            <li class="list-inline-item"><a href="#"><i class="fa fa-youtube text-white fa-2x"></i></a></li>
                         </ul>
                     </div>
                 </div>
-            </div>    			
-        </div>  
-    </div>	
-</div><!--/#about-page-->
+            </div>
+        </div>
+
 
 
         <footer id="footer"><!--Footer-->
