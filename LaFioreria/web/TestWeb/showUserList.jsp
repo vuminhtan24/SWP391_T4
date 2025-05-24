@@ -32,12 +32,47 @@
                         </td>
                     </tr>
                     <tr>
-                        <td></td>
-                        <td></td>
+                        <td>Search name: </td>
+                        <td><input type="text" name="txtSearchName" value="${keyword}"></td>
+                        <td>
+                            <input type="submit" value="SEARCH" name="button">
+                        </td>
                     </tr>
                 </tbody>
             </table>
 
         </form>
+
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>User Name</th>
+                    <th>Password</th>
+                    <th>FUll Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <c:forEach items="${userManagerList}" var="user">
+                    <tr>
+                        <td>${user.getUserid()}</td>
+                        <td>${user.getUsername()}</td>
+                        <td>${user.getPassword()}</td>
+                        <td>${user.getFullname()}</td>
+                        <td>${user.getEmail()}</td>
+                        <td>${user.getPhone()}</td>
+                        <td>${user.getAddress()}</td>
+                        <td>${user.getRole()}</td>
+                    </tr>
+                </c:forEach>
+
+            </tbody>
+        </table>
+
     </body>
 </html>
