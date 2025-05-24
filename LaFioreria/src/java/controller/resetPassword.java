@@ -150,7 +150,8 @@ public class resetPassword extends HttpServlet {
         daoToken.updateStatus(tokenForgetPassword);
 
         //save user in session and redirect to home
-        request.getRequestDispatcher("/home").forward(request, response);
+        response.sendRedirect(request.getContextPath() + "/ZeShopper/login.jsp");
+
     }
 
     /**

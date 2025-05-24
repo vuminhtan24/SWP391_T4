@@ -269,10 +269,10 @@
                                                 <td>${item.rawId}</td>
                                                 <td><img src="${item.imageUrl}" class="img-thumbnail" alt="${item.rawName}"></td>
                                                 <td>${item.rawName}</td>
-                                                <td>${item.unitPrice}$</td>
+                                                <td>${item.unitPrice} VND</td>
                                                 <td>${item.availableQuantity}</td>
                                                 <td>${item.expirationDate}</td>
-                                                <td>${item.importPrice}</td>
+                                                <td>${item.importPrice} VND</td>
                                                 <td class="actions-btn">
                                                     <a href="update_rawflower?id=${item.rawId}" class="btn btn-warning btn-sm">View detail</a>
                                                     <form action="${pageContext.request.contextPath}/hidePerfume" method="post" style="display:inline;">
