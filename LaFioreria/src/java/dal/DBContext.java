@@ -28,7 +28,7 @@ public class DBContext {
         //where StudentDBContext is located in dal package, 
 
         try {
-            String url = "jdbc:mysql://localhost:3306/la_fioreria?useSSL=false&serverTimezone=UTC";
+            String url = "jdbc:mysql://localhost:3306/la_fioreria?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
             String user = "root";
             String pass = "1234";
 

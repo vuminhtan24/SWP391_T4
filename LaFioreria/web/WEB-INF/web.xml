@@ -42,7 +42,7 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>RawFlowerServlet</servlet-name>
-        <url-pattern>/DashMin/rawflower</url-pattern>
+        <url-pattern>/DashMin/rawlower</url-pattern>
     </servlet-mapping>
     <servlet-mapping>        
         <servlet-name>ContactServlet</servlet-name>
