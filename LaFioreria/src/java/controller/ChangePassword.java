@@ -87,7 +87,7 @@ public class ChangePassword extends HttpServlet {
             message = "New passwords do not match!";
         } else {
             user.setPassword(newPassword);
-            boolean success = userDAO.updatePassword(user);
+            boolean success = userDAO.changePassword(user);
             message = success ? "Password changed successfully!" : "Failed to change password. Try again.";
         }
 

@@ -56,4 +56,16 @@ public class DAOTokenForget extends DBContext {
         }
         return null;
     }
+    public void updateStatus(TokenForgetPassword token){
+        System.out.println("token="+token);
+        String sql = "UPDATE tokenforgetpassword SET isUsed = ? WHERE token = ?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setBoolean(1, token.isIsUsed());
+            st.setString(2, token.getToken());
+            st.executeUpdate();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
 }

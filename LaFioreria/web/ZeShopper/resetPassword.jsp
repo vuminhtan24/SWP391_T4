@@ -157,7 +157,7 @@
                     <div class="col-sm-4 col-sm-offset-1">
                         <div class="login-form">
                             <h2>Reset Password</h2>
-                            <form action="resetPassword" method="post">
+                            <form action="${pageContext.request.contextPath}/resetPassword" method="post">
                                 <input type="email" name="email" value="${email}" id="email" placeholder="Enter your email address" required />
                                 <input type="password" name="password"  placeholder="Password" required />
                                 <input type="password" name="confirm_password" placeholder="Confirm Password" required />
