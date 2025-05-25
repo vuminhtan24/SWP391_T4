@@ -121,7 +121,7 @@
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -131,7 +131,7 @@
                                 <hr class="dropdown-divider">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -141,7 +141,7 @@
                                 <hr class="dropdown-divider">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -178,7 +178,7 @@
                         </div>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                <img class="rounded-circle me-lg-2" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                <img class="rounded-circle me-lg-2" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                 <span class="d-none d-lg-inline-flex">John Doe</span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
@@ -192,7 +192,7 @@
                 <!-- Navbar End -->
 
 
-                < div class="container-fluid py-5">
+                <div class="container-fluid py-5">
                     <div class="row justify-content-center">
                         <div class="col-xl-8 col-lg-10">
                             <div class="card shadow-sm">
@@ -200,7 +200,7 @@
                                     <h4 class="mb-0">Create New Bouquet</h4>
                                 </div>
                                 <div class="card-body">
-                                    <form action="saveBouquet" method="post">
+                                    <form action="addBouquet" method="post">
                                         <div class="row g-3">
                                             <!-- Bouquet Name -->
                                             <div class="col-md-6">
@@ -246,35 +246,45 @@
                                                 <c:forEach var="item" items="${bouquetItems}">
                                                     <tr>
                                                         <td>
-                                                            <select name="flowerIds[${item.flower.id}]" class="form-select form-select-sm">
-                                                                <c:forEach var="f" items="${allFlowers}">
-                                                                    <option value="${f.id}" ${f.id == item.flower.id ? 'selected' : ''}>
-                                                                        ${f.name}
+                                                            <select name="flowerIds" class="form-select form-select-sm">
+                                                                <!-- Lặp qua lại bouquetItems để đổ vào dropdown -->
+                                                                <c:forEach var="f" items="${bouquetItems}">
+                                                                    <option 
+                                                                        value="${f.getRawId()}" 
+                                                                        ${f.getRawId() == item.flower.getRawId() ? 'selected' : ''}>
+                                                                        ${f.getRawName()}
                                                                     </option>
                                                                 </c:forEach>
                                                             </select>
                                                         </td>
                                                         <td>
+                                                            <!-- Hiện giá của item.flower -->
                                                             <span class="form-text">
-                                                                $${item.flower.price}
+                                                                $${item.flower.getUnitPrice()}
                                                             </span>
-                                                            <input type="hidden" name="prices[${item.flower.id}]" value="${item.flower.price}" />
+                                                            <!-- Ẩn giá để submit theo tên prices[...] -->
+                                                            <input 
+                                                                type="hidden" 
+                                                                name="prices[${item.getRawId()}]" 
+                                                                value="${item.flower.getUnitPrice()}" />
                                                         </td>
                                                         <td>
+                                                            <!-- Mình không động vào cột Quantity của bạn -->
                                                             <input type="number"
-                                                                   name="quantities[${item.flower.id}]"
+                                                                   name="quantities[${item.rawFlowerID}]"
                                                                    value="${item.quantity}"
                                                                    min="0"
-                                                                   class="form-control form-control-sm"
-                                                                   />
+                                                                   class="form-control form-control-sm" />
                                                         </td>
                                                         <td>
-                                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()">
+                                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                                    onclick="this.closest('tr').remove()">
                                                                 &times;
                                                             </button>
                                                         </td>
                                                     </tr>
                                                 </c:forEach>
+
                                                 </tbody>
                                             </table>
 
@@ -364,14 +374,14 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-                    document.getElementById('addFlowerBtn').addEventListener('click', function () {
-                        // Clone template row
-                        var template = document.getElementById('flowerRowTemplate');
-                        var newRow = template.cloneNode(true);
-                        newRow.removeAttribute('id');
-                        // Append to table body
-                        document.querySelector('#flowerTable tbody').appendChild(newRow);
-                    });
+                                    document.getElementById('addFlowerBtn').addEventListener('click', function () {
+                                        // Clone template row
+                                        var template = document.getElementById('flowerRowTemplate');
+                                        var newRow = template.cloneNode(true);
+                                        newRow.removeAttribute('id');
+                                        // Append to table body
+                                        document.querySelector('#flowerTable tbody').appendChild(newRow);
+                                    });
         </script>
     </body>
 </html>

@@ -19,22 +19,15 @@
         <servlet-class>controller.ViewUserDetail</servlet-class>
     </servlet>
     <servlet>
-
-
         <servlet-name>AddUserDetail</servlet-name>
         <servlet-class>controller.AddUserDetail</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ViewUserList</servlet-name>
         <servlet-class>controller.ViewUserList</servlet-class>
-
     </servlet>
 
-    <servlet>
-
-     </servlet> 
      <servlet>  
-
         <servlet-name>RawFlowerServlet</servlet-name>
         <servlet-class>controller.RawFlowerServlet</servlet-class>
     </servlet>
@@ -43,15 +36,17 @@
         <servlet-name>ContactServlet</servlet-name>
         <servlet-class>controller.ContactServlet</servlet-class>
     </servlet>
+    
     <servlet>
         <servlet-name>requestPassword</servlet-name>
         <servlet-class>controller.requestPassword</servlet-class>
     </servlet>
+    
     <servlet>
         <servlet-name>resetPassword</servlet-name>
         <servlet-class>controller.resetPassword</servlet-class>
-
     </servlet>
+    
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/LoginServlet</url-pattern>
@@ -82,7 +77,6 @@
         <servlet-class>controller.AddUserDetail</servlet-class>
     </servlet>
     <servlet-mapping>
-
         <servlet-name>AddUserDetail</servlet-name>
         <url-pattern>/adduserdetail</url-pattern>
     </servlet-mapping>
@@ -94,7 +88,6 @@
     <servlet-mapping>
         <servlet-name>ViewUserList</servlet-name>
         <url-pattern>/ViewUserList</url-pattern>
-
     </servlet-mapping>
 
     <servlet-mapping>
@@ -102,9 +95,6 @@
         <url-pattern>/rawflower</url-pattern>
     </servlet-mapping>
 
-    <servlet-mapping>        
-
-    </servlet-mapping>
     <servlet-mapping>        
         <servlet-name>RawFlowerServlet</servlet-name>
         <url-pattern>/DashMin/rawlower</url-pattern>
@@ -126,7 +116,6 @@
         <servlet-class>controller.ContactServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-
         <servlet-name>ContactServlet</servlet-name>
         <url-pattern>/contact</url-pattern>
     </servlet-mapping>
@@ -147,9 +136,6 @@
     <servlet-mapping>
         <servlet-name>resetPassword</servlet-name>
         <url-pattern>/resetPassword</url-pattern>
-
-
-
     </servlet-mapping>
 
     <!-- Welcome -->
