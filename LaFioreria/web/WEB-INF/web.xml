@@ -10,6 +10,38 @@
         <servlet-name>LoginServlet</servlet-name>
         <servlet-class>controller.LoginServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>Register</servlet-name>
+        <servlet-class>controller.Register</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewUserDetail</servlet-name>
+        <servlet-class>controller.ViewUserDetail</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddUserDetail</servlet-name>
+        <servlet-class>controller.AddUserDetail</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewUserList</servlet-name>
+        <servlet-class>controller.ViewUserList</servlet-class>
+     </servlet> 
+     <servlet>  
+        <servlet-name>RawFlowerServlet</servlet-name>
+        <servlet-class>controller.RawFlowerServlet</servlet-class>
+    </servlet> 
+    <servlet>  
+        <servlet-name>ContactServlet</servlet-name>
+        <servlet-class>controller.ContactServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>requestPassword</servlet-name>
+        <servlet-class>controller.requestPassword</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>resetPassword</servlet-name>
+        <servlet-class>controller.resetPassword</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/LoginServlet</url-pattern>
@@ -51,6 +83,10 @@
     <servlet-mapping>
         <servlet-name>ViewUserList</servlet-name>
         <url-pattern>/ViewUserList</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>        
+        <servlet-name>RawFlowerServlet</servlet-name>
+        <url-pattern>/DashMin/rawlower</url-pattern>
     </servlet-mapping>
 
     <!-- Raw Flower management -->
