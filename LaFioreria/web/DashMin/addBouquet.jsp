@@ -1,14 +1,10 @@
 <%-- 
-    Document   : table
-    Created on : May 19, 2025, 2:41:19 PM
+    Document   : blank
+    Created on : May 19, 2025, 2:34:20 PM
     Author     : ADMIN
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.List,model.Bouquet" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -67,7 +63,7 @@
                     </a>
                     <div class="d-flex align-items-center ms-4 mb-4">
                         <div class="position-relative">
-                            <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                            <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
                             <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
                         </div>
                         <div class="ms-3">
@@ -91,10 +87,10 @@
                         <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
                         <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
+                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
-                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
+                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item active">Blank Page</a>
                             </div>
                         </div>
                     </div>
@@ -125,7 +121,7 @@
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -135,7 +131,7 @@
                                 <hr class="dropdown-divider">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -145,7 +141,7 @@
                                 <hr class="dropdown-divider">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -182,7 +178,7 @@
                         </div>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                <img class="rounded-circle me-lg-2" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                <img class="rounded-circle me-lg-2" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                 <span class="d-none d-lg-inline-flex">John Doe</span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
@@ -196,94 +192,137 @@
                 <!-- Navbar End -->
 
 
-                <!-- Table Start -->
-                <div class="container-fluid pt-4 px-4">
-                    <div class="bg-light rounded h-100 p-4">
-                        <!-- Header with title and Add Bouquet button -->
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0">Bouquet List</h6>
-                            <a href="${pageContext.request.contextPath}/DashMin/addBouquet.jsp" class="btn btn-primary">Add Bouquet</a>
+                < div class="container-fluid py-5">
+                    <div class="row justify-content-center">
+                        <div class="col-xl-8 col-lg-10">
+                            <div class="card shadow-sm">
+                                <div class="card-header bg-primary text-white">
+                                    <h4 class="mb-0">Create New Bouquet</h4>
+                                </div>
+                                <div class="card-body">
+                                    <form action="saveBouquet" method="post">
+                                        <div class="row g-3">
+                                            <!-- Bouquet Name -->
+                                            <div class="col-md-6">
+                                                <label for="bouquetName" class="form-label">Bouquet Name</label>
+                                                <input type="text" id="bouquetName" name="bouquetName" class="form-control" placeholder="Enter bouquet name" required />
+                                            </div>
+                                            <!-- Image URL -->
+                                            <div class="col-md-6">
+                                                <label for="imageUrl" class="form-label">Image URL</label>
+                                                <input type="url" id="imageUrl" name="imageUrl" class="form-control" placeholder="https://example.com/image.jpg" required />
+                                            </div>
+                                            <!-- Description -->
+                                            <div class="col-12">
+                                                <label for="description" class="form-label">Description</label>
+                                                <textarea id="description" name="description" class="form-control" rows="3" placeholder="Describe your bouquet..."></textarea>
+                                            </div>
+                                            <!-- Category -->
+                                            <div class="col-md-6">
+                                                <label for="category" class="form-label">Category</label>
+                                                <select id="category" name="category" class="form-select">
+                                                    <option value="1">Romantic</option>
+                                                    <option value="2">Birthday</option>
+                                                    <option value="3">Congratulations</option>
+                                                    <option value="4">Sympathy</option>
+                                                    <option value="5">Anniversary</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Flower Table -->
+                                        <div class="mt-4">
+                                            <h5 class="mb-3">Flowers in Bouquet</h5>
+                                            <table id="flowerTable" class="table table-striped table-hover align-middle">
+                                                <thead class="table-dark">
+                                                    <tr>
+                                                        <th scope="col">Flower</th>
+                                                        <th scope="col">Price per Stem</th>
+                                                        <th scope="col">Quantity</th>
+                                                        <th scope="col" style="width: 50px;"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                <c:forEach var="item" items="${bouquetItems}">
+                                                    <tr>
+                                                        <td>
+                                                            <select name="flowerIds[${item.flower.id}]" class="form-select form-select-sm">
+                                                                <c:forEach var="f" items="${allFlowers}">
+                                                                    <option value="${f.id}" ${f.id == item.flower.id ? 'selected' : ''}>
+                                                                        ${f.name}
+                                                                    </option>
+                                                                </c:forEach>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <span class="form-text">
+                                                                $${item.flower.price}
+                                                            </span>
+                                                            <input type="hidden" name="prices[${item.flower.id}]" value="${item.flower.price}" />
+                                                        </td>
+                                                        <td>
+                                                            <input type="number"
+                                                                   name="quantities[${item.flower.id}]"
+                                                                   value="${item.quantity}"
+                                                                   min="0"
+                                                                   class="form-control form-control-sm"
+                                                                   />
+                                                        </td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()">
+                                                                &times;
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </c:forEach>
+                                                </tbody>
+                                            </table>
+
+                                            <!-- Add New Flower Button -->
+                                            <div class="text-end">
+                                                <button type="button" id="addFlowerBtn" class="btn btn-outline-primary btn-sm">
+                                                    + Add Flower
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Submit -->
+                                        <div class="mt-4 text-end">
+                                            <button type="submit" class="btn btn-success px-4">Save Bouquet</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Bouquet ID</th>
-                                    <th scope="col">Image</th>
-                                    <th scope="col">Bouquet Name</th>
-                                    <th scope="col">Price</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach var="bouquet" items="${listBouquet}">
-                                    <tr>
-                                        <td>
-                                            <a href="${pageContext.request.contextPath}/DashMin/bouquetDetails.jsp" class="change-color-qvm">
-                                                ${bouquet.getBouquetId()}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <img src="${bouquet.getImageUrl()}" alt="Bouquet Image" style="height: 60px; width: auto;" />
-                                        </td>
-                                        <td>
-                                            <a href="${pageContext.request.contextPath}/DashMin/bouquetDetails.jsp" class="change-color-qvm">
-                                                ${bouquet.getBouquetName()}
-                                            </a>
-                                        </td>
-                                        <td>${bouquet.getPrice()}</td>
-                                    </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
-
-                        <c:if test="${totalPages > 1}">
-                            <nav>
-                                <ul class="pagination">
-                                    <!-- Previous -->
-                                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a class="page-link" href="?page=${currentPage - 1}">Previous</a>
-                                    </li>
-
-                                    <!-- First Page -->
-                                    <li class="page-item ${currentPage == 1 ? 'active' : ''}">
-                                        <a class="page-link" href="?page=1">1</a>
-                                    </li>
-
-                                    <!-- Ellipsis before current page range -->
-                                    <c:if test="${currentPage > 3}">
-                                        <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                        </c:if>
-
-                                    <!-- Page range around current -->
-                                    <c:forEach var="i" begin="${currentPage - 1}" end="${currentPage + 1}">
-                                        <c:if test="${i > 1 && i < totalPages}">
-                                            <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                                <a class="page-link" href="?page=${i}">${i}</a>
-                                            </li>
-                                        </c:if>
-                                    </c:forEach>
-
-                                    <!-- Ellipsis after current page range -->
-                                    <c:if test="${currentPage < totalPages - 2}">
-                                        <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                        </c:if>
-
-                                    <!-- Last Page -->
-                                    <c:if test="${totalPages > 1}">
-                                        <li class="page-item ${currentPage == totalPages ? 'active' : ''}">
-                                            <a class="page-link" href="?page=${totalPages}">${totalPages}</a>
-                                        </li>
-                                    </c:if>
-
-                                    <!-- Next -->
-                                    <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                        <a class="page-link" href="?page=${currentPage + 1}">Next</a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </c:if>
                     </div>
                 </div>
-                <!-- Table End -->
+
+                <!-- Hidden Template -->
+                <table style="display:none;">
+                    <tbody>
+                        <tr id="flowerRowTemplate">
+                            <td>
+                                <select name="newFlowerIds[]" class="form-select form-select-sm">
+                                    <c:forEach var="f" items="${allFlowers}">
+                                        <option value="${f.id}">${f.name}</option>
+                                    </c:forEach>
+                                </select>
+                            </td>
+                            <td>
+                                <span class="form-text">$0.00</span>
+                                <input type="hidden" name="newPrices[]" value="0" />
+                            </td>
+                            <td>
+                                <input type="number" name="newQuantities[]" value="0" min="0" class="form-control form-control-sm" />
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()">
+                                    &times;
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
 
                 <!-- Footer Start -->
@@ -322,6 +361,17 @@
 
         <!-- Template Javascript -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+                    document.getElementById('addFlowerBtn').addEventListener('click', function () {
+                        // Clone template row
+                        var template = document.getElementById('flowerRowTemplate');
+                        var newRow = template.cloneNode(true);
+                        newRow.removeAttribute('id');
+                        // Append to table body
+                        document.querySelector('#flowerTable tbody').appendChild(newRow);
+                    });
+        </script>
     </body>
 </html>
-
