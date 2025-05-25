@@ -63,7 +63,7 @@ public class RawFlowerServlet extends HttpServlet {
             request.setAttribute("listRF", listRF);
 
             // Forward the request to the JSP for rendering HTML view
-            request.getRequestDispatcher("rawflower.jsp").forward(request, response);
+            request.getRequestDispatcher("DashMin/rawflower.jsp").forward(request, response);
         }
     }
 

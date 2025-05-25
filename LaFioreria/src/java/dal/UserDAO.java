@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import model.Role;
 import model.User;
@@ -65,18 +66,18 @@ public class UserDAO extends DBContext {
             System.out.println(e);
         }
     }
-    
-    public List<Role> getAllRole(){
-        
+
+    public List<Role> getAllRole() {
+
         List<Role> list = new ArrayList<>();
         String sql = "select * from role;";
-        
+
         try {
-            
+
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 int id = rs.getInt("Role_id");
                 String role_name = rs.getString("Role_name");
                 Role r = new Role(id, role_name);
@@ -243,6 +244,73 @@ public class UserDAO extends DBContext {
                 UserManager user = new UserManager(id, user_name, password, fullname, email, phone, address, role);
                 list.add(user);
             }
+        } catch (SQLException e) {
+            System.out.println("Lỗi SQL: " + e.getMessage());
+        }
+
+        return list;
+    }
+
+    public List<UserManager> getSortedUsers(int roleId, String keyword, String sortField, String sortOrder) {
+        List<UserManager> list = new ArrayList<>();
+
+        // Xử lý sort mặc định
+        if (sortField == null || sortField.isEmpty()) {
+            sortField = "Fullname";
+        }
+        if (sortOrder == null || sortOrder.isEmpty()) {
+            sortOrder = "asc";
+        }
+
+        // Chỉ cho phép các cột được sort
+        List<String> validFields = Arrays.asList("User_ID", "Username", "Password", "Fullname", "Email", "Phone", "Address", "Role_name");
+        if (!validFields.contains(sortField)) {
+            sortField = "User_ID";
+        }
+        if (!sortOrder.equalsIgnoreCase("asc") && !sortOrder.equalsIgnoreCase("desc")) {
+            sortOrder = "asc";
+        }
+
+        try {
+            String sql = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
+                    + "FROM user u "
+                    + "JOIN role r ON u.Role = r.Role_id "
+                    + "WHERE 1=1";
+
+            if (roleId != 0) {
+                sql += " AND r.Role_id = ?";
+            }
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                sql += " AND u.Fullname LIKE ?";
+            }
+
+            sql += " ORDER BY " + sortField + " " + sortOrder;
+
+            PreparedStatement ps = connection.prepareStatement(sql);
+
+            int index = 1;
+            if (roleId != 0) {
+                ps.setInt(index++, roleId);
+            }
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                ps.setString(index++, "%" + keyword + "%");
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                UserManager u = new UserManager();
+                u.setUserid(rs.getInt("User_ID"));
+                u.setUsername(rs.getString("Username"));
+                u.setPassword(rs.getString("Password"));
+                u.setFullname(rs.getString("Fullname"));
+                u.setEmail(rs.getString("Email"));
+                u.setPhone(rs.getString("Phone"));
+                u.setAddress(rs.getString("Address"));
+                u.setRole(rs.getString("Role_name")); // lấy tên role
+                list.add(u);
+            }
+
         } catch (SQLException e) {
             System.out.println("Lỗi SQL: " + e.getMessage());
         }

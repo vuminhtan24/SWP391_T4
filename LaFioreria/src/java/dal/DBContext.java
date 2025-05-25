@@ -30,7 +30,7 @@ public class DBContext {
         try {
             String url = "jdbc:mysql://localhost:3306/la_fioreria?useSSL=false&serverTimezone=UTC";
             String user = "root";
-            String pass = "1234";
+            String pass = "KHAi@2692004";
 
             Class.forName("com.mysql.cj.jdbc.Driver"); // MySQL driver mới
 

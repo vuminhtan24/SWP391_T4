@@ -92,6 +92,11 @@ public class ViewUserList extends HttpServlet {
             List<Role> roleList = ud.getAllRole();
             request.setAttribute("roleList", roleList);
 
+            String sortField = request.getParameter("sortField");
+            String sortOrder = request.getParameter("sortOrder");
+            request.setAttribute("sortField", sortField);
+            request.setAttribute("sortOrder", sortOrder);
+
             String roleId_raw = request.getParameter("txtRoleList");
 
             System.out.println("roleId_raw = " + roleId_raw);
@@ -99,26 +104,33 @@ public class ViewUserList extends HttpServlet {
             if (roleId_raw == null || roleId_raw.trim().isEmpty()) {
                 roleId_raw = "0";
             }
-
+            if (sortField == null || sortField.isEmpty()) {
+                sortField = "User_ID";
+            }
+            if (sortOrder == null || sortOrder.isEmpty()) {
+                sortOrder = "asc";
+            }
             try {
                 int roleId = Integer.parseInt(roleId_raw);
                 request.setAttribute("roleId", roleId);
                 List<UserManager> userList = new ArrayList<>();
                 String kw = request.getParameter("txtSearchName");
                 request.setAttribute("keyword", kw);
-                if (roleId == 0) {
-                    System.out.println(roleId);
-                    userList = ud.getAllUserManager();
-                    if (kw != null && !kw.trim().isEmpty()) {
-                        userList = ud.getUserByRoleIdSearchName(0, kw);
-                    }
-                } else {
-                    userList = ud.getUserByRoleId(roleId);
-                    if (kw != null && !kw.trim().isEmpty()) {
-                        userList = ud.getUserByRoleIdSearchName(roleId, kw);
-                    }
-                }
-
+//                if (roleId == 0) {
+//                    System.out.println(roleId);
+//                    userList = ud.getSortedUsers(0, kw, sortField, sortOrder);
+////                    if (kw != null && !kw.trim().isEmpty()) {
+////                        userList = ud.getUserByRoleIdSearchName(0, kw);
+////                        userList = ud.getSortedUsers(0, kw, sortField, sortOrder);
+////                    }
+//                } else {
+//                    userList = ud.getSortedUsers(roleId, kw, sortField, sortOrder);
+////                    if (kw != null && !kw.trim().isEmpty()) {
+////                          userList = ud.getUserByRoleIdSearchName(roleId, kw);
+////                          userList = ud.getSortedUsers(roleId, kw, sortField, sortOrder);
+////                    }
+//                }
+                userList = ud.getSortedUsers(roleId, kw, sortField, sortOrder);
                 request.setAttribute("userManagerList", userList);
                 request.getRequestDispatcher("TestWeb/showUserList.jsp").forward(request, response);
             } catch (NumberFormatException e) {

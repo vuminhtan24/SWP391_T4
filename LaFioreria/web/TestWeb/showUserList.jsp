@@ -34,32 +34,51 @@
 
                         </td>
                     </tr>
+
                     <tr>
                         <td>Search name: </td>
                         <td><input type="text" name="txtSearchName" value="${keyword}"></td>
                         <td>
-                            <input type="submit" value="SEARCH" name="button">
-                        </td>
+                            <select name="sortField">
+                                <option value="User_ID" <c:if test="${sortField == 'userid'}">selected</c:if>>User ID</option>
+                                <option value="Username" <c:if test="${sortField == 'username'}">selected</c:if>>User Name</option>
+                                <option value="Password" <c:if test="${sortField == 'password'}">selected</c:if>>Password</option>
+                                <option value="Fullname" <c:if test="${sortField == 'fullname'}">selected</c:if>>Full Name</option>
+                                <option value="Email" <c:if test="${sortField == 'email'}">selected</c:if>>Email</option>
+                                <option value="Phone" <c:if test="${sortField == 'phone'}">selected</c:if>>Phone</option>
+                                <option value="Address" <c:if test="${sortField == 'address'}">selected</c:if>>Address</option>
+                                <option value="Role_name" <c:if test="${sortField == 'role'}">selected</c:if>>Role</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="sortOrder">
+                                    <option value="asc" <c:if test="${sortOrder == 'asc'}">selected</c:if>>Ascending</option>
+                                <option value="desc" <c:if test="${sortOrder == 'desc'}">selected</c:if>>Descending</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="submit" value="SEARCH" name="button">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </form>
+
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>User Name</th>
+                        <th>Password</th>
+                        <th>FUll Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                        <th>Role</th>
                     </tr>
-                </tbody>
-            </table>
-
-        </form>
-
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>User ID</th>
-                    <th>User Name</th>
-                    <th>Password</th>
-                    <th>FUll Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Address</th>
-                    <th>Role</th>
-                </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
 
                 <c:forEach items="${userManagerList}" var="user">
                     <tr>
