@@ -558,11 +558,12 @@
 
 
 
-    <script src="js/jquery.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/jquery.scrollUp.min.js"></script>
-    <script src="js/price-range.js"></script>
-    <script src="js/jquery.prettyPhoto.js"></script>
-    <script src="js/main.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
+
 </body>
 </html>
