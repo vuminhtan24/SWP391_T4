@@ -104,7 +104,7 @@
                                                 </a>
                                                 <ul class="dropdown-menu">
                                                     <li><a href="userDetail.jsp"><i class="fa fa-id-card"></i> User Detail</a></li>
-                                                    <li><a href="changePassword.jsp"><i class="fa fa-key"></i> Change Password</a></li>
+                                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/changePassword.jsp"><i class="fa fa-key"></i> Change Password</a></li>
                                                     <li class="divider"></li>
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
                                                 </ul>
@@ -157,6 +157,7 @@
                                     </li> 
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/404.jsp">404</a></li>
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/contact-us.jsp">Contact</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/about-us.jsp">About us</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -557,11 +558,12 @@
 
 
 
-    <script src="js/jquery.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/jquery.scrollUp.min.js"></script>
-    <script src="js/price-range.js"></script>
-    <script src="js/jquery.prettyPhoto.js"></script>
-    <script src="js/main.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
+
 </body>
 </html>

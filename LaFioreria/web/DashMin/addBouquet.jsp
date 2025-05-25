@@ -1,20 +1,21 @@
 <%-- 
-    Document   : rawflower
-    Created on : May 23, 2025, 9:35:15 AM
-    Author     : Admin
+    Document   : blank
+    Created on : May 19, 2025, 2:34:20 PM
+    Author     : ADMIN
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
         <title>DASHMIN - Bootstrap Admin Template</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <meta content="" name="keywords">
+        <meta content="" name="description">
 
         <!-- Favicon -->
-        <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
+        <link href="img/favicon.ico" rel="icon">
 
         <!-- Google Web Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,67 +30,18 @@
         <link href="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
 
-        <!-- Bootstrap from CDN (chỉ dùng 1 bản) -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Customized Bootstrap Stylesheet -->
+        <link href="${pageContext.request.contextPath}/DashMin/css/bootstrap.min.css" rel="stylesheet">
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
+
         <style>
-            /* Bảng đẹp và đồng nhất */
-            .table th, .table td {
-                vertical-align: middle;
-                text-align: center;
-                font-size: 14px;
+            a.change-color-qvm:active {
+                color: #007bff;
             }
+        </style>
 
-            /* Ảnh thumbnail cho hoa */
-            .img-thumbnail {
-                width: 60px;
-                height: 60px;
-                object-fit: cover;
-                border-radius: 8px;
-            }
-
-            /* Button group cho Action */
-            .actions-btn {
-                display: flex;
-                justify-content: center;
-                gap: 0.5rem;
-            }
-
-            /* Form tìm kiếm nếu có thêm */
-            .search-form {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 1rem;
-                align-items: end;
-            }
-
-            .form-group label {
-                font-size: 13px;
-                font-weight: 500;
-            }
-
-            /* Tăng padding cho card-body */
-            .card-body {
-                padding: 1.5rem;
-            }
-
-            /* Nút thêm hoa nổi bật hơn */
-            .btn-light.btn-sm {
-                font-weight: 500;
-            }
-
-            /* Responsive: bảng cuộn tốt trên thiết bị nhỏ */
-            .table-responsive {
-                overflow-x: auto;
-            }
-
-            /* Tăng độ rõ khi hover vào dòng */
-            .table-hover tbody tr:hover {
-                background-color: #f3f6fa;
-            }
-        </style>        
     </head>
 
     <body>
@@ -131,7 +83,8 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
                         <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/table.jsp" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Tables</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/table.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Tables</a>
+                        <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
@@ -239,57 +192,137 @@
                 <!-- Navbar End -->
 
 
-                <!-- Raw Flower Management Start -->
-                <div class="container-fluid pt-4 px-4">
-                    <div class="card shadow-sm rounded-4">
-                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center rounded-top-4">
-                            <h4 class="mb-0">🌸 Raw Flowers Management</h4>
-                            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#addFlowerModal">
-                                <i class="bi bi-plus-circle"></i> Add Flower
-                            </button>
-                        </div>
-                        <div class="card-body bg-light rounded-bottom-4">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle table-bordered border-secondary-subtle">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Thumbnail</th>
-                                            <th>Name</th>
-                                            <th>Unit Price</th>
-                                            <th>Quantity</th>
-                                            <th>Expiration Date</th>
-                                            <th>Import Price</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <c:forEach items="${listRF}" var="item">
-                                            <tr>
-                                                <td>${item.rawId}</td>
-                                                <td><img src="${item.imageUrl}" class="img-thumbnail" alt="${item.rawName}"></td>
-                                                <td>${item.rawName}</td>
-                                                <td>${item.unitPrice} VND</td>
-                                                <td>${item.availableQuantity}</td>
-                                                <td>${item.expirationDate}</td>
-                                                <td>${item.importPrice} VND</td>
-                                                <td class="actions-btn">
-                                                    <a href="update_rawflower?id=${item.rawId}" class="btn btn-warning btn-sm">View detail</a>
-                                                    <form action="${pageContext.request.contextPath}/hidePerfume" method="post" style="display:inline;">
-                                                        <input type="hidden" name="id" value="${item.rawId}"/>
-                                                        <button type="submit" class="btn btn-danger btn-sm">Hide</button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        </c:forEach>
-                                    </tbody>
-                                </table>
+                < div class="container-fluid py-5">
+                    <div class="row justify-content-center">
+                        <div class="col-xl-8 col-lg-10">
+                            <div class="card shadow-sm">
+                                <div class="card-header bg-primary text-white">
+                                    <h4 class="mb-0">Create New Bouquet</h4>
+                                </div>
+                                <div class="card-body">
+                                    <form action="saveBouquet" method="post">
+                                        <div class="row g-3">
+                                            <!-- Bouquet Name -->
+                                            <div class="col-md-6">
+                                                <label for="bouquetName" class="form-label">Bouquet Name</label>
+                                                <input type="text" id="bouquetName" name="bouquetName" class="form-control" placeholder="Enter bouquet name" required />
+                                            </div>
+                                            <!-- Image URL -->
+                                            <div class="col-md-6">
+                                                <label for="imageUrl" class="form-label">Image URL</label>
+                                                <input type="url" id="imageUrl" name="imageUrl" class="form-control" placeholder="https://example.com/image.jpg" required />
+                                            </div>
+                                            <!-- Description -->
+                                            <div class="col-12">
+                                                <label for="description" class="form-label">Description</label>
+                                                <textarea id="description" name="description" class="form-control" rows="3" placeholder="Describe your bouquet..."></textarea>
+                                            </div>
+                                            <!-- Category -->
+                                            <div class="col-md-6">
+                                                <label for="category" class="form-label">Category</label>
+                                                <select id="category" name="category" class="form-select">
+                                                    <option value="1">Romantic</option>
+                                                    <option value="2">Birthday</option>
+                                                    <option value="3">Congratulations</option>
+                                                    <option value="4">Sympathy</option>
+                                                    <option value="5">Anniversary</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Flower Table -->
+                                        <div class="mt-4">
+                                            <h5 class="mb-3">Flowers in Bouquet</h5>
+                                            <table id="flowerTable" class="table table-striped table-hover align-middle">
+                                                <thead class="table-dark">
+                                                    <tr>
+                                                        <th scope="col">Flower</th>
+                                                        <th scope="col">Price per Stem</th>
+                                                        <th scope="col">Quantity</th>
+                                                        <th scope="col" style="width: 50px;"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                <c:forEach var="item" items="${bouquetItems}">
+                                                    <tr>
+                                                        <td>
+                                                            <select name="flowerIds[${item.flower.id}]" class="form-select form-select-sm">
+                                                                <c:forEach var="f" items="${allFlowers}">
+                                                                    <option value="${f.id}" ${f.id == item.flower.id ? 'selected' : ''}>
+                                                                        ${f.name}
+                                                                    </option>
+                                                                </c:forEach>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <span class="form-text">
+                                                                $${item.flower.price}
+                                                            </span>
+                                                            <input type="hidden" name="prices[${item.flower.id}]" value="${item.flower.price}" />
+                                                        </td>
+                                                        <td>
+                                                            <input type="number"
+                                                                   name="quantities[${item.flower.id}]"
+                                                                   value="${item.quantity}"
+                                                                   min="0"
+                                                                   class="form-control form-control-sm"
+                                                                   />
+                                                        </td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()">
+                                                                &times;
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </c:forEach>
+                                                </tbody>
+                                            </table>
+
+                                            <!-- Add New Flower Button -->
+                                            <div class="text-end">
+                                                <button type="button" id="addFlowerBtn" class="btn btn-outline-primary btn-sm">
+                                                    + Add Flower
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Submit -->
+                                        <div class="mt-4 text-end">
+                                            <button type="submit" class="btn btn-success px-4">Save Bouquet</button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- Raw Flower Management End -->
 
+                <!-- Hidden Template -->
+                <table style="display:none;">
+                    <tbody>
+                        <tr id="flowerRowTemplate">
+                            <td>
+                                <select name="newFlowerIds[]" class="form-select form-select-sm">
+                                    <c:forEach var="f" items="${allFlowers}">
+                                        <option value="${f.id}">${f.name}</option>
+                                    </c:forEach>
+                                </select>
+                            </td>
+                            <td>
+                                <span class="form-text">$0.00</span>
+                                <input type="hidden" name="newPrices[]" value="0" />
+                            </td>
+                            <td>
+                                <input type="number" name="newQuantities[]" value="0" min="0" class="form-control form-control-sm" />
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()">
+                                    &times;
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
 
                 <!-- Footer Start -->
@@ -297,11 +330,11 @@
                     <div class="bg-light rounded-top p-4">
                         <div class="row">
                             <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">La Fioreria</a>, All Right Reserved. 
+                                &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
                             </div>
                             <div class="col-12 col-sm-6 text-center text-sm-end">
                                 <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-                                Designed By <a href="https://htmlcodex.com">La Fioreria</a>
+                                Designed By <a href="https://htmlcodex.com">HTML Codex</a>
                             </div>
                         </div>
                     </div>
@@ -326,9 +359,19 @@
         <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
-        <!-- Template Main Script -->
+        <!-- Template Javascript -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+                    document.getElementById('addFlowerBtn').addEventListener('click', function () {
+                        // Clone template row
+                        var template = document.getElementById('flowerRowTemplate');
+                        var newRow = template.cloneNode(true);
+                        newRow.removeAttribute('id');
+                        // Append to table body
+                        document.querySelector('#flowerTable tbody').appendChild(newRow);
+                    });
+        </script>
     </body>
 </html>
-
-

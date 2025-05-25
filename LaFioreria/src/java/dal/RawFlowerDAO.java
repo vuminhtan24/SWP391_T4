@@ -88,6 +88,8 @@ public class RawFlowerDAO extends DBContext {
             rf.setExpirationDate(rs.getString("expiration_date"));
             rf.setWarehouseId(rs.getInt("warehouse_id"));
             rf.setImageUrl(rs.getString("image_url").trim());
+            rf.setHold(rs.getInt("hold"));
+            rf.setImportPrice(rs.getInt("import_price"));
             list.add(rf);
         }
     } catch (SQLException e) {
@@ -353,7 +355,5 @@ public class RawFlowerDAO extends DBContext {
         }
         return list;
     }
-    
-    
 
 }

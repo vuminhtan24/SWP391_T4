@@ -63,7 +63,11 @@ public class RawFlowerServlet extends HttpServlet {
             request.setAttribute("listRF", listRF);
 
             // Forward the request to the JSP for rendering HTML view
+
             request.getRequestDispatcher("DashMin/rawflower.jsp").forward(request, response);
+
+            request.getRequestDispatcher("/DashMin/rawflower.jsp").forward(request, response);
+
         }
     }
 
@@ -115,5 +119,5 @@ public class RawFlowerServlet extends HttpServlet {
     public String getServletInfo() {
         return "Servlet for searching perfumes with filters";
     }
-
+    
 }

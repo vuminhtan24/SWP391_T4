@@ -1,7 +1,7 @@
 <%-- 
-    Document   : contact-us
-    Created on : May 19, 2025, 8:45:19 AM
-    Author     : ADMIN
+    Document   : about-us
+    Created on : May 24, 2025, 11:43:21 PM
+    Author     : VU MINH TAN
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -11,6 +11,21 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <style>
+            .about-image {
+                width: 500px;
+                max-width: 90%;
+                height: auto;
+                border-radius: 16px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+                transition: transform 0.3s ease;
+            }
+
+            .about-image:hover {
+                transform: scale(1.02);
+            }
+
+        </style>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="">
@@ -109,8 +124,8 @@
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
                                                 </ul>
                                             </li>
-                                            </c:when>
-                                            <c:otherwise>
+                                        </c:when>
+                                        <c:otherwise>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
                                             </c:otherwise>
                                         </c:choose>
@@ -156,8 +171,8 @@
                                         </ul>
                                     </li> 
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/404.jsp">404</a></li>
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/contact-us.jsp" class="active">Contact</a></li>
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/about-us.jsp">About us</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/contact-us.jsp">Contact</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/about-us.jsp"  class="active">About us</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -171,82 +186,65 @@
             </div><!--/header-bottom-->
         </header><!--/header-->
 
-        <div id="contact-page" class="container">
-            <div class="bg">
-                <div class="row">    		
-                    <div class="col-sm-12">    			   			
-                        <h2 class="title text-center">Contact <strong>Us</strong></h2>    			    				    				
-                        <div class="address">
-                                <iframe 
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.344983050298!2d105.52674837508753!3d21.01807248062373!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345299efec69a1%3A0x2fd2f7482ad04c43!2zVHLGsOG7nW5nIMSQ4bqhaSBI4buNYyBGUFQgLSBIw6AgTMOgbg!5e0!3m2!1svi!2s!4v1716273663654!5m2!1svi!2s" 
-                                    width="100%" 
-                                    height="250" 
-                                    style="border:0;" 
-                                    allowfullscreen="" 
-                                    loading="lazy" 
-                                    referrerpolicy="no-referrer-when-downgrade">
-                                </iframe>
-                                <p>Trường Đại học FPT, Khu CNC Hòa Lạc, Km29 Đại lộ Thăng Long, Thạch Thất, Hà Nội</p>
-                            </div>
-                    </div>			 		
-                </div>    	
-                <div class="row">  	
-                    <div class="col-sm-8">
-                        <div class="contact-form">
-                            <h2 class="title text-center">Get In Touch</h2>
-                            <div class="status alert alert-success" style="display: none"></div>
-                            <form id="main-contact-form" class="contact-form row" name="contact-form" action="ContactServlet" method="post">
-                                <div class="form-group col-md-6">
-                                    <input type="text" name="name" class="form-control" required="required" placeholder="Name">
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <input type="email" name="email" class="form-control" required="required" placeholder="Email">
-                                </div>
-                                <div class="form-group col-md-12">
-                                    <input type="text" name="subject" class="form-control" required="required" placeholder="Subject">
-                                </div>
-                                <div class="form-group col-md-12">
-                                    <textarea name="message" id="message" required="required" class="form-control" rows="8" placeholder="Your Message Here"></textarea>
-                                </div>  
-                                <div class="form-group col-md-12">
-                                    <input type="submit" name="submit" class="btn btn-primary pull-right" value="Submit">
-                                </div>
-                                <h3 class="text-danger text-center">${messContact}</h3>
-                            </form>
-                        </div>
+        <div id="about-page" class="container-fluid py-5" style="background: url('images/about/background.jpg') no-repeat center center / cover;">
+            <div class="container">
+                <h2 class="title text-center mb-5 text-white">About <strong>Us</strong></h2>
+                <div class="row align-items-center">
+                    <!-- Text Left -->
+                    <div class="col-md-6 text-white">
+                        <h3>Who We Are</h3>
+                        <p>
+                            We are LaFioreria – a floral brand dedicated to bringing beauty and emotions into every moment of your life.
+                            Founded by passionate flower lovers, we prioritize both product quality and customer service.
+                        </p>
+                        <p>
+                            Our creative and devoted team continually innovates to deliver unique, elegant, and meaningful floral designs.
+                            Share your memorable moments with us through exquisite and heartfelt bouquets.
+                        </p>
+
+                        <h3 class="mt-4">Our Mission</h3>
+                        <p>
+                            To provide customers with the most beautiful fresh flowers, helping to create unforgettable memories.
+                            We believe that every bouquet tells a story, and our mission is to tell it perfectly.
+                        </p>
+
+                        <h3 class="mt-4">Our Vision</h3>
+                        <p>
+                            To become the leading flower brand in Vietnam, loved and trusted for our quality, creativity, and dedicated service.
+                        </p>
                     </div>
-                    <div class="col-sm-4">
-                        <div class="contact-info">
-                            <h2 class="title text-center">Contact Info</h2>
-                            <address>
-                                <p>LaFioreria</p>
-                                <p>Trường Đại học FPT, Khu CNC Hòa Lạc, Km29 Đại lộ Thăng Long</p>
-                                <p>Thạch Thất, Hà Nội</p>
-                                <p>Mobile: +0919994398</p>
-                                <p>Email:alice@flower.com</p>
-                            </address>
-                            <div class="social-networks">
-                                <h2 class="title text-center">Social Networking</h2>
-                                <ul>
-                                    <li>
-                                        <a href="#"><i class="fa fa-facebook"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="#"><i class="fa fa-twitter"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="#"><i class="fa fa-google-plus"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="#"><i class="fa fa-youtube"></i></a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>    			
-                </div>  
-            </div>	
-        </div><!--/#contact-page-->
+
+                    <!-- Image Right -->
+                    <div class="col-md-6 text-center">
+                        <img src="images/about/tulip.jpg" 
+                             alt="LaFioreria Flowers" 
+                             class="img-fluid rounded shadow about-image">
+                    </div>
+
+                </div>
+
+                <div class="row mt-5 text-white">
+                    <div class="col-md-6">
+                        <h3>Our Location</h3>
+                        <p>FPT University, Hoa Lac Hi-Tech Park</p>
+                        <p>Km29 Thang Long Boulevard, Thach That, Hanoi</p>
+                        <p>Mobile: +0919994398</p>
+                        <p>Email: alice@flower.com</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h3>Follow Us</h3>
+                        <ul class="list-inline">
+                            <li class="list-inline-item"><a href="#"><i class="fa fa-facebook text-white fa-2x"></i></a></li>
+                            <li class="list-inline-item"><a href="#"><i class="fa fa-twitter text-white fa-2x"></i></a></li>
+                            <li class="list-inline-item"><a href="#"><i class="fa fa-google-plus text-white fa-2x"></i></a></li>
+                            <li class="list-inline-item"><a href="#"><i class="fa fa-youtube text-white fa-2x"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
 
         <footer id="footer"><!--Footer-->
             <div class="footer-top">
