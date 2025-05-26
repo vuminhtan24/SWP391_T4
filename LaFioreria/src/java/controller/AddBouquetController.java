@@ -44,7 +44,7 @@ public class AddBouquetController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet AddBouquetController</title>");            
+            out.println("<title>Servlet AddBouquetController</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet AddBouquetController at " + request.getContextPath() + "</h1>");
@@ -65,12 +65,11 @@ public class AddBouquetController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<RawFlower> rawFlower = new ArrayList<>();
         RawFlowerDAO dao = new RawFlowerDAO();
-        
-        rawFlower = dao.getAll();
-        
-        request.setAttribute("bouquetItems", rawFlower);
+        List<RawFlower> all = dao.getAll();
+        // 1. Tất cả hoa để đổ vào dropdown
+        request.setAttribute("flowerInBouquet", all);
+
         request.getRequestDispatcher("./DashMin/addBouquet.jsp").forward(request, response);
     }
 

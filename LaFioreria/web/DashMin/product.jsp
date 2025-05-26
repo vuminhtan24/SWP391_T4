@@ -202,7 +202,7 @@
                         <!-- Header with title and Add Bouquet button -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0">Bouquet List</h6>
-                            <a href="${pageContext.request.contextPath}/DashMin/addBouquet.jsp" class="btn btn-primary">Add Bouquet</a>
+                            <a href="${pageContext.request.contextPath}/addBouquet" class="btn btn-primary">Add Bouquet</a>
                         </div>
                         <table class="table">
                             <thead>
