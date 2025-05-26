@@ -5,6 +5,10 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="java.util.List,model.Bouquet,model.RawFlower" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -121,7 +125,7 @@
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -131,7 +135,7 @@
                                 <hr class="dropdown-divider">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -141,7 +145,7 @@
                                 <hr class="dropdown-divider">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -178,7 +182,7 @@
                         </div>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                <img class="rounded-circle me-lg-2" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                <img class="rounded-circle me-lg-2" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                 <span class="d-none d-lg-inline-flex">John Doe</span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
@@ -192,7 +196,7 @@
                 <!-- Navbar End -->
 
 
-                < div class="container-fluid py-5">
+                <div class="container-fluid py-5">
                     <div class="row justify-content-center">
                         <div class="col-xl-8 col-lg-10">
                             <div class="card shadow-sm">
@@ -200,7 +204,7 @@
                                     <h4 class="mb-0">Create New Bouquet</h4>
                                 </div>
                                 <div class="card-body">
-                                    <form action="saveBouquet" method="post">
+                                    <form action="addBouquet" method="post">
                                         <div class="row g-3">
                                             <!-- Bouquet Name -->
                                             <div class="col-md-6">
@@ -231,59 +235,55 @@
                                         </div>
 
                                         <!-- Flower Table -->
-                                        <div class="mt-4">
-                                            <h5 class="mb-3">Flowers in Bouquet</h5>
-                                            <table id="flowerTable" class="table table-striped table-hover align-middle">
-                                                <thead class="table-dark">
-                                                    <tr>
-                                                        <th scope="col">Flower</th>
-                                                        <th scope="col">Price per Stem</th>
-                                                        <th scope="col">Quantity</th>
-                                                        <th scope="col" style="width: 50px;"></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                <c:forEach var="item" items="${bouquetItems}">
-                                                    <tr>
-                                                        <td>
-                                                            <select name="flowerIds[${item.flower.id}]" class="form-select form-select-sm">
-                                                                <c:forEach var="f" items="${allFlowers}">
-                                                                    <option value="${f.id}" ${f.id == item.flower.id ? 'selected' : ''}>
-                                                                        ${f.name}
-                                                                    </option>
-                                                                </c:forEach>
-                                                            </select>
-                                                        </td>
-                                                        <td>
-                                                            <span class="form-text">
-                                                                $${item.flower.price}
-                                                            </span>
-                                                            <input type="hidden" name="prices[${item.flower.id}]" value="${item.flower.price}" />
-                                                        </td>
-                                                        <td>
-                                                            <input type="number"
-                                                                   name="quantities[${item.flower.id}]"
-                                                                   value="${item.quantity}"
-                                                                   min="0"
-                                                                   class="form-control form-control-sm"
-                                                                   />
-                                                        </td>
-                                                        <td>
-                                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()">
-                                                                &times;
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                </c:forEach>
-                                                </tbody>
-                                            </table>
-
-                                            <!-- Add New Flower Button -->
-                                            <div class="text-end">
-                                                <button type="button" id="addFlowerBtn" class="btn btn-outline-primary btn-sm">
-                                                    + Add Flower
-                                                </button>
+                                        <!-- Flower Table -->
+                                        <h5 class="mb-3 mt-4">Flowers in Bouquet</h5>
+                                        <table id="flowerTable" class="table table-striped table-hover align-middle">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th scope="col">Flower</th>
+                                                    <th scope="col">Price per Stem</th>
+                                                    <th scope="col">Quantity</th>
+                                                    <th scope="col" style="width: 50px;"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Dòng đầu tiên hiển thị mặc định -->
+                                                <tr>
+                                                    <td>
+                                                        <select name="flowerIds[]" class="form-select form-select-sm flower-select">
+                                                            <c:forEach var="f" items="${flowerInBouquet}">
+                                                                <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">${f.getRawName()}</option>
+                                                            </c:forEach>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <span class="form-text price-text">$0.00</span>
+                                                        <input type="hidden" class="price-input" name="prices[]" value="0" />
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" name="quantities[]" value="0" min="0" class="form-control form-control-sm" />
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                                onclick="this.closest('tr').remove(); updateTotalValue();">
+                                                            &times;
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                            <div class="mt-3 text-start fw-bold" style="color: #1e40af;">
+                                                Total Value: <span id="totalValueDisplay">$0.00</span>
                                             </div>
+
+                                            </tr>
+                                            </tfoot>
+
+                                        </table>
+
+                                        <div class="text-end">
+                                            <button type="button" id="addFlowerBtn" class="btn btn-outline-primary btn-sm">+ Add Flower</button>
                                         </div>
 
                                         <!-- Submit -->
@@ -302,27 +302,30 @@
                     <tbody>
                         <tr id="flowerRowTemplate">
                             <td>
-                                <select name="newFlowerIds[]" class="form-select form-select-sm">
-                                    <c:forEach var="f" items="${allFlowers}">
-                                        <option value="${f.id}">${f.name}</option>
+                                <select name="flowerIds[]" class="form-select form-select-sm flower-select">
+                                    <c:forEach var="f" items="${flowerInBouquet}">
+                                        <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">${f.getRawName()}</option>
                                     </c:forEach>
                                 </select>
                             </td>
                             <td>
-                                <span class="form-text">$0.00</span>
-                                <input type="hidden" name="newPrices[]" value="0" />
+                                <span class="form-text price-text">$0.00</span>
+                                <input type="hidden" class="price-input" name="prices[]" value="0" />
                             </td>
                             <td>
-                                <input type="number" name="newQuantities[]" value="0" min="0" class="form-control form-control-sm" />
+                                <input type="number" name="quantities[]" value="0" min="0" class="form-control form-control-sm" />
                             </td>
                             <td>
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()">
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                        onclick="this.closest('tr').remove(); updateTotalValue();">
                                     &times;
                                 </button>
+
                             </td>
                         </tr>
                     </tbody>
                 </table>
+
 
 
                 <!-- Footer Start -->
@@ -364,14 +367,80 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-                    document.getElementById('addFlowerBtn').addEventListener('click', function () {
-                        // Clone template row
-                        var template = document.getElementById('flowerRowTemplate');
-                        var newRow = template.cloneNode(true);
-                        newRow.removeAttribute('id');
-                        // Append to table body
-                        document.querySelector('#flowerTable tbody').appendChild(newRow);
-                    });
+                                            function updatePrice(selectElement) {
+                                                const selectedOption = selectElement.options[selectElement.selectedIndex];
+                                                const price = selectedOption ? parseFloat(selectedOption.getAttribute('data-price') || "0") : 0;
+
+                                                const row = selectElement.closest('tr');
+                                                const priceText = row.querySelector('.price-text');
+                                                const priceInput = row.querySelector('.price-input');
+
+                                                priceText.textContent = '$' + price.toFixed(2);
+                                                priceInput.value = price;
+
+                                                calculateTotal();
+                                            }
+
+                                            function calculateTotal() {
+                                                let total = 0;
+                                                const rows = document.querySelectorAll('#flowerTable tbody tr');
+
+                                                rows.forEach(row => {
+                                                    const price = parseFloat(row.querySelector('.price-input')?.value || 0);
+                                                    const quantity = parseInt(row.querySelector('input[name^="quantities"]')?.value || 0);
+                                                    total += price * quantity;
+                                                });
+
+                                                document.getElementById('totalValueDisplay').textContent = '$' + total.toFixed(2);
+                                            }
+
+                                            function attachEventsToRow(row) {
+                                                const select = row.querySelector('.flower-select');
+                                                const quantityInput = row.querySelector('input[name^="quantities"]');
+                                                const deleteButton = row.querySelector('.btn-outline-danger');
+
+                                                if (select) {
+                                                    updatePrice(select);
+                                                    select.addEventListener('change', function () {
+                                                        updatePrice(this);
+                                                    });
+                                                }
+
+                                                if (quantityInput) {
+                                                    quantityInput.addEventListener('input', calculateTotal);
+                                                }
+
+                                                if (deleteButton) {
+                                                    deleteButton.addEventListener('click', function () {
+                                                        row.remove();
+                                                        calculateTotal(); // ✅ Update lại khi xóa
+                                                    });
+                                                }
+                                            }
+
+                                            document.addEventListener('DOMContentLoaded', function () {
+                                                // Gắn sự kiện cho dòng đầu tiên mặc định
+                                                document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
+                                                    attachEventsToRow(row);
+                                                });
+
+                                                calculateTotal(); // Khởi tạo tổng ban đầu
+                                            });
+
+                                            document.getElementById('addFlowerBtn').addEventListener('click', function () {
+                                                const template = document.getElementById('flowerRowTemplate');
+                                                const newRow = template.cloneNode(true);
+                                                newRow.removeAttribute('id');
+                                                newRow.style.display = '';
+
+                                                document.querySelector('#flowerTable tbody').appendChild(newRow);
+                                                attachEventsToRow(newRow);
+                                                calculateTotal();
+                                            });
         </script>
+
+
+
+
     </body>
 </html>

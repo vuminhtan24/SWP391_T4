@@ -11,6 +11,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import model.Bouquet;
+import model.BouquetRaw;
 
 /**
  *
@@ -29,14 +30,11 @@ public class BouquetDAO extends DBContext {
             while (rs.next()) {
                 int bouquet_id = rs.getInt("Bouquet_ID");
                 String bouquet_name = rs.getString("bouquet_name").trim();
-                Date created_at = rs.getDate("created_at");
-                Date expire_date = rs.getDate("expiration_date");
-                int created_by = rs.getInt("created_by");
                 String description = rs.getString("description").trim();
                 String imgurl = rs.getString("image_url");
                 int cid = rs.getInt("cid");
                 int price = rs.getInt("price");
-                Bouquet newBouquet = new Bouquet(bouquet_id, bouquet_name, created_at, expire_date, created_by, description, imgurl, cid, price);
+                Bouquet newBouquet = new Bouquet(bouquet_id, bouquet_name, description, imgurl, cid, price);
                 listBouquet.add(newBouquet);
             }
         } catch (SQLException e) {
@@ -78,20 +76,111 @@ public class BouquetDAO extends DBContext {
             while (rs.next()) {
                 int bouquet_id = rs.getInt("Bouquet_ID");
                 String bouquet_name = rs.getString("bouquet_name").trim();
-                Date created_at = rs.getDate("created_at");
-                Date expire_date = rs.getDate("expiration_date");
-                int created_by = rs.getInt("created_by");
                 String description = rs.getString("description").trim();
                 String imgurl = rs.getString("image_url");
                 int cid = rs.getInt("cid");
                 int price = rs.getInt("price");
-                Bouquet searchBouquet = new Bouquet(bouquet_id, bouquet_name, created_at, expire_date, created_by, description, imgurl, cid, price);
+                Bouquet searchBouquet = new Bouquet(bouquet_id, bouquet_name, description, imgurl, cid, price);
                 searchListBQ.add(searchBouquet);
             }
         } catch (Exception e) {
             System.out.println(e);
         }
         return searchListBQ;
+    }
+
+    public void insertBouquet(Bouquet bouquet) {
+        String sql = "INSERT INTO la_fioreria.bouquet (bouquet_name, description, image_url, cid, price)\n"
+                + "VALUE\n"
+                + " (?, ?, ?, ?, ?);";
+
+        try {
+            PreparedStatement pre = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+            pre.setString(1, bouquet.getBouquetName());
+            pre.setString(2, bouquet.getDescription());
+            pre.setString(3, bouquet.getImageUrl());
+            pre.setInt(4, bouquet.getCid());
+            pre.setInt(5, bouquet.getPrice());
+            pre.executeUpdate();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void insertBouquetRaw(BouquetRaw bouquetRaw) {
+        String sql = "INSERT INTO la_fioreria.bouquet_raw (bouquet_id, raw_id, quantity)\n"
+                + "VALUE\n"
+                + " (?, ?, ?)";
+        try {
+            PreparedStatement pre = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+            pre.setInt(1, bouquetRaw.getBouquet_id());
+            pre.setInt(2, bouquetRaw.getRaw_id());
+            pre.setInt(3, bouquetRaw.getQuantity());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void addBouquetWithDetails(Bouquet bouquet, List<BouquetRaw> raws) {
+        String sqlBouquet
+                = "INSERT INTO la_fioreria.bouquet (bouquet_name, description, image_url, cid, price) "
+                + "VALUES (?, ?, ?, ?, ?);";
+        String sqlRaw
+                = "INSERT INTO la_fioreria.bouquet_raw (bouquet_id, raw_id, quantity) "
+                + "VALUES (?, ?, ?);";
+
+        try {
+            // 1. Tắt auto-commit để sử dụng transaction
+            connection.setAutoCommit(false);
+
+            // 2. Chuẩn bị statement cho bouquet, yêu cầu trả về generated keys
+            try (PreparedStatement psBouquet = connection.prepareStatement(sqlBouquet, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                psBouquet.setString(1, bouquet.getBouquetName());
+                psBouquet.setString(2, bouquet.getDescription());
+                psBouquet.setString(3, bouquet.getImageUrl());
+                psBouquet.setInt(4, bouquet.getCid());
+                psBouquet.setInt(5, bouquet.getPrice());
+                psBouquet.executeUpdate();
+
+                // 3. Lấy bouquet_id vừa sinh
+                try (ResultSet rs = psBouquet.getGeneratedKeys()) {
+                    if (!rs.next()) {
+                        throw new SQLException("Không lấy được generated key cho bouquet");
+                    }
+                    int newBouquetId = rs.getInt(1);
+
+                    // 4. Chuẩn bị và chèn từng bản ghi vào bouquet_raw
+                    try (PreparedStatement psRaw = connection.prepareStatement(sqlRaw)) {
+                        for (BouquetRaw br : raws) {
+                            psRaw.setInt(1, newBouquetId);
+                            psRaw.setInt(2, br.getRaw_id());
+                            psRaw.setInt(3, br.getQuantity());
+                            psRaw.addBatch();
+                        }
+                        psRaw.executeBatch();
+                    }
+                }
+            }
+
+            // 5. Nếu tất cả OK thì commit
+            connection.commit();
+
+        } catch (SQLException e) {
+            // 6. Nếu có lỗi thì rollback
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        } finally {
+            // 7. Bật lại auto-commit
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void main(String[] args) {

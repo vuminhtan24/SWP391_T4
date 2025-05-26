@@ -19,22 +19,27 @@
     <servlet>
         <servlet-name>ViewUserList</servlet-name>
         <servlet-class>controller.ViewUserList</servlet-class>
+
     </servlet>
     <servlet>
         <servlet-name>RawFlowerServlet</servlet-name>
         <servlet-class>controller.RawFlowerServlet</servlet-class>
+
     </servlet>
     <servlet>
         <servlet-name>ContactServlet</servlet-name>
         <servlet-class>controller.ContactServlet</servlet-class>
     </servlet>
+    
     <servlet>
         <servlet-name>requestPassword</servlet-name>
         <servlet-class>controller.requestPassword</servlet-class>
     </servlet>
+    
     <servlet>
         <servlet-name>resetPassword</servlet-name>
         <servlet-class>controller.resetPassword</servlet-class>
+
     </servlet>
     <servlet>
         <servlet-name>RejectUserListServlet</servlet-name>
@@ -43,7 +48,9 @@
     <servlet>
         <servlet-name>DeleteUserListServlet</servlet-name>
         <servlet-class>controller.DeleteUserListServlet</servlet-class>
+
     </servlet>
+    
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/LoginServlet</url-pattern>
@@ -82,6 +89,7 @@
         <servlet-name>ViewUserList</servlet-name>
         <url-pattern>/ViewUserList</url-pattern>
     </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>RawFlowerServlet</servlet-name>
         <url-pattern>/rawflower</url-pattern>
@@ -90,6 +98,8 @@
         <servlet-name>RawFlowerServlet</servlet-name>
         <url-pattern>/DashMin/rawlower</url-pattern>
     </servlet-mapping>
+
+
     <!-- Raw Flower management -->
     <servlet>
         <servlet-name>RawFlowerServlet</servlet-name>

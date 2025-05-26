@@ -12,9 +12,6 @@ import java.sql.Date;
 public class Bouquet {
     int bouquetId;
     String bouquetName;
-    Date createdAt;
-    Date expirationDate;
-    int createdBy;
     String Description;
     String imageUrl;
     int cid;
@@ -23,12 +20,9 @@ public class Bouquet {
     public Bouquet() {
     }
 
-    public Bouquet(int bouquetId, String bouquetName, Date createdAt, Date expirationDate, int createdBy, String Description, String imageUrl, int cid, int price) {
+    public Bouquet(int bouquetId, String bouquetName, String Description, String imageUrl, int cid, int price) {
         this.bouquetId = bouquetId;
         this.bouquetName = bouquetName;
-        this.createdAt = createdAt;
-        this.expirationDate = expirationDate;
-        this.createdBy = createdBy;
         this.Description = Description;
         this.imageUrl = imageUrl;
         this.cid      = cid;
@@ -49,30 +43,6 @@ public class Bouquet {
 
     public void setBouquetName(String bouquetName) {
         this.bouquetName = bouquetName;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Date getExpirationDate() {
-        return expirationDate;
-    }
-
-    public void setExpirationDate(Date expirationDate) {
-        this.expirationDate = expirationDate;
-    }
-
-    public int getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(int createdBy) {
-        this.createdBy = createdBy;
     }
 
     public String getDescription() {
@@ -109,9 +79,7 @@ public class Bouquet {
 
     @Override
     public String toString() {
-        return "Bouquet{" + "bouquetId=" + bouquetId + ", bouquetName=" + bouquetName + ", createdAt=" + createdAt + ", expirationDate=" + expirationDate + ", createdBy=" + createdBy + ", Description=" + Description + ", imageUrl=" + imageUrl + ", cid=" + cid + ", price=" + price + '}';
+        return "Bouquet{" + "bouquetId=" + bouquetId + ", bouquetName=" + bouquetName + ", Description=" + Description + ", imageUrl=" + imageUrl + ", cid=" + cid + ", price=" + price + '}';
     }
-    
-    
-    
+
 }

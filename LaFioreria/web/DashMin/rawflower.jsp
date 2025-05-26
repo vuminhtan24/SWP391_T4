@@ -244,9 +244,9 @@
                     <div class="card shadow-sm rounded-4">
                         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center rounded-top-4">
                             <h4 class="mb-0">🌸 Raw Flowers Management</h4>
-                            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#addFlowerModal">
+                            <a href="addrawflower.jsp" class="btn btn-light btn-sm">
                                 <i class="bi bi-plus-circle"></i> Add Flower
-                            </button>
+                            </a>
                         </div>
                         <div class="card-body bg-light rounded-bottom-4">
                             <div class="table-responsive">
@@ -260,6 +260,7 @@
                                             <th>Quantity</th>
                                             <th>Expiration Date</th>
                                             <th>Import Price</th>
+                                            <th>Warehouse ID</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -273,6 +274,7 @@
                                                 <td>${item.availableQuantity}</td>
                                                 <td>${item.expirationDate}</td>
                                                 <td>${item.importPrice} VND</td>
+                                                <th>${item.warehouseId}</th>
                                                 <td class="actions-btn">
                                                     <a href="update_rawflower?id=${item.rawId}" class="btn btn-warning btn-sm">View detail</a>
                                                     <form action="${pageContext.request.contextPath}/hidePerfume" method="post" style="display:inline;">
