@@ -5,7 +5,7 @@
                              https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
          version="6.0">
 
-    <!-- Login -->
+
     <servlet>
         <servlet-name>LoginServlet</servlet-name>
         <servlet-class>controller.LoginServlet</servlet-class>
@@ -18,23 +18,18 @@
         <servlet-name>ViewUserDetail</servlet-name>
         <servlet-class>controller.ViewUserDetail</servlet-class>
     </servlet>
+    
     <servlet>
-
-
         <servlet-name>AddUserDetail</servlet-name>
         <servlet-class>controller.AddUserDetail</servlet-class>
     </servlet>
+    
     <servlet>
         <servlet-name>ViewUserList</servlet-name>
         <servlet-class>controller.ViewUserList</servlet-class>
-
     </servlet>
 
-    <servlet>
-
-     </servlet> 
-     <servlet>  
-
+    <servlet>  
         <servlet-name>RawFlowerServlet</servlet-name>
         <servlet-class>controller.RawFlowerServlet</servlet-class>
     </servlet>
@@ -50,8 +45,8 @@
     <servlet>
         <servlet-name>resetPassword</servlet-name>
         <servlet-class>controller.resetPassword</servlet-class>
-
     </servlet>
+    
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/LoginServlet</url-pattern>
@@ -81,8 +76,8 @@
         <servlet-name>AddUserDetail</servlet-name>
         <servlet-class>controller.AddUserDetail</servlet-class>
     </servlet>
+    
     <servlet-mapping>
-
         <servlet-name>AddUserDetail</servlet-name>
         <url-pattern>/adduserdetail</url-pattern>
     </servlet-mapping>
@@ -94,7 +89,6 @@
     <servlet-mapping>
         <servlet-name>ViewUserList</servlet-name>
         <url-pattern>/ViewUserList</url-pattern>
-
     </servlet-mapping>
 
     <servlet-mapping>
@@ -102,9 +96,7 @@
         <url-pattern>/rawflower</url-pattern>
     </servlet-mapping>
 
-    <servlet-mapping>        
 
-    </servlet-mapping>
     <servlet-mapping>        
         <servlet-name>RawFlowerServlet</servlet-name>
         <url-pattern>/DashMin/rawlower</url-pattern>
@@ -147,9 +139,6 @@
     <servlet-mapping>
         <servlet-name>resetPassword</servlet-name>
         <url-pattern>/resetPassword</url-pattern>
-
-
-
     </servlet-mapping>
 
     <!-- Welcome -->
