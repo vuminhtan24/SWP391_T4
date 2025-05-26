@@ -26,11 +26,6 @@
         <servlet-name>ViewUserList</servlet-name>
         <servlet-class>controller.ViewUserList</servlet-class>
     </servlet>
-
-     <servlet>  
-        <servlet-name>RawFlowerServlet</servlet-name>
-        <servlet-class>controller.RawFlowerServlet</servlet-class>
-    </servlet>
  
     <servlet>  
         <servlet-name>ContactServlet</servlet-name>
@@ -89,17 +84,7 @@
         <servlet-name>ViewUserList</servlet-name>
         <url-pattern>/ViewUserList</url-pattern>
     </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>RawFlowerServlet</servlet-name>
-        <url-pattern>/rawflower</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>        
-        <servlet-name>RawFlowerServlet</servlet-name>
-        <url-pattern>/DashMin/rawlower</url-pattern>
-    </servlet-mapping>
-
+    
     <!-- Raw Flower management -->
     <servlet>
         <servlet-name>RawFlowerServlet</servlet-name>

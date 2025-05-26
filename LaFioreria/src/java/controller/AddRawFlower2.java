@@ -67,7 +67,7 @@ public class AddRawFlower2 extends HttpServlet {
         HttpSession session = request.getSession();
         List<RawFlower> rawflower = rf.getRawFlower();
         session.setAttribute("listRF", rawflower);
-        request.getRequestDispatcher("rawflower.jsp").forward(request, response);
+        request.getRequestDispatcher("DashMin/rawflower.jsp").forward(request, response);
 
     }
 
