@@ -355,5 +355,10 @@ public class RawFlowerDAO extends DBContext {
         }
         return list;
     }
+    
+    public static void main(String[] args) {
+        RawFlowerDAO dao = new RawFlowerDAO();
+        System.out.println(dao.getAll());
+    }
 
 }

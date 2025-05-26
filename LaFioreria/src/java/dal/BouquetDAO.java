@@ -89,7 +89,7 @@ public class BouquetDAO extends DBContext {
         return searchListBQ;
     }
 
-    public void insertBouquet(Bouquet bouquet) {
+    /*    public void insertBouquet(Bouquet bouquet) {
         String sql = "INSERT INTO la_fioreria.bouquet (bouquet_name, description, image_url, cid, price)\n"
                 + "VALUE\n"
                 + " (?, ?, ?, ?, ?);";
@@ -118,6 +118,59 @@ public class BouquetDAO extends DBContext {
             pre.setInt(3, bouquetRaw.getQuantity());
         } catch (Exception e) {
             System.out.println(e.getMessage());
+        }
+    }*/
+    /**
+     * Insert bouquet, trả về khóa sinh tự động (bouquet_id).
+     */
+    public int insertBouquet(Bouquet bouquet) {
+        String sql = """
+      INSERT INTO la_fioreria.bouquet
+        (bouquet_name, description, image_url, cid, price)
+      VALUES (?, ?, ?, ?, ?)
+      """;
+        // 1. Chỉ định rõ cột PK cần lấy
+        String[] genCols = {"bouquet_id"};
+        try (PreparedStatement pre = connection.prepareStatement(sql, genCols)) {
+            pre.setString(1, bouquet.getBouquetName());
+            pre.setString(2, bouquet.getDescription());
+            pre.setString(3, bouquet.getImageUrl());
+            pre.setInt(4, bouquet.getCid());
+            pre.setInt(5, bouquet.getPrice());
+
+            int affected = pre.executeUpdate();
+            if (affected == 0) {
+                throw new SQLException("Insert đã chạy nhưng không có row nào bị ảnh hưởng.");
+            }
+
+            try (ResultSet rs = pre.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                } else {
+                    throw new SQLException("Insert thành công nhưng không lấy được generated key.");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    /**
+     * Insert một dòng bouquet_raw; bouquet_id phải được set trước.
+     */
+    public void insertBouquetRaw(BouquetRaw bouquetRaw) throws SQLException {
+        String sql = """
+            INSERT INTO la_fioreria.bouquet_raw 
+              (bouquet_id, raw_id, quantity)
+            VALUES (?, ?, ?)
+            """;
+
+        try (PreparedStatement pre = connection.prepareStatement(sql)) {
+            pre.setInt(1, bouquetRaw.getBouquet_id());
+            pre.setInt(2, bouquetRaw.getRaw_id());
+            pre.setInt(3, bouquetRaw.getQuantity());
+            pre.executeUpdate();
         }
     }
 

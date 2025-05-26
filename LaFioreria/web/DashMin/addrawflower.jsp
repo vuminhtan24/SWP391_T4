@@ -57,17 +57,12 @@
 <!--                                    <img src="images/logo.jpg" alt="La Fioreria Logo" class="logo">-->
                                     <h4 class="mt-3 mb-4">🌸 La Fioreria</h4>
                                 </div>
-                                <form enctype="multipart/form-data" action="addRawFlower" method="post">
-                                    <h1 class="mb-4">Add Raw Flower</h1>
+                                <form action="${pageContext.request.contextPath}/addRawFlower" method="post">
+                                    <h1 class="mb-4">Add New Flower</h1>
 
                                     <div class="mb-3">
                                         <label class="form-label">Raw Flower Name:</label>
                                         <input type="text" class="form-control" name="rawName" placeholder="Enter raw flower name" required>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">Quantity:</label>
-                                        <input type="number" class="form-control" name="rawQuantity" min="0" required>
                                     </div>
 
                                     <div class="row mb-3">

@@ -318,6 +318,91 @@ public class UserDAO extends DBContext {
         return list;
     }
 
+    public List<UserManager> getSortedUsersWithPaging(int roleId, String keyword, String sortField, String sortOrder, int offset, int limit) {
+        List<UserManager> list = new ArrayList<>();
+        try {
+            String sql = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
+                    + "FROM user u JOIN role r ON u.Role = r.Role_id WHERE 1=1 "
+                    + "AND (u.status IS NULL OR u.status != 'rejected')";
+
+            if (roleId != 0) {
+                sql += " AND r.Role_id = ?";
+            }
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                sql += " AND u.Fullname LIKE ?";
+            }
+            sql += " ORDER BY " + sortField + " " + sortOrder;
+            sql += " LIMIT ?, ?";
+
+            PreparedStatement ps = connection.prepareStatement(sql);
+
+            int idx = 1;
+            if (roleId != 0) {
+                ps.setInt(idx++, roleId);
+            }
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                ps.setString(idx++, "%" + keyword + "%");
+            }
+            ps.setInt(idx++, offset);
+            ps.setInt(idx, limit);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                UserManager u = new UserManager();
+                u.setUserid(rs.getInt("User_ID"));
+                u.setUsername(rs.getString("Username"));
+                u.setPassword(rs.getString("Password"));
+                u.setFullname(rs.getString("Fullname"));
+                u.setEmail(rs.getString("Email"));
+                u.setPhone(rs.getString("Phone"));
+                u.setAddress(rs.getString("Address"));
+                u.setRole(rs.getString("Role_name"));
+                list.add(u);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Lỗi SQL khi phân trang: " + e.getMessage());
+        }
+
+        return list;
+    }
+
+    public int getTotalUserCount(int roleId, String keyword) {
+        int total = 0;
+        try {
+            String sql = "SELECT COUNT(*) FROM user u JOIN role r ON u.Role = r.Role_id WHERE 1=1 "
+                    + "AND(u.status IS NULL OR u.status != 'rejected')";
+
+            if (roleId != 0) {
+                sql += " AND r.Role_id = ?";
+            }
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                sql += " AND u.Fullname LIKE ?";
+            }
+
+            PreparedStatement ps = connection.prepareStatement(sql);
+
+            int idx = 1;
+            if (roleId != 0) {
+                ps.setInt(idx++, roleId);
+            }
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                ps.setString(idx++, "%" + keyword + "%");
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                total = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.out.println("Lỗi khi đếm số lượng bản ghi: " + e.getMessage());
+        }
+
+        return total;
+    }
+
+    
+    
     public void insertUser(User u) {
         String sql = "insert into user (User_ID,Username,Password,Fullname,Email,Phone,Address,Role) values(?,?,?,?,?,?,?,?);";
 
@@ -333,6 +418,30 @@ public class UserDAO extends DBContext {
             ps.setString(6, u.getPhone());
             ps.setString(7, u.getAddress());
             ps.setInt(8, u.getRole());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+    
+    public void rejectUser(int userId){
+        String sql = "UPDATE user SET status = 'rejected' where User_ID = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, userId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+    
+    
+    public void delete(int id){
+        String sql = "delete from user "
+                + "where User_ID = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e);

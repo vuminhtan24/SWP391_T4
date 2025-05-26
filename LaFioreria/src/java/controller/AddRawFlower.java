@@ -48,7 +48,6 @@ public class AddRawFlower extends HttpServlet {
             throws ServletException, IOException {
         
             String name = request.getParameter("rawName");
-            int quantity = Integer.parseInt(request.getParameter("rawQuantity"));
             int unitPrice = Integer.parseInt(request.getParameter("unitPrice"));
             String expirationDate_raw = request.getParameter("expirationDate");
             Date expirationDate = Date.valueOf(expirationDate_raw);
