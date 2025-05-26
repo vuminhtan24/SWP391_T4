@@ -322,7 +322,8 @@ public class UserDAO extends DBContext {
         List<UserManager> list = new ArrayList<>();
         try {
             String sql = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
-                    + "FROM user u JOIN role r ON u.Role = r.Role_id WHERE 1=1";
+                    + "FROM user u JOIN role r ON u.Role = r.Role_id WHERE 1=1 "
+                    + "AND (u.status IS NULL OR u.status != 'rejected')";
 
             if (roleId != 0) {
                 sql += " AND r.Role_id = ?";
@@ -369,7 +370,8 @@ public class UserDAO extends DBContext {
     public int getTotalUserCount(int roleId, String keyword) {
         int total = 0;
         try {
-            String sql = "SELECT COUNT(*) FROM user u JOIN role r ON u.Role = r.Role_id WHERE 1=1";
+            String sql = "SELECT COUNT(*) FROM user u JOIN role r ON u.Role = r.Role_id WHERE 1=1 "
+                    + "AND(u.status IS NULL OR u.status != 'rejected')";
 
             if (roleId != 0) {
                 sql += " AND r.Role_id = ?";
@@ -399,6 +401,8 @@ public class UserDAO extends DBContext {
         return total;
     }
 
+    
+    
     public void insertUser(User u) {
         String sql = "insert into user (User_ID,Username,Password,Fullname,Email,Phone,Address,Role) values(?,?,?,?,?,?,?,?);";
 
@@ -414,6 +418,30 @@ public class UserDAO extends DBContext {
             ps.setString(6, u.getPhone());
             ps.setString(7, u.getAddress());
             ps.setInt(8, u.getRole());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+    
+    public void rejectUser(int userId){
+        String sql = "UPDATE user SET status = 'rejected' where User_ID = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, userId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+    
+    
+    public void delete(int id){
+        String sql = "delete from user "
+                + "where User_ID = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e);

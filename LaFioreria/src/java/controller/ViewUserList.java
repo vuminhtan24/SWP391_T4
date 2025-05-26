@@ -61,16 +61,74 @@ public class ViewUserList extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+//        try {
+//            UserDAO ud = new UserDAO();
+//            List<UserManager> um = ud.getAllUserManager();
+//            request.setAttribute("userManagerList", um);
+//            List<Role> r = ud.getAllRole();
+//            request.setAttribute("roleList", r);
+//
+//            request.getRequestDispatcher("TestWeb/showUserList.jsp").forward(request, response);
+//        } catch (ServletException | IOException e) {
+//            System.out.println(e);
+//        }
         try {
+            int page = 1;
+            int recordsPerPage = 5; // Hoặc số bản ghi bạn muốn trên 1 trang
+
+// Lấy số trang hiện tại từ request
+            String pageParam = request.getParameter("page");
+            if (pageParam != null && !pageParam.isEmpty()) {
+                try {
+                    page = Integer.parseInt(pageParam);
+                } catch (NumberFormatException e) {
+                    page = 1; // fallback nếu lỗi
+                }
+            }
+
+// Tính offset (vị trí bắt đầu lấy bản ghi)
+            int offset = (page - 1) * recordsPerPage;
+
+// Lấy dữ liệu từ form tìm kiếm, sort
+            String sortField = request.getParameter("sortField");
+            String sortOrder = request.getParameter("sortOrder");
+            String keyword = request.getParameter("txtSearchName");
+            String roleId_raw = request.getParameter("txtRoleList");
+
+            if (roleId_raw == null || roleId_raw.trim().isEmpty()) {
+                roleId_raw = "0";
+            }
+            int roleId = Integer.parseInt(roleId_raw);
+
+            if (sortField == null || sortField.isEmpty()) {
+                sortField = "User_ID";
+            }
+            if (sortOrder == null || sortOrder.isEmpty()) {
+                sortOrder = "asc";
+            }
+
+// Gọi DAO lấy danh sách theo phân trang
             UserDAO ud = new UserDAO();
-            List<UserManager> um = ud.getAllUserManager();
-            request.setAttribute("userManagerList", um);
-            List<Role> r = ud.getAllRole();
-            request.setAttribute("roleList", r);
+            List<Role> roleList = ud.getAllRole();
+            List<UserManager> userList = ud.getSortedUsersWithPaging(roleId, keyword, sortField, sortOrder, offset, recordsPerPage);
+            int totalRecords = ud.getTotalUserCount(roleId, keyword);
+            int totalPages = (int) Math.ceil(totalRecords * 1.0 / recordsPerPage);
+
+// Truyền về JSP
+            request.setAttribute("userManagerList", userList);
+            request.setAttribute("roleList", roleList);
+            request.setAttribute("keyword", keyword);
+            request.setAttribute("roleId", roleId);
+            request.setAttribute("sortField", sortField);
+            request.setAttribute("sortOrder", sortOrder);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("totalPages", totalPages);
 
             request.getRequestDispatcher("TestWeb/showUserList.jsp").forward(request, response);
-        } catch (ServletException | IOException e) {
+
+        } catch (NumberFormatException e) {
             System.out.println(e);
+            System.out.println("role id is not integer");
         }
 
     }

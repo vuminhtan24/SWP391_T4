@@ -72,6 +72,7 @@
                         <th>Phone</th>
                         <th>Address</th>
                         <th>Role</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -85,6 +86,19 @@
                         <td>${user.phone}</td>
                         <td>${user.address}</td>
                         <td>${user.role}</td>
+                        <td>
+                            <form action="rejectuserlist" method="post" onsubmit="return confirm('Confirm reject this user ?');">
+                                <input type="hidden" name="userId" value="${user.userid}" />
+                                <button type="submit">Reject</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form action="DeleteUserListServlet" method="post" onsubmit="return confirm('Confirm Delete this user ?');">
+                                <input type="hidden" name="userId" value="${user.userid}" />
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
+
                     </tr>
                 </c:forEach>
             </tbody>
