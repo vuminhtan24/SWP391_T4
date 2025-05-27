@@ -124,7 +124,7 @@ public class ViewUserList extends HttpServlet {
             request.setAttribute("currentPage", page);
             request.setAttribute("totalPages", totalPages);
 
-            request.getRequestDispatcher("TestWeb/showUserList.jsp").forward(request, response);
+            request.getRequestDispatcher("DashMin/viewuserlist.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
             System.out.println(e);
@@ -197,7 +197,7 @@ public class ViewUserList extends HttpServlet {
             request.setAttribute("currentPage", page);
             request.setAttribute("totalPages", totalPages);
 
-            request.getRequestDispatcher("TestWeb/showUserList.jsp").forward(request, response);
+            request.getRequestDispatcher("DashMin/viewuserlist.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
             System.out.println(e);
