@@ -357,8 +357,7 @@
                                         <button type="button" class="btn btn-default get">Get it now</button>
                                     </div>
                                     <div class="col-sm-6">
-                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/girl1.jpg" class="girl img-responsive" alt="" />
-                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/pricing.png"  class="pricing" alt="" />
+                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/bouquet1.jpg"  class="girl img-responsive" alt="" />
                                     </div>
                                 </div>
                                 <div class="item">
@@ -369,8 +368,7 @@
                                         <button type="button" class="btn btn-default get">Get it now</button>
                                     </div>
                                     <div class="col-sm-6">
-                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/girl2.jpg" class="girl img-responsive" alt="" />
-                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/pricing.png"  class="pricing" alt="" />
+                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/bouquet2.jpg" style="width: 350px;" class="girl img-responsive" alt="" />
                                     </div>
                                 </div>
 
@@ -382,8 +380,7 @@
                                         <button type="button" class="btn btn-default get">Get it now</button>
                                     </div>
                                     <div class="col-sm-6">
-                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/girl3.jpg" class="girl img-responsive" alt="" />
-                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/pricing.png" class="pricing" alt="" />
+                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/bouquet3.jpg" style="width: 300px;" class="girl img-responsive" alt="" />
                                     </div>
                                 </div>
 
