@@ -32,6 +32,78 @@
         <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-114-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-57-precomposed.png">
+	<style>
+            .popup-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.6);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 999;
+            }
+
+            .popup-content {
+                background: #fff;
+                padding: 25px;
+                border-radius: 10px;
+                width: 400px;
+                max-width: 90%;
+                box-shadow: 0 0 15px rgba(0,0,0,0.3);
+                animation: fadeIn 0.3s ease;
+            }
+
+            .popup-content h3 {
+                margin-top: 0;
+                text-align: center;
+            }
+
+            .popup-content label {
+                display: block;
+                margin-top: 10px;
+                font-weight: bold;
+            }
+
+            .popup-content input {
+                width: 100%;
+                padding: 8px;
+                margin-top: 5px;
+                box-sizing: border-box;
+            }
+
+            .popup-buttons {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 20px;
+            }
+
+            .popup-btn {
+                padding: 10px 18px;
+                background-color: #5cb85c;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            .popup-btn.cancel {
+                background-color: #d9534f;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: scale(0.95);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+        </style>
     </head><!--/head-->
 
     <body>
