@@ -11,6 +11,30 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
+    <style>
+    .productinfo {
+        min-height: 400px; /* chỉnh tùy theo độ dài nội dung */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .productinfo img {
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .single-products {
+        height: 100%;
+    }
+
+    .product-image-wrapper {
+        border: 1px solid #f0f0f0;
+        padding: 10px;
+        height: 100%;
+    }
+</style>
+
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
