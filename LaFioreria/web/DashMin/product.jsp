@@ -207,20 +207,16 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th scope="col">Bouquet ID</th>
+                                    <th scope="col">STT</th>
                                     <th scope="col">Image</th>
                                     <th scope="col">Bouquet Name</th>
                                     <th scope="col">Price</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <c:forEach var="bouquet" items="${listBouquet}">
+                                <c:forEach var="bouquet" items="${listBouquet}" varStatus="status">
                                     <tr>
-                                        <td>
-                                            <a href="${pageContext.request.contextPath}/DashMin/bouquetDetails.jsp" class="change-color-qvm">
-                                                ${bouquet.getBouquetId()}
-                                            </a>
-                                        </td>
+                                        <td>${(currentPage - 1) * 6 + status.index + 1}</td>
                                         <td>
                                             <img src="${bouquet.getImageUrl()}" alt="Bouquet Image" style="height: 60px; width: auto;" />
                                         </td>
