@@ -33,6 +33,171 @@
         <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-114-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-57-precomposed.png">
+        <style>
+            .popup-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                animation: fadeIn 0.3s ease-in-out;
+            }
+
+            .popup-content {
+                background: #ffffff;
+                padding: 25px 30px;
+                border-radius: 12px;
+                max-width: 400px;
+                width: 90%;
+                position: relative;
+                box-shadow: 0 0 10px rgba(0,0,0,0.2);
+                animation: scaleUp 0.3s ease;
+            }
+
+            .popup-img {
+                width: 100%;
+                max-height: 200px;
+                object-fit: contain;
+                border-radius: 8px;
+                margin-bottom: 15px;
+            }
+
+            .popup-price {
+                font-weight: bold;
+                margin: 5px 0;
+            }
+
+            .popup-description {
+                font-size: 14px;
+                color: #555;
+                margin-bottom: 15px;
+            }
+
+            .popup-label {
+                display: block;
+                font-weight: 500;
+                margin-bottom: 5px;
+            }
+
+            .popup-input {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 15px;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+            }
+
+            .popup-buttons {
+                display: flex;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            .popup-btn {
+                flex: 1;
+                padding: 10px;
+                border: none;
+                border-radius: 6px;
+                background-color: #28a745;
+                color: white;
+                font-weight: bold;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+            .popup-btn.cancel {
+                background-color: #dc3545;
+            }
+
+            .popup-btn:hover {
+                filter: brightness(0.9);
+            }
+
+            .close-btn {
+                position: absolute;
+                top: 10px;
+                right: 15px;
+                font-size: 22px;
+                cursor: pointer;
+                color: #aaa;
+                transition: color 0.2s;
+            }
+            .productinfo {
+                min-height: 400px; /* chỉnh tùy theo độ dài nội dung */
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .productinfo img {
+                height: 200px;
+                object-fit: cover;
+            }
+
+            .single-products {
+                height: 100%;
+            }
+
+            .product-image-wrapper {
+                border: 1px solid #f0f0f0;
+                padding: 10px;
+                height: 100%;
+            }
+
+            .close-btn:hover {
+                color: #000;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+            @keyframes scaleUp {
+                from {
+                    transform: scale(0.95);
+                    opacity: 0;
+                }
+                to {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+            }
+
+            .success-toast {
+                display: none;
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background-color: #4CAF50;
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.2);
+                font-size: 16px;
+                z-index: 9999;
+                animation: fadein 0.5s;
+            }
+
+            @keyframes fadein {
+                from {
+                    opacity: 0;
+                    bottom: 10px;
+                }
+                to {
+                    opacity: 1;
+                    bottom: 30px;
+                }
+            }
+        </style>
     </head><!--/head-->
     <body>
         <header id="header"><!--header-->
@@ -67,7 +232,7 @@
                     <div class="row">
                         <div class="col-sm-4">
                             <div class="logo pull-left">
-                                <a href="${pageContext.request.contextPath}/home"><img src="${pageContext.request.contextPath}/ZeShopper/images/home/logo.png" alt="" /></a>
+                                <a href="${pageContext.request.contextPath}/home"><img src="${pageContext.request.contextPath}/ZeShopper/images/home/logo1.jpg" style="width:150px;" alt="" /></a>
                             </div>
                             <div class="btn-group pull-right">
                                 <div class="btn-group">
@@ -109,15 +274,15 @@
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
                                                 </ul>
                                             </li>
-                                            </c:when>
-                                            <c:otherwise>
+                                        </c:when>
+                                        <c:otherwise>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
                                             </c:otherwise>
                                         </c:choose>
 
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/wishlist.jsp"><i class="fa fa-star"></i> Wishlist</a></li>
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp"><i class="fa fa-crosshairs"></i> Checkout</a></li>
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp"><i class="fa fa-shopping-cart"></i> Cart</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/cart"><i class="fa fa-shopping-cart"></i> Cart</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -186,7 +351,7 @@
                             <div class="carousel-inner">
                                 <div class="item active">
                                     <div class="col-sm-6">
-                                        <h1><span>E</span>-SHOPPER</h1>
+                                        <h1><span></span>Lafioreria</h1>
                                         <h2>Free E-Commerce Template</h2>
                                         <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
                                         <button type="button" class="btn btn-default get">Get it now</button>
@@ -284,9 +449,16 @@
                                                 <img src="${lb.getImageUrl()}" alt="" />
                                                 <h2>${lb.getBouquetName()}</h2>
                                                 <p>Price: </p>
-                                                <a href="#" class="btn btn-default add-to-cart">
-                                                    <i class="fa fa-shopping-cart"></i>Add to cart
-                                                </a>
+                                                <button 
+                                                    class="btn btn-default add-to-cart" 
+                                                    onclick="openPopup(
+                                                                    '${lb.getBouquetId()}',
+                                                                    '${lb.getBouquetName()}',
+                                                                    '${lb.getImageUrl()}',
+                                                                    '${lb.getPrice()}'
+                                                                    )">
+                                                    <i class="fa fa-shopping-cart"></i> Add to cart
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -295,6 +467,27 @@
 
                         </div>
                     </div><!--features_items-->
+
+                    <div id="popup" class="popup-overlay" style="display:none;">
+                        <div class="popup-content">
+                            <span class="close-btn" onclick="closePopup()">&times;</span>
+                            <form id="addToCartForm">
+                                <h3 id="popup-name"></h3>
+                                <img id="popup-image" src="" alt="" class="popup-img">
+                                <p id="popup-price" class="popup-price"></p>
+                                <p id="popup-description" class="popup-description"></p>
+
+                                <label class="popup-label">Quantity:</label>
+                                <input id="popup-quantity" type="number" name="quantity" value="1" min="1" required class="popup-input">
+
+                                <input type="hidden" name="bouquetId" id="popup-id">
+                                <div class="popup-buttons">
+                                    <button type="submit" class="popup-btn">Add to Cart</button>
+                                    <button type="button" onclick="closePopup()" class="popup-btn cancel">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
 
                     <div class="recommended_items"><!--recommended_items-->
                         <h2 class="title text-center">recommended items</h2>
@@ -556,14 +749,80 @@
 
     </footer><!--/Footer-->
 
+    <div id="success-popup" class="success-toast">Added to cart successfully!</div>
+
 
 
     <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
+
+    <script>
+                                            function openPopup(id, name, imageUrl, price, description) {
+                                                document.getElementById("popup-id").value = id;
+                                                document.getElementById("popup-name").textContent = name;
+                                                document.getElementById("popup-image").src = imageUrl;
+                                                document.getElementById("popup-price").textContent = "Price: " + price;
+                                                document.getElementById("popup-description").textContent = description;
+                                                document.getElementById("popup").style.display = "flex";
+                                            }
+
+                                            function closePopup() {
+                                                document.getElementById("popup").style.display = "none";
+                                                document.getElementById("popup-quantity").value = 1;
+                                            }
+    </script>
+
+
+    <script>
+        document.getElementById("addToCartForm").addEventListener("submit", function (e) {
+            e.preventDefault(); // Ngăn form reload
+
+            const bouquetId = document.getElementById("popup-id").value;
+            const quantity = document.getElementById("popup-quantity").value;
+
+            const formData = new URLSearchParams();
+            formData.append("action", "add");
+            formData.append("bouquetId", bouquetId);
+            formData.append("quantity", quantity);
+
+            fetch("cart", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: formData.toString()
+            })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === "added") {
+                            closePopup(); // Đóng popup sau khi thêm
+
+                            showSuccessPopup("Added to cart successfully!");
+                        } else {
+                            alert("Error: " + data.status);
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Error adding to cart:", err);
+                        alert("Something went wrong.");
+                    });
+        });
+
+        function showSuccessPopup(message) {
+            const successBox = document.getElementById("success-popup");
+            successBox.innerText = message;
+            successBox.style.display = "block";
+
+            // Ẩn sau 3 giây
+            setTimeout(() => {
+                successBox.style.display = "none";
+            }, 3000);
+        }
+    </script>
 
 </body>
 </html>

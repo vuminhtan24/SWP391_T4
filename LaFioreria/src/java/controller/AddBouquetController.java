@@ -19,6 +19,7 @@ import java.util.List;
 import model.Bouquet;
 import model.Category;
 import model.RawFlower;
+import model.BouquetRaw;
 
 /**
  *
@@ -84,7 +85,66 @@ public class AddBouquetController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        // 1. Lấy dữ liệu từ form
+        String bouquetName = request.getParameter("bouquetName");
+        String imageUrl = request.getParameter("imageUrl");
+        String description = request.getParameter("description");
+        int cid = Integer.parseInt(request.getParameter("category"));
+        double totalValueDbl = Double.parseDouble(request.getParameter("totalValue"));
+        int price = (int) Math.round(totalValueDbl);
+
+        String[] flowerIds = request.getParameterValues("flowerIds");
+        String[] quantities = request.getParameterValues("quantities");
+
+        // 2. Tạo và insert Bouquet
+        Bouquet bouquet = new Bouquet();
+        bouquet.setBouquetName(bouquetName);
+        bouquet.setDescription(description);
+        bouquet.setImageUrl(imageUrl);
+        bouquet.setCid(cid);
+        bouquet.setPrice(price);
+
+        BouquetDAO dao = new BouquetDAO();
+        int bouquetId = dao.insertBouquet(bouquet);  // <-- lấy ID sinh ra
+
+        if (bouquetId <= 0) {
+            // chèn thất bại, có thể throw hoặc forward lỗi
+            request.setAttribute("error", "Không lưu được bouquet");
+            request.getRequestDispatcher("/DashMin/blank.jsp")
+                    .forward(request, response);
+            return;
+        }
+
+        // 3. Insert các BouquetRaw
+        if (flowerIds != null && quantities != null
+                && flowerIds.length == quantities.length) {
+            try {
+                for (int i = 0; i < flowerIds.length; i++) {
+                    int flowerID = Integer.parseInt(flowerIds[i]);
+                    int quantity = Integer.parseInt(quantities[i]);
+
+                    BouquetRaw rawBQ = new BouquetRaw();
+                    rawBQ.setBouquet_id(bouquetId);    // <-- gán đúng bouquet_id
+                    rawBQ.setRaw_id(flowerID);
+                    rawBQ.setQuantity(quantity);
+
+                    dao.insertBouquetRaw(rawBQ);
+                }
+            } catch (NumberFormatException e) {
+                request.setAttribute("error", "Dữ liệu không hợp lệ");
+                request.getRequestDispatcher("/DashMin/blank.jsp")
+                        .forward(request, response);
+                return;
+            } catch (Exception e) {
+                request.setAttribute("error", "Lỗi cơ sở dữ liệu: " + e.getMessage());
+                request.getRequestDispatcher("/DashMin/blank.jsp")
+                        .forward(request, response);
+                return;
+            }
+        }
+
+        // 4. Forward về trang product
+        response.sendRedirect(request.getContextPath() + "/viewBouquet");
     }
 
     /**

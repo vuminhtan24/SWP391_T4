@@ -215,7 +215,17 @@
                                             <!-- Image URL -->
                                             <div class="col-md-6">
                                                 <label for="imageUrl" class="form-label">Image URL</label>
-                                                <input type="url" id="imageUrl" name="imageUrl" class="form-control" placeholder="https://example.com/image.jpg" required />
+                                                <input 
+                                                    type="url" 
+                                                    id="imageUrl" 
+                                                    name="imageUrl" 
+                                                    class="form-control" 
+                                                    placeholder="https://example.com/image.jpg" 
+                                                    required
+                                                    pattern="https?://.+\.(jpg|jpeg|JPG|JPEG)$" 
+                                                    title="URL phải kết thúc bằng .jpg hoặc .jpeg" 
+                                                    />
+
                                             </div>
                                             <!-- Description -->
                                             <div class="col-12">
@@ -251,7 +261,7 @@
                                                 <!-- Dòng đầu tiên hiển thị mặc định -->
                                                 <tr>
                                                     <td>
-                                                        <select name="flowerIds[]" class="form-select form-select-sm flower-select">
+                                                        <select name="flowerIds" class="form-select form-select-sm flower-select">
                                                             <c:forEach var="f" items="${flowerInBouquet}">
                                                                 <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">${f.getRawName()}</option>
                                                             </c:forEach>
@@ -262,7 +272,16 @@
                                                         <input type="hidden" class="price-input" name="prices[]" value="0" />
                                                     </td>
                                                     <td>
-                                                        <input type="number" name="quantities[]" value="0" min="0" class="form-control form-control-sm" />
+                                                        <input 
+                                                            type="number" 
+                                                            name="quantities" 
+                                                            value="1" 
+                                                            min="1" 
+                                                            step="1"
+                                                            required
+                                                            class="form-control form-control-sm" 
+                                                            />
+
                                                     </td>
                                                     <td>
                                                         <button type="button" class="btn btn-sm btn-outline-danger"
@@ -277,7 +296,7 @@
                                             <div class="mt-3 text-start fw-bold" style="color: #1e40af;">
                                                 Total Value: <span id="totalValueDisplay">$0.00</span>
                                             </div>
-
+                                            <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
                                             </tr>
                                             </tfoot>
 
@@ -303,7 +322,7 @@
                     <tbody>
                         <tr id="flowerRowTemplate">
                             <td>
-                                <select name="flowerIds[]" class="form-select form-select-sm flower-select">
+                                <select name="flowerIds" class="form-select form-select-sm flower-select">
                                     <c:forEach var="f" items="${flowerInBouquet}">
                                         <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">${f.getRawName()}</option>
                                     </c:forEach>
@@ -314,7 +333,7 @@
                                 <input type="hidden" class="price-input" name="prices[]" value="0" />
                             </td>
                             <td>
-                                <input type="number" name="quantities[]" value="0" min="0" class="form-control form-control-sm" />
+                                <input type="number" name="quantities" value="0" min="0" class="form-control form-control-sm" />
                             </td>
                             <td>
                                 <button type="button" class="btn btn-sm btn-outline-danger"
@@ -392,7 +411,10 @@
                                                     total += price * quantity;
                                                 });
 
+                                                // 1) Cập nhật hiển thị
                                                 document.getElementById('totalValueDisplay').textContent = '$' + total.toFixed(2);
+                                                // 2) Gán vào hidden input để gửi lên server
+                                                document.getElementById('totalValueInput').value = total.toFixed(2);
                                             }
 
                                             function attachEventsToRow(row) {
@@ -439,9 +461,6 @@
                                                 calculateTotal();
                                             });
         </script>
-
-
-
 
     </body>
 </html>

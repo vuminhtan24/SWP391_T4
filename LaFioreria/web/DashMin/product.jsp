@@ -44,6 +44,44 @@
             a.change-color-qvm:active {
                 color: #007bff;
             }
+
+            /* CSS */
+            .search-form {
+                display: flex;
+                justify-content: flex-end; /* đẩy cả form về bên phải */
+                align-items: center;
+                gap: 8px;                /* khoảng cách giữa input và button */
+                margin-top: 20px;               /* tùy chỉnh nếu cần */
+                margin-right: 30px;
+                padding: 0;
+            }
+
+            .search-form input[type="text"] {
+                padding: 8px 12px;
+                border: 1px solid #ccc;
+                border-radius: 20px;     /* bo tròn ô tìm kiếm */
+                outline: none;
+                transition: border-color .2s;
+            }
+
+            .search-form input[type="text"]:focus {
+                border-color: #007bff;
+            }
+
+            .search-form button {
+                padding: 8px 16px;
+                background-color: #007bff; /* màu xanh dương */
+                color: #fff;
+                border: none;
+                border-radius: 20px;       /* bo tròn nút */
+                cursor: pointer;
+                transition: background-color .2s;
+            }
+
+            .search-form button:hover {
+                background-color: #0056b3; /* xanh đậm khi hover */
+            }
+
         </style>
 
     </head>
@@ -195,10 +233,14 @@
                     </div>
                 </nav>
                 <!-- Navbar End -->
-
-
+                <!-- HTML -->
+                <form action="viewBouquet" method="get" class="search-form">
+                    <input type="text" name="bouquetName" placeholder="Tìm kiếm sản phẩm" value="${param.bouquetName}" />
+                    <button type="submit">Search</button>
+                </form>
                 <!-- Table Start -->
                 <div class="container-fluid pt-4 px-4">
+
                     <div class="bg-light rounded h-100 p-4">
                         <!-- Header with title and Add Bouquet button -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -208,20 +250,16 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th scope="col">Bouquet ID</th>
+                                    <th scope="col">STT</th>
                                     <th scope="col">Image</th>
                                     <th scope="col">Bouquet Name</th>
                                     <th scope="col">Price</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <c:forEach var="bouquet" items="${listBouquet}">
+                                <c:forEach var="bouquet" items="${listBouquet}" varStatus="status">
                                     <tr>
-                                        <td>
-                                            <a href="${pageContext.request.contextPath}/DashMin/bouquetDetails.jsp" class="change-color-qvm">
-                                                ${bouquet.getBouquetId()}
-                                            </a>
-                                        </td>
+                                        <td>${(currentPage - 1) * 6 + status.index + 1}</td>
                                         <td>
                                             <img src="${bouquet.getImageUrl()}" alt="Bouquet Image" style="height: 60px; width: auto;" />
                                         </td>
