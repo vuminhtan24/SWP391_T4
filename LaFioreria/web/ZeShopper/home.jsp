@@ -33,7 +33,7 @@
         <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-114-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-57-precomposed.png">
-<style>
+        <style>
             .popup-overlay {
                 position: fixed;
                 top: 0;
@@ -126,6 +126,27 @@
                 cursor: pointer;
                 color: #aaa;
                 transition: color 0.2s;
+            }
+            .productinfo {
+                min-height: 400px; /* chỉnh tùy theo độ dài nội dung */
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .productinfo img {
+                height: 200px;
+                object-fit: cover;
+            }
+
+            .single-products {
+                height: 100%;
+            }
+
+            .product-image-wrapper {
+                border: 1px solid #f0f0f0;
+                padding: 10px;
+                height: 100%;
             }
 
             .close-btn:hover {
@@ -253,8 +274,8 @@
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
                                                 </ul>
                                             </li>
-                                            </c:when>
-                                            <c:otherwise>
+                                        </c:when>
+                                        <c:otherwise>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
                                             </c:otherwise>
                                         </c:choose>
@@ -447,7 +468,7 @@
                         </div>
                     </div><!--features_items-->
 
-<div id="popup" class="popup-overlay" style="display:none;">
+                    <div id="popup" class="popup-overlay" style="display:none;">
                         <div class="popup-content">
                             <span class="close-btn" onclick="closePopup()">&times;</span>
                             <form id="addToCartForm">
@@ -728,31 +749,31 @@
 
     </footer><!--/Footer-->
 
-<div id="success-popup" class="success-toast">Added to cart successfully!</div>
+    <div id="success-popup" class="success-toast">Added to cart successfully!</div>
 
 
 
     <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
 
-<script>
-                                        function openPopup(id, name, imageUrl, price, description) {
-                                            document.getElementById("popup-id").value = id;
-                                            document.getElementById("popup-name").textContent = name;
-                                            document.getElementById("popup-image").src = imageUrl;
-                                            document.getElementById("popup-price").textContent = "Price: " + price;
-                                            document.getElementById("popup-description").textContent = description;
-                                            document.getElementById("popup").style.display = "flex";
-                                        }
+    <script>
+                                            function openPopup(id, name, imageUrl, price, description) {
+                                                document.getElementById("popup-id").value = id;
+                                                document.getElementById("popup-name").textContent = name;
+                                                document.getElementById("popup-image").src = imageUrl;
+                                                document.getElementById("popup-price").textContent = "Price: " + price;
+                                                document.getElementById("popup-description").textContent = description;
+                                                document.getElementById("popup").style.display = "flex";
+                                            }
 
-                                        function closePopup() {
-                                            document.getElementById("popup").style.display = "none";
-                                            document.getElementById("popup-quantity").value = 1;
-                                        }
+                                            function closePopup() {
+                                                document.getElementById("popup").style.display = "none";
+                                                document.getElementById("popup-quantity").value = 1;
+                                            }
     </script>
 
 
