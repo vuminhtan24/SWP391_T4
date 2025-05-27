@@ -174,66 +174,48 @@ public class BouquetDAO extends DBContext {
         }
     }
 
-    public void addBouquetWithDetails(Bouquet bouquet, List<BouquetRaw> raws) {
-        String sqlBouquet
-                = "INSERT INTO la_fioreria.bouquet (bouquet_name, description, image_url, cid, price) "
-                + "VALUES (?, ?, ?, ?, ?);";
-        String sqlRaw
-                = "INSERT INTO la_fioreria.bouquet_raw (bouquet_id, raw_id, quantity) "
-                + "VALUES (?, ?, ?);";
+    public void deleteBouquet(int id) {
+        String sql = "DELETE FROM la_fioreria.bouquet WHERE Bouquet_ID = ?;";
 
         try {
-            // 1. Tắt auto-commit để sử dụng transaction
-            connection.setAutoCommit(false);
-
-            // 2. Chuẩn bị statement cho bouquet, yêu cầu trả về generated keys
-            try (PreparedStatement psBouquet = connection.prepareStatement(sqlBouquet, PreparedStatement.RETURN_GENERATED_KEYS)) {
-                psBouquet.setString(1, bouquet.getBouquetName());
-                psBouquet.setString(2, bouquet.getDescription());
-                psBouquet.setString(3, bouquet.getImageUrl());
-                psBouquet.setInt(4, bouquet.getCid());
-                psBouquet.setInt(5, bouquet.getPrice());
-                psBouquet.executeUpdate();
-
-                // 3. Lấy bouquet_id vừa sinh
-                try (ResultSet rs = psBouquet.getGeneratedKeys()) {
-                    if (!rs.next()) {
-                        throw new SQLException("Không lấy được generated key cho bouquet");
-                    }
-                    int newBouquetId = rs.getInt(1);
-
-                    // 4. Chuẩn bị và chèn từng bản ghi vào bouquet_raw
-                    try (PreparedStatement psRaw = connection.prepareStatement(sqlRaw)) {
-                        for (BouquetRaw br : raws) {
-                            psRaw.setInt(1, newBouquetId);
-                            psRaw.setInt(2, br.getRaw_id());
-                            psRaw.setInt(3, br.getQuantity());
-                            psRaw.addBatch();
-                        }
-                        psRaw.executeBatch();
-                    }
-                }
-            }
-
-            // 5. Nếu tất cả OK thì commit
-            connection.commit();
-
+            PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setInt(1, id);
+            pre.executeUpdate();
         } catch (SQLException e) {
-            // 6. Nếu có lỗi thì rollback
-            try {
-                connection.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-            e.printStackTrace();
-        } finally {
-            // 7. Bật lại auto-commit
-            try {
-                connection.setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            System.out.println(e);
         }
+    }
+
+    public void deleteBouquetRaw(int id) {
+        String sql = "DELETE FROM la_fioreria.bouquet_raw WHERE bouquet_id = ?;";
+
+        try {
+            PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setInt(1, id);
+            pre.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+
+    public void updateBouquet(Bouquet bouquet) {
+        String sql = "Update la_fioreria.bouquet\n"
+                + "set bouquet_name = ?, description = ?, image_url = ?, cid = ?, price = ?\n"
+                + "where Bouquet_ID = ?; ";
+
+        try {
+            PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setString(1, bouquet.getBouquetName());
+            pre.setString(2, bouquet.getDescription());
+            pre.setString(3, bouquet.getImageUrl());
+            pre.setInt(4, bouquet.getCid());
+            pre.setInt(5, bouquet.getPrice());
+            pre.setInt(6, bouquet.getBouquetId());
+            pre.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        
     }
 
     public static void main(String[] args) {

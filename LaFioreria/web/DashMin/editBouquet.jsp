@@ -1,6 +1,6 @@
 <%-- 
-    Document   : table
-    Created on : May 19, 2025, 2:41:19 PM
+    Document   : blank
+    Created on : May 19, 2025, 2:34:20 PM
     Author     : ADMIN
 --%>
 
@@ -39,51 +39,6 @@
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
-
-        <style>
-            a.change-color-qvm:active {
-                color: #007bff;
-            }
-
-            /* CSS */
-            .search-form {
-                display: flex;
-                justify-content: flex-end; /* đẩy cả form về bên phải */
-                align-items: center;
-                gap: 8px;                /* khoảng cách giữa input và button */
-                margin-top: 20px;               /* tùy chỉnh nếu cần */
-                margin-right: 30px;
-                padding: 0;
-            }
-
-            .search-form input[type="text"] {
-                padding: 8px 12px;
-                border: 1px solid #ccc;
-                border-radius: 20px;     /* bo tròn ô tìm kiếm */
-                outline: none;
-                transition: border-color .2s;
-            }
-
-            .search-form input[type="text"]:focus {
-                border-color: #007bff;
-            }
-
-            .search-form button {
-                padding: 8px 16px;
-                background-color: #007bff; /* màu xanh dương */
-                color: #fff;
-                border: none;
-                border-radius: 20px;       /* bo tròn nút */
-                cursor: pointer;
-                transition: background-color .2s;
-            }
-
-            .search-form button:hover {
-                background-color: #0056b3; /* xanh đậm khi hover */
-            }
-
-        </style>
-
     </head>
 
     <body>
@@ -232,104 +187,18 @@
                     </div>
                 </nav>
                 <!-- Navbar End -->
-                <!-- HTML -->
-                <form action="viewBouquet" method="get" class="search-form">
-                    <input type="text" name="bouquetName" placeholder="Tìm kiếm sản phẩm" value="${param.bouquetName}" />
-                    <button type="submit">Search</button>
-                </form>
-                <!-- Table Start -->
+
+
+                <!-- Blank Start -->
                 <div class="container-fluid pt-4 px-4">
-
-                    <div class="bg-light rounded h-100 p-4">
-                        <!-- Header with title and Add Bouquet button -->
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0">Bouquet List</h6>
-                            <a href="${pageContext.request.contextPath}/addBouquet" class="btn btn-primary">Add Bouquet</a>
+                    <div class="row vh-100 bg-light rounded align-items-center justify-content-center mx-0">
+                        <div class="col-md-6 text-center">
+                            <h3>This is blank page</h3>
+                            <h2><%= request.getAttribute("error") %></h2>
                         </div>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">STT</th>
-                                    <th scope="col">Image</th>
-                                    <th scope="col">Bouquet Name</th>
-                                    <th scope="col">Price</th>
-                                    <th colspan="2">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach var="bouquet" items="${listBouquet}" varStatus="status">
-                                    <tr>
-                                        <td>${(currentPage - 1) * 6 + status.index + 1}</td>
-                                        <td>
-                                            <img src="${bouquet.getImageUrl()}" alt="Bouquet Image" style="height: 60px; width: auto;" />
-                                        </td>
-                                        <td>
-                                            <a href="${pageContext.request.contextPath}/DashMin/bouquetDetails.jsp" class="change-color-qvm">
-                                                ${bouquet.getBouquetName()}
-                                            </a>
-                                        </td>
-                                        <td>${bouquet.getPrice()}</td>
-                                        <td>
-                                            <a href="${pageContext.request.contextPath}/deleteBouquet?id=${bouquet.getBouquetId()}"
-                                               onclick="return confirm('Do you want to delete?');">
-                                                Delete
-                                            </a>
-                                        </td>
-
-                                    </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
-
-                        <c:if test="${totalPages > 1}">
-                            <nav>
-                                <ul class="pagination">
-                                    <!-- Previous -->
-                                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a class="page-link" href="?page=${currentPage - 1}">Previous</a>
-                                    </li>
-
-                                    <!-- First Page -->
-                                    <li class="page-item ${currentPage == 1 ? 'active' : ''}">
-                                        <a class="page-link" href="?page=1">1</a>
-                                    </li>
-
-                                    <!-- Ellipsis before current page range -->
-                                    <c:if test="${currentPage > 3}">
-                                        <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                        </c:if>
-
-                                    <!-- Page range around current -->
-                                    <c:forEach var="i" begin="${currentPage - 1}" end="${currentPage + 1}">
-                                        <c:if test="${i > 1 && i < totalPages}">
-                                            <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                                <a class="page-link" href="?page=${i}">${i}</a>
-                                            </li>
-                                        </c:if>
-                                    </c:forEach>
-
-                                    <!-- Ellipsis after current page range -->
-                                    <c:if test="${currentPage < totalPages - 2}">
-                                        <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                        </c:if>
-
-                                    <!-- Last Page -->
-                                    <c:if test="${totalPages > 1}">
-                                        <li class="page-item ${currentPage == totalPages ? 'active' : ''}">
-                                            <a class="page-link" href="?page=${totalPages}">${totalPages}</a>
-                                        </li>
-                                    </c:if>
-
-                                    <!-- Next -->
-                                    <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                        <a class="page-link" href="?page=${currentPage + 1}">Next</a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </c:if>
                     </div>
                 </div>
-                <!-- Table End -->
+                <!-- Blank End -->
 
 
                 <!-- Footer Start -->
@@ -358,16 +227,15 @@
         <!-- JavaScript Libraries -->
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+        <script src="lib/chart/chart.min.js"></script>
+        <script src="lib/easing/easing.min.js"></script>
+        <script src="lib/waypoints/waypoints.min.js"></script>
+        <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+        <script src="lib/tempusdominus/js/moment.min.js"></script>
+        <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
+        <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
         <!-- Template Javascript -->
-        <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+        <script src="js/main.js"></script>
     </body>
 </html>
-
