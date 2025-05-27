@@ -3,12 +3,8 @@
     Created on : May 19, 2025, 2:34:20 PM
     Author     : ADMIN
 --%>
-
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.List,model.Bouquet" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -19,7 +15,7 @@
         <meta content="" name="description">
 
         <!-- Favicon -->
-        <link href="img/favicon.ico" rel="icon">
+        <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
 
         <!-- Google Web Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,16 +27,15 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
         <!-- Libraries Stylesheet -->
-        <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-        <link href="lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+        <link href="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
 
         <!-- Customized Bootstrap Stylesheet -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/DashMin/css/bootstrap.min.css" rel="stylesheet">
 
         <!-- Template Stylesheet -->
-        <link href="css/style.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
     </head>
-
 
     <body>
         <div class="container-fluid position-relative bg-white d-flex p-0">
@@ -48,153 +43,6 @@
             <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
                 <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
                     <span class="sr-only">Loading...</span>
-
-
-        <!-- Sidebar Start -->
-        <div class="sidebar pe-4 pb-3">
-            <nav class="navbar bg-light navbar-light">
-                <a href="${pageContext.request.contextPath}/DashMin/admin.jsp" class="navbar-brand mx-4 mb-3">
-                    <h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>DASHMIN</h3>
-                </a>
-                <div class="d-flex align-items-center ms-4 mb-4">
-                    <div class="position-relative">
-                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                        <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
-                    </div>
-                    <div class="ms-3">
-                        <h6 class="mb-0">Jhon Doe</h6>
-                        <span>Admin</span>
-                    </div>
-                </div>
-                <div class="navbar-nav w-100">
-                    <a href="${pageContext.request.contextPath}/DashMin/admin.jsp" class="nav-item nav-link"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Elements</a>
-                        <div class="dropdown-menu bg-transparent border-0">
-                            <a href="${pageContext.request.contextPath}/DashMin/button.jsp" class="dropdown-item">Buttons</a>
-                            <a href="${pageContext.request.contextPath}/DashMin/typography.jsp" class="dropdown-item">Typography</a>
-                            <a href="${pageContext.request.contextPath}/DashMin/element.jsp" class="dropdown-item">Other Elements</a>
-                        </div>
-                    </div>
-                    <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
-                    <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
-                    <a href="${pageContext.request.contextPath}/DashMin/table.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Tables</a>
-                    <a href="${pageContext.request.contextPath}/DashMin/product.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
-                    <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
-                        <div class="dropdown-menu bg-transparent border-0">
-                            <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
-                            <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item active">Blank Page</a>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-        </div>
-        <!-- Sidebar End -->
-
-
-        <!-- Content Start -->
-        <div class="content">
-            <!-- Navbar Start -->
-            <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
-                <a href="${pageContext.request.contextPath}/DashMin/admin.jsp" class="navbar-brand d-flex d-lg-none me-4">
-                    <h2 class="text-primary mb-0"><i class="fa fa-hashtag"></i></h2>
-                </a>
-                <a href="#" class="sidebar-toggler flex-shrink-0">
-                    <i class="fa fa-bars"></i>
-                </a>
-                <form class="d-none d-md-flex ms-4">
-                    <input class="form-control border-0" type="search" placeholder="Search">
-                </form>
-                <div class="navbar-nav align-items-center ms-auto">
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="fa fa-envelope me-lg-2"></i>
-                            <span class="d-none d-lg-inline-flex">Message</span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                            <a href="#" class="dropdown-item">
-                                <div class="d-flex align-items-center">
-                                    <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                    <div class="ms-2">
-                                        <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                        <small>15 minutes ago</small>
-                                    </div>
-                                </div>
-                            </a>
-                            <hr class="dropdown-divider">
-                            <a href="#" class="dropdown-item">
-                                <div class="d-flex align-items-center">
-                                    <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                    <div class="ms-2">
-                                        <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                        <small>15 minutes ago</small>
-                                    </div>
-                                </div>
-                            </a>
-                            <hr class="dropdown-divider">
-                            <a href="#" class="dropdown-item">
-                                <div class="d-flex align-items-center">
-                                    <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                    <div class="ms-2">
-                                        <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                        <small>15 minutes ago</small>
-                                    </div>
-                                </div>
-                            </a>
-                            <hr class="dropdown-divider">
-                            <a href="#" class="dropdown-item text-center">See all message</a>
-                        </div>
-                    </div>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="fa fa-bell me-lg-2"></i>
-                            <span class="d-none d-lg-inline-flex">Notificatin</span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                            <a href="#" class="dropdown-item">
-                                <h6 class="fw-normal mb-0">Profile updated</h6>
-                                <small>15 minutes ago</small>
-                            </a>
-                            <hr class="dropdown-divider">
-                            <a href="#" class="dropdown-item">
-                                <h6 class="fw-normal mb-0">New user added</h6>
-                                <small>15 minutes ago</small>
-                            </a>
-                            <hr class="dropdown-divider">
-                            <a href="#" class="dropdown-item">
-                                <h6 class="fw-normal mb-0">Password changed</h6>
-                                <small>15 minutes ago</small>
-                            </a>
-                            <hr class="dropdown-divider">
-                            <a href="#" class="dropdown-item text-center">See all notifications</a>
-                        </div>
-                    </div>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                            <img class="rounded-circle me-lg-2" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                            <span class="d-none d-lg-inline-flex">John Doe</span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                            <a href="#" class="dropdown-item">My Profile</a>
-                            <a href="#" class="dropdown-item">Settings</a>
-                            <a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet" class="dropdown-item">Log Out</a>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-            <!-- Navbar End -->
-
-
-            <!-- Blank Start -->
-            <div class="container-fluid pt-4 px-4">
-                <div class="row vh-100 bg-light rounded align-items-center justify-content-center mx-0">
-                    <div class="col-md-6 text-center">
-                        <h3>This is blank page</h3>
-                        <h2><%= request.getAttribute("error") %></h2>
-                    </div>
-
                 </div>
             </div>
             <!-- Spinner End -->
@@ -208,7 +56,7 @@
                     </a>
                     <div class="d-flex align-items-center ms-4 mb-4">
                         <div class="position-relative">
-                            <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                            <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                             <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
                         </div>
                         <div class="ms-3">
@@ -267,7 +115,7 @@
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -277,7 +125,7 @@
                                 <hr class="dropdown-divider">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -287,7 +135,7 @@
                                 <hr class="dropdown-divider">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -324,7 +172,7 @@
                         </div>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                <img class="rounded-circle me-lg-2" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                <img class="rounded-circle me-lg-2" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                 <span class="d-none d-lg-inline-flex">John Doe</span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
@@ -337,16 +185,138 @@
                 </nav>
                 <!-- Navbar End -->
 
+                <p>ContextPath = ${pageContext.request.contextPath}</p>
 
-                <!-- Blank Start -->
-                <div class="container-fluid pt-4 px-4">
-                    <div class="row vh-100 bg-light rounded align-items-center justify-content-center mx-0">
-                        <div class="col-md-6 text-center">
-                            <h3>This is blank page</h3>
+                <!-- Table Start -->
+                <div class="col-sm-12 col-xl-6">
+                    <div class="bg-light rounded h-100 p-4">
+                        <h6 class="mb-4">View User List Table</h6>
 
+                        <form id="f1" action="${pageContext.request.contextPath}/ViewUserList" method="post">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td>Role: </td>
+                                        <td>
+                                            <select name="txtRoleList" onchange="document.getElementById('f1').submit()">
+                                                <option value="0" <c:if test="${roleId == 0}">selected</c:if>>All</option>
+                                                <c:forEach items="${roleList}" var="role">
+                                                    <option value="${role.role_id}" <c:if test="${role.role_id == roleId}">selected</c:if>>
+                                                        ${role.role_Name}
+                                                    </option>
+                                                </c:forEach>
+                                            </select>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Search name: </td>
+                                        <td><input type="text" name="txtSearchName" value="${keyword}"></td>
+                                        <td>
+                                            <select name="sortField">
+                                                <option value="User_ID" <c:if test="${sortField == 'User_ID'}">selected</c:if>>User ID</option>
+                                                <option value="Username" <c:if test="${sortField == 'Username'}">selected</c:if>>User Name</option>
+                                                <option value="Password" <c:if test="${sortField == 'Password'}">selected</c:if>>Password</option>
+                                                <option value="Fullname" <c:if test="${sortField == 'Fullname'}">selected</c:if>>Full Name</option>
+                                                <option value="Email" <c:if test="${sortField == 'Email'}">selected</c:if>>Email</option>
+                                                <option value="Phone" <c:if test="${sortField == 'Phone'}">selected</c:if>>Phone</option>
+                                                <option value="Address" <c:if test="${sortField == 'Address'}">selected</c:if>>Address</option>
+                                                <option value="Role_name" <c:if test="${sortField == 'Role_name'}">selected</c:if>>Role</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select name="sortOrder">
+                                                    <option value="asc" <c:if test="${sortOrder == 'asc'}">selected</c:if>>Ascending</option>
+                                                <option value="desc" <c:if test="${sortOrder == 'desc'}">selected</c:if>>Descending</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="submit" value="SEARCH" name="button">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </form>
+
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>User ID</th>
+                                        <th>User Name</th>
+                                        <th>Password</th>
+                                        <th>Full Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Address</th>
+                                        <th>Role</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <c:forEach items="${userManagerList}" var="user">
+                                    <tr>
+                                        <td>${user.userid}</td>
+                                        <td>${user.username}</td>
+                                        <td>${user.password}</td>
+                                        <td>${user.fullname}</td>
+                                        <td>${user.email}</td>
+                                        <td>${user.phone}</td>
+                                        <td>${user.address}</td>
+                                        <td>${user.role}</td>
+                                        <td>
+                                            <form action="${pageContext.request.contextPath}/rejectuserlist" method="post" onsubmit="return confirm('Confirm reject this user ?');">
+                                                <input type="hidden" name="userId" value="${user.userid}" />
+                                                <button type="submit">Reject</button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <form action="${pageContext.request.contextPath}/DeleteUserListServlet" method="post" onsubmit="return confirm('Confirm Delete this user ?');">
+                                                <input type="hidden" name="userId" value="${user.userid}" />
+                                                <button type="submit">Delete</button>
+                                            </form>
+                                        </td>
+
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+
+                        <!-- PAGINATION -->
+                        <div style="margin-top: 20px;">
+                            <c:if test="${totalPages > 1}">
+                                <form action="${pageContext.request.contextPath}/ViewUserList" method="post" id="paginationForm">
+                                    <!-- preserve current filters -->
+                                    <input type="hidden" name="txtSearchName" value="${keyword}" />
+                                    <input type="hidden" name="txtRoleList" value="${roleId}" />
+                                    <input type="hidden" name="sortField" value="${sortField}" />
+                                    <input type="hidden" name="sortOrder" value="${sortOrder}" />
+
+                                    <c:set var="prevPage" value="${currentPage - 1}" />
+                                    <c:set var="nextPage" value="${currentPage + 1}" />
+
+                                    <c:if test="${currentPage > 1}">
+                                        <button type="submit" name="page" value="1"><<</button>
+                                        <button type="submit" name="page" value="${prevPage}"><</button>
+                                    </c:if>
+
+                                    <c:forEach begin="1" end="${totalPages}" var="i">
+                                        <button type="submit" name="page" value="${i}"
+                                                <c:if test="${i == currentPage}">style="font-weight:bold;"</c:if>>
+                                            ${i}
+                                        </button>
+                                    </c:forEach>
+
+                                    <c:if test="${currentPage < totalPages}">
+                                        <button type="submit" name="page" value="${nextPage}">></button>
+                                        <button type="submit" name="page" value="${totalPages}">>></button>
+                                    </c:if>
+                                </form>
+                            </c:if>
                         </div>
                     </div>
                 </div>
+
+
                 <!-- Blank End -->
 
 
@@ -376,15 +346,15 @@
         <!-- JavaScript Libraries -->
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="lib/chart/chart.min.js"></script>
-        <script src="lib/easing/easing.min.js"></script>
-        <script src="lib/waypoints/waypoints.min.js"></script>
-        <script src="lib/owlcarousel/owl.carousel.min.js"></script>
-        <script src="lib/tempusdominus/js/moment.min.js"></script>
-        <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
-        <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
         <!-- Template Javascript -->
-        <script src="js/main.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
     </body>
 </html>

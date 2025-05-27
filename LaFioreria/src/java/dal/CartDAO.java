@@ -116,9 +116,6 @@ public class CartDAO extends DBContext {
                 Bouquet bouquet = new Bouquet();
                 bouquet.setBouquetId(rs.getInt("bouquet_id"));
                 bouquet.setBouquetName(rs.getString("bouquet_name"));
-                bouquet.setCreatedAt(rs.getDate("created_at"));
-                bouquet.setExpirationDate(rs.getDate("expiration_date"));
-                bouquet.setCreatedBy(rs.getInt("created_by"));
                 bouquet.setDescription(rs.getString("description"));
                 bouquet.setImageUrl(rs.getString("image_url"));
                 bouquet.setCid(rs.getInt("cid"));

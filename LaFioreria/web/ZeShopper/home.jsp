@@ -33,7 +33,7 @@
         <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-114-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-57-precomposed.png">
-<style>
+        <style>
             .popup-overlay {
                 position: fixed;
                 top: 0;
@@ -127,6 +127,27 @@
                 color: #aaa;
                 transition: color 0.2s;
             }
+            .productinfo {
+                min-height: 400px; /* chỉnh tùy theo độ dài nội dung */
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .productinfo img {
+                height: 200px;
+                object-fit: cover;
+            }
+
+            .single-products {
+                height: 100%;
+            }
+
+            .product-image-wrapper {
+                border: 1px solid #f0f0f0;
+                padding: 10px;
+                height: 100%;
+            }
 
             .close-btn:hover {
                 color: #000;
@@ -211,7 +232,7 @@
                     <div class="row">
                         <div class="col-sm-4">
                             <div class="logo pull-left">
-                                <a href="${pageContext.request.contextPath}/home"><img src="${pageContext.request.contextPath}/ZeShopper/images/home/logo.png" alt="" /></a>
+                                <a href="${pageContext.request.contextPath}/home"><img src="${pageContext.request.contextPath}/ZeShopper/images/home/logo1.jpg" style="width:150px;" alt="" /></a>
                             </div>
                             <div class="btn-group pull-right">
                                 <div class="btn-group">
@@ -253,8 +274,8 @@
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
                                                 </ul>
                                             </li>
-                                            </c:when>
-                                            <c:otherwise>
+                                        </c:when>
+                                        <c:otherwise>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
                                             </c:otherwise>
                                         </c:choose>
@@ -330,39 +351,36 @@
                             <div class="carousel-inner">
                                 <div class="item active">
                                     <div class="col-sm-6">
-                                        <h1><span>E</span>-SHOPPER</h1>
-                                        <h2>Free E-Commerce Template</h2>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
+                                        <h1><span>L</span>afioreria</h1>
+                                        <h2>Fresh flowers for every moment</h2>
+                                        <p>Choose elegant bouquets to express your true feelings to your loved ones.</p>
                                         <button type="button" class="btn btn-default get">Get it now</button>
                                     </div>
                                     <div class="col-sm-6">
-                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/girl1.jpg" class="girl img-responsive" alt="" />
-                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/pricing.png"  class="pricing" alt="" />
+                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/bouquet1.jpg"  class="girl img-responsive" alt="" />
                                     </div>
                                 </div>
                                 <div class="item">
                                     <div class="col-sm-6">
-                                        <h1><span>E</span>-SHOPPER</h1>
+                                        <h1><span>L</span>afioreria</h1>
                                         <h2>100% Responsive Design</h2>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
+                                        <p>Create a unique bouquet for your special occasions – birthdays, anniversaries, or a heartfelt thank-you. </p>
                                         <button type="button" class="btn btn-default get">Get it now</button>
                                     </div>
                                     <div class="col-sm-6">
-                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/girl2.jpg" class="girl img-responsive" alt="" />
-                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/pricing.png"  class="pricing" alt="" />
+                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/bouquet2.jpg" style="width: 300px;" class="girl img-responsive" alt="" />
                                     </div>
                                 </div>
 
                                 <div class="item">
                                     <div class="col-sm-6">
-                                        <h1><span>E</span>-SHOPPER</h1>
-                                        <h2>Free Ecommerce Template</h2>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
+                                        <h1><span>L</span>afioreria</h1>
+                                        <h2>Fast and reliable flower delivery</h2>
+                                        <p>Trusted delivery service to help you send love on time, anywhere.</p>
                                         <button type="button" class="btn btn-default get">Get it now</button>
                                     </div>
                                     <div class="col-sm-6">
-                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/girl3.jpg" class="girl img-responsive" alt="" />
-                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/pricing.png" class="pricing" alt="" />
+                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/bouquet3.jpg" style="width: 267px;" class="girl img-responsive" alt="" />
                                     </div>
                                 </div>
 
@@ -447,7 +465,7 @@
                         </div>
                     </div><!--features_items-->
 
-<div id="popup" class="popup-overlay" style="display:none;">
+                    <div id="popup" class="popup-overlay" style="display:none;">
                         <div class="popup-content">
                             <span class="close-btn" onclick="closePopup()">&times;</span>
                             <form id="addToCartForm">
@@ -728,31 +746,31 @@
 
     </footer><!--/Footer-->
 
-<div id="success-popup" class="success-toast">Added to cart successfully!</div>
+    <div id="success-popup" class="success-toast">Added to cart successfully!</div>
 
 
 
     <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
+    <script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
 
-<script>
-                                        function openPopup(id, name, imageUrl, price, description) {
-                                            document.getElementById("popup-id").value = id;
-                                            document.getElementById("popup-name").textContent = name;
-                                            document.getElementById("popup-image").src = imageUrl;
-                                            document.getElementById("popup-price").textContent = "Price: " + price;
-                                            document.getElementById("popup-description").textContent = description;
-                                            document.getElementById("popup").style.display = "flex";
-                                        }
+    <script>
+                                            function openPopup(id, name, imageUrl, price, description) {
+                                                document.getElementById("popup-id").value = id;
+                                                document.getElementById("popup-name").textContent = name;
+                                                document.getElementById("popup-image").src = imageUrl;
+                                                document.getElementById("popup-price").textContent = "Price: " + price;
+                                                document.getElementById("popup-description").textContent = description;
+                                                document.getElementById("popup").style.display = "flex";
+                                            }
 
-                                        function closePopup() {
-                                            document.getElementById("popup").style.display = "none";
-                                            document.getElementById("popup-quantity").value = 1;
-                                        }
+                                            function closePopup() {
+                                                document.getElementById("popup").style.display = "none";
+                                                document.getElementById("popup-quantity").value = 1;
+                                            }
     </script>
 
 

@@ -48,7 +48,6 @@
     <servlet>
         <servlet-name>DeleteUserListServlet</servlet-name>
         <servlet-class>controller.DeleteUserListServlet</servlet-class>
-
     </servlet>
     
     <servlet-mapping>
