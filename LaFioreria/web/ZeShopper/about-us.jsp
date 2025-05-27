@@ -216,7 +216,7 @@
 
                     <!-- Image Right -->
                     <div class="col-md-6 text-center">
-                        <img src="images/about/tulip.jpg" 
+                        <img src="images/about/bouquet.jpg" 
                              alt="LaFioreria Flowers" 
                              class="img-fluid rounded shadow about-image">
                     </div>
