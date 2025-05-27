@@ -192,83 +192,43 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="cart_product">
-                                    <a href=""><img src="${pageContext.request.contextPath}/ZeShopper/images/cart/one.png" alt=""></a>
-                                </td>
-                                <td class="cart_description">
-                                    <h4><a href="">Colorblock Scuba</a></h4>
-                                    <p>Web ID: 1089772</p>
-                                </td>
-                                <td class="cart_price">
-                                    <p>$59</p>
-                                </td>
-                                <td class="cart_quantity">
-                                    <div class="cart_quantity_button">
-                                        <a class="cart_quantity_up" href=""> + </a>
-                                        <input class="cart_quantity_input" type="text" name="quantity" value="1" autocomplete="off" size="2">
-                                        <a class="cart_quantity_down" href=""> - </a>
-                                    </div>
-                                </td>
-                                <td class="cart_total">
-                                    <p class="cart_total_price">$59</p>
-                                </td>
-                                <td class="cart_delete">
-                                    <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td class="cart_product">
-                                    <a href=""><img src="${pageContext.request.contextPath}/ZeShopper/images/cart/two.png" alt=""></a>
-                                </td>
-                                <td class="cart_description">
-                                    <h4><a href="">Colorblock Scuba</a></h4>
-                                    <p>Web ID: 1089772</p>
-                                </td>
-                                <td class="cart_price">
-                                    <p>$59</p>
-                                </td>
-                                <td class="cart_quantity">
-                                    <div class="cart_quantity_button">
-                                        <a class="cart_quantity_up" href=""> + </a>
-                                        <input class="cart_quantity_input" type="text" name="quantity" value="1" autocomplete="off" size="2">
-                                        <a class="cart_quantity_down" href=""> - </a>
-                                    </div>
-                                </td>
-                                <td class="cart_total">
-                                    <p class="cart_total_price">$59</p>
-                                </td>
-                                <td class="cart_delete">
-                                    <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="cart_product">
-                                    <a href=""><img src="${pageContext.request.contextPath}/ZeShopper/images/cart/three.png" alt=""></a>
-                                </td>
-                                <td class="cart_description">
-                                    <h4><a href="">Colorblock Scuba</a></h4>
-                                    <p>Web ID: 1089772</p>
-                                </td>
-                                <td class="cart_price">
-                                    <p>$59</p>
-                                </td>
-                                <td class="cart_quantity">
-                                    <div class="cart_quantity_button">
-                                        <a class="cart_quantity_up" href=""> + </a>
-                                        <input class="cart_quantity_input" type="text" name="quantity" value="1" autocomplete="off" size="2">
-                                        <a class="cart_quantity_down" href=""> - </a>
-                                    </div>
-                                </td>
-                                <td class="cart_total">
-                                    <p class="cart_total_price">$59</p>
-                                </td>
-                                <td class="cart_delete">
-                                    <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
-                                </td>
-                            </tr>
-                        </tbody>
+                            <c:set var="total" value="0"/>
+                            <c:forEach var="item" items="${cartDetails}">
+                                <tr>
+                                    <td class="cart_product">
+                                        <img src="${item.bouquet.imageUrl}" alt="${item.bouquet.bouquetName}" width="100">
+                                    </td>
+                                    <td class="cart_description">
+                                        <h4>${item.bouquet.bouquetName}</h4>
+                                        <p>${item.bouquet.description}</p>
+                                    </td>
+                                    <td class="cart_price">
+                                        <p>$${item.bouquet.price}</p>
+                                    </td>
+                                    <td class="cart_quantity">
+                                        <div class="cart_quantity_button">
+                                            <form action="cart" method="post" style="display: flex;">
+                                                <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
+                                                <input type="hidden" name="action" value="update">
+                                                <input class="cart_quantity_input" type="number" name="quantity" value="${item.quantity}" min="1" style="width: 50px; text-align: center;">
+                                                <button type="submit" class="btn btn-xs">Update</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    <td class="cart_total">
+                                        <p class="cart_total_price">$${item.bouquet.price * item.quantity}</p>
+                                    </td>
+                                    <td class="cart_delete">
+                                        <form action="cart" method="post">
+                                            <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
+                                            <input type="hidden" name="action" value="delete">
+                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <c:set var="total" value="${total + item.bouquet.price * item.quantity}"/>
+                            </c:forEach>                        
+			</tbody>
                     </table>
                 </div>
             </div>
