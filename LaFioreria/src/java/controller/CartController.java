@@ -40,7 +40,14 @@ public class CartController extends HttpServlet {
             case "add":
                 add(request, response);
                 break;
-            
+            case "update":
+                update(request, response);
+                break;
+            case "delete":
+                delete(request, response);
+                break;
+            default:
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action: " + action);
         }
 
     }
@@ -65,6 +72,26 @@ public class CartController extends HttpServlet {
         response.setContentType("application/json");
         response.getWriter().write("{\"status\": \"added\"}");
 
+    }
+    private void update(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int customerId = ((User) request.getSession().getAttribute("currentAcc")).getUserid();
+        int bouquetId = Integer.parseInt(request.getParameter("bouquetId"));
+        int quantity = Integer.parseInt(request.getParameter("quantity"));
+
+        CartDAO dao = new CartDAO();
+        dao.updateQuantity(customerId, bouquetId, quantity);
+
+        response.sendRedirect("cart");
+    }
+
+    private void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int customerId = ((User) request.getSession().getAttribute("currentAcc")).getUserid();
+        int bouquetId = Integer.parseInt(request.getParameter("bouquetId"));
+
+        CartDAO dao = new CartDAO();
+        dao.deleteItem(customerId, bouquetId);
+
+        response.sendRedirect("cart");
     }
 
 }
