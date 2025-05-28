@@ -275,6 +275,7 @@
 
                                         <!-- Flower Table -->
                                         <h5 class="mb-3 text-secondary">Flowers in Bouquet</h5>
+
                                         <div class="table-responsive mb-3">
                                             <table id="flowerTable" class="table table-bordered align-middle">
                                                 <thead class="table-light">
@@ -286,52 +287,58 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <!-- Dòng đầu tiên hiển thị mặc định -->
-                                                    <tr>
-                                                        <td>
-                                                            <select name="flowerIds" class="form-select form-select-sm flower-select">
-                                                                <c:forEach var="f" items="${allFlowers}">
-                                                                    <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">${f.getRawName()}</option>
-                                                                </c:forEach>
-                                                            </select>
-                                                        </td>
-                                                        <td>
-                                                            <span class="form-text price-text">$0.00</span>
-                                                            <input type="hidden" class="price-input" name="prices[]" value="0" />
-                                                        </td>
-                                                        <td>
-                                                            <input 
-                                                                type="number" 
-                                                                name="quantities" 
-                                                                value="1" 
-                                                                min="1" 
-                                                                step="1"
-                                                                required
-                                                                class="form-control form-control-sm" 
-                                                                />
-
-                                                        </td>
-                                                        <td>
-                                                            <button type="button" class="btn btn-sm btn-outline-danger"
-                                                                    onclick="this.closest('tr').remove(); updateTotalValue();">
-                                                                &times;
-                                                            </button>
-                                                        </td>
-                                                    </tr>
+                                                    <!-- Chỉ duy nhất FOR-EACH, không có row mặc định -->
+                                                    <c:forEach var="br" items="${flowerInBQ}">
+                                                        <tr>
+                                                            <td>
+                                                                <select name="flowerIds" class="form-select form-select-sm flower-select">
+                                                                    <c:forEach var="f" items="${allFlowers}">
+                                                                        <option
+                                                                            value="${f.getRawId()}"
+                                                                            data-price="${f.getUnitPrice()}"
+                                                                            <c:if test="${f.getRawId() eq br.getRaw_id()}">selected</c:if>
+                                                                            >${f.getRawName()}</option>
+                                                                    </c:forEach>
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <span class="form-text price-text">$0.00</span>
+                                                                <input type="hidden" class="price-input" name="prices[]" value="0" />
+                                                            </td>
+                                                            <td>
+                                                                <input
+                                                                    type="number"
+                                                                    name="quantities"
+                                                                    value="${br.getQuantity()}"
+                                                                    min="1"
+                                                                    step="1"
+                                                                    required
+                                                                    class="form-control form-control-sm quantity-input"
+                                                                    />
+                                                            </td>
+                                                            <td>
+                                                                <button type="button" class="btn btn-sm btn-outline-danger remove-btn">
+                                                                    &times;
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </c:forEach>
                                                 </tbody>
                                                 <tfoot>
                                                     <tr>
                                                         <td colspan="4" class="text-start fw-bold text-primary">
-                                                            Total Value: <span id="totalValueDisplay">$0.00</span>
+                                                            Total Value:
+                                                            <span id="totalValueDisplay">$0.00</span>
                                                             <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
                                                         </td>
                                                     </tr>
                                                 </tfoot>
                                             </table>
                                         </div>
-
                                         <div class="d-flex justify-content-between">
-                                            <button type="button" id="addFlowerBtn" class="btn btn-outline-primary btn-sm">+ Add Flower</button>
+                                            <button type="button" id="addFlowerBtn" class="btn btn-sm btn-outline-primary mb-4">
+                                                + Add New Flower
+                                            </button>
                                             <button type="submit" class="btn btn-success px-4">Save Bouquet</button>
                                         </div>
 
@@ -341,14 +348,17 @@
                             </div>
                         </div>
                 </form>
-                <!-- Hidden Template -->
+                                        <p>flowerInBQ size: ${fn:length(flowerInBQ)}</p>
+                <!-- TEMPLATE để clone (ẩn) -->
                 <table style="display:none;">
                     <tbody>
                         <tr id="flowerRowTemplate">
                             <td>
                                 <select name="flowerIds" class="form-select form-select-sm flower-select">
                                     <c:forEach var="f" items="${allFlowers}">
-                                        <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">${f.getRawName()}</option>
+                                        <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">
+                                            ${f.getRawName()}
+                                        </option>
                                     </c:forEach>
                                 </select>
                             </td>
@@ -357,14 +367,20 @@
                                 <input type="hidden" class="price-input" name="prices[]" value="0" />
                             </td>
                             <td>
-                                <input type="number" name="quantities" value="0" min="0" class="form-control form-control-sm" />
+                                <input
+                                    type="number"
+                                    name="quantities"
+                                    value="1"
+                                    min="1"
+                                    step="1"
+                                    required
+                                    class="form-control form-control-sm quantity-input"
+                                    />
                             </td>
                             <td>
-                                <button type="button" class="btn btn-sm btn-outline-danger"
-                                        onclick="this.closest('tr').remove(); updateTotalValue();">
+                                <button type="button" class="btn btn-sm btn-outline-danger remove-btn">
                                     &times;
                                 </button>
-
                             </td>
                         </tr>
                     </tbody>
@@ -412,79 +428,71 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-                                            function updatePrice(selectElement) {
-                                                const selectedOption = selectElement.options[selectElement.selectedIndex];
-                                                const price = selectedOption ? parseFloat(selectedOption.getAttribute('data-price') || "0") : 0;
+        document.addEventListener('DOMContentLoaded', () => {
+            // Định dạng tiền tệ
+            function formatCurrency(val) {
+                return '$' + parseFloat(val).toFixed(2);
+            }
 
-                                                const row = selectElement.closest('tr');
-                                                const priceText = row.querySelector('.price-text');
-                                                const priceInput = row.querySelector('.price-input');
+            // Cập nhật giá của từng dòng khi chọn hoặc khởi tạo
+            function updateRowPrice(row) {
+                const sel = row.querySelector('.flower-select');
+                const priceInput = row.querySelector('.price-input');
+                const priceText = row.querySelector('.price-text');
+                const unitPrice = sel.selectedOptions[0].dataset.price;
+                priceInput.value = unitPrice;
+                priceText.textContent = formatCurrency(unitPrice);
+            }
 
-                                                priceText.textContent = '$' + price.toFixed(2);
-                                                priceInput.value = price;
+            // Tính lại tổng
+            function updateTotalValue() {
+                let total = 0;
+                document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
+                    const price = parseFloat(row.querySelector('.price-input').value) || 0;
+                    const qty = parseInt(row.querySelector('.quantity-input').value, 10) || 0;
+                    total += price * qty;
+                });
+                document.getElementById('totalValueDisplay').textContent = formatCurrency(total);
+                document.getElementById('totalValueInput').value = total;
+            }
 
-                                                calculateTotal();
-                                            }
+            // Gắn event cho 1 dòng: change select, input quantity, click remove
+            function bindRowEvents(row) {
+                row.querySelector('.flower-select')
+                        .addEventListener('change', () => {
+                            updateRowPrice(row);
+                            updateTotalValue();
+                        });
+                row.querySelector('.quantity-input')
+                        .addEventListener('input', () => updateTotalValue());
+                row.querySelector('.remove-btn')
+                        .addEventListener('click', () => {
+                            row.remove();
+                            updateTotalValue();
+                        });
+            }
 
-                                            function calculateTotal() {
-                                                let total = 0;
-                                                const rows = document.querySelectorAll('#flowerTable tbody tr');
+            // Khởi tạo: bind và cập nhật cho các dòng đã có sẵn
+            document.querySelectorAll('#flowerTable tbody tr').forEach(r => {
+                bindRowEvents(r);
+                updateRowPrice(r);
+            });
+            updateTotalValue();
 
-                                                rows.forEach(row => {
-                                                    const price = parseFloat(row.querySelector('.price-input')?.value || 0);
-                                                    const quantity = parseInt(row.querySelector('input[name^="quantities"]')?.value || 0);
-                                                    total += price * quantity;
-                                                });
-
-                                                // 1) Cập nhật hiển thị
-                                                document.getElementById('totalValueDisplay').textContent = '$' + total.toFixed(2);
-                                                // 2) Gán vào hidden input để gửi lên server
-                                                document.getElementById('totalValueInput').value = total.toFixed(2);
-                                            }
-
-                                            function attachEventsToRow(row) {
-                                                const select = row.querySelector('.flower-select');
-                                                const quantityInput = row.querySelector('input[name^="quantities"]');
-                                                const deleteButton = row.querySelector('.btn-outline-danger');
-
-                                                if (select) {
-                                                    updatePrice(select);
-                                                    select.addEventListener('change', function () {
-                                                        updatePrice(this);
-                                                    });
-                                                }
-
-                                                if (quantityInput) {
-                                                    quantityInput.addEventListener('input', calculateTotal);
-                                                }
-
-                                                if (deleteButton) {
-                                                    deleteButton.addEventListener('click', function () {
-                                                        row.remove();
-                                                        calculateTotal(); // ✅ Update lại khi xóa
-                                                    });
-                                                }
-                                            }
-
-                                            document.addEventListener('DOMContentLoaded', function () {
-                                                // Gắn sự kiện cho dòng đầu tiên mặc định
-                                                document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
-                                                    attachEventsToRow(row);
-                                                });
-
-                                                calculateTotal(); // Khởi tạo tổng ban đầu
-                                            });
-
-                                            document.getElementById('addFlowerBtn').addEventListener('click', function () {
-                                                const template = document.getElementById('flowerRowTemplate');
-                                                const newRow = template.cloneNode(true);
-                                                newRow.removeAttribute('id');
-                                                newRow.style.display = '';
-
-                                                document.querySelector('#flowerTable tbody').appendChild(newRow);
-                                                attachEventsToRow(newRow);
-                                                calculateTotal();
-                                            });
+            // Thêm dòng mới khi click nút
+            document.getElementById('addFlowerBtn')
+                    .addEventListener('click', () => {
+                        const tpl = document.getElementById('flowerRowTemplate');
+                        const newRow = tpl.cloneNode(true);    // clone <tr>
+                        newRow.removeAttribute('id');
+                        newRow.style.display = '';             // hiển thị
+                        bindRowEvents(newRow);
+                        updateRowPrice(newRow);
+                        document.querySelector('#flowerTable tbody').appendChild(newRow);
+                        updateTotalValue();
+                    });
+        });
     </script>
+
 </body>
 </html>
