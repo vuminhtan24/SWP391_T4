@@ -3,12 +3,8 @@
     Created on : May 19, 2025, 2:34:20 PM
     Author     : ADMIN
 --%>
-
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.List,model.Bouquet" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -19,7 +15,7 @@
         <meta content="" name="description">
 
         <!-- Favicon -->
-        <link href="img/favicon.ico" rel="icon">
+        <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
 
         <!-- Google Web Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -81,14 +77,15 @@
                         <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
                         <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
                         <a href="${pageContext.request.contextPath}/DashMin/table.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Tables</a>
-                        <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/product.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
                         <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
+                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
-                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
-                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item active">View User Detail</a>
+                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item active">Blank Page</a>
+                                <a href="${pageContext.request.contextPath}/ViewUserList" class="dropdown-item active">View User List</a>
+                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item active">View User </a>
                             </div>
                         </div>
                     </div>
@@ -189,16 +186,113 @@
                 </nav>
                 <!-- Navbar End -->
 
+                <!-- Table Start -->
+                <div class="row">
+                    <div class="col-sm-12 col-xl-2">
+                        <div class="bg-light rounded h-100 p-4">
+                            <h6 class="mb-4">View User List Table</h6>
 
-                <!-- Blank Start -->
-                <div class="container-fluid pt-4 px-4">
-                    <div class="row vh-100 bg-light rounded align-items-center justify-content-center mx-0">
-                        <div class="col-md-6 text-center">
-                            <h3>This is blank page</h3>
-                            <h2><%= request.getAttribute("error") %></h2>
+                            <table border="1">
+
+                                <tbody>
+                                    <c:forEach items="${userIds}" var="id">
+                                        <tr>
+                                            <td>
+                                                <a href="viewuserdetail?id=${id}">${id}</a>
+                                            </td>
+                                        </tr>           
+                                    </c:forEach> 
+                                </tbody>
+                            </table>
+
                         </div>
                     </div>
+
+                    <div class="col-sm-12 col-xl-10">
+                        <div class="bg-light rounded h-100 p-4">
+                            <h6 class="mb-4">View User Detail Table</h6>
+                            <c:if test="${empty userIds}">
+                                <p>No userIds found</p>
+                            </c:if>
+                            <c:if test="${not empty userIds}">
+                                <p>User IDs are available</p>
+                            </c:if>
+
+                            <h3>
+                                <a href="${pageContext.request.contextPath}/adduserdetail">Add new User detail</a>
+                            </h3>
+
+                            <form action="${pageContext.request.contextPath}/viewuserdetail" method="POST">
+                                <table border="1">
+
+                                    <tbody>
+                                        <tr>
+                                            <td>User ID: </td>
+                                            <td>
+                                                <input type="text" name="id" value="${userManager.userid}" readonly="">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>User Name: </td>
+                                            <td>
+                                                <input type="text" name="name" value="${userManager.username}">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Password: </td>
+                                            <td>
+                                                <input type="text" name="pass" value="${userManager.password}">
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Full Name: </td>
+                                            <td>
+                                                <input type="text" name="FullName" value="${userManager.fullname}">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Email: </td>
+                                            <td>
+                                                <input type="text" name="email" value="${userManager.email}">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Phone Number: </td>
+                                            <td>
+                                                <input type="type" name="phone" value="${userManager.phone}">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Address: </td>
+                                            <td>
+                                                <input type="type" name="address" value="${userManager.address}">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Role: </td>
+                                            <td>
+                                                <input type="type" name="role" value="${userManager.role}" readonly="">
+                                            </td>
+                                        </tr>
+                                        <tr>
+
+                                            <td>
+                                                <select name="option">
+                                                    <c:forEach items="${roleNames}" var="role">
+                                                        <option value="${role}">${role}</option>
+                                                    </c:forEach>
+                                                </select>
+                                            </td>
+                                            <td><input type="submit" name="ud" value="UPDATE"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>           
+                            </form>
+                        </div>
+                    </div>   
                 </div>
+
                 <!-- Blank End -->
 
 
@@ -228,15 +322,15 @@
         <!-- JavaScript Libraries -->
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="lib/chart/chart.min.js"></script>
-        <script src="lib/easing/easing.min.js"></script>
-        <script src="lib/waypoints/waypoints.min.js"></script>
-        <script src="lib/owlcarousel/owl.carousel.min.js"></script>
-        <script src="lib/tempusdominus/js/moment.min.js"></script>
-        <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
-        <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
         <!-- Template Javascript -->
-        <script src="js/main.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
     </body>
 </html>
