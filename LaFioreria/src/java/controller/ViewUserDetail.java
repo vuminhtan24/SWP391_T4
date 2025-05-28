@@ -78,7 +78,7 @@ public class ViewUserDetail extends HttpServlet {
 
         }
 
-        request.getRequestDispatcher("TestWeb/showUserDetail.jsp").forward(request, response);
+        request.getRequestDispatcher("DashMin/viewuserdetail.jsp").forward(request, response);
     }
 
     /**
