@@ -211,31 +211,27 @@ public class BouquetDAO extends DBContext {
 
     public List<BouquetRaw> getFlowerByBouquetID(int id) {
         List<BouquetRaw> listBQR = new ArrayList<>();
-        String sql = "SELECT br.bouquet_id,\n"
-                + "       br.raw_id,\n"
-                + "       br.quantity \n"
-                + "       FROM\n"
-                + "la_fioreria.bouquet_raw br\n"
-                + "JOIN la_fioreria.bouquet b ON b.Bouquet_ID = br.bouquet_id\n"
-                + "JOIN la_fioreria.raw_flower rf ON rf.raw_id = br.raw_id\n"
-                + "WHERE b.Bouquet_ID = ?";
-        try {
-            PreparedStatement pre = connection.prepareStatement(sql);
+        String sql = "SELECT br.bouquet_id, br.raw_id, br.quantity "
+                + "FROM la_fioreria.bouquet_raw br "
+                + "JOIN la_fioreria.bouquet b ON b.bouquet_id = br.bouquet_id "
+                + "JOIN la_fioreria.raw_flower rf ON rf.raw_id = br.raw_id "
+                + "WHERE b.bouquet_id = ?";
+        try (PreparedStatement pre = connection.prepareStatement(sql)) {
             pre.setInt(1, id);
             ResultSet rs = pre.executeQuery();
-            if(rs.next()){
+            // Duyệt hết các dòng trả về
+            while (rs.next()) {
                 int raw_id = rs.getInt("raw_id");
                 int quantity = rs.getInt("quantity");
-                
                 BouquetRaw bqRaw = new BouquetRaw(id, raw_id, quantity);
                 listBQR.add(bqRaw);
-                return listBQR;
             }
-        } catch (Exception e) {
-            System.out.println(e);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Có thể log, hoặc ném exception lên cao nếu muốn
         }
-        
-        return null;
+        // Trả về list (có thể rỗng nếu không tìm thấy bản ghi nào)
+        return listBQR;
     }
 
     public static void main(String[] args) {
@@ -244,7 +240,8 @@ public class BouquetDAO extends DBContext {
         Bouquet b = new Bouquet();
         BouquetRaw q = new BouquetRaw();
         b = dao.getBouquetByID(3);
-        System.out.println(b.toString());
+        List<BouquetRaw> r = dao.getFlowerByBouquetID(3);
+        System.out.println(r);
     }
 
 }
