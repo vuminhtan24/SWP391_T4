@@ -18,7 +18,7 @@ import model.RawFlower;
  */
 public class RawFlowerDAO extends DBContext {
 
-    public List<RawFlower> getAll() {
+     public List<RawFlower> getAll() {
         List<RawFlower> listRawFlower = new ArrayList<>();
 
         String sql = "SELECT * FROM la_fioreria.raw_flower;";
@@ -44,6 +44,12 @@ public class RawFlowerDAO extends DBContext {
         }
 
         return listRawFlower;
+    }
+    
+    public static void main(String[] args) {
+        List<RawFlower> raw = new ArrayList<>();
+        RawFlowerDAO dao = new RawFlowerDAO();
+        System.out.println(dao.getAll());
     }
     
     public int count() {

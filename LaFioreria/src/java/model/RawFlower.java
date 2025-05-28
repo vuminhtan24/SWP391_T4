@@ -18,7 +18,7 @@ public class RawFlower {
     String imageUrl;
     int hold;
     int importPrice;
-    
+
      public int getHold() {
         return hold;
     }
@@ -59,8 +59,11 @@ public class RawFlower {
         this.imageUrl = imageUrl;
         this.hold = hold;
         this.importPrice = importPrice;
+ 
     }
 
+
+    
     public int getRawId() {
         return rawId;
     }
