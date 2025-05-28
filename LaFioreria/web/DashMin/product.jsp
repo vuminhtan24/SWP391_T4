@@ -274,6 +274,11 @@
                                                onclick="return confirm('Do you want to delete?');">
                                                 Delete
                                             </a>
+                                        </td>    
+                                        <td>
+                                            <a href="${pageContext.request.contextPath}/editBouquet?id=${bouquet.getBouquetId()}">
+                                                Edit
+                                            </a>
                                         </td>
 
                                     </tr>
