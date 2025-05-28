@@ -334,7 +334,7 @@
                                                 <td>${item.importPrice} VND</td>
                                                 <th>${item.warehouse.name}</th>
                                                 <td class="actions-btn">
-                                                    <a href="update_rawflower?id=${item.rawId}" class="btn btn-warning btn-sm">View detail</a>
+                                                    <a href="${pageContext.request.contextPath}/update_flower?raw_id=${item.rawId}" class="btn btn-warning btn-sm">View detail</a>
                                                     <form action="${pageContext.request.contextPath}/hidePerfume" method="post" style="display:inline;">
                                                         <input type="hidden" name="id" value="${item.rawId}"/>
                                                         <button type="submit" class="btn btn-danger btn-sm">Hide</button>
@@ -377,6 +377,8 @@
 
         <!-- JavaScript Libraries -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
@@ -426,6 +428,18 @@
             .dataTables_wrapper .dataTables_paginate .paginate_button.current {
                 background-color: #007bff;
                 color: white;
+                
+                
+            }
+            
+            /* Tăng khoảng cách giữa dòng "Showing..." và dòng phân trang */
+            .dataTables_wrapper .dataTables_info {
+                margin-bottom: 20px; /* Khoảng cách dưới dòng "Showing..." */
+            }
+
+            /* Đảm bảo dòng phân trang không bị ảnh hưởng */
+            .dataTables_wrapper .dataTables_paginate {
+                margin-top: 20px; /* Khoảng cách trên dòng "Previous 1 2 Next" */
             }
         </style>
     </body>
