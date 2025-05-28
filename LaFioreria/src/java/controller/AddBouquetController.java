@@ -67,7 +67,7 @@ public class AddBouquetController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         RawFlowerDAO dao = new RawFlowerDAO();
-        List<RawFlower> all = dao.getAll();
+        List<RawFlower> all = dao.getRawFlower();
         // 1. Tất cả hoa để đổ vào dropdown
         request.setAttribute("flowerInBouquet", all);
 

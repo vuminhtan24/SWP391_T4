@@ -32,80 +32,6 @@
         <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-114-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-57-precomposed.png">
-        <style>
-            .popup-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.6);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 999;
-            }
-
-            .popup-content {
-                background: #fff;
-                padding: 25px;
-                border-radius: 10px;
-                width: 400px;
-                max-width: 90%;
-                box-shadow: 0 0 15px rgba(0,0,0,0.3);
-                animation: fadeIn 0.3s ease;
-            }
-
-            .popup-content h3 {
-                margin-top: 0;
-                text-align: center;
-            }
-
-            .popup-content label {
-                display: block;
-                margin-top: 10px;
-                font-weight: bold;
-            }
-
-            .popup-content input {
-                width: 100%;
-                padding: 8px;
-                margin-top: 5px;
-                box-sizing: border-box;
-            }
-
-            .popup-buttons {
-                display: flex;
-                justify-content: space-between;
-                margin-top: 20px;
-            }
-
-            .popup-btn {
-                padding: 10px 18px;
-                background-color: #5cb85c;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-            }
-
-            .popup-btn.cancel {
-                background-color: #d9534f;
-            }
-
-            @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                    transform: scale(0.95);
-                }
-                to {
-                    opacity: 1;
-                    transform: scale(1);
-                }
-            }
-        </style>
-
-
     </head><!--/head-->
 
     <body>
@@ -246,113 +172,22 @@
         </header><!--/header-->
 
         <section id="cart_items">
-            <div class="container">
-                <div class="breadcrumbs">
-                    <ol class="breadcrumb">
-                        <li><a href="#">Home</a></li>
-                        <li class="active">Shopping Cart</li>
-                    </ol>
-                </div>
-                <div class="table-responsive cart_info">
-                    <table class="table table-condensed">
-                        <thead>
-                            <tr class="cart_menu">
-                                <td class="image">Item</td>
-                                <td class="description"></td>
-                                <td class="price">Price</td>
-                                <td class="quantity">Quantity</td>
-                                <td class="total">Total</td>
-                                <td></td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:set var="total" value="0"/>
-                            <c:forEach var="item" items="${cartDetails}">
-                                <tr>
-                                    <td class="cart_product">
-                                        <img src="${item.bouquet.imageUrl}" alt="${item.bouquet.bouquetName}" width="100">
-                                    </td>
-                                    <td class="cart_description">
-                                        <h4>${item.bouquet.bouquetName}</h4>
-                                        <p>${item.bouquet.description}</p>
-                                    </td>
-                                    <td class="cart_price">
-                                        <p>$${item.bouquet.price}</p>
-                                    </td>
-                                    <td class="cart_quantity">
-                                        <div class="cart_quantity_button">
-                                            <form action="cart" method="post" style="display: flex;">
-                                                <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
-                                                <input type="hidden" name="action" value="update">
-                                                <input class="cart_quantity_input" type="number" name="quantity" value="${item.quantity}" min="1" style="width: 50px; text-align: center;">
-                                                <button type="submit" class="btn btn-xs">Update</button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                    <td class="cart_total">
-                                        <p class="cart_total_price">$${item.bouquet.price * item.quantity}</p>
-                                    </td>
-                                    <td class="cart_delete">
-                                        <form action="cart" method="post">
-                                            <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
-                                            <input type="hidden" name="action" value="delete">
-                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                <c:set var="total" value="${total + item.bouquet.price * item.quantity}"/>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section> <!--/#cart_items-->
+            <div class="container text-center" style="padding: 60px 0;">
+                <div style="max-width: 600px; margin: auto; border: 1px solid #eee; padding: 40px; border-radius: 10px; background: #f9f9f9;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Success" width="100" style="margin-bottom: 20px;">
+                    <h2 style="color: #28a745; margin-bottom: 10px;">Thank You for Your Purchase!</h2>
+                    <p style="font-size: 16px; color: #555;">Your order has been successfully placed. We will contact you shortly with delivery details.</p>
 
-        <section id="do_action">
-            <div class="container">
-                <!--                <div class="heading">
-                                    <h3>What would you like to do next?</h3>
-                                    <p>Choose if you have a discount code or reward points you want to use or would like to estimate your delivery cost.</p>
-                                </div>-->
-                <div class="row">
-                    <div class="col-sm-6" style="float: right; border: none">
-                        <div class="total_area" style=" border: none">
-                            <ul>
-                                <li style=" background-color:  white"><strong>Total</strong> <span>$${total}</span></li>
-                            </ul>
-                            <div style="display: flex; justify-content:  end">
-                                <a class="btn btn-default check_out" href="javascript:void(0)" onclick="openCheckoutPopup()">Check Out</a>
-                            </div>
-                        </div>
+                    <div style="margin-top: 30px;">
+                        <a href="home" class="btn btn-success" style="padding: 10px 25px; margin-right: 10px;">Continue Shopping</a>
+                        <a href="order-history.jsp" class="btn btn-outline-secondary" style="padding: 10px 25px;">View Orders</a>
                     </div>
                 </div>
             </div>
-            <div id="checkoutPopup" class="popup-overlay" style="display: none;">
-                <div class="popup-content">
-                    <h3>Confirm Your Information</h3>
-                    <form action="checkout" method="post">
-                        <input type="hidden" name="total" value="${total}" required>
-                        <label>Full Name:</label>
-                        <input type="text" name="fullName" value="${user.fullname}" required>
+        </section>
 
-                        <label>Email:</label>
-                        <input type="email" name="email" value="${user.email}" required>
 
-                        <label>Phone:</label>
-                        <input type="text" name="phone" pattern="\d{10}" value="${user.phone}" maxlength="10" required>
 
-                        <label>Address:</label>
-                        <input type="text" name="address" value="${user.address}" required>
-
-                        <div class="popup-buttons">
-                            <button type="submit" class="popup-btn">Confirm Order</button>
-                            <button type="button" onclick="closeCheckoutPopup()" class="popup-btn cancel">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-        </section><!--/#do_action-->
 
         <footer id="footer"><!--Footer-->
             <div class="footer-top">
@@ -519,15 +354,6 @@
         <script src="js/jquery.scrollUp.min.js"></script>
         <script src="js/jquery.prettyPhoto.js"></script>
         <script src="js/main.js"></script>
-        <script>
-                    function openCheckoutPopup() {
-                        document.getElementById("checkoutPopup").style.display = "flex";
-                    }
-
-                    function closeCheckoutPopup() {
-                        document.getElementById("checkoutPopup").style.display = "none";
-                    }
-        </script>
 
     </body>
 </html>
