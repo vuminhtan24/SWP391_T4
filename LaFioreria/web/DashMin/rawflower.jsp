@@ -308,7 +308,7 @@
                                         }
                                     });
                                 </script>
-                                <table class="table table-hover align-middle table-bordered border-secondary-subtle">
+                                <table id="productTable" class="table table-hover align-middle table-bordered border-secondary-subtle">
                                     <thead>
                                         <tr>
                                             <th>ID</th>
@@ -383,10 +383,51 @@
         <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
-
+        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>     
         <!-- Template Main Script -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+        <script>
+        $(document).ready(function () {
+            $('#productTable').DataTable({
+                "paging": true, // Bật phân trang
+                "searching": true, // Bật tìm kiếm
+                "ordering": true, // Bật sắp xếp
+                "info": true, // Hiển thị thông tin bảng
+                "pageLength": 6, // Số dòng mỗi trang (có thể chỉnh lại theo ý muốn)
+                "lengthChange": false, // Ẩn tùy chọn thay đổi số dòng mỗi trang nếu không cần
+                "language": {
+                    "paginate": {
+                        "previous": "Previous",
+                        "next": "Next"
+                    },
+                    "emptyTable": "No data available in table", // Thông báo nếu bảng rỗng
+                }
+            });
+        });
+        </script>        
+        <style>
+            /* Khoảng cách giữa các nút phân trang */
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                margin: 0 5px; /* Khoảng cách ngang giữa các nút */
+                padding: 5px 10px; /* Độ rộng và chiều cao của nút */
+                border-radius: 5px; /* Bo góc nút */
+                color: #007bff; /* Màu chữ */
+                background-color: #f8f9fa; /* Màu nền nhẹ */
+                border: 1px solid #ddd; /* Đường viền cho nút */
+            }
+
+            /* Đổi màu nền khi di chuột qua */
+            .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+                background-color: #007bff;
+                color: white;
+            }
+
+            /* Kiểu dáng nút hiện tại (active) */
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+                background-color: #007bff;
+                color: white;
+            }
+        </style>
     </body>
 </html>
 
