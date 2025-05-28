@@ -3,8 +3,6 @@ package dal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -30,7 +28,7 @@ public class DBContext {
         try {
             String url = "jdbc:mysql://localhost:3306/la_fioreria?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
             String user = "root";
-            String pass = "1234";
+            String pass = "123456";
 
             Class.forName("com.mysql.cj.jdbc.Driver"); // MySQL driver mới
 
