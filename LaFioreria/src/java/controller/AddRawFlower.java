@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.sql.Date;
 import java.util.List;
 import dal.RawFlowerDAO;
+import dal.WarehouseDAO;
 
 /**
  *
@@ -32,7 +33,7 @@ public class AddRawFlower extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 //        processRequest(request, response);
-        request.getRequestDispatcher("AddRawFlower2").forward(request, response);
+        request.getRequestDispatcher("DashMin/rawflower2").forward(request, response);
     }
 
     /**
@@ -47,18 +48,16 @@ public class AddRawFlower extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-            String name = request.getParameter("rawName");
-            int unitPrice = Integer.parseInt(request.getParameter("unitPrice"));
-            String expirationDate_raw = request.getParameter("expirationDate");
-            Date expirationDate = Date.valueOf(expirationDate_raw);
-            int importPrice = Integer.parseInt(request.getParameter("importPrice"));
-            String imageUrl = request.getParameter("imageUrl");
-            int warehouseId = Integer.parseInt(request.getParameter("warehouseId"));
+        String name = request.getParameter("rawName");
+        int unitPrice = Integer.parseInt(request.getParameter("unitPrice"));
+        int importPrice = Integer.parseInt(request.getParameter("importPrice"));
+        String imageUrl = request.getParameter("imageUrl");
+        int warehouseId = Integer.parseInt(request.getParameter("warehouseId"));
         // Gọi phương thức DAO với đúng thứ tự tham số
         RawFlowerDAO rf = new RawFlowerDAO();
-        rf.addRawFlower1(name, unitPrice, expirationDate, warehouseId, imageUrl, importPrice); // truyền tên file và description vào
+        rf.addRawFlower1(name, unitPrice, warehouseId, imageUrl, importPrice); // truyền tên file và description vào
 
-        response.sendRedirect("AddRawFlower2");
+        response.sendRedirect("DashMin/rawflower2");
     }
 
     /**

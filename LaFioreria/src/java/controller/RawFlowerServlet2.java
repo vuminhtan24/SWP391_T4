@@ -16,13 +16,15 @@ import java.util.ArrayList;
 import java.util.List;
 import dal.RawFlowerDAO;
 import model.RawFlower;
+import dal.WarehouseDAO;
+import model.Warehouse;
 
 /**
  *
  * @author Admin
  */
-@WebServlet(name = "AddRawFlower2", urlPatterns = {"/AddRawFlower2"})
-public class AddRawFlower2 extends HttpServlet {
+@WebServlet(name = "RawFlowerServlet2", urlPatterns = {"/DashMin/rawflower2"})
+public class RawFlowerServlet2 extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -62,12 +64,17 @@ public class AddRawFlower2 extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        WarehouseDAO wh = new WarehouseDAO();
+        List<Warehouse> listWarehouse = new ArrayList<>();
+        listWarehouse = wh.getAllWarehouse();
         RawFlowerDAO rf = new RawFlowerDAO();
         List<RawFlower> listRF = new ArrayList<>();
+        String warehouseId = request.getParameter("warehouseId");       
         HttpSession session = request.getSession();
+        session.setAttribute("listW", listWarehouse);
         List<RawFlower> rawflower = rf.getRawFlower();
         session.setAttribute("listRF", rawflower);
-        request.getRequestDispatcher("DashMin/rawflower.jsp").forward(request, response);
+        request.getRequestDispatcher("rawflower.jsp").forward(request, response);
 
     }
 
@@ -94,5 +101,11 @@ public class AddRawFlower2 extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+    
+    public static void main(String[] args) {
+        RawFlowerDAO rf = new RawFlowerDAO();
+        List<RawFlower> listRF = new ArrayList<>();
+        System.out.println(rf.getRawFlower());
+    }
 
 }

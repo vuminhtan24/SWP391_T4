@@ -27,17 +27,17 @@ public class RawFlowerDAO extends DBContext {
             PreparedStatement pre = connection.prepareStatement(sql);
             ResultSet rs = pre.executeQuery();
             while (rs.next()) {
-                int raw_id = rs.getInt("raw_id");
-                String raw_name = rs.getString("raw_name").trim();
-                int raw_quantity = rs.getInt("raw_quantity");
-                int unit_price = rs.getInt("unit_price");
-                String expiration_date = rs.getString("expiration_date");
-                int warehouse_id = rs.getInt("Warehouse_id");
-                String image_url = rs.getString("image_url").trim();
-                int hold = rs.getInt("hold");
-                int import_price = rs.getInt("import_price");
-                RawFlower newRawFlower = new RawFlower(raw_id, raw_name, raw_quantity, unit_price, expiration_date, warehouse_id, image_url, hold, import_price);
-                listRawFlower.add(newRawFlower);
+                RawFlower r = new RawFlower();
+                WarehouseDAO wdao = new WarehouseDAO();
+                r.setRawId(rs.getInt("raw_id"));
+                r.setRawName(rs.getString("raw_name").trim());
+                r.setRawQuantity(rs.getInt("raw_quantity"));
+                r.setUnitPrice(rs.getInt("unit_price"));
+                r.setExpirationDate(rs.getString("expiration_date")); // Khuyến nghị đổi sang Date nếu được
+                r.setWarehouse(wdao.getWarehouseById(rs.getInt("warehouse_id "))); // Gán Warehouse object
+                r.setImageUrl(rs.getString("image_url").trim());
+                r.setHold(rs.getInt("hold"));
+                r.setImportPrice(rs.getInt("import_price"));
             }
         } catch (SQLException e) {
             System.out.println(e);
@@ -60,7 +60,7 @@ public class RawFlowerDAO extends DBContext {
         return 0;
     }
     
-    public ArrayList<RawFlower> getRawFlowerByFilter(Integer minPrice, Integer maxPrice, Date fromDate, Date toDate) {
+    public ArrayList<RawFlower> getRawFlowerByFilter(Integer whid, Integer minPrice, Integer maxPrice, Date fromDate, Date toDate) {
     ArrayList<RawFlower> list = new ArrayList<>();
     String sql = "SELECT * FROM la_fioreria.raw_flower WHERE 1=1";
         if (minPrice != null) {
@@ -82,11 +82,12 @@ public class RawFlowerDAO extends DBContext {
         while (rs.next()) {
             RawFlower rf = new RawFlower();
             rf.setRawId(rs.getInt("raw_id"));
+            WarehouseDAO wdao = new WarehouseDAO();
             rf.setRawName(rs.getString("raw_name").trim());
             rf.setRawQuantity(rs.getInt("raw_quantity"));
             rf.setUnitPrice(rs.getInt("unit_price"));
             rf.setExpirationDate(rs.getString("expiration_date"));
-            rf.setWarehouseId(rs.getInt("warehouse_id"));
+            rf.setWarehouse(wdao.getWarehouseById(rs.getInt("warehouse_id")));
             rf.setImageUrl(rs.getString("image_url").trim());
             rf.setHold(rs.getInt("hold"));
             rf.setImportPrice(rs.getInt("import_price"));
@@ -131,18 +132,18 @@ public class RawFlowerDAO extends DBContext {
 
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
-                int raw_id = rs.getInt("raw_id");
-                String raw_name = rs.getString("raw_name").trim();
-                int raw_quantity = rs.getInt("raw_quantity");
-                int unit_price = rs.getInt("unit_price");
-                String expiration_date = rs.getString("expiration_date");
-                int warehouse_id = rs.getInt("warehouse_id");
-                String image_url = rs.getString("image_url").trim();
-                int hold = rs.getInt("hold");
-                int import_price = rs.getInt("import_price");
-
-                RawFlower rawFlower = new RawFlower(raw_id, raw_name, raw_quantity, unit_price, expiration_date, warehouse_id, image_url, hold, import_price);
-                list.add(rawFlower);
+                RawFlower rf = new RawFlower();
+                rf.setRawId(rs.getInt("raw_id"));
+                WarehouseDAO wdao = new WarehouseDAO();
+                rf.setRawName(rs.getString("raw_name").trim());
+                rf.setRawQuantity(rs.getInt("raw_quantity"));
+                rf.setUnitPrice(rs.getInt("unit_price"));
+                rf.setExpirationDate(rs.getString("expiration_date"));
+                rf.setWarehouse(wdao.getWarehouseById(rs.getInt("warehouse_id ")));
+                rf.setImageUrl(rs.getString("image_url").trim());
+                rf.setHold(rs.getInt("hold"));
+                rf.setImportPrice(rs.getInt("import_price"));
+                list.add(rf);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -229,14 +230,13 @@ public class RawFlowerDAO extends DBContext {
         }
     }
 
-    //Chỉ thêm sản phẩm mới với raw_quantity = 0 và hold = 0
-    public void addRawFlower1(String raw_name, int unit_price, Date expiration_date, int warehouse_id, String image_url, int import_price) {
-        String sql = "INSERT INTO la_fioreria.raw_flower (raw_name, raw_quantity, unit_price, expiration_date, warehouse_id, image_url, hold, import_price) "
-                + "VALUES (?, 0, ?, ?, ?, ?, 0, ?)";
+    //Chỉ thêm sản phẩm mới với raw_quantity = 0, hold = 0 và không có expiration date
+    public void addRawFlower1(String raw_name, int unit_price,  int warehouse_id, String image_url, int import_price) {
+        String sql = "INSERT INTO la_fioreria.raw_flower (raw_name, raw_quantity, unit_price, warehouse_id, image_url, hold, import_price) "
+                + "VALUES (?, 0, ?, ?, ?, 0, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, raw_name);
             ps.setInt(2, unit_price);
-            ps.setDate(3, expiration_date);
             ps.setInt(4, warehouse_id);
             ps.setString(5, image_url);
             ps.setInt(6, import_price);
@@ -266,19 +266,47 @@ public class RawFlowerDAO extends DBContext {
         }
     }
 
-
-    public ArrayList<RawFlower> getRawFlower() {
-        ArrayList<RawFlower> list = new ArrayList<>();
-        String sql = "SELECT raw_id, raw_name, raw_quantity, unit_price, expiration_date, warehouse_id, image_url FROM la_fioreria.raw_flower";
-        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
+    
+    public RawFlower getRawFlowerById(int rawId) {
+        String sql = "SELECT * FROM la_fioreria.raw_flower WHERE raw_id = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, rawId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
                 RawFlower rf = new RawFlower();
+                WarehouseDAO wdao = new WarehouseDAO();
                 rf.setRawId(rs.getInt("raw_id"));
                 rf.setRawName(rs.getString("raw_name").trim());
                 rf.setRawQuantity(rs.getInt("raw_quantity"));
                 rf.setUnitPrice(rs.getInt("unit_price"));
                 rf.setExpirationDate(rs.getString("expiration_date"));
-                rf.setWarehouseId(rs.getInt("warehouse_id"));
+                rf.setWarehouse(wdao.getWarehouseById(rs.getInt("warehouse_id ")));
+                rf.setImageUrl(rs.getString("image_url").trim());
+                rf.setHold(rs.getInt("hold"));
+                rf.setImportPrice(rs.getInt("import_price"));
+                return rf;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public ArrayList<RawFlower> getRawFlower() {
+        ArrayList<RawFlower> list = new ArrayList<>();
+        String sql = "SELECT raw_id, raw_name, raw_quantity, unit_price, expiration_date, warehouse_id, image_url, import_price FROM la_fioreria.raw_flower";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                RawFlower rf = new RawFlower();
+                WarehouseDAO wdao = new WarehouseDAO();
+                rf.setRawId(rs.getInt("raw_id"));
+                rf.setRawName(rs.getString("raw_name").trim());
+                rf.setRawQuantity(rs.getInt("raw_quantity"));
+                rf.setUnitPrice(rs.getInt("unit_price"));
+                rf.setExpirationDate(rs.getString("expiration_date"));
+                rf.setWarehouse(wdao.getWarehouseById(rs.getInt("warehouse_id")));
+                rf.setImportPrice(rs.getInt("import_price"));
                 rf.setImageUrl(rs.getString("image_url").trim());
                 list.add(rf);
             }
@@ -340,11 +368,12 @@ public class RawFlowerDAO extends DBContext {
             while (rs.next()) {
                 RawFlower rf = new RawFlower();
                 rf.setRawId(rs.getInt("raw_id"));
+                WarehouseDAO wdao = new WarehouseDAO();
                 rf.setRawName(rs.getString("raw_name").trim());
                 rf.setRawQuantity(rs.getInt("raw_quantity"));
                 rf.setUnitPrice(rs.getInt("unit_price"));
                 rf.setExpirationDate(rs.getString("expiration_date"));
-                rf.setWarehouseId(rs.getInt("warehouse_id"));
+                rf.setWarehouse(wdao.getWarehouseById(rs.getInt("warehouse_id ")));
                 rf.setImageUrl(rs.getString("image_url").trim());
                 rf.setHold(rs.getInt("hold"));
                 rf.setImportPrice(rs.getInt("import_price"));
@@ -356,9 +385,4 @@ public class RawFlowerDAO extends DBContext {
         return list;
     }
     
-    public static void main(String[] args) {
-        RawFlowerDAO dao = new RawFlowerDAO();
-        System.out.println(dao.getAll());
-    }
-
 }

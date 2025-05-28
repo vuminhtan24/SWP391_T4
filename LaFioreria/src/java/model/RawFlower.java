@@ -14,7 +14,7 @@ public class RawFlower {
     int rawQuantity;
     int unitPrice;
     String expirationDate;
-    int warehouseId;
+    Warehouse warehouse;
     String imageUrl;
     int hold;
     int importPrice;
@@ -49,13 +49,13 @@ public class RawFlower {
     public RawFlower() {
     }
 
-    public RawFlower(int rawId, String rawName, int rawQuantity, int unitPrice, String expirationDate, int warehouseId, String imageUrl, int hold, int importPrice) {
+    public RawFlower(int rawId, String rawName, int rawQuantity, int unitPrice, String expirationDate, Warehouse warehouse, String imageUrl, int hold, int importPrice) {
         this.rawId = rawId;
         this.rawName = rawName;
         this.rawQuantity = rawQuantity;
         this.unitPrice = unitPrice;
         this.expirationDate = expirationDate;
-        this.warehouseId = warehouseId;
+        this.warehouse = warehouse;
         this.imageUrl = imageUrl;
         this.hold = hold;
         this.importPrice = importPrice;
@@ -101,12 +101,12 @@ public class RawFlower {
         this.expirationDate = expirationDate;
     }
 
-    public int getWarehouseId() {
-        return warehouseId;
+    public Warehouse getWarehouse() {
+        return warehouse;
     }
 
-    public void setWarehouseId(int warehouseId) {
-        this.warehouseId = warehouseId;
+    public void setWarehouse(Warehouse warehouse) {
+        this.warehouse = warehouse;
     }
 
     public String getImageUrl() {
@@ -119,9 +119,7 @@ public class RawFlower {
 
     @Override
     public String toString() {
-        return "RawFlower{" + "rawId=" + rawId + ", rawName=" + rawName + ", rawQuantity=" + rawQuantity + ", unitPrice=" + unitPrice + ", expirationDate=" + expirationDate + ", warehouseId=" + warehouseId + ", imageUrl=" + imageUrl + ", hold=" + hold + ", importPrice=" + importPrice + '}';
+        return "RawFlower{" + "rawId=" + rawId + ", rawName=" + rawName + ", rawQuantity=" + rawQuantity + ", unitPrice=" + unitPrice + ", expirationDate=" + expirationDate + ", warehouse=" + warehouse + ", imageUrl=" + imageUrl + ", hold=" + hold + ", importPrice=" + importPrice + '}';
     }
-
-    
     
 }
