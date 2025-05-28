@@ -32,7 +32,7 @@
         <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-114-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-57-precomposed.png">
-	<style>
+        <style>
             .popup-overlay {
                 position: fixed;
                 top: 0;
@@ -104,6 +104,8 @@
                 }
             }
         </style>
+
+
     </head><!--/head-->
 
     <body>
@@ -139,7 +141,7 @@
                     <div class="row">
                         <div class="col-sm-4">
                             <div class="logo pull-left">
-                                <a href="${pageContext.request.contextPath}/home"><img src="${pageContext.request.contextPath}/ZeShopper/images/home/logo1.jpg" style="width:150px;" alt="" /></a>
+                                <a href="${pageContext.request.contextPath}/home"><img src="${pageContext.request.contextPath}/ZeShopper/images/home/logo.png" alt="" /></a>
                             </div>
                             <div class="btn-group pull-right">
                                 <div class="btn-group">
@@ -181,8 +183,8 @@
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
                                                 </ul>
                                             </li>
-                                            </c:when>
-                                            <c:otherwise>
+                                        </c:when>
+                                        <c:otherwise>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
                                             </c:otherwise>
                                         </c:choose>
@@ -299,8 +301,8 @@
                                     </td>
                                 </tr>
                                 <c:set var="total" value="${total + item.bouquet.price * item.quantity}"/>
-                            </c:forEach>                        
-			</tbody>
+                            </c:forEach>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -308,79 +310,48 @@
 
         <section id="do_action">
             <div class="container">
-                <div class="heading">
-                    <h3>What would you like to do next?</h3>
-                    <p>Choose if you have a discount code or reward points you want to use or would like to estimate your delivery cost.</p>
-                </div>
+                <!--                <div class="heading">
+                                    <h3>What would you like to do next?</h3>
+                                    <p>Choose if you have a discount code or reward points you want to use or would like to estimate your delivery cost.</p>
+                                </div>-->
                 <div class="row">
-                    <div class="col-sm-6">
-                        <div class="chose_area">
-                            <ul class="user_option">
-                                <li>
-                                    <input type="checkbox">
-                                    <label>Use Coupon Code</label>
-                                </li>
-                                <li>
-                                    <input type="checkbox">
-                                    <label>Use Gift Voucher</label>
-                                </li>
-                                <li>
-                                    <input type="checkbox">
-                                    <label>Estimate Shipping & Taxes</label>
-                                </li>
-                            </ul>
-                            <ul class="user_info">
-                                <li class="single_field">
-                                    <label>Country:</label>
-                                    <select>
-                                        <option>United States</option>
-                                        <option>Bangladesh</option>
-                                        <option>UK</option>
-                                        <option>India</option>
-                                        <option>Pakistan</option>
-                                        <option>Ucrane</option>
-                                        <option>Canada</option>
-                                        <option>Dubai</option>
-                                    </select>
-
-                                </li>
-                                <li class="single_field">
-                                    <label>Region / State:</label>
-                                    <select>
-                                        <option>Select</option>
-                                        <option>Dhaka</option>
-                                        <option>London</option>
-                                        <option>Dillih</option>
-                                        <option>Lahore</option>
-                                        <option>Alaska</option>
-                                        <option>Canada</option>
-                                        <option>Dubai</option>
-                                    </select>
-
-                                </li>
-                                <li class="single_field zip-field">
-                                    <label>Zip Code:</label>
-                                    <input type="text">
-                                </li>
-                            </ul>
-                            <a class="btn btn-default update" href="">Get Quotes</a>
-                            <a class="btn btn-default check_out" href="">Continue</a>
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="total_area">
+                    <div class="col-sm-6" style="float: right; border: none">
+                        <div class="total_area" style=" border: none">
                             <ul>
-                                <li>Cart Sub Total <span>$59</span></li>
-                                <li>Eco Tax <span>$2</span></li>
-                                <li>Shipping Cost <span>Free</span></li>
-                                <li>Total <span>$61</span></li>
+                                <li style=" background-color:  white"><strong>Total</strong> <span>$${total}</span></li>
                             </ul>
-                            <a class="btn btn-default update" href="">Update</a>
-                            <a class="btn btn-default check_out" href="">Check Out</a>
+                            <div style="display: flex; justify-content:  end">
+                                <a class="btn btn-default check_out" href="javascript:void(0)" onclick="openCheckoutPopup()">Check Out</a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <div id="checkoutPopup" class="popup-overlay" style="display: none;">
+                <div class="popup-content">
+                    <h3>Confirm Your Information</h3>
+                    <form action="checkout" method="post">
+                        <input type="hidden" name="total" value="${total}" required>
+                        <label>Full Name:</label>
+                        <input type="text" name="fullName" value="${user.fullname}" required>
+
+                        <label>Email:</label>
+                        <input type="email" name="email" value="${user.email}" required>
+
+                        <label>Phone:</label>
+                        <input type="text" name="phone" pattern="\d{10}" value="${user.phone}" maxlength="10" required>
+
+                        <label>Address:</label>
+                        <input type="text" name="address" value="${user.address}" required>
+
+                        <div class="popup-buttons">
+                            <button type="submit" class="popup-btn">Confirm Order</button>
+                            <button type="button" onclick="closeCheckoutPopup()" class="popup-btn cancel">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </section><!--/#do_action-->
 
         <footer id="footer"><!--Footer-->
@@ -548,5 +519,15 @@
         <script src="js/jquery.scrollUp.min.js"></script>
         <script src="js/jquery.prettyPhoto.js"></script>
         <script src="js/main.js"></script>
+        <script>
+                    function openCheckoutPopup() {
+                        document.getElementById("checkoutPopup").style.display = "flex";
+                    }
+
+                    function closeCheckoutPopup() {
+                        document.getElementById("checkoutPopup").style.display = "none";
+                    }
+        </script>
+
     </body>
 </html>
