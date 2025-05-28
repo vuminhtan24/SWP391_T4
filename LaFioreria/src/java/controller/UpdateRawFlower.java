@@ -24,10 +24,38 @@ public class UpdateRawFlower extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+//        try {
+//            String rawIdParam = request.getParameter("id");
+//            if (rawIdParam == null || rawIdParam.trim().isEmpty()) {
+//                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Product ID is missing or empty.");
+//                return;
+//            }
+//
+//            int raw_id = Integer.parseInt(rawIdParam);
+//            if (raw_id <= 0) {
+//                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Product ID must be a positive integer.");
+//                return;
+//            }
+//
+//            RawFlowerDAO rf = new RawFlowerDAO();
+//            Object item = rf.getRawFlowerById(raw_id);
+//            if (item == null) {
+//                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found with ID: " + raw_id);
+//                return;
+//            }
+//
+//            request.setAttribute("item", item);
+//            request.getRequestDispatcher("DashMin/updaterawflower.jsp").forward(request, response);
+//        } catch (NumberFormatException e) {
+//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid product ID format: " + e.getMessage());
+//        } catch (Exception e) {
+//            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred: " + e.getMessage());
+//        }
         RawFlowerDAO rf = new RawFlowerDAO();
         int raw_id = Integer.parseInt(request.getParameter("raw_id"));
         request.setAttribute("item", rf.getRawFlowerById(raw_id)); // Lấy thông tin sản phẩm, bao gồm cả description
-        request.getRequestDispatcher("updaterawflower.jsp").forward(request, response); // Chuyển tiếp đến trang JSP để hiển thị
+        request.getRequestDispatcher("DashMin/updaterawflower.jsp").forward(request, response); // Chuyển tiếp đến trang JSP để hiển thị
+
     }
 
     @Override
@@ -39,7 +67,7 @@ public class UpdateRawFlower extends HttpServlet {
         int unitPrice = Integer.parseInt(request.getParameter("unit_price"));
         String expirationDate = request.getParameter("expiration_date");
         Date expiration_date = Date.valueOf(expirationDate);
-        int importPrice = Integer.parseInt(request.getParameter("import_price"));       
+        int importPrice = Integer.parseInt(request.getParameter("import_price"));
         int warehouse_id = Integer.parseInt(request.getParameter("warehouse_id"));
         int hold = Integer.parseInt(request.getParameter("hold"));
         String imageUrl = request.getParameter("image_url"); // Lấy thông tin description từ form
@@ -49,7 +77,7 @@ public class UpdateRawFlower extends HttpServlet {
         rf.updateRawFlower4(raw_id, raw_name, raw_quantity, unitPrice, expiration_date, warehouse_id, imageUrl, hold, importPrice);
 
         // Chuyển hướng sau khi cập nhật thành công
-        response.sendRedirect("update_flower?id=" + raw_id);
+        response.sendRedirect("update_flower?raw_id=" + raw_id);
     }
 
     @Override

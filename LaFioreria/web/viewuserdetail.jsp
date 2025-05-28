@@ -1,14 +1,10 @@
 <%-- 
-    Document   : table
-    Created on : May 19, 2025, 2:41:19 PM
+    Document   : blank
+    Created on : May 19, 2025, 2:34:20 PM
     Author     : ADMIN
 --%>
-
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.List,model.Bouquet" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -19,7 +15,7 @@
         <meta content="" name="description">
 
         <!-- Favicon -->
-        <link href="img/favicon.ico" rel="icon">
+        <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
 
         <!-- Google Web Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,51 +35,6 @@
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
-
-        <style>
-            a.change-color-qvm:active {
-                color: #007bff;
-            }
-
-            /* CSS */
-            .search-form {
-                display: flex;
-                justify-content: flex-end; /* đẩy cả form về bên phải */
-                align-items: center;
-                gap: 8px;                /* khoảng cách giữa input và button */
-                margin-top: 20px;               /* tùy chỉnh nếu cần */
-                margin-right: 30px;
-                padding: 0;
-            }
-
-            .search-form input[type="text"] {
-                padding: 8px 12px;
-                border: 1px solid #ccc;
-                border-radius: 20px;     /* bo tròn ô tìm kiếm */
-                outline: none;
-                transition: border-color .2s;
-            }
-
-            .search-form input[type="text"]:focus {
-                border-color: #007bff;
-            }
-
-            .search-form button {
-                padding: 8px 16px;
-                background-color: #007bff; /* màu xanh dương */
-                color: #fff;
-                border: none;
-                border-radius: 20px;       /* bo tròn nút */
-                cursor: pointer;
-                transition: background-color .2s;
-            }
-
-            .search-form button:hover {
-                background-color: #0056b3; /* xanh đậm khi hover */
-            }
-
-        </style>
-
     </head>
 
     <body>
@@ -126,13 +77,15 @@
                         <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
                         <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
                         <a href="${pageContext.request.contextPath}/DashMin/table.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Tables</a>
-                        <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/product.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
                         <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
+                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
-                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
+                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item active">Blank Page</a>
+                                <a href="${pageContext.request.contextPath}/ViewUserList" class="dropdown-item active">View User List</a>
+                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item active">View User </a>
                             </div>
                         </div>
                     </div>
@@ -232,109 +185,115 @@
                     </div>
                 </nav>
                 <!-- Navbar End -->
-                <!-- HTML -->
-                <form action="viewBouquet" method="get" class="search-form">
-                    <input type="text" name="bouquetName" placeholder="Tìm kiếm sản phẩm" value="${param.bouquetName}" />
-                    <button type="submit">Search</button>
-                </form>
+
                 <!-- Table Start -->
-                <div class="container-fluid pt-4 px-4">
+                <div class="row">
+                    <div class="col-sm-12 col-xl-2">
+                        <div class="bg-light rounded h-100 p-4">
+                            <h6 class="mb-4">View User List Table</h6>
 
-                    <div class="bg-light rounded h-100 p-4">
-                        <!-- Header with title and Add Bouquet button -->
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0">Bouquet List</h6>
-                            <a href="${pageContext.request.contextPath}/addBouquet" class="btn btn-primary">Add Bouquet</a>
+                            <table border="1">
+
+                                <tbody>
+                                    <c:forEach items="${userIds}" var="id">
+                                        <tr>
+                                            <td>
+                                                <a href="viewuserdetail?id=${id}">${id}</a>
+                                            </td>
+                                        </tr>           
+                                    </c:forEach> 
+                                </tbody>
+                            </table>
+
                         </div>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">STT</th>
-                                    <th scope="col">Image</th>
-                                    <th scope="col">Bouquet Name</th>
-                                    <th scope="col">Price</th>
-                                    <th colspan="2">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach var="bouquet" items="${listBouquet}" varStatus="status">
-                                    <tr>
-                                        <td>${(currentPage - 1) * 6 + status.index + 1}</td>
-                                        <td>
-                                            <img src="${bouquet.getImageUrl()}" alt="Bouquet Image" style="height: 60px; width: auto;" />
-                                        </td>
-                                        <td>
-                                            <a href="${pageContext.request.contextPath}/DashMin/bouquetDetails.jsp" class="change-color-qvm">
-                                                ${bouquet.getBouquetName()}
-                                            </a>
-                                        </td>
-                                        <td>${bouquet.getPrice()}</td>
-                                        <td>
-                                            <a href="${pageContext.request.contextPath}/deleteBouquet?id=${bouquet.getBouquetId()}"
-                                               onclick="return confirm('Do you want to delete?');">
-                                                Delete
-                                            </a>
-                                        </td>    
-                                        <td>
-                                            <a href="${pageContext.request.contextPath}/editBouquet?id=${bouquet.getBouquetId()}">
-                                                Edit
-                                            </a>
-                                        </td>
-
-                                    </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
-
-                        <c:if test="${totalPages > 1}">
-                            <nav>
-                                <ul class="pagination">
-                                    <!-- Previous -->
-                                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a class="page-link" href="?page=${currentPage - 1}">Previous</a>
-                                    </li>
-
-                                    <!-- First Page -->
-                                    <li class="page-item ${currentPage == 1 ? 'active' : ''}">
-                                        <a class="page-link" href="?page=1">1</a>
-                                    </li>
-
-                                    <!-- Ellipsis before current page range -->
-                                    <c:if test="${currentPage > 3}">
-                                        <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                        </c:if>
-
-                                    <!-- Page range around current -->
-                                    <c:forEach var="i" begin="${currentPage - 1}" end="${currentPage + 1}">
-                                        <c:if test="${i > 1 && i < totalPages}">
-                                            <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                                <a class="page-link" href="?page=${i}">${i}</a>
-                                            </li>
-                                        </c:if>
-                                    </c:forEach>
-
-                                    <!-- Ellipsis after current page range -->
-                                    <c:if test="${currentPage < totalPages - 2}">
-                                        <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                        </c:if>
-
-                                    <!-- Last Page -->
-                                    <c:if test="${totalPages > 1}">
-                                        <li class="page-item ${currentPage == totalPages ? 'active' : ''}">
-                                            <a class="page-link" href="?page=${totalPages}">${totalPages}</a>
-                                        </li>
-                                    </c:if>
-
-                                    <!-- Next -->
-                                    <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                        <a class="page-link" href="?page=${currentPage + 1}">Next</a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </c:if>
                     </div>
+
+                    <div class="col-sm-12 col-xl-10">
+                        <div class="bg-light rounded h-100 p-4">
+                            <h6 class="mb-4">View User Detail Table</h6>
+                            <c:if test="${empty userIds}">
+                                <p>No userIds found</p>
+                            </c:if>
+                            <c:if test="${not empty userIds}">
+                                <p>User IDs are available</p>
+                            </c:if>
+
+                            <h3>
+                                <a href="${pageContext.request.contextPath}/adduserdetail">Add new User detail</a>
+                            </h3>
+
+                            <form action="${pageContext.request.contextPath}/viewuserdetail" method="POST">
+                                <table border="1">
+
+                                    <tbody>
+                                        <tr>
+                                            <td>User ID: </td>
+                                            <td>
+                                                <input type="text" name="id" value="${userManager.userid}" readonly="">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>User Name: </td>
+                                            <td>
+                                                <input type="text" name="name" value="${userManager.username}">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Password: </td>
+                                            <td>
+                                                <input type="text" name="pass" value="${userManager.password}">
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Full Name: </td>
+                                            <td>
+                                                <input type="text" name="FullName" value="${userManager.fullname}">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Email: </td>
+                                            <td>
+                                                <input type="text" name="email" value="${userManager.email}">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Phone Number: </td>
+                                            <td>
+                                                <input type="type" name="phone" value="${userManager.phone}">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Address: </td>
+                                            <td>
+                                                <input type="type" name="address" value="${userManager.address}">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Role: </td>
+                                            <td>
+                                                <input type="type" name="role" value="${userManager.role}" readonly="">
+                                            </td>
+                                        </tr>
+                                        <tr>
+
+                                            <td>
+                                                <select name="option">
+                                                    <c:forEach items="${roleNames}" var="role">
+                                                        <option value="${role}">${role}</option>
+                                                    </c:forEach>
+                                                </select>
+                                            </td>
+                                            <td><input type="submit" name="ud" value="UPDATE"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>           
+                            </form>
+                        </div>
+                    </div>   
                 </div>
-                <!-- Table End -->
+
+                <!-- Blank End -->
 
 
                 <!-- Footer Start -->
@@ -375,4 +334,3 @@
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
     </body>
 </html>
-

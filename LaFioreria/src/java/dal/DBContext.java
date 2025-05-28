@@ -18,17 +18,11 @@ public class DBContext {
 
     public DBContext() {
 
-        //@Students: You are allowed to edit user, pass, url variables to fit 
-        //your system configuration
-        //You can also add more methods for Database Interaction tasks. 
-        //But we recommend you to do it in another class
-        // For example : StudentDBContext extends DBContext , 
-        //where StudentDBContext is located in dal package, 
-
         try {
             String url = "jdbc:mysql://localhost:3306/la_fioreria?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
             String user = "root";
-            String pass = "123456";
+
+            String pass = "1234";
 
             Class.forName("com.mysql.cj.jdbc.Driver"); // MySQL driver mới
 

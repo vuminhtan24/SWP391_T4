@@ -27,7 +27,22 @@ public class CartController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        
+        User currentUser = (User) request.getSession().getAttribute("currentAcc");
+        if (currentUser == null) {
+            // Ch?a login, chuy?n h??ng v? trang login
+            response.sendRedirect("./ZeShopper/login.jsp");
+            return;
+        }
+        int customerId = currentUser.getUserid();
+        CartDAO cartDAO = new CartDAO();
+        List<CartDetail> cartDetails = cartDAO.getCartDetailsByCustomerId(customerId);
+
+        // ??y d? li?u vào request attribute
+        request.setAttribute("cartDetails", cartDetails);
+        request.setAttribute("user", currentUser);
+
+        // Forward sang trang JSP ?? hi?n th? gi? hàng
+        request.getRequestDispatcher("./ZeShopper/cart.jsp").forward(request, response);
     }
 
     @Override

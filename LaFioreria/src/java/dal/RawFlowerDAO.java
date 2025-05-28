@@ -18,7 +18,7 @@ import model.RawFlower;
  */
 public class RawFlowerDAO extends DBContext {
 
-    public List<RawFlower> getAll() {
+     public List<RawFlower> getAll() {
         List<RawFlower> listRawFlower = new ArrayList<>();
 
         String sql = "SELECT * FROM la_fioreria.raw_flower;";
@@ -44,6 +44,12 @@ public class RawFlowerDAO extends DBContext {
         }
 
         return listRawFlower;
+    }
+    
+    public static void main(String[] args) {
+        List<RawFlower> raw = new ArrayList<>();
+        RawFlowerDAO dao = new RawFlowerDAO();
+        System.out.println(dao.getAll());
     }
     
     public int count() {
@@ -281,7 +287,7 @@ public class RawFlowerDAO extends DBContext {
                 rf.setRawQuantity(rs.getInt("raw_quantity"));
                 rf.setUnitPrice(rs.getInt("unit_price"));
                 rf.setExpirationDate(rs.getString("expiration_date"));
-                rf.setWarehouse(wdao.getWarehouseById(rs.getInt("warehouse_id ")));
+                rf.setWarehouse(wdao.getWarehouseById(rs.getInt("warehouse_id")));
                 rf.setImageUrl(rs.getString("image_url").trim());
                 rf.setHold(rs.getInt("hold"));
                 rf.setImportPrice(rs.getInt("import_price"));
@@ -301,7 +307,7 @@ public class RawFlowerDAO extends DBContext {
                 RawFlower rf = new RawFlower();
                 WarehouseDAO wdao = new WarehouseDAO();
                 rf.setRawId(rs.getInt("raw_id"));
-                rf.setRawName(rs.getString("raw_name").trim());
+                rf.setRawName(rs.getString("raw_name"));
                 rf.setRawQuantity(rs.getInt("raw_quantity"));
                 rf.setUnitPrice(rs.getInt("unit_price"));
                 rf.setExpirationDate(rs.getString("expiration_date"));

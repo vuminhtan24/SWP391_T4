@@ -89,37 +89,6 @@ public class BouquetDAO extends DBContext {
         return searchListBQ;
     }
 
-    /*    public void insertBouquet(Bouquet bouquet) {
-        String sql = "INSERT INTO la_fioreria.bouquet (bouquet_name, description, image_url, cid, price)\n"
-                + "VALUE\n"
-                + " (?, ?, ?, ?, ?);";
-
-        try {
-            PreparedStatement pre = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-            pre.setString(1, bouquet.getBouquetName());
-            pre.setString(2, bouquet.getDescription());
-            pre.setString(3, bouquet.getImageUrl());
-            pre.setInt(4, bouquet.getCid());
-            pre.setInt(5, bouquet.getPrice());
-            pre.executeUpdate();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public void insertBouquetRaw(BouquetRaw bouquetRaw) {
-        String sql = "INSERT INTO la_fioreria.bouquet_raw (bouquet_id, raw_id, quantity)\n"
-                + "VALUE\n"
-                + " (?, ?, ?)";
-        try {
-            PreparedStatement pre = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-            pre.setInt(1, bouquetRaw.getBouquet_id());
-            pre.setInt(2, bouquetRaw.getRaw_id());
-            pre.setInt(3, bouquetRaw.getQuantity());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }*/
     /**
      * Insert bouquet, trả về khóa sinh tự động (bouquet_id).
      */
@@ -215,16 +184,67 @@ public class BouquetDAO extends DBContext {
         } catch (SQLException e) {
             System.out.println(e);
         }
+
+    }
+
+    public Bouquet getBouquetByID(int id) {
+        String sql = "SELECT * FROM la_fioreria.bouquet WHERE Bouquet_ID = ?";
+        try {
+            PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setInt(1, id);
+            ResultSet rs = pre.executeQuery();
+            if (rs.next()) {
+                String bouquetName = rs.getString("bouquet_name").trim();
+                String Description = rs.getString("description").trim();
+                String imageUrl = rs.getString("image_url").trim();
+                int cid = rs.getInt("cid");
+                int price = rs.getInt("price");
+
+                Bouquet bq = new Bouquet(id, bouquetName, Description, imageUrl, cid, price);
+                return bq;
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return null;
+    }
+
+    public List<BouquetRaw> getFlowerByBouquetID(int id) {
+        List<BouquetRaw> listBQR = new ArrayList<>();
+        String sql = "SELECT br.bouquet_id,\n"
+                + "       br.raw_id,\n"
+                + "       br.quantity \n"
+                + "       FROM\n"
+                + "la_fioreria.bouquet_raw br\n"
+                + "JOIN la_fioreria.bouquet b ON b.Bouquet_ID = br.bouquet_id\n"
+                + "JOIN la_fioreria.raw_flower rf ON rf.raw_id = br.raw_id\n"
+                + "WHERE b.Bouquet_ID = ?";
+        try {
+            PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setInt(1, id);
+            ResultSet rs = pre.executeQuery();
+            if(rs.next()){
+                int raw_id = rs.getInt("raw_id");
+                int quantity = rs.getInt("quantity");
+                
+                BouquetRaw bqRaw = new BouquetRaw(id, raw_id, quantity);
+                listBQR.add(bqRaw);
+                return listBQR;
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
         
+        return null;
     }
 
     public static void main(String[] args) {
         BouquetDAO dao = new BouquetDAO();
         List<Bouquet> list = dao.getAll();
-
-        for (Bouquet bouquet : list) {
-            System.out.println(bouquet);
-        }
+        Bouquet b = new Bouquet();
+        BouquetRaw q = new BouquetRaw();
+        b = dao.getBouquetByID(3);
+        System.out.println(b.toString());
     }
 
 }
