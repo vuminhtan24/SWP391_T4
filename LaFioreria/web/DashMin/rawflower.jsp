@@ -308,6 +308,14 @@
                                         }
                                     });
                                 </script>
+                                <!-- Thêm phần hiển thị thông báo -->
+                                <c:if test="${not empty sessionScope.message}">
+                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                        ${sessionScope.message}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                    <c:remove var="message" scope="session"/> <!-- Xóa thông báo sau khi hiển thị -->
+                                </c:if>
                                 <table id="productTable" class="table table-hover align-middle table-bordered border-secondary-subtle">
                                     <thead>
                                         <tr>
@@ -335,7 +343,7 @@
                                                 <th>${item.warehouse.name}</th>
                                                 <td class="actions-btn">
                                                     <a href="${pageContext.request.contextPath}/update_flower?raw_id=${item.rawId}" class="btn btn-warning btn-sm">View detail</a>
-                                                    <form action="${pageContext.request.contextPath}/hideRawFlower" method="post" style="display:inline;">
+                                                    <form action="${pageContext.request.contextPath}/hideRawFlower" method="post" style="display:inline;" onsubmit="return confirmHide();">
                                                         <input type="hidden" name="id" value="${item.rawId}"/>
                                                         <button type="submit" class="btn btn-danger btn-sm">Hide</button>
                                                     </form>
@@ -406,7 +414,12 @@
                 }
             });
         });
-        </script>        
+        </script> 
+        <script>
+    function confirmHide() {
+        return confirm("Are you sure you want to hide this product?");
+    }
+        </script>
         <style>
             /* Khoảng cách giữa các nút phân trang */
             .dataTables_wrapper .dataTables_paginate .paginate_button {
