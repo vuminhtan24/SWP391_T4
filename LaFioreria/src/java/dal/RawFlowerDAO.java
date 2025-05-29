@@ -47,10 +47,9 @@ public class RawFlowerDAO extends DBContext {
         return listRawFlower;
     }
     
-    public static void main(String[] args) {
-        List<RawFlower> raw = new ArrayList<>();
+        public static void main(String[] args) {
         RawFlowerDAO dao = new RawFlowerDAO();
-        System.out.println(dao.getAll());
+        System.out.println(dao.getRawFlower());
     }
     
     public int count() {
@@ -303,7 +302,7 @@ public class RawFlowerDAO extends DBContext {
     
     public ArrayList<RawFlower> getRawFlower() {
         ArrayList<RawFlower> list = new ArrayList<>();
-        String sql = "SELECT raw_id, raw_name, raw_quantity, unit_price, expiration_date, warehouse_id, image_url, import_price FROM la_fioreria.raw_flower WHERE active = 1";
+        String sql = "SELECT raw_id, raw_name, raw_quantity, unit_price, expiration_date, warehouse_id, image_url, import_price, active FROM la_fioreria.raw_flower WHERE active = 1";
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 RawFlower rf = new RawFlower();
@@ -394,4 +393,5 @@ public class RawFlowerDAO extends DBContext {
         return list;
     }
     
+
 }

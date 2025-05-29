@@ -258,7 +258,7 @@ public class BouquetDAO extends DBContext {
         BouquetRaw q = new BouquetRaw();
         b = dao.getBouquetByID(3);
         List<BouquetRaw> r = dao.getFlowerByBouquetID(3);
-        System.out.println(r);
+        
     }
 
 }
