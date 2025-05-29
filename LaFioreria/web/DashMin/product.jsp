@@ -82,6 +82,33 @@
                 background-color: #0056b3; /* xanh đậm khi hover */
             }
 
+            .btn {
+                padding: 6px 12px;
+                border: none;
+                border-radius: 4px;
+                color: white;
+                font-size: 14px;
+                cursor: pointer;
+                margin-right: 5px;
+                transition: background-color 0.2s ease;
+            }
+
+            .btn-delete {
+                background-color: #e74c3c; /* đỏ */
+            }
+
+            .btn-delete:hover {
+                background-color: #c0392b;
+            }
+
+            .btn-edit {
+                background-color: #3498db; /* xanh dương */
+            }
+
+            .btn-edit:hover {
+                background-color: #2980b9;
+            }
+
         </style>
 
     </head>
@@ -264,21 +291,25 @@
                                             <img src="${bouquet.getImageUrl()}" alt="Bouquet Image" style="height: 60px; width: auto;" />
                                         </td>
                                         <td>
-                                            <a href="${pageContext.request.contextPath}/DashMin/bouquetDetails.jsp" class="change-color-qvm">
+                                            <a href="${pageContext.request.contextPath}/bouquetDetails?id=${bouquet.getBouquetId()}" class="change-color-qvm">
                                                 ${bouquet.getBouquetName()}
                                             </a>
                                         </td>
                                         <td>${bouquet.getPrice()}</td>
                                         <td>
-                                            <a href="${pageContext.request.contextPath}/deleteBouquet?id=${bouquet.getBouquetId()}"
-                                               onclick="return confirm('Do you want to delete?');">
+                                            <button type="button"
+                                                    class="btn btn-delete"
+                                                    onclick="if (confirm('Do you want to delete?'))
+                                                                location.href = '${pageContext.request.contextPath}/deleteBouquet?id=${bouquet.getBouquetId()}';">
                                                 Delete
-                                            </a>
+                                            </button>
                                         </td>    
                                         <td>
-                                            <a href="${pageContext.request.contextPath}/editBouquet?id=${bouquet.getBouquetId()}">
+                                            <button type="button"
+                                                    class="btn btn-edit"
+                                                    onclick="location.href = '${pageContext.request.contextPath}/editBouquet?id=${bouquet.getBouquetId()}';">
                                                 Edit
-                                            </a>
+                                            </button>
                                         </td>
 
                                     </tr>
