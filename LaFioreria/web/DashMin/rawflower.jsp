@@ -335,7 +335,7 @@
                                                 <th>${item.warehouse.name}</th>
                                                 <td class="actions-btn">
                                                     <a href="${pageContext.request.contextPath}/update_flower?raw_id=${item.rawId}" class="btn btn-warning btn-sm">View detail</a>
-                                                    <form action="${pageContext.request.contextPath}/hidePerfume" method="post" style="display:inline;">
+                                                    <form action="${pageContext.request.contextPath}/hideRawFlower" method="post" style="display:inline;">
                                                         <input type="hidden" name="id" value="${item.rawId}"/>
                                                         <button type="submit" class="btn btn-danger btn-sm">Hide</button>
                                                     </form>
