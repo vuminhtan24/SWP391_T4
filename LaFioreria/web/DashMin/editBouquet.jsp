@@ -356,7 +356,6 @@
                             </div>
                         </div>
                 </form>
-                <p>flowerInBQ size: ${fn:length(flowerInBQ)}</p>
                 <!-- TEMPLATE để clone (ẩn) -->
                 <table style="display:none;">
                     <tbody>
