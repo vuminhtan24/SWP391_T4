@@ -242,16 +242,23 @@
                                 </div>
 
                                 <!-- Cột phải: Nội dung -->
+                                <input type="hidden" name="id" value="${bouquetDetail.getBouquetId()}">
                                 <div class="flex-grow-1 bouquet-content">
                                     <div class="bouquet-info p-4 shadow-sm rounded bg-white">
-                                        <h1 class="fw-bold mb-4 text-primary">${bouquetDetail.getBouquetName()}</h1>
+                                        <h1 class="fw-bold mb-4 text-primary">
+                                            <input type="text" name="bqName" value="${bouquetDetail.getBouquetName()}" required/>    
+                                        </h1>
 
                                         <!-- Thông tin cơ bản -->
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Category:</label>
                                             <select name="category" class="form-select">
                                                 <c:forEach var="cate" items="${cateList}">
-                                                    <option value="${cateName}" ${cate.getCategoryName()} eq ${cateName} ? 'selected' : ''}>${cate.getCategoryName()}</option>
+                                                    <option 
+                                                        value="${cate.getCategoryId()}" 
+                                                        ${cate.getCategoryName() == cateName ? 'selected' : ''}>
+                                                        ${cate.getCategoryName()}
+                                                    </option>
                                                 </c:forEach>   
                                             </select>
                                         </div>
@@ -271,7 +278,7 @@
 
                                         <div class="mb-4">
                                             <label class="form-label fw-semibold">Description:</label>
-                                            <textarea name="bqDescription" class="form-control" rows="4">${bouquetDetail.getDescription()}</textarea>
+                                            <textarea name="bqDescription" class="form-control" rows="4" required>${bouquetDetail.getDescription()}</textarea>
                                         </div>
 
                                         <!-- Flower Table -->
@@ -349,7 +356,7 @@
                             </div>
                         </div>
                 </form>
-                                        <p>flowerInBQ size: ${fn:length(flowerInBQ)}</p>
+                <p>flowerInBQ size: ${fn:length(flowerInBQ)}</p>
                 <!-- TEMPLATE để clone (ẩn) -->
                 <table style="display:none;">
                     <tbody>

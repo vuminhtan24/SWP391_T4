@@ -128,7 +128,7 @@ public class BouquetDAO extends DBContext {
     /**
      * Insert một dòng bouquet_raw; bouquet_id phải được set trước.
      */
-    public void insertBouquetRaw(BouquetRaw bouquetRaw) throws SQLException {
+    public void insertBouquetRaw(BouquetRaw bouquetRaw){
         String sql = """
             INSERT INTO la_fioreria.bouquet_raw 
               (bouquet_id, raw_id, quantity)
@@ -140,6 +140,8 @@ public class BouquetDAO extends DBContext {
             pre.setInt(2, bouquetRaw.getRaw_id());
             pre.setInt(3, bouquetRaw.getQuantity());
             pre.executeUpdate();
+        }catch(Exception e){
+            System.out.println(e);
         }
     }
 
@@ -185,6 +187,21 @@ public class BouquetDAO extends DBContext {
             System.out.println(e);
         }
 
+    }
+
+    public void updateBouquetRaw(BouquetRaw bqRaw) {
+        String sql = "Update la_fioreria.bouquet_raw\n"
+                + "SET raw_id = ?, quantity = ?\n"
+                + "where bouquet_id = ?;";
+        try {
+            PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setInt(1, bqRaw.getRaw_id());
+            pre.setInt(2, bqRaw.getQuantity());
+            pre.setInt(3, bqRaw.getBouquet_id());
+            pre.executeUpdate();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
 
     public Bouquet getBouquetByID(int id) {
