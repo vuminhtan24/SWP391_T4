@@ -250,6 +250,27 @@ public class BouquetDAO extends DBContext {
         // Trả về list (có thể rỗng nếu không tìm thấy bản ghi nào)
         return listBQR;
     }
+    
+        public Bouquet getBouquetByCategoryID(int cid) {
+        String sql = "SELECT * FROM la_fioreria.bouquet WHERE cid = ?";
+        try {
+            PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setInt(1, cid);
+            ResultSet rs = pre.executeQuery();
+            if (rs.next()) {
+                int bouquetId = rs.getInt("bouquet_id");
+                String bouquetName = rs.getString("bouquet_name").trim();
+                String Description = rs.getString("description").trim();
+                String imageUrl = rs.getString("image_url").trim();
+                int price = rs.getInt("price");
+                Bouquet bq = new Bouquet(bouquetId, bouquetName, Description, imageUrl, cid, price);
+                return bq;
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return null;
+    }
 
     public static void main(String[] args) {
         BouquetDAO dao = new BouquetDAO();

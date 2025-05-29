@@ -95,6 +95,9 @@ public class HideRawFlowerServlet extends HttpServlet {
 
             // Thực hiện xóa mềm
             rf.hideRawFlower(raw_id);
+            
+            // Lưu thông báo thành công vào session
+            request.getSession().setAttribute("message", "Product hidden successfully!");
 
             // Chuyển hướng về trang danh sách sản phẩm
             response.sendRedirect("DashMin/rawflower2");
