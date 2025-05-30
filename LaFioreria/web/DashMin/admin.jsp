@@ -3,8 +3,11 @@
     Created on : May 19, 2025, 2:39:53 PM
     Author     : ADMIN
 --%>
-
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -348,48 +351,21 @@
                             <div class="h-100 bg-light rounded p-4">
                                 <div class="d-flex align-items-center justify-content-between mb-2">
                                     <h6 class="mb-0">Messages</h6>
-                                    <a href="">Show All</a>
+                                    <a href="contact-list">Show All</a>
                                 </div>
-                                <div class="d-flex align-items-center border-bottom py-3">
-                                    <img class="rounded-circle flex-shrink-0" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                    <div class="w-100 ms-3">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-0">Jhon Doe</h6>
-                                            <small>15 minutes ago</small>
+
+                                <c:forEach var="c" items="${contactList}" varStatus="loop" end="3"> 
+                                    <div class="d-flex align-items-center ${loop.last ? 'pt-3' : 'border-bottom py-3'}">
+                                        <img class="rounded-circle flex-shrink-0" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <div class="w-100 ms-3">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-0">${c.name}</h6>
+                                                <small><fmt:formatDate value="${c.createdAt}" pattern="HH:mm dd/MM/yyyy" /></small>
+                                            </div>
+                                            <span>${c.message}</span>
                                         </div>
-                                        <span>Short message goes here...</span>
                                     </div>
-                                </div>
-                                <div class="d-flex align-items-center border-bottom py-3">
-                                    <img class="rounded-circle flex-shrink-0" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                    <div class="w-100 ms-3">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-0">Jhon Doe</h6>
-                                            <small>15 minutes ago</small>
-                                        </div>
-                                        <span>Short message goes here...</span>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center border-bottom py-3">
-                                    <img class="rounded-circle flex-shrink-0" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                    <div class="w-100 ms-3">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-0">Jhon Doe</h6>
-                                            <small>15 minutes ago</small>
-                                        </div>
-                                        <span>Short message goes here...</span>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center pt-3">
-                                    <img class="rounded-circle flex-shrink-0" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                    <div class="w-100 ms-3">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-0">Jhon Doe</h6>
-                                            <small>15 minutes ago</small>
-                                        </div>
-                                        <span>Short message goes here...</span>
-                                    </div>
-                                </div>
+                                </c:forEach>
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-6 col-xl-4">
