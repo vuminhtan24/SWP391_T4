@@ -251,7 +251,7 @@
                                             <div class="productinfo text-center">
                                                 <img src="${lb.getImageUrl()}" alt="" />
                                                 <h2>${lb.getBouquetName()}</h2>
-                                                <p>Price: </p>
+                                                <p>Price: ${lb.getPrice()}</p>
                                                 <a href="#" class="btn btn-default add-to-cart">
                                                     <i class="fa fa-shopping-cart"></i>Add to cart
                                                 </a>
