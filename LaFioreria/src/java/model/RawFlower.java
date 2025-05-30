@@ -18,6 +18,7 @@ public class RawFlower {
     String imageUrl;
     int hold;
     int importPrice;
+    boolean active;
 
      public int getHold() {
         return hold;
@@ -49,7 +50,7 @@ public class RawFlower {
     public RawFlower() {
     }
 
-    public RawFlower(int rawId, String rawName, int rawQuantity, int unitPrice, String expirationDate, Warehouse warehouse, String imageUrl, int hold, int importPrice) {
+    public RawFlower(int rawId, String rawName, int rawQuantity, int unitPrice, String expirationDate, Warehouse warehouse, String imageUrl, int hold, int importPrice, boolean active) {
         this.rawId = rawId;
         this.rawName = rawName;
         this.rawQuantity = rawQuantity;
@@ -59,7 +60,7 @@ public class RawFlower {
         this.imageUrl = imageUrl;
         this.hold = hold;
         this.importPrice = importPrice;
- 
+        this.active = active;
     }
 
 
@@ -120,9 +121,19 @@ public class RawFlower {
         this.imageUrl = imageUrl;
     }
 
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
     @Override
     public String toString() {
-        return "RawFlower{" + "rawId=" + rawId + ", rawName=" + rawName + ", rawQuantity=" + rawQuantity + ", unitPrice=" + unitPrice + ", expirationDate=" + expirationDate + ", warehouse=" + warehouse + ", imageUrl=" + imageUrl + ", hold=" + hold + ", importPrice=" + importPrice + '}';
+        return "RawFlower{" + "rawId=" + rawId + ", rawName=" + rawName + ", rawQuantity=" + rawQuantity + ", unitPrice=" + unitPrice + ", expirationDate=" + expirationDate + ", warehouse=" + warehouse + ", imageUrl=" + imageUrl + ", hold=" + hold + ", importPrice=" + importPrice + ", active=" + active + '}';
     }
+
+    
     
 }

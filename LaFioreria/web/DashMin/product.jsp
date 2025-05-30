@@ -82,6 +82,47 @@
                 background-color: #0056b3; /* xanh đậm khi hover */
             }
 
+            .btn {
+                padding: 6px 12px;
+                border: none;
+                border-radius: 4px;
+                color: white;
+                font-size: 14px;
+                cursor: pointer;
+                margin-right: 5px;
+                transition: background-color 0.2s ease;
+            }
+
+            .btn-delete {
+                background-color: #e74c3c; /* đỏ */
+            }
+
+            .btn-delete:hover {
+                background-color: #c0392b;
+            }
+
+            .btn-edit {
+                background-color: #3498db; /* xanh dương */
+            }
+
+            .btn-edit:hover {
+                background-color: #2980b9;
+            }
+
+            .fixed-container {
+                /* Chiều rộng và chiều cao cố định */
+                width: 1400px;        /* hoặc bất kỳ độ rộng bạn muốn */
+                height: 720px;        /* hoặc tùy chỉnh theo chiều cao mong muốn */
+
+                /* Chặn co giãn */
+                min-width: 1400px;
+                max-width: 1400px;
+                min-height: 720px;
+                max-height: 720px;
+
+                /* Nếu nội dung vượt thì scroll */
+                overflow: auto;
+            }
         </style>
 
     </head>
@@ -233,25 +274,77 @@
                 </nav>
                 <!-- Navbar End -->
                 <!-- HTML -->
-                <form action="viewBouquet" method="get" class="search-form">
-                    <input type="text" name="bouquetName" placeholder="Tìm kiếm sản phẩm" value="${param.bouquetName}" />
-                    <button type="submit">Search</button>
-                </form>
+
                 <!-- Table Start -->
                 <div class="container-fluid pt-4 px-4">
 
-                    <div class="bg-light rounded h-100 p-4">
+                    <div class="bg-light rounded h-100 p-4 fixed-container">
                         <!-- Header with title and Add Bouquet button -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0">Bouquet List</h6>
                             <a href="${pageContext.request.contextPath}/addBouquet" class="btn btn-primary">Add Bouquet</a>
                         </div>
+                        <form action="viewBouquet" method="get"
+                              style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; width:100%;">
+                            <!-- Phần sort ở bên trái -->
+                            <div style="display:flex; align-items:center;">
+                                <label for="sortField" style="margin-right:0.5rem; white-space:nowrap;">
+                                    Sắp xếp theo:
+                                </label>
+                                <select name="sortField"
+                                        id="sortField"
+                                        onchange="this.form.submit()"
+                                        style="
+                                        width:auto;
+                                        min-width:max-content;
+                                        padding:0.25rem 0.5rem;
+                                        border:1px solid #ccc;
+                                        border-radius:0.5rem;
+                                        background-color:#fff;
+                                        ">
+                                    <option value="">-- Mặc định --</option>
+                                    <option value="sPriceBQasc"  ${param.sortField == 'sPriceBQasc' ? 'selected' : ''}>Giá tăng dần</option>
+                                    <option value="sPriceBQdesc" ${param.sortField == 'sPriceBQdesc' ? 'selected' : ''}>Giá giảm dần</option>
+                                </select>
+                            </div>
+
+                            <!-- Phần search ở bên phải -->
+                            <div style="display:flex; align-items:center;">
+                                <input type="text"
+                                       name="bouquetName"
+                                       placeholder="Tìm kiếm sản phẩm"
+                                       value="${param.bouquetName}"
+                                       style="
+                                       width:200px;
+                                       padding:0.25rem 0.5rem;
+                                       border:1px solid #ccc;
+                                       border-radius:0.5rem;
+                                       margin-right:0.5rem;
+                                       " />
+
+                                <button type="submit"
+                                        style="
+                                        padding:0.25rem 0.75rem;
+                                        border:none;
+                                        border-radius:0.5rem;
+                                        background-color:#007bff;
+                                        color:#fff;
+                                        cursor:pointer;
+                                        ">
+                                    Search
+                                </button>
+                            </div>
+                        </form>
+
+
+
                         <table class="table">
                             <thead>
                                 <tr>
                                     <th scope="col">STT</th>
                                     <th scope="col">Image</th>
                                     <th scope="col">Bouquet Name</th>
+                                    <th scope="col">Category</th>
                                     <th scope="col">Price</th>
                                     <th colspan="2">Action</th>
                                 </tr>
@@ -264,22 +357,37 @@
                                             <img src="${bouquet.getImageUrl()}" alt="Bouquet Image" style="height: 60px; width: auto;" />
                                         </td>
                                         <td>
-                                            <a href="${pageContext.request.contextPath}/DashMin/bouquetDetails.jsp" class="change-color-qvm">
+                                            <a href="${pageContext.request.contextPath}/bouquetDetails?id=${bouquet.getBouquetId()}" class="change-color-qvm">
                                                 ${bouquet.getBouquetName()}
                                             </a>
                                         </td>
-                                        <td>${bouquet.getPrice()}</td>
                                         <td>
-                                            <a href="${pageContext.request.contextPath}/deleteBouquet?id=${bouquet.getBouquetId()}"
-                                               onclick="return confirm('Do you want to delete?');">
+                                            <c:set var="matched" value="false"/>
+                                            <c:forEach var="cate" items="${cateBouquetHome}">
+                                                <c:if test="${cate.getCategoryId() == bouquet.getCid()}">
+                                                    ${cate.getCategoryName()}
+                                                    <c:set var="matched" value="true"/>
+                                                </c:if>
+                                            </c:forEach>
+                                            <c:if test="${!matched}">Unknown</c:if>
+                                            </td>
+
+                                            <td>${bouquet.getPrice()}</td>
+                                        <td>
+                                            <button type="button"
+                                                    class="btn btn-delete"
+                                                    onclick="if (confirm('Do you want to delete?'))
+                                                                location.href = '${pageContext.request.contextPath}/deleteBouquet?id=${bouquet.getBouquetId()}';">
                                                 Delete
-                                            </a>
-                                        </td>    
-                                        <td>
-                                            <a href="${pageContext.request.contextPath}/editBouquet?id=${bouquet.getBouquetId()}">
+                                            </button>
+
+
+                                            <button type="button"
+                                                    class="btn btn-edit"
+                                                    onclick="location.href = '${pageContext.request.contextPath}/editBouquet?id=${bouquet.getBouquetId()}';">
                                                 Edit
-                                            </a>
-                                        </td>
+                                            </button>
+                                        </td>  
 
                                     </tr>
                                 </c:forEach>
@@ -289,49 +397,45 @@
                         <c:if test="${totalPages > 1}">
                             <nav>
                                 <ul class="pagination">
+
                                     <!-- Previous -->
+                                    <c:url var="prevUrl" value="viewBouquet">
+                                        <c:param name="page" value="${currentPage - 1}" />
+                                        <c:param name="bouquetName" value="${bouquetName}" />
+                                        <c:param name="sortField" value="${sortField}" />
+                                    </c:url>
                                     <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a class="page-link" href="?page=${currentPage - 1}">Previous</a>
+                                        <a class="page-link" href="${prevUrl}">Previous</a>
                                     </li>
 
-                                    <!-- First Page -->
-                                    <li class="page-item ${currentPage == 1 ? 'active' : ''}">
-                                        <a class="page-link" href="?page=1">1</a>
-                                    </li>
-
-                                    <!-- Ellipsis before current page range -->
-                                    <c:if test="${currentPage > 3}">
-                                        <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                        </c:if>
-
-                                    <!-- Page range around current -->
-                                    <c:forEach var="i" begin="${currentPage - 1}" end="${currentPage + 1}">
-                                        <c:if test="${i > 1 && i < totalPages}">
-                                            <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                                <a class="page-link" href="?page=${i}">${i}</a>
-                                            </li>
-                                        </c:if>
+                                    <!-- Các trang -->
+                                    <c:forEach var="i" begin="1" end="${totalPages}">
+                                        <c:url var="pageUrl" value="viewBouquet">
+                                            <c:param name="page" value="${i}" />
+                                            <c:param name="bouquetName" value="${bouquetName}" />
+                                            <c:param name="sortField" value="${sortField}" />
+                                        </c:url>
+                                        <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                            <a class="page-link" href="${pageUrl}">${i}</a>
+                                        </li>
                                     </c:forEach>
 
-                                    <!-- Ellipsis after current page range -->
-                                    <c:if test="${currentPage < totalPages - 2}">
-                                        <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                        </c:if>
-
-                                    <!-- Last Page -->
-                                    <c:if test="${totalPages > 1}">
-                                        <li class="page-item ${currentPage == totalPages ? 'active' : ''}">
-                                            <a class="page-link" href="?page=${totalPages}">${totalPages}</a>
-                                        </li>
-                                    </c:if>
-
                                     <!-- Next -->
+                                    <c:url var="nextUrl" value="viewBouquet">
+                                        <c:param name="page" value="${currentPage + 1}" />
+                                        <c:param name="bouquetName" value="${bouquetName}" />
+                                        <c:param name="sortField" value="${sortField}" />
+                                    </c:url>
                                     <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                        <a class="page-link" href="?page=${currentPage + 1}">Next</a>
+                                        <a class="page-link" href="${nextUrl}">Next</a>
                                     </li>
+
                                 </ul>
                             </nav>
                         </c:if>
+
+
+
                     </div>
                 </div>
                 <!-- Table End -->

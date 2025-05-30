@@ -14,6 +14,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import model.Bouquet;
 import model.Category;
@@ -63,10 +65,10 @@ public class BouquetController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String pageParam = request.getParameter("page");
         int currentPage = 1;
-        
+
         if (pageParam != null) {
             try {
                 currentPage = Integer.parseInt(pageParam);
@@ -77,22 +79,31 @@ public class BouquetController extends HttpServlet {
 
         int itemsPerPage = 6;
         List<Bouquet> listBouquet = new ArrayList<>();
-        //      List<Category> listCategoryBQ = new ArrayList<>();
+        List<Category> listCategoryBQ = new ArrayList<>();
 
         BouquetDAO bdao = new BouquetDAO();
-        //       CategoryDAO cdao = new CategoryDAO();
+        CategoryDAO cdao = new CategoryDAO();
 
-        //  listCategoryBQ = cdao.getBouquetCategory();
+        listCategoryBQ = cdao.getBouquetCategory();
         String name = request.getParameter("bouquetName");
+        String sort = request.getParameter("sortField");
 
-        //      request.setAttribute("cateBouquetHome", listCategoryBQ);
+        // Lấy list gốc (với hoặc không có filter tìm kiếm)
         if (name != null && !name.trim().isEmpty()) {
             listBouquet = bdao.searchBouquet(name, null, null, null);
-            request.setAttribute("listBouquet", listBouquet);
-
         } else {
             listBouquet = bdao.getAll();
-            request.setAttribute("listBouquet", listBouquet);
+        }
+// Sau đó mới sort
+        if (sort != null) {
+            switch (sort) {
+                case "sPriceBQasc":
+                    Collections.sort(listBouquet, Comparator.comparingDouble(Bouquet::getPrice));
+                    break;
+                case "sPriceBQdesc":
+                    Collections.sort(listBouquet, Comparator.comparingDouble(Bouquet::getPrice).reversed());
+                    break;
+            }
         }
 
         int totalItems = listBouquet.size();
@@ -108,9 +119,12 @@ public class BouquetController extends HttpServlet {
         }
 
 // Gửi đến JSP
+        request.setAttribute("bouquetName", name);
+        request.setAttribute("sortField", sort);
         request.setAttribute("listBouquet", paginatedList);
         request.setAttribute("currentPage", currentPage);
         request.setAttribute("totalPages", totalPages);
+        request.setAttribute("cateBouquetHome", listCategoryBQ);
         request.getRequestDispatcher("./DashMin/product.jsp").forward(request, response);
     }
 
