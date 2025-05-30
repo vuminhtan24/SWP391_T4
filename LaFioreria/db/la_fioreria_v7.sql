@@ -503,6 +503,7 @@ INSERT INTO `user` VALUES (1,'admin01','admin123','Alice Admin','alice@flower.co
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
+ALTER TABLE user ADD COLUMN status VARCHAR(10) DEFAULT 'active';
 --
 -- Table structure for table `warehouse`
 --
