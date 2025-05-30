@@ -47,10 +47,9 @@ public class RawFlowerDAO extends DBContext {
         return listRawFlower;
     }
     
-    public static void main(String[] args) {
-        List<RawFlower> raw = new ArrayList<>();
+        public static void main(String[] args) {
         RawFlowerDAO dao = new RawFlowerDAO();
-        System.out.println(dao.getAll());
+        System.out.println(dao.getRawFlower());
     }
     
     public int count() {
@@ -394,4 +393,5 @@ public class RawFlowerDAO extends DBContext {
         return list;
     }
     
+
 }

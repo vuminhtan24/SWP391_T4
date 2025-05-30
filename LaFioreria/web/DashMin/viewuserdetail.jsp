@@ -86,6 +86,7 @@
                                 <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item active">Blank Page</a>
                                 <a href="${pageContext.request.contextPath}/ViewUserList" class="dropdown-item active">View User List</a>
                                 <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item active">View User </a>
+                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item active">Add new User </a>
                             </div>
                         </div>
                     </div>
@@ -190,20 +191,13 @@
                 <div class="row">
                     <div class="col-sm-12 col-xl-2">
                         <div class="bg-light rounded h-100 p-4">
-                            <h6 class="mb-4">View User List Table</h6>
-
-                            <table border="1">
-
-                                <tbody>
+                            <div class="btn-toolbar" role="toolbar">
+                                <div class="btn-group me-2" role="group" aria-label="First group">
                                     <c:forEach items="${userIds}" var="id">
-                                        <tr>
-                                            <td>
-                                                <a href="viewuserdetail?id=${id}">${id}</a>
-                                            </td>
-                                        </tr>           
+                                        <a class="btn btn-primary" href="viewuserdetail?id=${id}">${id}</a>
                                     </c:forEach> 
-                                </tbody>
-                            </table>
+                                </div>
+                            </div>
 
                         </div>
                     </div>
@@ -215,80 +209,91 @@
                                 <p>No userIds found</p>
                             </c:if>
                             <c:if test="${not empty userIds}">
-                                <p>User IDs are available</p>
+                                <div class="col-sm-12 col-xl-6">
+                                    <div class="bg-light rounded h-100 p-4">
+                                        <div class="btn-group" role="group">
+                                            <a  class="btn btn-primary" href="${pageContext.request.contextPath}/adduserdetail">Add new User detail</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <form action="${pageContext.request.contextPath}/viewuserdetail" method="POST">
+                                    <table border="0">
+
+                                        <tbody>
+                                            <tr>
+                                                <td>User ID: </td>
+                                                <td>
+                                                    <input type="text" name="id" class="form-control" placeholder="User ID" aria-label="Username"
+                                                           aria-describedby="basic-addon1" value="${userManager.userid}" readonly="">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>User Name: </td>
+                                                <td>
+                                                    <input type="text" name="name" class="form-control" placeholder="Username" aria-label="Username"
+                                                           aria-describedby="basic-addon1" value="${userManager.username}">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Password: </td>
+                                                <td>
+                                                    <input type="text" name="pass" class="form-control" placeholder="Password" aria-label="Username"
+                                                           aria-describedby="basic-addon1" value="${userManager.password}">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Full Name: </td>
+                                                <td>
+                                                    <input type="text" name="FullName" class="form-control" placeholder="Full Name" aria-label="Username"
+                                                           aria-describedby="basic-addon1" value="${userManager.fullname}">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Email: </td>
+                                                <td>
+                                                    <input type="text" class="form-control" placeholder="Email"
+                                                           aria-label="Recipient's username" aria-describedby="basic-addon2" name="email" value="${userManager.email}">
+                                                </td>
+                                                <td>
+                                                    <span class="input-group-text" id="basic-addon2">@flower.com</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Phone Number: </td>
+                                                <td>
+                                                    <input type="type" name="phone" class="form-control" placeholder="Phone Number" aria-label="Username"
+                                                           aria-describedby="basic-addon1" value="${userManager.phone}">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Address: </td>
+                                                <td>
+                                                    <input type="type" name="address" class="form-control" placeholder="Address" aria-label="Username"
+                                                           aria-describedby="basic-addon1" value="${userManager.address}">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Role: </td>
+                                                <td>
+                                                    <input type="type" name="role" class="form-control" placeholder="Role" aria-label="Username"
+                                                           aria-describedby="basic-addon1" value="${userManager.role}" readonly="">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <select class="form-select mb-3" aria-label="Default select example" name="option">
+                                                        <c:forEach items="${roleNames}" var="role">
+                                                            <option value="${role}">${role}</option>
+                                                        </c:forEach>
+                                                    </select>
+                                                </td>
+                                                <td><input  class="btn btn-primary"type="submit" name="ud" value="UPDATE"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>           
+                                </form>
                             </c:if>
-
-                            <h3>
-                                <a href="${pageContext.request.contextPath}/adduserdetail">Add new User detail</a>
-                            </h3>
-
-                            <form action="${pageContext.request.contextPath}/viewuserdetail" method="POST">
-                                <table border="1">
-
-                                    <tbody>
-                                        <tr>
-                                            <td>User ID: </td>
-                                            <td>
-                                                <input type="text" name="id" value="${userManager.userid}" readonly="">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>User Name: </td>
-                                            <td>
-                                                <input type="text" name="name" value="${userManager.username}">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Password: </td>
-                                            <td>
-                                                <input type="text" name="pass" value="${userManager.password}">
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Full Name: </td>
-                                            <td>
-                                                <input type="text" name="FullName" value="${userManager.fullname}">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Email: </td>
-                                            <td>
-                                                <input type="text" name="email" value="${userManager.email}">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Phone Number: </td>
-                                            <td>
-                                                <input type="type" name="phone" value="${userManager.phone}">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Address: </td>
-                                            <td>
-                                                <input type="type" name="address" value="${userManager.address}">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Role: </td>
-                                            <td>
-                                                <input type="type" name="role" value="${userManager.role}" readonly="">
-                                            </td>
-                                        </tr>
-                                        <tr>
-
-                                            <td>
-                                                <select name="option">
-                                                    <c:forEach items="${roleNames}" var="role">
-                                                        <option value="${role}">${role}</option>
-                                                    </c:forEach>
-                                                </select>
-                                            </td>
-                                            <td><input type="submit" name="ud" value="UPDATE"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>           
-                            </form>
                         </div>
                     </div>   
                 </div>

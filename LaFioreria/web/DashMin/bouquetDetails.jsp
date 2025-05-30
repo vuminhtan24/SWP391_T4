@@ -299,13 +299,13 @@
                             <div class="flex-grow-1 bouquet-content">
                                 <div class="bouquet-info p-4 shadow-sm rounded bg-white">
                                     <h1 class="fw-bold mb-4 text-primary">
-                                        <input type="text" name="bqName" value="${bouquetDetail.getBouquetName()}" readonly/>    
+                                        ${bouquetDetail.getBouquetName()}   
                                     </h1>
 
                                     <!-- Thông tin cơ bản -->
                                     <div class="mb-3">
                                         <label class="form-label fw-semibold">Category:</label>
-                                        <input type="text" name="category" value="${cateName}" readonly/>
+                                        <h6>${cateName}</h6>
                                     </div>
                                     <div class="mb-3">
                                         <label for="imageUrl" class="form-label fw-semibold">Image URL:</label>                                                                                   
