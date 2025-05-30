@@ -63,7 +63,7 @@ public class AddUserDetail extends HttpServlet {
         UserDAO ud = new UserDAO();
         List<String> roleNames = ud.getRoleNames();
         request.setAttribute("roleNames", roleNames);
-        request.getRequestDispatcher("TestWeb/addNewUser.jsp").forward(request, response);
+        request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
 
     }
 
@@ -123,7 +123,7 @@ public class AddUserDetail extends HttpServlet {
                 List<String> roleNames = ud.getRoleNames();
                 request.setAttribute("roleNames", roleNames);
 
-                request.getRequestDispatcher("TestWeb/addNewUser.jsp").forward(request, response);
+                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
             }
 
         } catch (NumberFormatException e) {
@@ -138,7 +138,7 @@ public class AddUserDetail extends HttpServlet {
             request.setAttribute("roleNames", roleNames);
 
             // Quay lại form
-            request.getRequestDispatcher("TestWeb/addNewUser.jsp").forward(request, response);
+            request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
         } catch (ServletException | IOException e) { // Ghi log nội bộ (hoặc dùng Logger nếu có)
             // 👈 chỉ nên dùng khi debug, không để trong production
             // 👈 chỉ nên dùng khi debug, không để trong production
@@ -151,7 +151,7 @@ public class AddUserDetail extends HttpServlet {
             request.setAttribute("roleNames", roleNames);
 
             // Quay lại form
-            request.getRequestDispatcher("TestWeb/addNewUser.jsp").forward(request, response);
+            request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
         }
 
     }

@@ -85,7 +85,7 @@
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
                                 <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item active">Blank Page</a>
                                 <a href="${pageContext.request.contextPath}/ViewUserList" class="dropdown-item active">View User List</a>
-                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item active">View User Detail</a>
+                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item active">View User </a>
                                 <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item active">Add new User </a>
                             </div>
                         </div>
@@ -105,61 +105,19 @@
                     <a href="#" class="sidebar-toggler flex-shrink-0">
                         <i class="fa fa-bars"></i>
                     </a>
-                    <form class="d-none d-md-flex ms-4" id="f1" action="${pageContext.request.contextPath}/ViewUserList" method="post">
-                        <table class="table table-striped">
-                            <tbody>
-                                <tr>
-                                    <td>Role: </td>
-                                    <td>
-                                        <select class="form-select mb-3" aria-label="Default select example" name="txtRoleList" onchange="document.getElementById('f1').submit()">
-                                            <option value="0" <c:if test="${roleId == 0}">selected</c:if>>All</option>
-                                            <c:forEach items="${roleList}" var="role">
-                                                <option value="${role.role_id}" <c:if test="${role.role_id == roleId}">selected</c:if>>
-                                                    ${role.role_Name}
-                                                </option>
-                                            </c:forEach>
-                                        </select>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>Search name: </td>
-                                    <td><input type="text" name="txtSearchName" value="${keyword}"></td>
-                                    <td>
-                                        <select class="form-select mb-3" aria-label="Default select example" name="sortField">
-                                            <option value="User_ID" <c:if test="${sortField == 'User_ID'}">selected</c:if>>User ID</option>
-                                            <option value="Username" <c:if test="${sortField == 'Username'}">selected</c:if>>User Name</option>
-                                            <option value="Password" <c:if test="${sortField == 'Password'}">selected</c:if>>Password</option>
-                                            <option value="Fullname" <c:if test="${sortField == 'Fullname'}">selected</c:if>>Full Name</option>
-                                            <option value="Email" <c:if test="${sortField == 'Email'}">selected</c:if>>Email</option>
-                                            <option value="Phone" <c:if test="${sortField == 'Phone'}">selected</c:if>>Phone</option>
-                                            <option value="Address" <c:if test="${sortField == 'Address'}">selected</c:if>>Address</option>
-                                            <option value="Role_name" <c:if test="${sortField == 'Role_name'}">selected</c:if>>Role</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <select class="form-select mb-3" aria-label="Default select example" name="sortOrder">
-                                                <option value="asc" <c:if test="${sortOrder == 'asc'}">selected</c:if>>Ascending</option>
-                                            <option value="desc" <c:if test="${sortOrder == 'desc'}">selected</c:if>>Descending</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <input class="btn btn-primary m-2" class="form-control border-0" type="submit" value="SEARCH" name="button" placeholder="Search">
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </form>
-                        <div class="navbar-nav align-items-center ms-auto">
-                            <div class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                    <i class="fa fa-envelope me-lg-2"></i>
-                                    <span class="d-none d-lg-inline-flex">Message</span>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                                    <a href="#" class="dropdown-item">
-                                        <div class="d-flex align-items-center">
-                                            <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                    <form class="d-none d-md-flex ms-4">
+                        <input class="form-control border-0" type="search" placeholder="Search">
+                    </form>
+                    <div class="navbar-nav align-items-center ms-auto">
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="fa fa-envelope me-lg-2"></i>
+                                <span class="d-none d-lg-inline-flex">Message</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                                <a href="#" class="dropdown-item">
+                                    <div class="d-flex align-items-center">
+                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -229,89 +187,81 @@
                 </nav>
                 <!-- Navbar End -->
 
-                <p>ContextPath = ${pageContext.request.contextPath}</p>
-
                 <!-- Table Start -->
+
                 <div class="col-sm-12 col-xl-6">
                     <div class="bg-light rounded h-100 p-4">
-                        <h6 class="mb-4">View User List Table</h6>
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>User ID</th>
-                                    <th>User Name</th>
-                                    <th>Password</th>
-                                    <th>Full Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Address</th>
-                                    <th>Role</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach items="${userManagerList}" var="user">
+                        <form action="adduserdetail" method="Post">
+                            <table border="1">
+
+                                <tbody>
                                     <tr>
-                                        <td>${user.userid}</td>
-                                        <td>${user.username}</td>
-                                        <td>${user.password}</td>
-                                        <td>${user.fullname}</td>
-                                        <td>${user.email}</td>
-                                        <td>${user.phone}</td>
-                                        <td>${user.address}</td>
-                                        <td>${user.role}</td>
+                                        <td>User ID: </td>
                                         <td>
-                                            <form action="${pageContext.request.contextPath}/rejectuserlist" method="post" onsubmit="return confirm('Confirm reject this user ?');">
-                                                <input type="hidden" name="userId" value="${user.userid}" />
-                                                <button class="btn btn-danger m-2" type="submit">Reject</button>
-                                            </form>
+                                            <input type="text" name="id">
                                         </td>
-                                        <td>
-                                            <form action="${pageContext.request.contextPath}/DeleteUserListServlet" method="post" onsubmit="return confirm('Confirm Delete this user ?');">
-                                                <input type="hidden" name="userId" value="${user.userid}" />
-                                                <button class="btn btn-danger m-2" type="submit">Delete</button>
-                                            </form>
-                                        </td>
-
                                     </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
+                                    <tr>
+                                        <td>User Name: </td>
+                                        <td>
+                                            <input type="text" name="name">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Password: </td>
+                                        <td>
+                                            <input type="text" name="pass">
 
-                        <!-- PAGINATION -->
-                        <div style="margin-top: 20px;">
-                            <c:if test="${totalPages > 1}">
-                                <form action="${pageContext.request.contextPath}/ViewUserList" method="post" id="paginationForm">
-                                    <!-- preserve current filters -->
-                                    <input type="hidden" name="txtSearchName" value="${keyword}" />
-                                    <input type="hidden" name="txtRoleList" value="${roleId}" />
-                                    <input type="hidden" name="sortField" value="${sortField}" />
-                                    <input type="hidden" name="sortOrder" value="${sortOrder}" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Full Name: </td>
+                                        <td>
+                                            <input type="text" name="FullName">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Email: </td>
+                                        <td>
+                                            <input type="text" name="email">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Phone Number: </td>
+                                        <td>
+                                            <input type="type" name="phone">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Address: </td>
+                                        <td>
+                                            <input type="type" name="address">
+                                        </td>
+                                    </tr>
 
-                                    <c:set var="prevPage" value="${currentPage - 1}" />
-                                    <c:set var="nextPage" value="${currentPage + 1}" />
+                                    <tr>
 
-                                    <c:if test="${currentPage > 1}">
-                                        <button class="btn btn-outline-primary m-2" type="submit" name="page" value="1"><<</button>
-                                        <button class="btn btn-outline-primary m-2" type="submit" name="page" value="${prevPage}"><</button>
-                                    </c:if>
+                                        <td>Role: </td>
+                                        <td>
+                                            <select name="option">
+                                                <c:forEach items="${roleNames}" var="role">
+                                                    <option value="${role}">${role}</option>
+                                                </c:forEach>
+                                            </select>
 
-                                    <c:forEach begin="1" end="${totalPages}" var="i">
-                                        <button class="btn btn-outline-primary m-2" type="submit" name="page" value="${i}"
-                                                <c:if test="${i == currentPage}">style="font-weight:bold;"</c:if>>
-                                            ${i}
-                                        </button>
-                                    </c:forEach>
-
-                                    <c:if test="${currentPage < totalPages}">
-                                        <button class="btn btn-outline-primary m-2" type="submit" name="page" value="${nextPage}">></button>
-                                        <button class="btn btn-outline-primary m-2" type="submit" name="page" value="${totalPages}">>></button>
-                                    </c:if>
-                                </form>
-                            </c:if>
-                        </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="submit" name="ad" value="ADD"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <c:if test="${not empty error}">
+                                <p style="color:red">${error}</p>
+                            </c:if>            
+                        </form>
                     </div>
-                </div>
+                </div>  
 
 
                 <!-- Blank End -->
