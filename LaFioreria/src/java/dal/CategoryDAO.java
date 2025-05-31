@@ -97,6 +97,40 @@ public class CategoryDAO extends DBContext {
         return searchList;
     }
     
+    // Lấy danh mục theo ID
+    public Category getCategoryById(int id) {
+        String sql = "SELECT category_id, category_name, description FROM la_fioreria.category WHERE category_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int categoryId = rs.getInt("category_id");
+                    String categoryName = rs.getString("category_name") != null ? rs.getString("category_name").trim() : "";
+                    String description = rs.getString("description") != null ? rs.getString("description").trim() : "";
+                    return new Category(categoryId, categoryName, description);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in getCategoryById: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Cập nhật danh mục
+    public void updateCategory(Category category) {
+        String sql = "UPDATE la_fioreria.category SET category_name = ?, description = ? WHERE category_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, category.getCategoryName());
+            ps.setString(2, category.getDescription());
+            ps.setInt(3, category.getCategoryId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error in updateCategory: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
     public static void main(String[] args) {
         Category c = new Category();
         CategoryDAO dao = new CategoryDAO();

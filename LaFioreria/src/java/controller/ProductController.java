@@ -70,11 +70,28 @@ public class ProductController extends HttpServlet {
         CategoryDAO cdao = new CategoryDAO();
 
         listCategoryBQ = cdao.getBouquetCategory();
-        String name = request.getParameter("bouquetName");
-
         request.setAttribute("cateBouquetHome", listCategoryBQ);
-        if (name != null && !name.trim().isEmpty()) {
-            listBouquet = bdao.searchBouquet(name, null, null, null);
+        String name = request.getParameter("bouquetName");
+        String cateIDstr = request.getParameter("categoryId");
+
+        Integer cateID = null;
+        if (cateIDstr != null && !cateIDstr.trim().isEmpty()) {
+            try {
+                cateID = Integer.parseInt(cateIDstr);
+            } catch (NumberFormatException e) {
+                // Nếu parse lỗi, ta mặc định cateID = null (không lọc theo category)
+                cateID = null;
+            }
+        }
+
+        boolean hasName = (name != null && !name.trim().isEmpty());
+        boolean hasCate = (cateID != null && cateID > 0);
+
+        if (hasName || hasCate) {
+            String searchName = hasName ? name.trim() : null;
+            Integer searchCate = hasCate ? cateID : null;
+            
+            listBouquet = bdao.searchBouquet(searchName, null, null, searchCate);
             request.setAttribute("listBouquet", listBouquet);
 
         } else {

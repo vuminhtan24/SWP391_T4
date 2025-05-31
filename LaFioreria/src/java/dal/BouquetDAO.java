@@ -274,11 +274,12 @@ public class BouquetDAO extends DBContext {
 
     public static void main(String[] args) {
         BouquetDAO dao = new BouquetDAO();
-        List<Bouquet> list = dao.getAll();
+        List<Bouquet> list = dao.searchBouquet("rose", null, null, null);
         Bouquet b = new Bouquet();
         BouquetRaw q = new BouquetRaw();
         b = dao.getBouquetByID(3);
         List<BouquetRaw> r = dao.getFlowerByBouquetID(3);
+        System.out.println(list);
         
     }
 
