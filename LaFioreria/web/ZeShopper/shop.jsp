@@ -11,30 +11,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
-    <style>
-    .productinfo {
-        min-height: 400px; /* chỉnh tùy theo độ dài nội dung */
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
-    .productinfo img {
-        height: 200px;
-        object-fit: cover;
-    }
-
-    .single-products {
-        height: 100%;
-    }
-
-    .product-image-wrapper {
-        border: 1px solid #f0f0f0;
-        padding: 10px;
-        height: 100%;
-    }
-</style>
-
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -57,6 +33,192 @@
         <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-114-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-57-precomposed.png">
+        <style>
+            .popup-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                animation: fadeIn 0.3s ease-in-out;
+            }
+
+            .popup-content {
+                background: #ffffff;
+                padding: 25px 30px;
+                border-radius: 12px;
+                max-width: 400px;
+                width: 90%;
+                position: relative;
+                box-shadow: 0 0 10px rgba(0,0,0,0.2);
+                animation: scaleUp 0.3s ease;
+            }
+
+            .popup-img {
+                width: 100%;
+                max-height: 200px;
+                object-fit: contain;
+                border-radius: 8px;
+                margin-bottom: 15px;
+            }
+
+            .popup-price {
+                font-weight: bold;
+                margin: 5px 0;
+            }
+
+            .popup-description {
+                font-size: 14px;
+                color: #555;
+                margin-bottom: 15px;
+            }
+
+            .popup-label {
+                display: block;
+                font-weight: 500;
+                margin-bottom: 5px;
+            }
+
+            .popup-input {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 15px;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+            }
+
+            .popup-buttons {
+                display: flex;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            .popup-btn {
+                flex: 1;
+                padding: 10px;
+                border: none;
+                border-radius: 6px;
+                background-color: #28a745;
+                color: white;
+                font-weight: bold;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+            .popup-btn.cancel {
+                background-color: #dc3545;
+            }
+
+            .popup-btn:hover {
+                filter: brightness(0.9);
+            }
+
+            .close-btn {
+                position: absolute;
+                top: 10px;
+                right: 15px;
+                font-size: 22px;
+                cursor: pointer;
+                color: #aaa;
+                transition: color 0.2s;
+            }
+            .productinfo {
+                min-height: 400px; /* chỉnh tùy theo độ dài nội dung */
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .productinfo img {
+                height: 200px;
+                object-fit: cover;
+            }
+
+            .single-products {
+                height: 100%;
+            }
+
+            .product-image-wrapper {
+                border: 1px solid #f0f0f0;
+                padding: 10px;
+                height: 100%;
+            }
+
+            .close-btn:hover {
+                color: #000;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+            @keyframes scaleUp {
+                from {
+                    transform: scale(0.95);
+                    opacity: 0;
+                }
+                to {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+            }
+
+            .success-toast {
+                display: none;
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background-color: #4CAF50;
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.2);
+                font-size: 16px;
+                z-index: 9999;
+                animation: fadein 0.5s;
+            }
+
+            @keyframes fadein {
+                from {
+                    opacity: 0;
+                    bottom: 10px;
+                }
+                to {
+                    opacity: 1;
+                    bottom: 30px;
+                }
+            }
+            .productinfo {
+                min-height: 400px; /* chỉnh tùy theo độ dài nội dung */
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .productinfo img {
+                height: 200px;
+                object-fit: cover;
+            }
+
+            .single-products {
+                height: 100%;
+            }
+
+            .product-image-wrapper {
+                border: 1px solid #f0f0f0;
+                padding: 10px;
+                height: 100%;
+            }
+        </style>
     </head><!--/head-->
 
     <body>
@@ -217,7 +379,7 @@
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
                                             <h4 class="panel-title">
-                                                <a href="#">${category.getCategoryName()}</a>  <!-- Giả sử thuộc tính tên là 'name' -->
+                                                <a value="${category.getCategoryId()}" href="${pageContext.request.contextPath}/product?categoryId=${category.getCategoryId()}">${category.getCategoryName()}</a>  <!-- Giả sử thuộc tính tên là 'name' -->
                                             </h4>
                                         </div>
                                     </div>
@@ -228,7 +390,7 @@
                             <div class="price-range"><!--price-range-->
                                 <h2>Price Range</h2>
                                 <div class="well text-center">
-                                    <input type="text" class="span2" value="" data-slider-min="0" data-slider-max="600" data-slider-step="5" data-slider-value="[250,450]" id="sl2" ><br />
+                                    <input type="text" class="span2" value="" data-slider-min="0" data-slider-max="1000" data-slider-step="5" data-slider-value="[250,450]" id="sl2" ><br />
                                     <b class="pull-left">$ 0</b> <b class="pull-right">$ 600</b>
                                 </div>
                             </div><!--/price-range-->
@@ -450,11 +612,11 @@
 
 
 
-<script src="js/jquery.js"></script>
-<script src="js/price-range.js"></script>
-<script src="js/jquery.scrollUp.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/jquery.prettyPhoto.js"></script>
-<script src="js/main.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
 </body>
 </html>
