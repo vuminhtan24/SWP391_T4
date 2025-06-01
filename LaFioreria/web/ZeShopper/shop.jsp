@@ -218,6 +218,29 @@
                 padding: 10px;
                 height: 100%;
             }
+
+            .category-button {
+                background: none;       /* Bỏ màu nền */
+                border: none;           /* Bỏ viền */
+                padding: 0;             /* Bỏ khoảng đệm */
+                margin: 0;              /* Bỏ margin */
+                font: inherit;          /* Kế thừa toàn bộ font-family/ font-size/ font-weight từ h4 */
+                color: inherit;         /* Kế thừa màu chữ từ h4 */
+                cursor: pointer;        /* Vẫn hiện con trỏ tay khi hover */
+                text-align: inherit;    /* Kế thừa canh lề (nếu cần) */
+                display: inline;        /* Giữ nguyên kiểu inline để không giãn block */
+                text-decoration: none;  /* Bỏ gạch chân (nếu có) */
+            }
+
+            .category-button:hover {
+                text-decoration: underline; /* Hoặc đổi màu, tuỳ thích */
+            }
+
+            /* Chỉ ví dụ highlight category đang chọn */
+            .selected-category h4 .category-button {
+                font-weight: bold;
+                color: #d35400;
+            }
         </style>
     </head><!--/head-->
 
@@ -350,10 +373,7 @@
                         </div>
                         <div class="col-sm-3">
                             <div class="search_box pull-right">
-                                <form action="product" method="get">
-                                    <input type="text" name="bouquetName" placeholder="Tìm kiếm sản phẩm" value="${param.bouquetName}" />
-                                    <button type="submit">Search</button>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -373,294 +393,331 @@
                     <div class="col-sm-3">
                         <div class="left-sidebar">
                             <h2>Category</h2>
-                            <div class="panel-group category-products" id="accordian"><!--category-productsr-->                            
+                            <div class="panel-group category-products" id="accordian" style="margin-bottom: 10px"><!--category-productsr-->   
 
-                                <c:forEach var="category" items="${cateBouquetHome}">
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                            <h4 class="panel-title">
-                                                <a value="${category.getCategoryId()}" href="${pageContext.request.contextPath}/product?categoryId=${category.getCategoryId()}">${category.getCategoryName()}</a>  <!-- Giả sử thuộc tính tên là 'name' -->
-                                            </h4>
+                                <form action="product" method="get" onsubmit="return validateRange();">
+                                    <c:forEach var="category" items="${cateBouquetHome}">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title" style="color: #7d7e82">
+                                                    <button
+                                                        type="submit"
+                                                        name="categoryId"
+                                                        value="${category.categoryId}"
+                                                        class="category-button">
+                                                        ${category.getCategoryName()}
+                                                    </button>
+                                                </h4>
+                                            </div>
                                         </div>
-                                    </div>
-                                </c:forEach>
+                                    </c:forEach>    
 
                             </div><!--/category-products-->
 
-                                 <!-- Price range -->    
-                                <form action="product" method="get" onsubmit="return validateRange();">
-                                    <h2 style="text-align: center;">Price Range</h2>
-
-                                    <div style="text-align: center; padding: 20px; border: 1px solid #ccc; border-radius: 10px;">
-                                        
-                                        <!-- Min -->
-                                        <label for="minPrice" style="display: block; margin-bottom: 5px;">Min Price</label>
-                                        <input
-                                            type="range"
-                                            id="minPrice"
-                                            name="minPrice"
-                                            min="0"
-                                            max="2000000"
-                                            step="1000"
-                                            value="${minPrice != null ? minPrice : 0}"
-                                            oninput="this.nextElementSibling.value = this.value"
-                                            style="width: 80%; accent-color: orange; margin-bottom: 5px;"
-                                            >
-                                        <output style="display: block; margin-bottom: 15px;">${minPrice != null ? minPrice : 0}</output>
-
-                                        <!-- Max -->
-                                        <label for="maxPrice" style="display: block; margin-bottom: 5px;">Max Price</label>
-                                        <input
-                                            type="range"
-                                            id="maxPrice"
-                                            name="maxPrice"
-                                            min="0"
-                                            max="2000000"
-                                            step="1000"
-                                            value="${maxPrice != null ? maxPrice : 2000000}"
-                                            oninput="this.nextElementSibling.value = this.value"
-                                            style="width: 80%; accent-color: orange; margin-bottom: 5px;"
-                                            >
-                                        <output style="display: block; margin-bottom: 20px;"> ${maxPrice != null ? maxPrice : 2000000}</output>
-
-                                        <!-- Error Message -->
-                                        <div id="error" style="color: red; margin-bottom: 10px;"></div>
-
-                                        <!-- Submit -->
-                                        <input
-                                            type="submit"
-                                            value="Submit"
-                                            style="background-color: orange; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;"
-                                            >
-
-                                    </div>
-                                </form>
-                                        <!-- Price range end -->
-
-                                <div class="shipping text-center"><!--shipping-->
-                                    <img src="${pageContext.request.contextPath}/ZeShopper/images/home/shipping.jpg" alt="" />
-                                </div><!--/shipping-->
-
+                            <div style="margin-bottom: 10px">
+                                <input
+                                    type="text"
+                                    name="bouquetName"
+                                    placeholder="Tìm kiếm sản phẩm"
+                                    value="${param.bouquetName != null ? param.bouquetName : ''}"
+                                    style="
+                                    width: 250px;
+                                    padding: 10px 15px;
+                                    border-radius: 20px;
+                                    border: 1px solid #ccc;
+                                    font-size: 16px;
+                                    outline: none;
+                                    "
+                                    />
+                                <button
+                                    type="submit"
+                                    style="
+                                    background-color: orange;
+                                    color: white;
+                                    padding: 10px 20px;
+                                    border: none;
+                                    border-radius: 20px;
+                                    cursor: pointer;
+                                    font-size: 16px;
+                                    margin-left: 10px;
+                                    margin-top: 10px;
+                                    "
+                                    >
+                                    Search
+                                </button>
                             </div>
+
+
+                            <!-- Price range -->    
+                            <h2 style="text-align: center;">Price Range</h2>   
+                            <div style="text-align: center; padding: 20px; border: 1px solid #ccc; border-radius: 10px;">
+                                <!-- Min -->
+                                <label for="minPrice" style="display: block; margin-bottom: 5px;">Min Price</label>
+                                <input
+                                    type="range"
+                                    id="minPrice"
+                                    name="minPrice"
+                                    min="0"
+                                    max="2000000"
+                                    step="1000"
+                                    value="${minPrice != null ? minPrice : 0}"
+                                    oninput="this.nextElementSibling.value = this.value"
+                                    style="width: 80%; accent-color: orange; margin-bottom: 5px;"
+                                    >
+                                <output style="display: block; margin-bottom: 15px;">${minPrice != null ? minPrice : 0}</output>
+
+                                <!-- Max -->
+                                <label for="maxPrice" style="display: block; margin-bottom: 5px;">Max Price</label>
+                                <input
+                                    type="range"
+                                    id="maxPrice"
+                                    name="maxPrice"
+                                    min="0"
+                                    max="2000000"
+                                    step="1000"
+                                    value="${maxPrice != null ? maxPrice : 2000000}"
+                                    oninput="this.nextElementSibling.value = this.value"
+                                    style="width: 80%; accent-color: orange; margin-bottom: 5px;"
+                                    >
+                                <output style="display: block; margin-bottom: 20px;"> ${maxPrice != null ? maxPrice : 2000000}</output>
+
+                                <!-- Error Message -->
+                                <div id="error" style="color: red; margin-bottom: 10px;"></div>
+
+                                <!-- Submit -->
+                                <input
+                                    type="submit"
+                                    value="Submit"
+                                    style="background-color: orange; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;"
+                                    >                                 
+                                <!-- Price range end -->
+                                </form>
+                            </div>
+
+                            <div class="shipping text-center"><!--shipping-->
+                                <img src="${pageContext.request.contextPath}/ZeShopper/images/home/shipping.jpg" alt="" />
+                            </div><!--/shipping-->
+
                         </div>
+                    </div>
 
-                        <div class="col-sm-9 padding-right">
-                            <div class="features_items"><!--features_items-->
-                                <h2 class="title text-center">Features Items</h2>
+                    <div class="col-sm-9 padding-right">
+                        <div class="features_items"><!--features_items-->
+                            <h2 class="title text-center">Features Items</h2>
 
-                                <c:forEach items="${requestScope.listBouquet}" var="lb">
-                                    <div class="col-sm-4">
-                                        <div class="product-image-wrapper">
-                                            <div class="single-products">
-                                                <div class="productinfo text-center">
-                                                    <img src="${lb.getImageUrl()}" alt="" />
-                                                    <h2>${lb.getBouquetName()}</h2>
-                                                    <p>Price: ${lb.getPrice()}</p>
-                                                    <a href="#" class="btn btn-default add-to-cart">
-                                                        <i class="fa fa-shopping-cart"></i>Add to cart
-                                                    </a>
-                                                </div>
+                            <c:forEach items="${requestScope.listBouquet}" var="lb">
+                                <div class="col-sm-4">
+                                    <div class="product-image-wrapper">
+                                        <div class="single-products">
+                                            <div class="productinfo text-center">
+                                                <img src="${lb.getImageUrl()}" alt="" />
+                                                <h2>${lb.getBouquetName()}</h2>
+                                                <p>Price: ${lb.getPrice()}</p>
+                                                <a href="#" class="btn btn-default add-to-cart">
+                                                    <i class="fa fa-shopping-cart"></i>Add to cart
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
-                                </c:forEach>
-
-                            </div>
-                        </div>
-
-                        <ul class="pagination">
-                            <c:if test="${currentPage > 1}">
-                                <li>
-                                    <a href="product?page=${currentPage - 1}&bouquetName=${param.bouquetName}">&laquo;</a>
-                                </li>
-                            </c:if>
-
-                            <c:forEach var="i" begin="1" end="${totalPages}">
-                                <li class="${i == currentPage ? 'active' : ''}">
-                                    <a href="product?page=${i}&bouquetName=${param.bouquetName}">${i}</a>
-                                </li>
+                                </div>
                             </c:forEach>
 
-                            <c:if test="${currentPage < totalPages}">
-                                <li>
-                                    <a href="product?page=${currentPage + 1}&bouquetName=${param.bouquetName}">&raquo;</a>
-                                </li>
-                            </c:if>
-                        </ul>
+                        </div>
+                    </div>
 
-                    </div><!--features_items-->
-                </div>
+                    <ul class="pagination">
+                        <c:if test="${currentPage > 1}">
+                            <li>
+                                <a href="product?page=${currentPage - 1}&bouquetName=${param.bouquetName}">&laquo;</a>
+                            </li>
+                        </c:if>
+
+                        <c:forEach var="i" begin="1" end="${totalPages}">
+                            <li class="${i == currentPage ? 'active' : ''}">
+                                <a href="product?page=${i}&bouquetName=${param.bouquetName}">${i}</a>
+                            </li>
+                        </c:forEach>
+
+                        <c:if test="${currentPage < totalPages}">
+                            <li>
+                                <a href="product?page=${currentPage + 1}&bouquetName=${param.bouquetName}">&raquo;</a>
+                            </li>
+                        </c:if>
+                    </ul>
+
+                </div><!--features_items-->
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <footer id="footer"><!--Footer-->
-        <div class="footer-top">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-2">
-                        <div class="companyinfo">
-                            <h2><span>e</span>-shopper</h2>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit,sed do eiusmod tempor</p>
-                        </div>
+<footer id="footer"><!--Footer-->
+    <div class="footer-top">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-2">
+                    <div class="companyinfo">
+                        <h2><span>e</span>-shopper</h2>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit,sed do eiusmod tempor</p>
                     </div>
-                    <div class="col-sm-7">
-                        <div class="col-sm-3">
-                            <div class="video-gallery text-center">
-                                <a href="#">
-                                    <div class="iframe-img">
-                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe1.png" alt="" />
-                                    </div>
-                                    <div class="overlay-icon">
-                                        <i class="fa fa-play-circle-o"></i>
-                                    </div>
-                                </a>
-                                <p>Circle of Hands</p>
-                                <h2>24 DEC 2014</h2>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <div class="video-gallery text-center">
-                                <a href="#">
-                                    <div class="iframe-img">
-                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe2.png" alt="" />
-                                    </div>
-                                    <div class="overlay-icon">
-                                        <i class="fa fa-play-circle-o"></i>
-                                    </div>
-                                </a>
-                                <p>Circle of Hands</p>
-                                <h2>24 DEC 2014</h2>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <div class="video-gallery text-center">
-                                <a href="#">
-                                    <div class="iframe-img">
-                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe3.png" alt="" />
-                                    </div>
-                                    <div class="overlay-icon">
-                                        <i class="fa fa-play-circle-o"></i>
-                                    </div>
-                                </a>
-                                <p>Circle of Hands</p>
-                                <h2>24 DEC 2014</h2>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <div class="video-gallery text-center">
-                                <a href="#">
-                                    <div class="iframe-img">
-                                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe4.png" alt="" />
-                                    </div>
-                                    <div class="overlay-icon">
-                                        <i class="fa fa-play-circle-o"></i>
-                                    </div>
-                                </a>
-                                <p>Circle of Hands</p>
-                                <h2>24 DEC 2014</h2>
-                            </div>
-                        </div>
-                    </div>
+                </div>
+                <div class="col-sm-7">
                     <div class="col-sm-3">
-                        <div class="address">
-                            <img src="${pageContext.request.contextPath}/ZeShopper/images/home/map.png" alt="" />
-                            <p>505 S Atlantic Ave Virginia Beach, VA(Virginia)</p>
+                        <div class="video-gallery text-center">
+                            <a href="#">
+                                <div class="iframe-img">
+                                    <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe1.png" alt="" />
+                                </div>
+                                <div class="overlay-icon">
+                                    <i class="fa fa-play-circle-o"></i>
+                                </div>
+                            </a>
+                            <p>Circle of Hands</p>
+                            <h2>24 DEC 2014</h2>
                         </div>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <div class="video-gallery text-center">
+                            <a href="#">
+                                <div class="iframe-img">
+                                    <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe2.png" alt="" />
+                                </div>
+                                <div class="overlay-icon">
+                                    <i class="fa fa-play-circle-o"></i>
+                                </div>
+                            </a>
+                            <p>Circle of Hands</p>
+                            <h2>24 DEC 2014</h2>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <div class="video-gallery text-center">
+                            <a href="#">
+                                <div class="iframe-img">
+                                    <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe3.png" alt="" />
+                                </div>
+                                <div class="overlay-icon">
+                                    <i class="fa fa-play-circle-o"></i>
+                                </div>
+                            </a>
+                            <p>Circle of Hands</p>
+                            <h2>24 DEC 2014</h2>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <div class="video-gallery text-center">
+                            <a href="#">
+                                <div class="iframe-img">
+                                    <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe4.png" alt="" />
+                                </div>
+                                <div class="overlay-icon">
+                                    <i class="fa fa-play-circle-o"></i>
+                                </div>
+                            </a>
+                            <p>Circle of Hands</p>
+                            <h2>24 DEC 2014</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="address">
+                        <img src="${pageContext.request.contextPath}/ZeShopper/images/home/map.png" alt="" />
+                        <p>505 S Atlantic Ave Virginia Beach, VA(Virginia)</p>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="footer-widget">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-2">
-                        <div class="single-widget">
-                            <h2>Service</h2>
-                            <ul class="nav nav-pills nav-stacked">
-                                <li><a href="">Online Help</a></li>
-                                <li><a href="">Contact Us</a></li>
-                                <li><a href="">Order Status</a></li>
-                                <li><a href="">Change Location</a></li>
-                                <li><a href="">FAQ’s</a></li>
-                            </ul>
-                        </div>
+    <div class="footer-widget">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-2">
+                    <div class="single-widget">
+                        <h2>Service</h2>
+                        <ul class="nav nav-pills nav-stacked">
+                            <li><a href="">Online Help</a></li>
+                            <li><a href="">Contact Us</a></li>
+                            <li><a href="">Order Status</a></li>
+                            <li><a href="">Change Location</a></li>
+                            <li><a href="">FAQ’s</a></li>
+                        </ul>
                     </div>
-                    <div class="col-sm-2">
-                        <div class="single-widget">
-                            <h2>Quock Shop</h2>
-                            <ul class="nav nav-pills nav-stacked">
-                                <li><a href="">T-Shirt</a></li>
-                                <li><a href="">Mens</a></li>
-                                <li><a href="">Womens</a></li>
-                                <li><a href="">Gift Cards</a></li>
-                                <li><a href="">Shoes</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-sm-2">
-                        <div class="single-widget">
-                            <h2>Policies</h2>
-                            <ul class="nav nav-pills nav-stacked">
-                                <li><a href="">Terms of Use</a></li>
-                                <li><a href="">Privecy Policy</a></li>
-                                <li><a href="">Refund Policy</a></li>
-                                <li><a href="">Billing System</a></li>
-                                <li><a href="">Ticket System</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-sm-2">
-                        <div class="single-widget">
-                            <h2>About Shopper</h2>
-                            <ul class="nav nav-pills nav-stacked">
-                                <li><a href="">Company Information</a></li>
-                                <li><a href="">Careers</a></li>
-                                <li><a href="">Store Location</a></li>
-                                <li><a href="">Affillate Program</a></li>
-                                <li><a href="">Copyright</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 col-sm-offset-1">
-                        <div class="single-widget">
-                            <h2>About Shopper</h2>
-                            <form action="#" class="searchform">
-                                <input type="text" placeholder="Your email address" />
-                                <button type="submit" class="btn btn-default"><i class="fa fa-arrow-circle-o-right"></i></button>
-                                <p>Get the most recent updates from <br />our site and be updated your self...</p>
-                            </form>
-                        </div>
-                    </div>
-
                 </div>
+                <div class="col-sm-2">
+                    <div class="single-widget">
+                        <h2>Quock Shop</h2>
+                        <ul class="nav nav-pills nav-stacked">
+                            <li><a href="">T-Shirt</a></li>
+                            <li><a href="">Mens</a></li>
+                            <li><a href="">Womens</a></li>
+                            <li><a href="">Gift Cards</a></li>
+                            <li><a href="">Shoes</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="single-widget">
+                        <h2>Policies</h2>
+                        <ul class="nav nav-pills nav-stacked">
+                            <li><a href="">Terms of Use</a></li>
+                            <li><a href="">Privecy Policy</a></li>
+                            <li><a href="">Refund Policy</a></li>
+                            <li><a href="">Billing System</a></li>
+                            <li><a href="">Ticket System</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="single-widget">
+                        <h2>About Shopper</h2>
+                        <ul class="nav nav-pills nav-stacked">
+                            <li><a href="">Company Information</a></li>
+                            <li><a href="">Careers</a></li>
+                            <li><a href="">Store Location</a></li>
+                            <li><a href="">Affillate Program</a></li>
+                            <li><a href="">Copyright</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-sm-offset-1">
+                    <div class="single-widget">
+                        <h2>About Shopper</h2>
+                        <form action="#" class="searchform">
+                            <input type="text" placeholder="Your email address" />
+                            <button type="submit" class="btn btn-default"><i class="fa fa-arrow-circle-o-right"></i></button>
+                            <p>Get the most recent updates from <br />our site and be updated your self...</p>
+                        </form>
+                    </div>
+                </div>
+
             </div>
         </div>
+    </div>
 
-        <div class="footer-bottom">
-            <div class="container">
-                <div class="row">
-                    <p class="pull-left">Copyright © 2013 E-Shopper. All rights reserved.</p>
-                    <p class="pull-right">Designed by <span><a target="_blank" href="http://www.themeum.com">Themeum</a></span></p>
-                </div>
+    <div class="footer-bottom">
+        <div class="container">
+            <div class="row">
+                <p class="pull-left">Copyright © 2013 E-Shopper. All rights reserved.</p>
+                <p class="pull-right">Designed by <span><a target="_blank" href="http://www.themeum.com">Themeum</a></span></p>
             </div>
         </div>
+    </div>
 
-    </footer><!--/Footer-->
+</footer><!--/Footer-->
 
 
 
-    <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.js"></script>
-    <script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
-    <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
-    <script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
-    <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
-    <script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
-    <script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
+<script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
+<script>
                                     function validateRange() {
                                         var min = parseInt(document.getElementById("minPrice").value);
                                         var max = parseInt(document.getElementById("maxPrice").value);
@@ -674,6 +731,6 @@
                                         errorDiv.innerText = ""; // Xóa lỗi nếu hợp lệ
                                         return true; // Cho phép submit
                                     }
-    </script>
+</script>
 </body>
 </html>
