@@ -218,6 +218,29 @@
                 padding: 10px;
                 height: 100%;
             }
+
+            .category-button {
+                background: none;       /* Bỏ màu nền */
+                border: none;           /* Bỏ viền */
+                padding: 0;             /* Bỏ khoảng đệm */
+                margin: 0;              /* Bỏ margin */
+                font: inherit;          /* Kế thừa toàn bộ font-family/ font-size/ font-weight từ h4 */
+                color: inherit;         /* Kế thừa màu chữ từ h4 */
+                cursor: pointer;        /* Vẫn hiện con trỏ tay khi hover */
+                text-align: inherit;    /* Kế thừa canh lề (nếu cần) */
+                display: inline;        /* Giữ nguyên kiểu inline để không giãn block */
+                text-decoration: none;  /* Bỏ gạch chân (nếu có) */
+            }
+
+            .category-button:hover {
+                text-decoration: underline; /* Hoặc đổi màu, tuỳ thích */
+            }
+
+            /* Chỉ ví dụ highlight category đang chọn */
+            .selected-category h4 .category-button {
+                font-weight: bold;
+                color: #d35400;
+            }
         </style>
     </head><!--/head-->
 
@@ -350,10 +373,7 @@
                         </div>
                         <div class="col-sm-3">
                             <div class="search_box pull-right">
-                                <form action="product" method="get">
-                                    <input type="text" name="bouquetName" placeholder="Tìm kiếm sản phẩm" value="${param.bouquetName}" />
-                                    <button type="submit">Search</button>
-                                </form>
+
                             </div>
                         </div>
                     </div>
@@ -373,27 +393,106 @@
                     <div class="col-sm-3">
                         <div class="left-sidebar">
                             <h2>Category</h2>
-                            <div class="panel-group category-products" id="accordian"><!--category-productsr-->                            
+                            <div class="panel-group category-products" id="accordian" style="margin-bottom: 10px"><!--category-productsr-->   
 
-                                <c:forEach var="category" items="${cateBouquetHome}">
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                            <h4 class="panel-title">
-                                                <a value="${category.getCategoryId()}" href="${pageContext.request.contextPath}/product?categoryId=${category.getCategoryId()}">${category.getCategoryName()}</a>  <!-- Giả sử thuộc tính tên là 'name' -->
-                                            </h4>
+                                <form action="product" method="get" onsubmit="return validateRange();">
+                                    <c:forEach var="category" items="${cateBouquetHome}">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title" style="color: #7d7e82">
+                                                    <button
+                                                        type="submit"
+                                                        name="categoryId"
+                                                        value="${category.categoryId}"
+                                                        class="category-button">
+                                                        ${category.getCategoryName()}
+                                                    </button>
+                                                </h4>
+                                            </div>
                                         </div>
-                                    </div>
-                                </c:forEach>
+                                    </c:forEach>    
 
                             </div><!--/category-products-->
 
-                            <div class="price-range"><!--price-range-->
-                                <h2>Price Range</h2>
-                                <div class="well text-center">
-                                    <input type="text" class="span2" value="" data-slider-min="0" data-slider-max="1000" data-slider-step="5" data-slider-value="[250,450]" id="sl2" ><br />
-                                    <b class="pull-left">$ 0</b> <b class="pull-right">$ 600</b>
-                                </div>
-                            </div><!--/price-range-->
+                            <div style="margin-bottom: 10px">
+                                <input
+                                    type="text"
+                                    name="bouquetName"
+                                    placeholder="Tìm kiếm sản phẩm"
+                                    value="${param.bouquetName != null ? param.bouquetName : ''}"
+                                    style="
+                                    width: 250px;
+                                    padding: 10px 15px;
+                                    border-radius: 20px;
+                                    border: 1px solid #ccc;
+                                    font-size: 16px;
+                                    outline: none;
+                                    "
+                                    />
+                                <button
+                                    type="submit"
+                                    style="
+                                    background-color: orange;
+                                    color: white;
+                                    padding: 10px 20px;
+                                    border: none;
+                                    border-radius: 20px;
+                                    cursor: pointer;
+                                    font-size: 16px;
+                                    margin-left: 10px;
+                                    margin-top: 10px;
+                                    "
+                                    >
+                                    Search
+                                </button>
+                            </div>
+
+
+                            <!-- Price range -->    
+                            <h2 style="text-align: center;">Price Range</h2>   
+                            <div style="text-align: center; padding: 20px; border: 1px solid #ccc; border-radius: 10px;">
+                                <!-- Min -->
+                                <label for="minPrice" style="display: block; margin-bottom: 5px;">Min Price</label>
+                                <input
+                                    type="range"
+                                    id="minPrice"
+                                    name="minPrice"
+                                    min="0"
+                                    max="2000000"
+                                    step="1000"
+                                    value="${minPrice != null ? minPrice : 0}"
+                                    oninput="this.nextElementSibling.value = this.value"
+                                    style="width: 80%; accent-color: orange; margin-bottom: 5px;"
+                                    >
+                                <output style="display: block; margin-bottom: 15px;">${minPrice != null ? minPrice : 0}</output>
+
+                                <!-- Max -->
+                                <label for="maxPrice" style="display: block; margin-bottom: 5px;">Max Price</label>
+                                <input
+                                    type="range"
+                                    id="maxPrice"
+                                    name="maxPrice"
+                                    min="0"
+                                    max="2000000"
+                                    step="1000"
+                                    value="${maxPrice != null ? maxPrice : 2000000}"
+                                    oninput="this.nextElementSibling.value = this.value"
+                                    style="width: 80%; accent-color: orange; margin-bottom: 5px;"
+                                    >
+                                <output style="display: block; margin-bottom: 20px;"> ${maxPrice != null ? maxPrice : 2000000}</output>
+
+                                <!-- Error Message -->
+                                <div id="error" style="color: red; margin-bottom: 10px;"></div>
+
+                                <!-- Submit -->
+                                <input
+                                    type="submit"
+                                    value="Submit"
+                                    style="background-color: orange; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;"
+                                    >                                 
+                                <!-- Price range end -->
+                                </form>
+                            </div>
 
                             <div class="shipping text-center"><!--shipping-->
                                 <img src="${pageContext.request.contextPath}/ZeShopper/images/home/shipping.jpg" alt="" />
@@ -618,5 +717,20 @@
 <script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
 <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
 <script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
+<script>
+                                    function validateRange() {
+                                        var min = parseInt(document.getElementById("minPrice").value);
+                                        var max = parseInt(document.getElementById("maxPrice").value);
+                                        var errorDiv = document.getElementById("error");
+
+                                        if (min > max) {
+                                            errorDiv.innerText = "Giá trị tối thiểu không được lớn hơn giá trị tối đa.";
+                                            return false; // Ngăn submit
+                                        }
+
+                                        errorDiv.innerText = ""; // Xóa lỗi nếu hợp lệ
+                                        return true; // Cho phép submit
+                                    }
+</script>
 </body>
 </html>
