@@ -61,6 +61,75 @@ public class CategoryDAO extends DBContext {
         }
         return null;
     }
+       
+    public List<Category> searchCategory(String categoryName) {
+        List<Category> searchList = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT category_id, category_name, description "
+                + "FROM la_fioreria.category "
+                + "WHERE 1=1 ");
+
+        // Thêm điều kiện tìm kiếm theo category_name
+        if (categoryName != null && !categoryName.trim().isEmpty()) {
+            sql.append("AND category_name LIKE ? ");
+        } else {
+            // Nếu categoryName rỗng, trả về danh sách rỗng hoặc tất cả danh mục (tùy yêu cầu)
+            return searchList; // Hoặc có thể bỏ điều kiện này để lấy tất cả danh mục
+        }
+
+        try (PreparedStatement pre = connection.prepareStatement(sql.toString())) {
+            if (categoryName != null && !categoryName.trim().isEmpty()) {
+                pre.setString(1, "%" + categoryName + "%");
+            }
+
+            try (ResultSet rs = pre.executeQuery()) {
+                while (rs.next()) {
+                    int category_id = rs.getInt("category_id");
+                    String category_name = rs.getString("category_name") != null ? rs.getString("category_name").trim() : "";
+                    String description = rs.getString("description") != null ? rs.getString("description").trim() : "";
+                    Category category = new Category(category_id, category_name, description);
+                    searchList.add(category);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in searchCategory: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return searchList;
+    }
+    
+    // Lấy danh mục theo ID
+    public Category getCategoryById(int id) {
+        String sql = "SELECT category_id, category_name, description FROM la_fioreria.category WHERE category_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int categoryId = rs.getInt("category_id");
+                    String categoryName = rs.getString("category_name") != null ? rs.getString("category_name").trim() : "";
+                    String description = rs.getString("description") != null ? rs.getString("description").trim() : "";
+                    return new Category(categoryId, categoryName, description);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in getCategoryById: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Cập nhật danh mục
+    public void updateCategory(Category category) {
+        String sql = "UPDATE la_fioreria.category SET category_name = ?, description = ? WHERE category_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, category.getCategoryName());
+            ps.setString(2, category.getDescription());
+            ps.setInt(3, category.getCategoryId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error in updateCategory: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
     
     public static void main(String[] args) {
         Category c = new Category();

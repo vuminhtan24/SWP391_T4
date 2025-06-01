@@ -4,7 +4,6 @@
  */
 package controller;
 
-import dal.BouquetDAO;
 import dal.CategoryDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,15 +14,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
-import model.Bouquet;
 import model.Category;
 
 /**
  *
- * @author ADMIN
+ * @author Admin
  */
-@WebServlet(name = "ProductController", urlPatterns = {"/product"})
-public class ProductController extends HttpServlet {
+@WebServlet(name = "CategoryServlet", urlPatterns = {"/category"})
+public class CategoryServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -42,10 +40,10 @@ public class ProductController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ProductController</title>");
+            out.println("<title>Servlet CategoryServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ProductController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet CategoryServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -63,70 +61,59 @@ public class ProductController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Bouquet> listBouquet = new ArrayList<>();
-        List<Category> listCategoryBQ = new ArrayList<>();
-
-        BouquetDAO bdao = new BouquetDAO();
-        CategoryDAO cdao = new CategoryDAO();
-
-        listCategoryBQ = cdao.getBouquetCategory();
-        request.setAttribute("cateBouquetHome", listCategoryBQ);
-        String name = request.getParameter("bouquetName");
-        String cateIDstr = request.getParameter("categoryId");
-
-        Integer cateID = null;
-        if (cateIDstr != null && !cateIDstr.trim().isEmpty()) {
-            try {
-                cateID = Integer.parseInt(cateIDstr);
-            } catch (NumberFormatException e) {
-                // Nếu parse lỗi, ta mặc định cateID = null (không lọc theo category)
-                cateID = null;
+        try {
+            // Lấy tham số trang hiện tại
+            String pageParam = request.getParameter("page");
+            int currentPage = 1;
+            if (pageParam != null && !pageParam.trim().isEmpty()) {
+                try {
+                    currentPage = Integer.parseInt(pageParam);
+                    if (currentPage <= 0) {
+                        currentPage = 1;
+                    }
+                } catch (NumberFormatException e) {
+                    currentPage = 1;
+                    System.out.println("Invalid page parameter: " + pageParam);
+                }
             }
-        }
 
-        boolean hasName = (name != null && !name.trim().isEmpty());
-        boolean hasCate = (cateID != null && cateID > 0);
+            // Số lượng mục trên mỗi trang
+            int itemsPerPage = 6;
+            int start = (currentPage - 1) * itemsPerPage;
 
-        if (hasName || hasCate) {
-            String searchName = hasName ? name.trim() : null;
-            Integer searchCate = hasCate ? cateID : null;
-            
-            listBouquet = bdao.searchBouquet(searchName, null, null, searchCate);
-            request.setAttribute("listBouquet", listBouquet);
+            CategoryDAO cdao = new CategoryDAO();
+            List<Category> listCategory = new ArrayList<>();
 
-        } else {
-            listBouquet = bdao.getAll();
-            request.setAttribute("listBouquet", listBouquet);
+            // Lấy tham số tìm kiếm theo tên danh mục
+            String categoryName = request.getParameter("categoryName");
 
-        }
-
-        // PHÂN TRANG
-        int pageSize = 6; // số sản phẩm mỗi trang
-        int currentPage = 1;
-
-        String pageParam = request.getParameter("page");
-        if (pageParam != null) {
-            try {
-                currentPage = Integer.parseInt(pageParam);
-            } catch (NumberFormatException e) {
-                currentPage = 1;
+            // Tìm kiếm hoặc lấy toàn bộ danh mục với phân trang
+            if (categoryName != null && !categoryName.trim().isEmpty()) {
+                listCategory = cdao.searchCategory(categoryName);
+            } else {
+                listCategory = cdao.getBouquetCategory();
             }
+
+            // Phân trang thủ công (có thể tối ưu thêm bằng SQL trong CategoryDAO)
+            int totalItems = listCategory.size();
+            int totalPages = (int) Math.ceil((double) totalItems / itemsPerPage);
+            int end = Math.min(start + itemsPerPage, totalItems);
+            List<Category> paginatedList = new ArrayList<>();
+            if (start < totalItems) {
+                paginatedList = listCategory.subList(start, end);
+            }
+
+            // Gửi dữ liệu đến JSP
+            request.setAttribute("listCategory", paginatedList);
+            request.setAttribute("currentPage", currentPage);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("totalItems", totalItems);
+            request.getRequestDispatcher("./DashMin/category.jsp").forward(request, response);
+        } catch (Exception e) {
+            System.out.println("Error in CategoryServlet: " + e.getMessage());
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred while processing the request.");
         }
-
-        int totalItems = listBouquet.size();
-        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
-
-        int start = (currentPage - 1) * pageSize;
-        int end = Math.min(start + pageSize, totalItems);
-        List<Bouquet> bouquetPage = listBouquet.subList(start, end);
-
-        // Đặt thuộc tính để truyền qua JSP
-        request.setAttribute("listBouquet", bouquetPage);
-        request.setAttribute("currentPage", currentPage);
-        request.setAttribute("totalPages", totalPages);
-
-        request.getRequestDispatcher("./ZeShopper/shop.jsp").forward(request, response);
-
     }
 
     /**

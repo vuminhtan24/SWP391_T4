@@ -438,7 +438,7 @@
                         <div class="features_items"><!--features_items-->
                             <h2 class="title text-center">Features Items</h2>
 
-                            <c:forEach items="${requestScope.listBouquetHome}" var="lb">
+                            <c:forEach items="${requestScope.listBouquetHome}" var="lb" begin="0" end="5">
                                 <div class="col-sm-4">
                                     <div class="product-image-wrapper">
                                         <div class="single-products">
@@ -461,7 +461,7 @@
                                     </div>
                                 </div>
                             </c:forEach>
-
+                            <a href="${pageContext.request.contextPath}/product">View more Product</a>
                         </div>
                     </div><!--features_items-->
 
