@@ -20,7 +20,7 @@ import model.Contact;
  *
  * @author VU MINH TAN
  */
-@WebServlet("/Dashmin/contact-list")
+@WebServlet(name = "ContactListServlet", urlPatterns = {"/contact-list"})
 public class ContactListServlet extends HttpServlet {
    
     /** 
