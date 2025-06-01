@@ -5,7 +5,6 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.List,model.Category"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
@@ -13,7 +12,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>DASHMIN - Bootstrap Admin Template</title>
+        <title>DASHMIN - Edit Category</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -41,15 +40,7 @@
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
 
         <style>
-            .bouquet-img {
-                max-height: 600px;
-                width: auto;
-                border-radius: 12px;
-                box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-                margin-left: 30px;
-            }
-
-            .bouquet-info {
+            .category-info {
                 background-color: #ffffff;
                 border-radius: 12px;
                 padding: 24px;
@@ -61,19 +52,33 @@
                 color: #333;
             }
 
-            .table td, .table th {
-                vertical-align: middle;
+            .btn {
+                padding: 6px 12px;
+                border: none;
+                border-radius: 4px;
+                color: white;
+                font-size: 14px;
+                cursor: pointer;
+                margin-right: 5px;
+                transition: background-color 0.2s ease;
             }
 
-            @media (max-width: 768px) {
-                .bouquet-img {
-                    margin-left: 0;
-                    max-width: 100%;
-                    height: auto;
-                }
+            .btn-success {
+                background-color: #28a745;
             }
 
-        </style>    
+            .btn-success:hover {
+                background-color: #218838;
+            }
+
+            .btn-secondary {
+                background-color: #6c757d;
+            }
+
+            .btn-secondary:hover {
+                background-color: #5a6268;
+            }
+        </style>
     </head>
 
     <body>
@@ -85,7 +90,6 @@
                 </div>
             </div>
             <!-- Spinner End -->
-
 
             <!-- Sidebar Start -->
             <div class="sidebar pe-4 pb-3">
@@ -130,7 +134,6 @@
                 </nav>
             </div>
             <!-- Sidebar End -->
-
 
             <!-- Content Start -->
             <div class="content">
@@ -224,257 +227,85 @@
                 </nav>
                 <!-- Navbar End -->
 
+                <!-- Edit Category Form -->
+                <div class="container-fluid pt-4 px-4">
+                    <div class="bg-light rounded h-100 p-4">
+                        <h6 class="mb-4">Edit Category</h6>
 
-                <!-- Blank Start -->
-                <form action="editBouquet" method="post">
-                    <div class="background-qvm" style="background-color: #f3f6f9; margin-top: 20px; margin-left: 20px; margin-right: 20px; border-radius: 5px;">
-                        <div class="container-fluid py-5 px-4">
-                            <div class="d-flex flex-wrap align-items-start gap-5" style="gap: 100px;">
-
-
-                                <!-- Cột ảnh -->
-                                <div class="flex-shrink-0">
-                                    <img
-                                        src="${bouquetDetail.getImageUrl()}"
-                                        alt="Bouquet Image" 
-                                        class="img-fluid bouquet-img"
-                                        style="width: 550px; height: 600px; object-fit: cover; border-radius: 12px;">
-                                </div>
-
-                                <!-- Cột phải: Nội dung -->
-                                <input type="hidden" name="id" value="${bouquetDetail.getBouquetId()}">
-                                <div class="flex-grow-1 bouquet-content">
-                                    <div class="bouquet-info p-4 shadow-sm rounded bg-white">
-                                        <h1 class="fw-bold mb-4 text-primary">
-                                            <input type="text" name="bqName" value="${bouquetDetail.getBouquetName()}" required/>    
-                                        </h1>
-
-                                        <!-- Thông tin cơ bản -->
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semibold">Category:</label>
-                                            <select name="category" class="form-select">
-                                                <c:forEach var="cate" items="${cateList}">
-                                                    <option 
-                                                        value="${cate.getCategoryId()}" 
-                                                        ${cate.getCategoryName() == cateName ? 'selected' : ''}>
-                                                        ${cate.getCategoryName()}
-                                                    </option>
-                                                </c:forEach>   
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="imageUrl" class="form-label fw-semibold">Image URL:</label>                                                                                   
-                                            <input 
-                                                type="url" 
-                                                id="imageUrl" 
-                                                name="imageUrl" 
-                                                class="form-control" 
-                                                value="${bouquetDetail.getImageUrl()}" 
-                                                required
-                                                pattern="https?://.+\.(jpg|jpeg|JPG|JPEG)$" 
-                                                title="URL phải kết thúc bằng .jpg hoặc .jpeg" 
-                                                />
-                                        </div>
-
-                                        <div class="mb-4">
-                                            <label class="form-label fw-semibold">Description:</label>
-                                            <textarea name="bqDescription" class="form-control" rows="4" required>${bouquetDetail.getDescription()}</textarea>
-                                        </div>
-
-                                        <!-- Flower Table -->
-                                        <h5 class="mb-3 text-secondary">Flowers in Bouquet</h5>
-
-                                        <div class="table-responsive mb-3">
-                                            <table id="flowerTable" class="table table-bordered align-middle">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th>Flower</th>
-                                                        <th>Price per Stem</th>
-                                                        <th>Quantity</th>
-                                                        <th></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <!-- Chỉ duy nhất FOR-EACH, không có row mặc định -->
-                                                    <c:forEach var="br" items="${flowerInBQ}">
-                                                        <tr>
-                                                            <td>
-                                                                <select name="flowerIds" class="form-select form-select-sm flower-select">
-                                                                    <c:forEach var="f" items="${allFlowers}">
-                                                                        <option
-                                                                            value="${f.getRawId()}"
-                                                                            data-price="${f.getUnitPrice()}"
-                                                                            <c:if test="${f.getRawId() eq br.getRaw_id()}">selected</c:if>
-                                                                            >${f.getRawName()}</option>
-                                                                    </c:forEach>
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                <span class="form-text price-text">$0.00</span>
-                                                                <input type="hidden" class="price-input" name="prices[]" value="0" />
-                                                            </td>
-                                                            <td>
-                                                                <input
-                                                                    type="number"
-                                                                    name="quantities"
-                                                                    value="${br.getQuantity()}"
-                                                                    min="1"
-                                                                    step="1"
-                                                                    required
-                                                                    class="form-control form-control-sm quantity-input"
-                                                                    />
-                                                            </td>
-                                                            <td>
-                                                                <button type="button" class="btn btn-sm btn-outline-danger remove-btn">
-                                                                    &times;
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    </c:forEach>
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr>
-                                                        <td colspan="4" class="text-start fw-bold text-primary">
-                                                            Total Value:
-                                                            <span id="totalValueDisplay">$0.00</span>
-                                                            <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
-                                                        </td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <button type="button" id="addFlowerBtn" class="btn btn-sm btn-outline-primary mb-4">
-                                                + Add New Flower
-                                            </button>
-                                            <button type="submit" class="btn btn-success px-4">Save Bouquet</button>
-                                        </div>
-
-                                    </div>
-                                </div>
-
+                        <!-- Hiển thị thông báo lỗi nếu có -->
+                        <c:if test="${not empty error}">
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                ${error}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
-                        </div>
-                </form>
-                <!-- TEMPLATE để clone (ẩn) -->
-                <table style="display:none;">
-                    <tbody>
-                        <tr id="flowerRowTemplate">
-                            <td>
-                                <select name="flowerIds" class="form-select form-select-sm flower-select">
-                                    <c:forEach var="f" items="${allFlowers}">
-                                        <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">
-                                            ${f.getRawName()}
-                                        </option>
-                                    </c:forEach>
-                                </select>
-                            </td>
-                            <td>
-                                <span class="form-text price-text">$0.00</span>
-                                <input type="hidden" class="price-input" name="prices[]" value="0" />
-                            </td>
-                            <td>
-                                <input
-                                    type="number"
-                                    name="quantities"
-                                    value="1"
-                                    min="1"
-                                    step="1"
-                                    required
-                                    class="form-control form-control-sm quantity-input"
+                        </c:if>
+
+                        <form action="editCategory" method="post">
+                            <input type="hidden" name="id" value="${category.categoryId}">
+                            <div class="category-info">
+                                <div class="mb-3">
+                                    <label for="categoryName" class="form-label fw-semibold">Category Name:</label>
+                                    <input 
+                                        type="text" 
+                                        id="categoryName" 
+                                        name="categoryName" 
+                                        class="form-control" 
+                                        value="${category.categoryName}" 
+                                        required
                                     />
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-sm btn-outline-danger remove-btn">
-                                    &times;
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label fw-semibold">Description:</label>
+                                    <textarea 
+                                        id="description" 
+                                        name="description" 
+                                        class="form-control" 
+                                        rows="4"
+                                    >${category.description}</textarea>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-success">Save Category</button>
+                                    <a href="${pageContext.request.contextPath}/category" class="btn btn-secondary">Cancel</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- Edit Category Form End -->
 
-                <!-- Blank End -->
-            </div>
-
-            <!-- Footer Start -->
-            <div class="container-fluid pt-4 px-4">
-                <div class="bg-light rounded-top p-4">
-                    <div class="row">
-                        <div class="col-12 col-sm-6 text-center text-sm-start">
-                            &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
-                        </div>
-                        <div class="col-12 col-sm-6 text-center text-sm-end">
-                            <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-                            Designed By <a href="https://htmlcodex.com">HTML Codex</a>
+                <!-- Footer Start -->
+                <div class="container-fluid pt-4 px-4">
+                    <div class="bg-light rounded-top p-4">
+                        <div class="row">
+                            <div class="col-12 col-sm-6 text-center text-sm-start">
+                                © <a href="#">Your Site Name</a>, All Right Reserved. 
+                            </div>
+                            <div class="col-12 col-sm-6 text-center text-sm-end">
+                                Designed By <a href="https://htmlcodex.com">HTML Codex</a>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <!-- Footer End -->
             </div>
-            <!-- Footer End -->
+            <!-- Content End -->
+
+            <!-- Back to Top -->
+            <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
         </div>
-        <!-- Content End -->
 
+        <!-- JavaScript Libraries -->
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
-        <!-- Back to Top -->
-        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
-    </div>
-
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
-    <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
-    <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
-    <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
-    <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
-    <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
-    <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
-
-    <!-- Template Javascript -->
-    <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-
-            // Gắn event cho 1 dòng: change select, input quantity, click remove
-            function bindRowEvents(row) {
-                row.querySelector('.flower-select')
-                        .addEventListener('change', () => {
-                            updateRowPrice(row);
-                            updateTotalValue();
-                        });
-                row.querySelector('.quantity-input')
-                        .addEventListener('input', () => updateTotalValue());
-                row.querySelector('.remove-btn')
-                        .addEventListener('click', () => {
-                            row.remove();
-                            updateTotalValue();
-                        });
-            }
-
-            // Khởi tạo: bind và cập nhật cho các dòng đã có sẵn
-            document.querySelectorAll('#flowerTable tbody tr').forEach(r => {
-                bindRowEvents(r);
-                updateRowPrice(r);
-            });
-            updateTotalValue();
-
-            // Thêm dòng mới khi click nút
-            document.getElementById('addFlowerBtn')
-                    .addEventListener('click', () => {
-                        const tpl = document.getElementById('flowerRowTemplate');
-                        const newRow = tpl.cloneNode(true);    // clone <tr>
-                        newRow.removeAttribute('id');
-                        newRow.style.display = '';             // hiển thị
-                        bindRowEvents(newRow);
-                        updateRowPrice(newRow);
-                        document.querySelector('#flowerTable tbody').appendChild(newRow);
-                        updateTotalValue();
-                    });
-        });
-    </script>
-
-</body>
+        <!-- Template Javascript -->
+        <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+    </body>
 </html>
-

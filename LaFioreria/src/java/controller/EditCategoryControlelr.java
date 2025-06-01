@@ -85,7 +85,7 @@ public class EditCategoryControlelr extends HttpServlet {
 
             // Gửi thông tin danh mục đến JSP để hiển thị trên form chỉnh sửa
             request.setAttribute("category", category);
-            request.getRequestDispatcher("./DashMin/editCategory.jsp").forward(request, response);
+            request.getRequestDispatcher("./DashMin/editcategory.jsp").forward(request, response);
         } catch (NumberFormatException e) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid category ID format: " + e.getMessage());
         } catch (Exception e) {
