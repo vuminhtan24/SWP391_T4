@@ -131,6 +131,20 @@ public class CategoryDAO extends DBContext {
         }
     }
     
+    public boolean insertCategory(Category category) {
+        String sql = "INSERT INTO la_fioreria.category (category_name, description) VALUES (?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, category.getCategoryName());
+            ps.setString(2, category.getDescription());
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.out.println("Error in insertCategory: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
     public static void main(String[] args) {
         Category c = new Category();
         CategoryDAO dao = new CategoryDAO();
