@@ -91,7 +91,7 @@ public class CategoryServlet extends HttpServlet {
             if (categoryName != null && !categoryName.trim().isEmpty()) {
                 listCategory = cdao.searchCategory(categoryName);
             } else {
-                listCategory = cdao.getBouquetCategory();
+                listCategory = cdao.getAll();
             }
 
             // Phân trang thủ công (có thể tối ưu thêm bằng SQL trong CategoryDAO)

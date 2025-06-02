@@ -18,6 +18,25 @@ import model.Category;
  */
 public class CategoryDAO extends DBContext {
 
+    public List<Category> getAll() {
+    List<Category> listCategory = new ArrayList<>();
+    String sql = "SELECT * FROM la_fioreria.category";
+    try {
+        PreparedStatement pre = connection.prepareStatement(sql);
+        ResultSet rs = pre.executeQuery();
+        while (rs.next()) {
+            int category_id = rs.getInt("category_id");
+            String category_name = rs.getString("category_name").trim();
+            String description = rs.getString("description").trim();
+            Category newCategory = new Category(category_id, category_name, description);
+            listCategory.add(newCategory);
+        }
+    } catch (SQLException e) {
+        System.out.println(e);
+    }
+    return listCategory;
+}
+    
     public List<Category> getBouquetCategory() {
         List<Category> listBouquetCategory = new ArrayList<>();
 
