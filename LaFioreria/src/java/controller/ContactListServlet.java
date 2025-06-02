@@ -20,7 +20,7 @@ import model.Contact;
  *
  * @author VU MINH TAN
  */
-@WebServlet(name = "ContactListServlet", urlPatterns = {"/contact-list"})
+@WebServlet(name = "ContactListServlet", urlPatterns = {"/DashMin/contact-list"})
 public class ContactListServlet extends HttpServlet {
    
     /** 
@@ -62,7 +62,7 @@ public class ContactListServlet extends HttpServlet {
         List<Contact> contactList = dao.getAllContacts();
 
         request.setAttribute("contactList", contactList);
-        request.getRequestDispatcher("DashMin/admin.jsp").forward(request, response);
+        request.getRequestDispatcher("/DashMin/contact-list.jsp").forward(request, response);
     } 
 
     /** 
