@@ -281,7 +281,7 @@
                             <tbody>
                                 <c:forEach var="category" items="${listCategory}" varStatus="status">
                                     <tr>
-                                        <td>${(currentPage - 1) * 6 + status.index + 1}</td>
+                                        <td>${category.categoryId}</td>
                                         <td>${category.categoryName}</td>
                                         <td>${category.description}</td>
                                         <td>
