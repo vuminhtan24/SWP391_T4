@@ -372,14 +372,50 @@
                             </div>
                         </div>
                         <div class="col-sm-3">
-                            <div class="search_box pull-right">
-
-                            </div>
+                            <form action="product" method="get" onsubmit="return validateRange();">
+                                <div style="margin-bottom: 10px; display: flex; align-items: center;">
+                                    <input
+                                        type="text"
+                                        name="bouquetName"
+                                        placeholder="Tìm kiếm sản phẩm"
+                                        value="${param.bouquetName != null ? param.bouquetName : ''}"
+                                        style="
+                                        width: 200px;
+                                        padding: 5px 10px;
+                                        border-radius: 20px;
+                                        border: 1px solid #ccc;
+                                        font-size: 16px;
+                                        outline: none;
+                                        "
+                                        />
+                                    <button
+                                        type="submit"
+                                        style="
+                                        background-color: orange;
+                                        color: white;
+                                        padding: 5px 10px;
+                                        border: none;
+                                        border-radius: 20px;
+                                        cursor: pointer;
+                                        font-size: 16px;
+                                        margin-left: 10px;
+                                        /* không cần margin-top */
+                                        "
+                                        >
+                                        Search
+                                    </button>
+                                </div>
                         </div>
+
+                        <div class="search_box pull-right">
+
+                        </div>
+
                     </div>
                 </div>
             </div>
         </header>
+
 
         <section id="advertisement">
             <div class="container">
@@ -395,58 +431,24 @@
                             <h2>Category</h2>
                             <div class="panel-group category-products" id="accordian" style="margin-bottom: 10px"><!--category-productsr-->   
 
-                                <form action="product" method="get" onsubmit="return validateRange();">
-                                    <c:forEach var="category" items="${cateBouquetHome}">
-                                        <div class="panel panel-default">
-                                            <div class="panel-heading">
-                                                <h4 class="panel-title" style="color: #7d7e82">
-                                                    <button
-                                                        type="submit"
-                                                        name="categoryId"
-                                                        value="${category.categoryId}"
-                                                        class="category-button">
-                                                        ${category.getCategoryName()}
-                                                    </button>
-                                                </h4>
-                                            </div>
+
+                                <c:forEach var="category" items="${cateBouquetHome}">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title" style="color: #7d7e82">
+                                                <button
+                                                    type="submit"
+                                                    name="categoryId"
+                                                    value="${category.categoryId}"
+                                                    class="category-button">
+                                                    ${category.getCategoryName()}
+                                                </button>
+                                            </h4>
                                         </div>
-                                    </c:forEach>    
+                                    </div>
+                                </c:forEach>    
 
                             </div><!--/category-products-->
-
-                            <div style="margin-bottom: 10px">
-                                <input
-                                    type="text"
-                                    name="bouquetName"
-                                    placeholder="Tìm kiếm sản phẩm"
-                                    value="${param.bouquetName != null ? param.bouquetName : ''}"
-                                    style="
-                                    width: 250px;
-                                    padding: 10px 15px;
-                                    border-radius: 20px;
-                                    border: 1px solid #ccc;
-                                    font-size: 16px;
-                                    outline: none;
-                                    "
-                                    />
-                                <button
-                                    type="submit"
-                                    style="
-                                    background-color: orange;
-                                    color: white;
-                                    padding: 10px 20px;
-                                    border: none;
-                                    border-radius: 20px;
-                                    cursor: pointer;
-                                    font-size: 16px;
-                                    margin-left: 10px;
-                                    margin-top: 10px;
-                                    "
-                                    >
-                                    Search
-                                </button>
-                            </div>
-
 
                             <!-- Price range -->    
                             <h2 style="text-align: center;">Price Range</h2>   
@@ -718,19 +720,19 @@
 <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
 <script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
 <script>
-                                    function validateRange() {
-                                        var min = parseInt(document.getElementById("minPrice").value);
-                                        var max = parseInt(document.getElementById("maxPrice").value);
-                                        var errorDiv = document.getElementById("error");
+      function validateRange() {
+          var min = parseInt(document.getElementById("minPrice").value);
+          var max = parseInt(document.getElementById("maxPrice").value);
+          var errorDiv = document.getElementById("error");
 
-                                        if (min > max) {
-                                            errorDiv.innerText = "Giá trị tối thiểu không được lớn hơn giá trị tối đa.";
-                                            return false; // Ngăn submit
-                                        }
+          if (min > max) {
+              errorDiv.innerText = "Giá trị tối thiểu không được lớn hơn giá trị tối đa.";
+              return false; // Ngăn submit
+          }
 
-                                        errorDiv.innerText = ""; // Xóa lỗi nếu hợp lệ
-                                        return true; // Cho phép submit
-                                    }
+          errorDiv.innerText = ""; // Xóa lỗi nếu hợp lệ
+          return true; // Cho phép submit
+      }
 </script>
 </body>
 </html>
