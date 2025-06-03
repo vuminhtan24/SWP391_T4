@@ -67,6 +67,8 @@ public class ViewUserDetail extends HttpServlet {
         request.setAttribute("roleNames", roleNames);
 
         String id_raw = request.getParameter("id");
+        String search_raw = request.getParameter("txtSearch");
+        request.setAttribute("kw", search_raw);
         if (id_raw != null && !id_raw.isEmpty()) {
             try {
                 int id = Integer.parseInt(id_raw);
@@ -76,6 +78,16 @@ public class ViewUserDetail extends HttpServlet {
                 System.out.println(e);
             }
 
+        }
+
+        if (search_raw != null && !search_raw.isEmpty()) {
+            try {
+                int id = Integer.parseInt(search_raw);
+                UserManager um = ud.getUserById(id);
+                request.setAttribute("userManager", um);
+            } catch (NumberFormatException e) {
+                System.out.println(e);
+            }
         }
 
         request.getRequestDispatcher("DashMin/viewuserdetail.jsp").forward(request, response);

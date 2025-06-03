@@ -124,7 +124,8 @@
 
                                 <tr>
                                     <td>Search name: </td>
-                                    <td><input type="text" name="txtSearchName" value="${keyword}"></td>
+                                    <td><input type="text" name="txtSearchName" value="${keyword}" class="form-control" placeholder="Search" aria-label="Search"
+                                           aria-describedby="basic-addon1"></td>
                                     <td>
                                         <select class="form-select mb-3" aria-label="Default select example" name="sortField">
                                             <option value="User_ID" <c:if test="${sortField == 'User_ID'}">selected</c:if>>User ID</option>
@@ -228,8 +229,6 @@
                     </div>
                 </nav>
                 <!-- Navbar End -->
-
-                <p>ContextPath = ${pageContext.request.contextPath}</p>
 
                 <!-- Table Start -->
                 <div class="col-sm-12 col-xl-6">
