@@ -786,7 +786,7 @@
             formData.append("bouquetId", bouquetId);
             formData.append("quantity", quantity);
 
-            fetch("cart", {
+            fetch("ZeShopper/cart", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded"

@@ -106,7 +106,7 @@ public class CartController extends HttpServlet {
         CartDAO dao = new CartDAO();
         dao.deleteItem(customerId, bouquetId);
 
-        response.sendRedirect("cart");
+        response.sendRedirect("/ZeShopper/cart");
     }
 
 }
