@@ -6,6 +6,7 @@ package controller;
 
 import dal.BouquetDAO;
 import dal.CategoryDAO;
+import dal.RawFlowerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -16,7 +17,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import model.Bouquet;
+import model.BouquetRaw;
 import model.Category;
+import model.RawFlower;
 
 /**
  *
@@ -42,7 +45,7 @@ public class EditBouquetController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet EditBouquetController</title>");            
+            out.println("<title>Servlet EditBouquetController</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet EditBouquetController at " + request.getContextPath() + "</h1>");
@@ -63,7 +66,24 @@ public class EditBouquetController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        String idStr = request.getParameter("id");
+
+        int id = Integer.parseInt(idStr);
+        BouquetDAO bqdao = new BouquetDAO();
+        RawFlowerDAO rfdao = new RawFlowerDAO();
+        CategoryDAO cdao = new CategoryDAO();
+
+        Bouquet detailsBQ = bqdao.getBouquetByID(id);
+        String cateName = cdao.getCategoryNameByBouquet(id);
+        List<RawFlower> allFlowers = rfdao.getRawFlower();
+        List<BouquetRaw> bqRaws = bqdao.getFlowerByBouquetID(id);
+
+        request.setAttribute("bouquetDetail", detailsBQ);
+        request.setAttribute("cateName", cateName);
+        request.setAttribute("allFlowers", allFlowers);
+        request.setAttribute("cateList", cdao.getBouquetCategory());
+        request.setAttribute("flowerInBQ", bqRaws);
+        request.getRequestDispatcher("./DashMin/editBouquet.jsp").forward(request, response);
     }
 
     /**
@@ -77,7 +97,37 @@ public class EditBouquetController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        BouquetDAO dao = new BouquetDAO();
+        
+        String category = request.getParameter("category");
+        String imageUrl = request.getParameter("imageUrl");
+        String bqDescription = request.getParameter("bqDescription");
+        String flowerIds[] = request.getParameterValues("flowerIds");
+        String quantities[] = request.getParameterValues("quantities");
+        String totalValueStr = request.getParameter("totalValue");
+        String idStr = request.getParameter("id");
+        String bqName = request.getParameter("bqName");
+
+        int cateID = Integer.parseInt(category);
+        int id = Integer.parseInt(idStr);
+        int totalValue = Integer.parseInt(totalValueStr);
+        
+        dao.deleteBouquetRaw(id);
+        if (flowerIds != null && quantities != null) {
+            for (int i = 0; i < flowerIds.length; i++) {
+                int fid = Integer.parseInt(flowerIds[i]);
+                int quantity = Integer.parseInt(quantities[i]);
+
+                BouquetRaw br = new BouquetRaw(id, fid, quantity);
+                dao.insertBouquetRaw(br);
+            }
+        }
+
+        Bouquet b = new Bouquet(id, bqName, bqDescription, imageUrl, cateID, totalValue);
+        dao.updateBouquet(b);
+
+        response.sendRedirect(request.getContextPath() + "/viewBouquet");
+
     }
 
     /**

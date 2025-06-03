@@ -1,11 +1,10 @@
 <%-- 
-    Document   : table
-    Created on : May 19, 2025, 2:41:19 PM
-    Author     : ADMIN
+    Document   : addcategory
+    Created on : Jun 1, 2025, 10:09:00 PM
+    Author     : Admin
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.List,model.Bouquet" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
@@ -13,7 +12,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>DASHMIN - Bootstrap Admin Template</title>
+        <title>DASHMIN - Add Category</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -41,45 +40,16 @@
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
 
         <style>
-            a.change-color-qvm:active {
-                color: #007bff;
+            .category-info {
+                background-color: #ffffff;
+                border-radius: 12px;
+                padding: 24px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             }
 
-            /* CSS */
-            .search-form {
-                display: flex;
-                justify-content: flex-end; /* đẩy cả form về bên phải */
-                align-items: center;
-                gap: 8px;                /* khoảng cách giữa input và button */
-                margin-top: 20px;               /* tùy chỉnh nếu cần */
-                margin-right: 30px;
-                padding: 0;
-            }
-
-            .search-form input[type="text"] {
-                padding: 8px 12px;
-                border: 1px solid #ccc;
-                border-radius: 20px;     /* bo tròn ô tìm kiếm */
-                outline: none;
-                transition: border-color .2s;
-            }
-
-            .search-form input[type="text"]:focus {
-                border-color: #007bff;
-            }
-
-            .search-form button {
-                padding: 8px 16px;
-                background-color: #007bff; /* màu xanh dương */
-                color: #fff;
-                border: none;
-                border-radius: 20px;       /* bo tròn nút */
-                cursor: pointer;
-                transition: background-color .2s;
-            }
-
-            .search-form button:hover {
-                background-color: #0056b3; /* xanh đậm khi hover */
+            label.form-label {
+                margin-bottom: 6px;
+                color: #333;
             }
 
             .btn {
@@ -93,38 +63,22 @@
                 transition: background-color 0.2s ease;
             }
 
-            .btn-delete {
-                background-color: #e74c3c; /* đỏ */
+            .btn-success {
+                background-color: #28a745;
             }
 
-            .btn-delete:hover {
-                background-color: #c0392b;
+            .btn-success:hover {
+                background-color: #218838;
             }
 
-            .btn-edit {
-                background-color: #3498db; /* xanh dương */
+            .btn-secondary {
+                background-color: #6c757d;
             }
 
-            .btn-edit:hover {
-                background-color: #2980b9;
-            }
-
-            .fixed-container {
-                /* Chiều rộng và chiều cao cố định */
-                width: 1400px;        /* hoặc bất kỳ độ rộng bạn muốn */
-                height: 720px;        /* hoặc tùy chỉnh theo chiều cao mong muốn */
-
-                /* Chặn co giãn */
-                min-width: 1400px;
-                max-width: 1400px;
-                min-height: 720px;
-                max-height: 720px;
-
-                /* Nếu nội dung vượt thì scroll */
-                overflow: auto;
+            .btn-secondary:hover {
+                background-color: #5a6268;
             }
         </style>
-
     </head>
 
     <body>
@@ -136,7 +90,6 @@
                 </div>
             </div>
             <!-- Spinner End -->
-
 
             <!-- Sidebar Start -->
             <div class="sidebar pe-4 pb-3">
@@ -174,13 +127,13 @@
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
                                 <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
+                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item active">View User Detail</a>
                             </div>
                         </div>
                     </div>
                 </nav>
             </div>
             <!-- Sidebar End -->
-
 
             <!-- Content Start -->
             <div class="content">
@@ -273,183 +226,60 @@
                     </div>
                 </nav>
                 <!-- Navbar End -->
-                <!-- HTML -->
 
-                <!-- Table Start -->
+                <!-- Add Category Form -->
                 <div class="container-fluid pt-4 px-4">
+                    <div class="bg-light rounded h-100 p-4">
+                        <h6 class="mb-4">Add Category</h6>
 
-                    <div class="bg-light rounded h-100 p-4 fixed-container">
-                        <!-- Header with title and Add Bouquet button -->
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0">Bouquet List</h6>
-                            <a href="${pageContext.request.contextPath}/addBouquet" class="btn btn-primary">Add Bouquet</a>
-                        </div>
-                        <form action="viewBouquet" method="get"
-                              style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; width:100%;">
-                            <!-- Phần sort ở bên trái -->
-                            <div style="display:flex; align-items:center;">
-                                <label for="sortField" style="margin-right:0.5rem; white-space:nowrap;">
-                                    Sắp xếp theo:
-                                </label>
-                                <select name="sortField"
-                                        id="sortField"
-                                        onchange="this.form.submit()"
-                                        style="
-                                        width:auto;
-                                        min-width:max-content;
-                                        padding:0.25rem 0.5rem;
-                                        border:1px solid #ccc;
-                                        border-radius:0.5rem;
-                                        background-color:#fff;
-                                        ">
-                                    <option value="">-- Mặc định --</option>
-                                    <option value="sPriceBQasc"  ${param.sortField == 'sPriceBQasc' ? 'selected' : ''}>Giá tăng dần</option>
-                                    <option value="sPriceBQdesc" ${param.sortField == 'sPriceBQdesc' ? 'selected' : ''}>Giá giảm dần</option>
-                                </select>
+                        <!-- Hiển thị thông báo lỗi nếu có -->
+                        <c:if test="${not empty error}">
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                ${error}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
-
-                            <!-- Phần search ở bên phải -->
-                            <div style="display:flex; align-items:center;">
-                                <input type="text"
-                                       name="bouquetName"
-                                       placeholder="Tìm kiếm sản phẩm"
-                                       value="${param.bouquetName}"
-                                       style="
-                                       width:200px;
-                                       padding:0.25rem 0.5rem;
-                                       border:1px solid #ccc;
-                                       border-radius:0.5rem;
-                                       margin-right:0.5rem;
-                                       " />
-
-                                <button type="submit"
-                                        style="
-                                        padding:0.25rem 0.75rem;
-                                        border:none;
-                                        border-radius:0.5rem;
-                                        background-color:#007bff;
-                                        color:#fff;
-                                        cursor:pointer;
-                                        ">
-                                    Search
-                                </button>
-                            </div>
-                        </form>
-
-
-
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">STT</th>
-                                    <th scope="col">Image</th>
-                                    <th scope="col">Bouquet Name</th>
-                                    <th scope="col">Category</th>
-                                    <th scope="col">Price</th>
-                                    <th colspan="2">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach var="bouquet" items="${listBouquet}" varStatus="status">
-                                    <tr>
-                                        <td>${(currentPage - 1) * 6 + status.index + 1}</td>
-                                        <td>
-                                            <img src="${bouquet.getImageUrl()}" alt="Bouquet Image" style="height: 60px; width: auto;" />
-                                        </td>
-                                        <td>
-                                            <a href="${pageContext.request.contextPath}/bouquetDetails?id=${bouquet.getBouquetId()}" class="change-color-qvm">
-                                                ${bouquet.getBouquetName()}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <c:set var="matched" value="false"/>
-                                            <c:forEach var="cate" items="${cateBouquetHome}">
-                                                <c:if test="${cate.getCategoryId() == bouquet.getCid()}">
-                                                    ${cate.getCategoryName()}
-                                                    <c:set var="matched" value="true"/>
-                                                </c:if>
-                                            </c:forEach>
-                                            <c:if test="${!matched}">Unknown</c:if>
-                                            </td>
-
-                                            <td>${bouquet.getPrice()}</td>
-                                        <td>
-                                            <button type="button"
-                                                    class="btn btn-delete"
-                                                    onclick="if (confirm('Do you want to delete?'))
-                                                                location.href = '${pageContext.request.contextPath}/deleteBouquet?id=${bouquet.getBouquetId()}';">
-                                                Delete
-                                            </button>
-
-
-                                            <button type="button"
-                                                    class="btn btn-edit"
-                                                    onclick="location.href = '${pageContext.request.contextPath}/editBouquet?id=${bouquet.getBouquetId()}';">
-                                                Edit
-                                            </button>
-                                        </td>  
-
-                                    </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
-
-                        <c:if test="${totalPages > 1}">
-                            <nav>
-                                <ul class="pagination">
-
-                                    <!-- Previous -->
-                                    <c:url var="prevUrl" value="viewBouquet">
-                                        <c:param name="page" value="${currentPage - 1}" />
-                                        <c:param name="bouquetName" value="${bouquetName}" />
-                                        <c:param name="sortField" value="${sortField}" />
-                                    </c:url>
-                                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a class="page-link" href="${prevUrl}">Previous</a>
-                                    </li>
-
-                                    <!-- Các trang -->
-                                    <c:forEach var="i" begin="1" end="${totalPages}">
-                                        <c:url var="pageUrl" value="viewBouquet">
-                                            <c:param name="page" value="${i}" />
-                                            <c:param name="bouquetName" value="${bouquetName}" />
-                                            <c:param name="sortField" value="${sortField}" />
-                                        </c:url>
-                                        <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                            <a class="page-link" href="${pageUrl}">${i}</a>
-                                        </li>
-                                    </c:forEach>
-
-                                    <!-- Next -->
-                                    <c:url var="nextUrl" value="viewBouquet">
-                                        <c:param name="page" value="${currentPage + 1}" />
-                                        <c:param name="bouquetName" value="${bouquetName}" />
-                                        <c:param name="sortField" value="${sortField}" />
-                                    </c:url>
-                                    <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                        <a class="page-link" href="${nextUrl}">Next</a>
-                                    </li>
-
-                                </ul>
-                            </nav>
                         </c:if>
 
-
-
+                        <form action="addCategory" method="post">
+                            <div class="category-info">
+                                <div class="mb-3">
+                                    <label for="categoryName" class="form-label fw-semibold">Category Name:</label>
+                                    <input 
+                                        type="text" 
+                                        id="categoryName" 
+                                        name="categoryName" 
+                                        class="form-control" 
+                                        value="${param.categoryName}" 
+                                        required
+                                    />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label fw-semibold">Description:</label>
+                                    <textarea 
+                                        id="description" 
+                                        name="description" 
+                                        class="form-control" 
+                                        rows="4"
+                                    >${param.description}</textarea>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-success">Add Category</button>
+                                    <a href="${pageContext.request.contextPath}/category" class="btn btn-secondary">Cancel</a>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <!-- Table End -->
-
+                <!-- Add Category Form End -->
 
                 <!-- Footer Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded-top p-4">
                         <div class="row">
                             <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
+                                © <a href="#">Your Site Name</a>, All Right Reserved. 
                             </div>
                             <div class="col-12 col-sm-6 text-center text-sm-end">
-                                <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
                                 Designed By <a href="https://htmlcodex.com">HTML Codex</a>
                             </div>
                         </div>
@@ -458,7 +288,6 @@
                 <!-- Footer End -->
             </div>
             <!-- Content End -->
-
 
             <!-- Back to Top -->
             <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>

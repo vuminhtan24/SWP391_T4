@@ -1,14 +1,10 @@
 <%-- 
-    Document   : table
-    Created on : May 19, 2025, 2:41:19 PM
+    Document   : blank
+    Created on : May 19, 2025, 2:34:20 PM
     Author     : ADMIN
 --%>
-
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.List,model.Bouquet" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -19,7 +15,7 @@
         <meta content="" name="description">
 
         <!-- Favicon -->
-        <link href="img/favicon.ico" rel="icon">
+        <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
 
         <!-- Google Web Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,92 +35,6 @@
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
-
-        <style>
-            a.change-color-qvm:active {
-                color: #007bff;
-            }
-
-            /* CSS */
-            .search-form {
-                display: flex;
-                justify-content: flex-end; /* đẩy cả form về bên phải */
-                align-items: center;
-                gap: 8px;                /* khoảng cách giữa input và button */
-                margin-top: 20px;               /* tùy chỉnh nếu cần */
-                margin-right: 30px;
-                padding: 0;
-            }
-
-            .search-form input[type="text"] {
-                padding: 8px 12px;
-                border: 1px solid #ccc;
-                border-radius: 20px;     /* bo tròn ô tìm kiếm */
-                outline: none;
-                transition: border-color .2s;
-            }
-
-            .search-form input[type="text"]:focus {
-                border-color: #007bff;
-            }
-
-            .search-form button {
-                padding: 8px 16px;
-                background-color: #007bff; /* màu xanh dương */
-                color: #fff;
-                border: none;
-                border-radius: 20px;       /* bo tròn nút */
-                cursor: pointer;
-                transition: background-color .2s;
-            }
-
-            .search-form button:hover {
-                background-color: #0056b3; /* xanh đậm khi hover */
-            }
-
-            .btn {
-                padding: 6px 12px;
-                border: none;
-                border-radius: 4px;
-                color: white;
-                font-size: 14px;
-                cursor: pointer;
-                margin-right: 5px;
-                transition: background-color 0.2s ease;
-            }
-
-            .btn-delete {
-                background-color: #e74c3c; /* đỏ */
-            }
-
-            .btn-delete:hover {
-                background-color: #c0392b;
-            }
-
-            .btn-edit {
-                background-color: #3498db; /* xanh dương */
-            }
-
-            .btn-edit:hover {
-                background-color: #2980b9;
-            }
-
-            .fixed-container {
-                /* Chiều rộng và chiều cao cố định */
-                width: 1400px;        /* hoặc bất kỳ độ rộng bạn muốn */
-                height: 720px;        /* hoặc tùy chỉnh theo chiều cao mong muốn */
-
-                /* Chặn co giãn */
-                min-width: 1400px;
-                max-width: 1400px;
-                min-height: 720px;
-                max-height: 720px;
-
-                /* Nếu nội dung vượt thì scroll */
-                overflow: auto;
-            }
-        </style>
-
     </head>
 
     <body>
@@ -167,13 +77,16 @@
                         <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
                         <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
                         <a href="${pageContext.request.contextPath}/DashMin/table.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Tables</a>
-                        <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/product.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
                         <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
+                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
-                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
+                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item active">Blank Page</a>
+                                <a href="${pageContext.request.contextPath}/ViewUserList" class="dropdown-item active">View User List</a>
+                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item active">View User </a>
+                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item active">Add new User </a>
                             </div>
                         </div>
                     </div>
@@ -193,7 +106,7 @@
                         <i class="fa fa-bars"></i>
                     </a>
                     <form class="d-none d-md-flex ms-4">
-                        <input class="form-control border-0" type="search" placeholder="Search">
+                        <input class="form-control border-0" type="search" placeholder="Search" name="txtSearch" value="${kw}">
                     </form>
                     <div class="navbar-nav align-items-center ms-auto">
                         <div class="nav-item dropdown">
@@ -273,172 +186,163 @@
                     </div>
                 </nav>
                 <!-- Navbar End -->
-                <!-- HTML -->
 
                 <!-- Table Start -->
-                <div class="container-fluid pt-4 px-4">
-
-                    <div class="bg-light rounded h-100 p-4 fixed-container">
-                        <!-- Header with title and Add Bouquet button -->
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0">Bouquet List</h6>
-                            <a href="${pageContext.request.contextPath}/addBouquet" class="btn btn-primary">Add Bouquet</a>
+                <div class="row">
+                    <div class="col-sm-12 col-xl-4">
+                        <div class="bg-light rounded p-4" style="max-height: 400px; overflow-y: auto;">
+                            <div class="d-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
+                                <c:forEach items="${userIds}" var="id">
+                                    <a class="btn btn-primary text-center" href="viewuserdetail?id=${id}">${id}</a>
+                                </c:forEach>
+                            </div>
                         </div>
-                        <form action="viewBouquet" method="get"
-                              style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; width:100%;">
-                            <!-- Phần sort ở bên trái -->
-                            <div style="display:flex; align-items:center;">
-                                <label for="sortField" style="margin-right:0.5rem; white-space:nowrap;">
-                                    Sắp xếp theo:
-                                </label>
-                                <select name="sortField"
-                                        id="sortField"
-                                        onchange="this.form.submit()"
-                                        style="
-                                        width:auto;
-                                        min-width:max-content;
-                                        padding:0.25rem 0.5rem;
-                                        border:1px solid #ccc;
-                                        border-radius:0.5rem;
-                                        background-color:#fff;
-                                        ">
-                                    <option value="">-- Mặc định --</option>
-                                    <option value="sPriceBQasc"  ${param.sortField == 'sPriceBQasc' ? 'selected' : ''}>Giá tăng dần</option>
-                                    <option value="sPriceBQdesc" ${param.sortField == 'sPriceBQdesc' ? 'selected' : ''}>Giá giảm dần</option>
-                                </select>
+                    </div>
+
+                    <div class="col-sm-12 col-xl-8">
+                        <div class="bg-light rounded h-100 p-4">
+                            <h6 class="mb-4">View User Detail Table</h6>
+                            <c:if test="${empty userIds}">
+                                <p>No userIds found</p>
+                            </c:if>
+
+                            <div class="col-sm-12 col-xl-6">
+                                <div class="bg-light rounded h-100 p-4">
+                                    <div class="btn-group" role="group">
+                                        <a  class="btn btn-primary" href="${pageContext.request.contextPath}/adduserdetail">Add new User detail</a>
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Phần search ở bên phải -->
-                            <div style="display:flex; align-items:center;">
-                                <input type="text"
-                                       name="bouquetName"
-                                       placeholder="Tìm kiếm sản phẩm"
-                                       value="${param.bouquetName}"
-                                       style="
-                                       width:200px;
-                                       padding:0.25rem 0.5rem;
-                                       border:1px solid #ccc;
-                                       border-radius:0.5rem;
-                                       margin-right:0.5rem;
-                                       " />
+                            <form action="${pageContext.request.contextPath}/viewuserdetail" method="POST">
+                                <table border="0">
 
-                                <button type="submit"
-                                        style="
-                                        padding:0.25rem 0.75rem;
-                                        border:none;
-                                        border-radius:0.5rem;
-                                        background-color:#007bff;
-                                        color:#fff;
-                                        cursor:pointer;
-                                        ">
-                                    Search
-                                </button>
-                            </div>
-                        </form>
-
-
-
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">STT</th>
-                                    <th scope="col">Image</th>
-                                    <th scope="col">Bouquet Name</th>
-                                    <th scope="col">Category</th>
-                                    <th scope="col">Price</th>
-                                    <th colspan="2">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach var="bouquet" items="${listBouquet}" varStatus="status">
-                                    <tr>
-                                        <td>${(currentPage - 1) * 6 + status.index + 1}</td>
-                                        <td>
-                                            <img src="${bouquet.getImageUrl()}" alt="Bouquet Image" style="height: 60px; width: auto;" />
-                                        </td>
-                                        <td>
-                                            <a href="${pageContext.request.contextPath}/bouquetDetails?id=${bouquet.getBouquetId()}" class="change-color-qvm">
-                                                ${bouquet.getBouquetName()}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <c:set var="matched" value="false"/>
-                                            <c:forEach var="cate" items="${cateBouquetHome}">
-                                                <c:if test="${cate.getCategoryId() == bouquet.getCid()}">
-                                                    ${cate.getCategoryName()}
-                                                    <c:set var="matched" value="true"/>
-                                                </c:if>
-                                            </c:forEach>
-                                            <c:if test="${!matched}">Unknown</c:if>
+                                    <tbody>
+                                        <tr>
+                                            <td>User ID: </td>
+                                            <td>
+                                                <input type="text" name="id" class="form-control" placeholder="User ID" aria-label="Username"
+                                                       aria-describedby="basic-addon1" value="${userManager.userid}" readonly="">
                                             </td>
+                                        </tr>
+                                        <c:if test="${not empty errorID}">
+                                            <tr>
+                                                <td colspan="2"><span style="color:red">${errorID}</span></td>
+                                            </tr>
+                                        </c:if> 
 
-                                            <td>${bouquet.getPrice()}</td>
+                                        <tr>
+                                            <td>User Name: </td>
+                                            <td>
+                                                <input type="text" name="name" class="form-control" placeholder="Username" aria-label="Username"
+                                                       aria-describedby="basic-addon1" value="${userManager.username}">
+                                            </td>
+                                        </tr>
+
+                                        <c:if test="${not empty errorName}">
+                                            <tr>
+                                                <td colspan="2"><span style="color:red">${errorName}</span></td>
+                                            </tr>
+                                        </c:if>
+                                        <tr>
+                                            <td>Password: </td>
+                                            <td>
+                                                <input type="text" name="pass" class="form-control" placeholder="Password" aria-label="Username"
+                                                       aria-describedby="basic-addon1" value="${userManager.password}">
+                                            </td>
+                                        </tr>
+                                        <c:if test="${not empty errorPass}">
+                                            <tr>
+                                                <td colspan="2"><span style="color:red">${errorPass}</span></td>
+                                            </tr>
+                                        </c:if>
+                                        <tr>
+                                            <c:if test="${not empty passwordStrength}">
+                                        <div style="font-size: small;
+                                             color: ${passwordStrength == 'Mạnh' ? 'green' :
+                                                      passwordStrength == 'Trung bình' ? 'orange' : 'red'};">
+                                            Mật khẩu: ${passwordStrength}
+                                        </div>
+                                    </c:if>
+                                    </tr>
+                                    <tr>
+                                        <td>Full Name: </td>
                                         <td>
-                                            <button type="button"
-                                                    class="btn btn-delete"
-                                                    onclick="if (confirm('Do you want to delete?'))
-                                                                location.href = '${pageContext.request.contextPath}/deleteBouquet?id=${bouquet.getBouquetId()}';">
-                                                Delete
-                                            </button>
-
-
-                                            <button type="button"
-                                                    class="btn btn-edit"
-                                                    onclick="location.href = '${pageContext.request.contextPath}/editBouquet?id=${bouquet.getBouquetId()}';">
-                                                Edit
-                                            </button>
-                                        </td>  
+                                            <input type="text" name="FullName" class="form-control" placeholder="Full Name" aria-label="Username"
+                                                   aria-describedby="basic-addon1" value="${userManager.fullname}">
+                                        </td>
 
                                     </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
+                                    <c:if test="${not empty errorFullname}">
+                                        <tr>
+                                            <td colspan="2"><span style="color:red">${errorFullname}</span></td>
+                                        </tr>
+                                    </c:if>
+                                    <tr>
+                                        <td>Email: </td>
+                                        <td>
+                                            <input type="text" class="form-control" placeholder="Email"
+                                                   aria-label="Recipient's username" aria-describedby="basic-addon2" name="email" value="${userManager.email}">
+                                        </td>
+                                        <td>
+                                            <span class="input-group-text" id="basic-addon2">@flower.com</span>
+                                        </td>
+                                    </tr>
+                                    <c:if test="${not empty errorEmail}">
+                                        <tr>
+                                            <td colspan="2"><span style="color:red">${errorEmail}</span></td>
+                                        </tr>
+                                    </c:if>
+                                    <tr>
+                                        <td>Phone Number: </td>
+                                        <td>
+                                            <input type="type" name="phone" class="form-control" placeholder="Phone Number" aria-label="Username"
+                                                   aria-describedby="basic-addon1" value="${userManager.phone}">
+                                        </td>
+                                    </tr>
+                                    <c:if test="${not empty errorPhone}">
+                                        <tr>
+                                            <td colspan="2"><span style="color:red">${errorPhone}</span></td>
+                                        </tr>
+                                    </c:if>
+                                    <tr>
+                                        <td>Address: </td>
+                                        <td>
+                                            <input type="type" name="address" class="form-control" placeholder="Address" aria-label="Username"
+                                                   aria-describedby="basic-addon1" value="${userManager.address}">
+                                        </td>
+                                    </tr>
+                                    <c:if test="${not empty errorAddress}">
+                                        <tr>
+                                            <td colspan="2"><span style="color:red">${errorAddress}</span></td>
+                                        </tr>
+                                    </c:if>
+                                    <tr>
+                                        <td>Role: </td>
+                                        <td>
+                                            <input type="type" name="role" class="form-control" placeholder="Role" aria-label="Username"
+                                                   aria-describedby="basic-addon1" value="${userManager.role}" readonly="">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <select class="form-select mb-3" aria-label="Default select example" name="option">
+                                                <c:forEach items="${roleNames}" var="role">
+                                                    <option value="${role}">${role}</option>
+                                                </c:forEach>
+                                            </select>
+                                        </td>
+                                        <td><input  class="btn btn-primary"type="submit" name="ud" value="UPDATE"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>           
+                            </form>
 
-                        <c:if test="${totalPages > 1}">
-                            <nav>
-                                <ul class="pagination">
-
-                                    <!-- Previous -->
-                                    <c:url var="prevUrl" value="viewBouquet">
-                                        <c:param name="page" value="${currentPage - 1}" />
-                                        <c:param name="bouquetName" value="${bouquetName}" />
-                                        <c:param name="sortField" value="${sortField}" />
-                                    </c:url>
-                                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a class="page-link" href="${prevUrl}">Previous</a>
-                                    </li>
-
-                                    <!-- Các trang -->
-                                    <c:forEach var="i" begin="1" end="${totalPages}">
-                                        <c:url var="pageUrl" value="viewBouquet">
-                                            <c:param name="page" value="${i}" />
-                                            <c:param name="bouquetName" value="${bouquetName}" />
-                                            <c:param name="sortField" value="${sortField}" />
-                                        </c:url>
-                                        <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                            <a class="page-link" href="${pageUrl}">${i}</a>
-                                        </li>
-                                    </c:forEach>
-
-                                    <!-- Next -->
-                                    <c:url var="nextUrl" value="viewBouquet">
-                                        <c:param name="page" value="${currentPage + 1}" />
-                                        <c:param name="bouquetName" value="${bouquetName}" />
-                                        <c:param name="sortField" value="${sortField}" />
-                                    </c:url>
-                                    <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                        <a class="page-link" href="${nextUrl}">Next</a>
-                                    </li>
-
-                                </ul>
-                            </nav>
-                        </c:if>
-
-
-
-                    </div>
+                        </div>
+                    </div>   
                 </div>
-                <!-- Table End -->
+
+                <!-- Blank End -->
 
 
                 <!-- Footer Start -->
@@ -479,4 +383,3 @@
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
     </body>
 </html>
-

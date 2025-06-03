@@ -485,6 +485,7 @@ CREATE TABLE `user` (
   `Phone` varchar(10) DEFAULT NULL,
   `Address` varchar(45) DEFAULT NULL,
   `Role` int NOT NULL,
+  `status` varchar(10) DEFAULT 'active',
   PRIMARY KEY (`User_ID`),
   UNIQUE KEY `User_ID_UNIQUE` (`User_ID`),
   UNIQUE KEY `Username_UNIQUE` (`Username`),
@@ -499,11 +500,10 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'admin01','admin123','Alice Admin','alice@flower.com','0901111001','123 Admin Street',1),(2,'manager01','manager123','Bob Manager','bob@flower.com','0901111002','456 Manager Lane',2),(3,'seller01','seller123','Carol Seller','carol@flower.com','0901111003','789 Seller Road',3),(4,'marketer01','marketing1','David Marketer','david@flower.com','0901111004','101 Marketing Blvd',4),(5,'warehouse01','store123','Eva Warehouse','eva@flower.com','0901111005','202 Warehouse Ave',5),(6,'guest01','guest123','Frank Guest','frank@flower.com','0901111006','No Address',6),(7,'cust01','cust123','Grace Customer','grace@flower.com','0901111007','303 Customer Place',7),(8,'cust02','cust456','Helen Buyer','helen@flower.com','0901111008','404 Rose Street',7);
+INSERT INTO `user` VALUES (1,'admin01','admin123','Alice Admin','alice@flower.com','0901111001','123 Admin Street',1,'active'),(2,'manager01','manager123','Bob Manager','bob@flower.com','0901111002','456 Manager Lane',2,'active'),(3,'seller01','seller123','Carol Seller','carol@flower.com','0901111003','789 Seller Road',3,'active'),(4,'marketer01','marketing1','David Marketer','david@flower.com','0901111004','101 Marketing Blvd',4,'active'),(5,'warehouse01','store123','Eva Warehouse','eva@flower.com','0901111005','202 Warehouse Ave',5,'active'),(6,'guest01','guest123','Frank Guest','frank@flower.com','0901111006','No Address',6,'active'),(7,'cust01','cust123','Grace Customer','grace@flower.com','0901111007','303 Customer Place',7,'active'),(8,'cust02','cust456','Helen Buyer','helen@flower.com','0901111008','404 Rose Street',7,'active');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
-ALTER TABLE user ADD COLUMN status VARCHAR(10) DEFAULT 'active';
 --
 -- Table structure for table `warehouse`
 --
@@ -546,4 +546,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-26 16:36:04
+-- Dump completed on 2025-06-03 10:21:40

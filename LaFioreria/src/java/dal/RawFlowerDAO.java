@@ -18,7 +18,7 @@ import model.RawFlower;
  */
 public class RawFlowerDAO extends DBContext {
 
-    public List<RawFlower> getAll() {
+     public List<RawFlower> getAll() {
         List<RawFlower> listRawFlower = new ArrayList<>();
 
         String sql = "SELECT * FROM la_fioreria.raw_flower;";
@@ -38,12 +38,18 @@ public class RawFlowerDAO extends DBContext {
                 r.setImageUrl(rs.getString("image_url").trim());
                 r.setHold(rs.getInt("hold"));
                 r.setImportPrice(rs.getInt("import_price"));
+                r.setActive(rs.getBoolean("active"));
             }
         } catch (SQLException e) {
             System.out.println(e);
         }
 
         return listRawFlower;
+    }
+    
+        public static void main(String[] args) {
+        RawFlowerDAO dao = new RawFlowerDAO();
+        System.out.println(dao.getRawFlower());
     }
     
     public int count() {
@@ -232,8 +238,8 @@ public class RawFlowerDAO extends DBContext {
 
     //Chỉ thêm sản phẩm mới với raw_quantity = 0, hold = 0 và không có expiration date
     public void addRawFlower1(String raw_name, int unit_price,  int warehouse_id, String image_url, int import_price) {
-        String sql = "INSERT INTO la_fioreria.raw_flower (raw_name, raw_quantity, unit_price, warehouse_id, image_url, hold, import_price) "
-                + "VALUES (?, 0, ?, ?, ?, 0, ?)";
+        String sql = "INSERT INTO la_fioreria.raw_flower (raw_name, raw_quantity, unit_price, warehouse_id, image_url, hold, import_price, active) "
+                + "VALUES (?, 0, ?, ?, ?, 0, ?, 1)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, raw_name);
             ps.setInt(2, unit_price);
@@ -268,7 +274,7 @@ public class RawFlowerDAO extends DBContext {
 
     
     public RawFlower getRawFlowerById(int rawId) {
-        String sql = "SELECT * FROM la_fioreria.raw_flower WHERE raw_id = ?";
+        String sql = "SELECT * FROM la_fioreria.raw_flower WHERE raw_id = ? AND active = 1";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, rawId);
@@ -281,10 +287,11 @@ public class RawFlowerDAO extends DBContext {
                 rf.setRawQuantity(rs.getInt("raw_quantity"));
                 rf.setUnitPrice(rs.getInt("unit_price"));
                 rf.setExpirationDate(rs.getString("expiration_date"));
-                rf.setWarehouse(wdao.getWarehouseById(rs.getInt("warehouse_id ")));
+                rf.setWarehouse(wdao.getWarehouseById(rs.getInt("warehouse_id")));
                 rf.setImageUrl(rs.getString("image_url").trim());
                 rf.setHold(rs.getInt("hold"));
                 rf.setImportPrice(rs.getInt("import_price"));
+                rf.setActive(rs.getBoolean("active"));
                 return rf;
             }
         } catch (Exception e) {
@@ -295,19 +302,20 @@ public class RawFlowerDAO extends DBContext {
     
     public ArrayList<RawFlower> getRawFlower() {
         ArrayList<RawFlower> list = new ArrayList<>();
-        String sql = "SELECT raw_id, raw_name, raw_quantity, unit_price, expiration_date, warehouse_id, image_url, import_price FROM la_fioreria.raw_flower";
+        String sql = "SELECT raw_id, raw_name, raw_quantity, unit_price, expiration_date, warehouse_id, image_url, import_price, active FROM la_fioreria.raw_flower WHERE active = 1";
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 RawFlower rf = new RawFlower();
                 WarehouseDAO wdao = new WarehouseDAO();
                 rf.setRawId(rs.getInt("raw_id"));
-                rf.setRawName(rs.getString("raw_name").trim());
+                rf.setRawName(rs.getString("raw_name"));
                 rf.setRawQuantity(rs.getInt("raw_quantity"));
                 rf.setUnitPrice(rs.getInt("unit_price"));
                 rf.setExpirationDate(rs.getString("expiration_date"));
                 rf.setWarehouse(wdao.getWarehouseById(rs.getInt("warehouse_id")));
                 rf.setImportPrice(rs.getInt("import_price"));
                 rf.setImageUrl(rs.getString("image_url").trim());
+                rf.setActive(rs.getBoolean("active"));
                 list.add(rf);
             }
         } catch (SQLException e) {
@@ -385,4 +393,5 @@ public class RawFlowerDAO extends DBContext {
         return list;
     }
     
+
 }

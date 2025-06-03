@@ -96,6 +96,7 @@
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
                                 <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item active">Blank Page</a>
                                 <a href="${pageContext.request.contextPath}/ViewUserList" class="dropdown-item active">View User List</a>
+                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item active">View User Detail</a>
                             </div>
                         </div>
                     </div>

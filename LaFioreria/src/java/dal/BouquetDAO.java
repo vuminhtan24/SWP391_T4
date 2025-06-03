@@ -89,37 +89,6 @@ public class BouquetDAO extends DBContext {
         return searchListBQ;
     }
 
-    /*    public void insertBouquet(Bouquet bouquet) {
-        String sql = "INSERT INTO la_fioreria.bouquet (bouquet_name, description, image_url, cid, price)\n"
-                + "VALUE\n"
-                + " (?, ?, ?, ?, ?);";
-
-        try {
-            PreparedStatement pre = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-            pre.setString(1, bouquet.getBouquetName());
-            pre.setString(2, bouquet.getDescription());
-            pre.setString(3, bouquet.getImageUrl());
-            pre.setInt(4, bouquet.getCid());
-            pre.setInt(5, bouquet.getPrice());
-            pre.executeUpdate();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public void insertBouquetRaw(BouquetRaw bouquetRaw) {
-        String sql = "INSERT INTO la_fioreria.bouquet_raw (bouquet_id, raw_id, quantity)\n"
-                + "VALUE\n"
-                + " (?, ?, ?)";
-        try {
-            PreparedStatement pre = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-            pre.setInt(1, bouquetRaw.getBouquet_id());
-            pre.setInt(2, bouquetRaw.getRaw_id());
-            pre.setInt(3, bouquetRaw.getQuantity());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }*/
     /**
      * Insert bouquet, trả về khóa sinh tự động (bouquet_id).
      */
@@ -159,7 +128,7 @@ public class BouquetDAO extends DBContext {
     /**
      * Insert một dòng bouquet_raw; bouquet_id phải được set trước.
      */
-    public void insertBouquetRaw(BouquetRaw bouquetRaw) throws SQLException {
+    public void insertBouquetRaw(BouquetRaw bouquetRaw){
         String sql = """
             INSERT INTO la_fioreria.bouquet_raw 
               (bouquet_id, raw_id, quantity)
@@ -171,6 +140,8 @@ public class BouquetDAO extends DBContext {
             pre.setInt(2, bouquetRaw.getRaw_id());
             pre.setInt(3, bouquetRaw.getQuantity());
             pre.executeUpdate();
+        }catch(Exception e){
+            System.out.println(e);
         }
     }
 
@@ -215,16 +186,101 @@ public class BouquetDAO extends DBContext {
         } catch (SQLException e) {
             System.out.println(e);
         }
-        
+
+    }
+
+    public void updateBouquetRaw(BouquetRaw bqRaw) {
+        String sql = "Update la_fioreria.bouquet_raw\n"
+                + "SET raw_id = ?, quantity = ?\n"
+                + "where bouquet_id = ?;";
+        try {
+            PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setInt(1, bqRaw.getRaw_id());
+            pre.setInt(2, bqRaw.getQuantity());
+            pre.setInt(3, bqRaw.getBouquet_id());
+            pre.executeUpdate();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    public Bouquet getBouquetByID(int id) {
+        String sql = "SELECT * FROM la_fioreria.bouquet WHERE Bouquet_ID = ?";
+        try {
+            PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setInt(1, id);
+            ResultSet rs = pre.executeQuery();
+            if (rs.next()) {
+                String bouquetName = rs.getString("bouquet_name").trim();
+                String Description = rs.getString("description").trim();
+                String imageUrl = rs.getString("image_url").trim();
+                int cid = rs.getInt("cid");
+                int price = rs.getInt("price");
+
+                Bouquet bq = new Bouquet(id, bouquetName, Description, imageUrl, cid, price);
+                return bq;
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return null;
+    }
+
+    public List<BouquetRaw> getFlowerByBouquetID(int id) {
+        List<BouquetRaw> listBQR = new ArrayList<>();
+        String sql = "SELECT br.bouquet_id, br.raw_id, br.quantity "
+                + "FROM la_fioreria.bouquet_raw br "
+                + "JOIN la_fioreria.bouquet b ON b.bouquet_id = br.bouquet_id "
+                + "JOIN la_fioreria.raw_flower rf ON rf.raw_id = br.raw_id "
+                + "WHERE b.bouquet_id = ?";
+        try (PreparedStatement pre = connection.prepareStatement(sql)) {
+            pre.setInt(1, id);
+            ResultSet rs = pre.executeQuery();
+            // Duyệt hết các dòng trả về
+            while (rs.next()) {
+                int raw_id = rs.getInt("raw_id");
+                int quantity = rs.getInt("quantity");
+                BouquetRaw bqRaw = new BouquetRaw(id, raw_id, quantity);
+                listBQR.add(bqRaw);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Có thể log, hoặc ném exception lên cao nếu muốn
+        }
+        // Trả về list (có thể rỗng nếu không tìm thấy bản ghi nào)
+        return listBQR;
+    }
+    
+        public Bouquet getBouquetByCategoryID(int cid) {
+        String sql = "SELECT * FROM la_fioreria.bouquet WHERE cid = ?";
+        try {
+            PreparedStatement pre = connection.prepareStatement(sql);
+            pre.setInt(1, cid);
+            ResultSet rs = pre.executeQuery();
+            if (rs.next()) {
+                int bouquetId = rs.getInt("bouquet_id");
+                String bouquetName = rs.getString("bouquet_name").trim();
+                String Description = rs.getString("description").trim();
+                String imageUrl = rs.getString("image_url").trim();
+                int price = rs.getInt("price");
+                Bouquet bq = new Bouquet(bouquetId, bouquetName, Description, imageUrl, cid, price);
+                return bq;
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return null;
     }
 
     public static void main(String[] args) {
         BouquetDAO dao = new BouquetDAO();
-        List<Bouquet> list = dao.getAll();
-
-        for (Bouquet bouquet : list) {
-            System.out.println(bouquet);
-        }
+        List<Bouquet> list = dao.searchBouquet("rose", null, null, null);
+        Bouquet b = new Bouquet();
+        BouquetRaw q = new BouquetRaw();
+        b = dao.getBouquetByID(3);
+        List<BouquetRaw> r = dao.getFlowerByBouquetID(3);
+        System.out.println(list);
+        
     }
 
 }

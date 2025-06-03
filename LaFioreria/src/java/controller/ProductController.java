@@ -70,18 +70,57 @@ public class ProductController extends HttpServlet {
         CategoryDAO cdao = new CategoryDAO();
 
         listCategoryBQ = cdao.getBouquetCategory();
-        String name = request.getParameter("bouquetName");
-
         request.setAttribute("cateBouquetHome", listCategoryBQ);
-        if (name != null && !name.trim().isEmpty()) {
-            listBouquet = bdao.searchBouquet(name, null, null, null);
-            request.setAttribute("listBouquet", listBouquet);
 
+        String name = request.getParameter("bouquetName");
+        String cateIDstr = request.getParameter("categoryId");
+        String maxValue = request.getParameter("maxPrice");
+        String minValue = request.getParameter("minPrice");
+
+        int max = 2000000;
+        int min = 0;
+
+        try {
+            if (minValue != null && !minValue.isEmpty()) {
+                min = Integer.parseInt(minValue);
+            }
+            if (maxValue != null && !maxValue.isEmpty()) {
+                max = Integer.parseInt(maxValue);
+            }
+        } catch (NumberFormatException e) {
+            min = 0;
+            max = 2000000;
+        }
+
+        request.setAttribute("minPrice", min);
+        request.setAttribute("maxPrice", max);
+
+        Integer cateID = null;
+        if (cateIDstr != null && !cateIDstr.trim().isEmpty()) {
+            try {
+                cateID = Integer.parseInt(cateIDstr);
+            } catch (NumberFormatException e) {
+                cateID = null;
+            }
+        }
+
+        boolean hasName = (name != null && !name.trim().isEmpty());
+        boolean hasCate = (cateID != null && cateID > 0);
+
+// Nếu giá giữ mặc định thì truyền null cho filter giá, tránh lọc giá không cần thiết
+        Integer minFilter = (min == 0) ? null : min;
+        Integer maxFilter = (max == 2000000) ? null : max;
+
+        if (hasName || hasCate || minFilter != null || maxFilter != null) {
+            String searchName = hasName ? name.trim() : null;
+            Integer searchCate = hasCate ? cateID : null;
+
+            listBouquet = bdao.searchBouquet(searchName, minFilter, maxFilter, searchCate);
         } else {
             listBouquet = bdao.getAll();
-            request.setAttribute("listBouquet", listBouquet);
-
         }
+
+        request.setAttribute("listBouquet", listBouquet);
 
         // PHÂN TRANG
         int pageSize = 6; // số sản phẩm mỗi trang
