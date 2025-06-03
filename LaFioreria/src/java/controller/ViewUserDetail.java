@@ -92,6 +92,7 @@ public class ViewUserDetail extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         String id_raw = request.getParameter("id");
         String name_raw = request.getParameter("name");
         String password = request.getParameter("pass");
@@ -100,31 +101,114 @@ public class ViewUserDetail extends HttpServlet {
         String phone_Number = request.getParameter("phone");
         String Address = request.getParameter("address");
         String role_raw = request.getParameter("option");
-        
+
         UserDAO ud = new UserDAO();
-        
+
         try {
             int id = Integer.parseInt(id_raw);
+
             int role = 0;
             switch (role_raw) {
-                case "Admin" -> role = 1;
-                case "Sales Manager" -> role = 2;
-                case "Seller" -> role = 3;
-                case "Marketer" -> role = 4;
-                case "Warehouse Staff" -> role = 5;
-                case "Guest" -> role = 6;
-                case "Customer" -> role = 7;
-
+                case "Admin" ->
+                    role = 1;
+                case "Sales Manager" ->
+                    role = 2;
+                case "Seller" ->
+                    role = 3;
+                case "Marketer" ->
+                    role = 4;
+                case "Warehouse Staff" ->
+                    role = 5;
+                case "Guest" ->
+                    role = 6;
+                case "Customer" ->
+                    role = 7;
             }
 
-            User u = new User(id, name_raw, password, fullName, email,phone_Number, Address, role);
+            boolean hasError = false;
+
+            if (id <= 0) {
+                request.setAttribute("errorID", "ID must be a natural number greater than 0.");
+                hasError = true;
+            }
+
+            if (!phone_Number.matches("^(090|098)\\d{7}$")) {
+                request.setAttribute("errorPhone", "Phone must be 10 digits and start with 090 or 098.");
+                hasError = true;
+            }
+
+            if (!email.matches("^[a-zA-Z0-9._%+-]{3,}@flower\\.com$")) {
+                request.setAttribute("errorEmail", "Email must be at least 3 characters before @flower.com.");
+                hasError = true;
+            }
+
+            String passwordStrength = "";
+            if (password.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$")) {
+                passwordStrength = "Mạnh";
+            } else if (password.matches("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$")) {
+                passwordStrength = "Trung bình";
+            } else if (password.matches("^[a-zA-Z0-9]{7,}$")) {
+                passwordStrength = "Yếu";
+            } else {
+                request.setAttribute("errorPass", "Password không hợp lệ. Tối thiểu 7 ký tự.");
+                hasError = true;
+            }
+            request.setAttribute("passwordStrength", passwordStrength);
+
+            if (!fullName.matches("^[a-zA-Z\\s]{4,}$")) {
+                request.setAttribute("errorFullname", "Full name must be at least 4 characters and contain no digits.");
+                hasError = true;
+            }
+
+            if (!name_raw.matches("^[a-zA-Z\\s]+$")) {
+                request.setAttribute("errorName", "Name must not contain digits.");
+                hasError = true;
+            }
+
+            if (!Address.matches("^[a-zA-Z0-9\\s]+$")) {
+                request.setAttribute("errorAddress", "Address must contain only letters, digits, and spaces.");
+                hasError = true;
+            }
+
+            // Nếu có lỗi thì forward về lại trang edituserdetail.jsp
+            if (hasError) {
+                // Gán lại userManager để giữ dữ liệu form khi có lỗi
+                UserManager um = new UserManager();
+                um.setUserid(Integer.parseInt(id_raw));
+                um.setUsername(name_raw);
+                um.setPassword(password);
+                um.setFullname(fullName);
+                um.setEmail(email);
+                um.setPhone(phone_Number);
+                um.setAddress(Address);
+                um.setRole(role_raw); // Nếu role_raw là String, hoặc bạn có thể chuyển sang int như trước
+
+                request.setAttribute("userManager", um);  // Đây là bước quan trọng
+
+                // Truyền lại roleNames để dropdown hiển thị
+                List<String> roleNames = ud.getRoleNames();
+                request.setAttribute("roleNames", roleNames);
+
+                // Gửi lại trang với thông tin lỗi và dữ liệu form đã nhập
+                request.getRequestDispatcher("DashMin/viewuserdetail.jsp").forward(request, response);
+                return;
+            }
+
+            // Không có lỗi thì update
+            User u = new User(id, name_raw, password, fullName, email, phone_Number, Address, role);
             ud.Update(u);
             response.sendRedirect("viewuserdetail");
-            
-        } catch (NumberFormatException e) {
-            System.out.println(e);
-        }
 
+        } catch (NumberFormatException e) {
+            System.out.println("Lỗi định dạng ID: " + e.getMessage());
+
+            request.setAttribute("error", "Invalid input format.");
+
+            List<String> roleNames = ud.getRoleNames();
+            request.setAttribute("roleNames", roleNames);
+
+            request.getRequestDispatcher("DashMin/viewuserdetail.jsp").forward(request, response);
+        }
     }
 
     /**
