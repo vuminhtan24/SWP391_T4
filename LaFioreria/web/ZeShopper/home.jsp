@@ -328,8 +328,38 @@
                         </div>
                         <div class="col-sm-3">
                             <form action="${pageContext.request.contextPath}/product" method="get">
-                                <input type="text" name="bouquetName" placeholder="Tìm sản phẩm..." />
-                                <button type="submit">Search</button>
+                                <div style="margin-bottom: 10px; display: flex; align-items: center;">
+                                    <input
+                                        type="text"
+                                        name="bouquetName"
+                                        placeholder="Tìm kiếm sản phẩm"
+                                        value="${param.bouquetName != null ? param.bouquetName : ''}"
+                                        style="
+                                        width: 200px;
+                                        padding: 5px 10px;
+                                        border-radius: 20px;
+                                        border: 1px solid #ccc;
+                                        font-size: 16px;
+                                        outline: none;
+                                        "
+                                        />
+                                    <button
+                                        type="submit"
+                                        style="
+                                        background-color: orange;
+                                        color: white;
+                                        padding: 5px 10px;
+                                        border: none;
+                                        border-radius: 20px;
+                                        cursor: pointer;
+                                        font-size: 16px;
+                                        margin-left: 10px;
+                                        /* không cần margin-top */
+                                        "
+                                        >
+                                        Search
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -438,7 +468,7 @@
                         <div class="features_items"><!--features_items-->
                             <h2 class="title text-center">Features Items</h2>
 
-                            <c:forEach items="${requestScope.listBouquetHome}" var="lb">
+                            <c:forEach items="${requestScope.listBouquetHome}" var="lb" begin="0" end="5">
                                 <div class="col-sm-4">
                                     <div class="product-image-wrapper">
                                         <div class="single-products">
@@ -461,7 +491,7 @@
                                     </div>
                                 </div>
                             </c:forEach>
-
+                            <a href="${pageContext.request.contextPath}/product">View more Product</a>
                         </div>
                     </div><!--features_items-->
 
@@ -758,19 +788,19 @@
     <script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
 
     <script>
-                                            function openPopup(id, name, imageUrl, price, description) {
-                                                document.getElementById("popup-id").value = id;
-                                                document.getElementById("popup-name").textContent = name;
-                                                document.getElementById("popup-image").src = imageUrl;
-                                                document.getElementById("popup-price").textContent = "Price: " + price;
-                                                document.getElementById("popup-description").textContent = description;
-                                                document.getElementById("popup").style.display = "flex";
-                                            }
+                                        function openPopup(id, name, imageUrl, price, description) {
+                                            document.getElementById("popup-id").value = id;
+                                            document.getElementById("popup-name").textContent = name;
+                                            document.getElementById("popup-image").src = imageUrl;
+                                            document.getElementById("popup-price").textContent = "Price: " + price;
+                                            document.getElementById("popup-description").textContent = description;
+                                            document.getElementById("popup").style.display = "flex";
+                                        }
 
-                                            function closePopup() {
-                                                document.getElementById("popup").style.display = "none";
-                                                document.getElementById("popup-quantity").value = 1;
-                                            }
+                                        function closePopup() {
+                                            document.getElementById("popup").style.display = "none";
+                                            document.getElementById("popup-quantity").value = 1;
+                                        }
     </script>
 
 
