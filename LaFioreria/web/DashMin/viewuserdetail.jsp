@@ -189,7 +189,7 @@
 
                 <!-- Table Start -->
                 <div class="row">
-                    <div class="col-sm-12 col-xl-3">
+                    <div class="col-sm-12 col-xl-4">
                         <div class="bg-light rounded p-4" style="max-height: 400px; overflow-y: auto;">
                             <div class="d-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
                                 <c:forEach items="${userIds}" var="id">
@@ -199,7 +199,7 @@
                         </div>
                     </div>
 
-                    <div class="col-sm-12 col-xl-9">
+                    <div class="col-sm-12 col-xl-8">
                         <div class="bg-light rounded h-100 p-4">
                             <h6 class="mb-4">View User Detail Table</h6>
                             <c:if test="${empty userIds}">
