@@ -20,7 +20,7 @@ import model.User;
  *
  * @author Legion
  */
-@WebServlet(name = "CartController", urlPatterns = {"/cart"})
+@WebServlet(name = "CartController", urlPatterns = {"/ZeShopper/cart"})
 public class CartController extends HttpServlet {
 
     @Override
@@ -30,7 +30,7 @@ public class CartController extends HttpServlet {
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
         if (currentUser == null) {
             // Ch?a login, chuy?n h??ng v? trang login
-            response.sendRedirect("./ZeShopper/login.jsp");
+            response.sendRedirect("./login.jsp");
             return;
         }
         int customerId = currentUser.getUserid();
@@ -42,7 +42,7 @@ public class CartController extends HttpServlet {
         request.setAttribute("user", currentUser);
 
         // Forward sang trang JSP ?? hi?n th? gi? hàng
-        request.getRequestDispatcher("./ZeShopper/cart.jsp").forward(request, response);
+        request.getRequestDispatcher("./cart.jsp").forward(request, response);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class CartController extends HttpServlet {
         CartDAO dao = new CartDAO();
         dao.deleteItem(customerId, bouquetId);
 
-        response.sendRedirect("cart");
+        response.sendRedirect("/ZeShopper/cart");
     }
 
 }

@@ -20,7 +20,7 @@ import model.User;
  *
  * @author Legion
  */
-@WebServlet(name = "CheckOutController", urlPatterns = {"/checkout"})
+@WebServlet(name = "CheckOutController", urlPatterns = {"/ZeShopper/checkout"})
 public class CheckOutController extends HttpServlet {
 
     @Override
@@ -55,9 +55,9 @@ public class CheckOutController extends HttpServlet {
                 dao.insertOrderItem(item);
             }
             dao.deleteCartByCustomerId(customerId);
-            response.sendRedirect("./ZeShopper/thanks-you.jsp");
+            response.sendRedirect("./thanks-you.jsp");
         } catch (IOException | SQLException e) {
-            response.sendRedirect("./ZeShopper/404.jsp");
+            response.sendRedirect("./404.jsp");
         }
     }
 
