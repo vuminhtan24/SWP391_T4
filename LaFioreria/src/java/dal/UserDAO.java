@@ -451,13 +451,14 @@ public class UserDAO extends DBContext {
     public static void main(String[] args) {
 
         UserDAO ud = new UserDAO();
-//        List<Integer> lst = ud.getIds();
-//        for (int i = 0; i < lst.size(); i++) {
-//            Integer get = lst.get(i);
-//            System.out.println(get);
-//        }
-//        UserManager um = ud.getUserById(1);
-//        System.out.println(um.toString());
+
+        List<UserManager> users = ud.getSortedUsersWithPaging(
+                0, "John", "Fullname", "ASC", 0, 10
+        );
+
+        for (UserManager user : users) {
+            System.out.println(user);
+        }
 
     }
 
