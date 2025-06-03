@@ -192,50 +192,81 @@
                 <div class="col-sm-12 col-xl-6">
                     <div class="bg-light rounded h-100 p-4">
                         <form action="adduserdetail" method="Post">
-                            <table border="1">
+                            <table class="table table-striped">
 
                                 <tbody>
                                     <tr>
                                         <td>User ID: </td>
                                         <td>
-                                            <input type="text" name="id">
+                                            <input type="text" name="id" class="form-control" placeholder="id" aria-label="id"
+                                           aria-describedby="basic-addon1">
+                                            <c:if test="${not empty errorID}">
+                                                <p style="color:red">${errorID}</p>
+                                            </c:if> 
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>User Name: </td>
                                         <td>
-                                            <input type="text" name="name">
+                                            <input type="text" name="name"class="form-control" placeholder="User Name" aria-label="User Name"
+                                           aria-describedby="basic-addon1">
+                                            <c:if test="${not empty errorName}">
+                                                <p style="color:red">${errorName}</p>
+                                            </c:if> 
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Password: </td>
                                         <td>
-                                            <input type="text" name="pass">
-
+                                            <input type="text" name="pass" class="form-control" placeholder="Password" aria-label="Password"
+                                           aria-describedby="basic-addon1">
+                                            <c:if test="${not empty passwordStrength}">
+                                                <div style="font-size: small;
+                                                     color: ${passwordStrength == 'Mạnh' ? 'green' :
+                                                              passwordStrength == 'Trung bình' ? 'orange' : 'red'};">
+                                                    Mật khẩu: ${passwordStrength}
+                                                </div>
+                                            </c:if>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Full Name: </td>
                                         <td>
-                                            <input type="text" name="FullName">
+                                            <input type="text" name="FullName" class="form-control" placeholder="Full Name" aria-label="Full Name"
+                                           aria-describedby="basic-addon1">
+                                            <c:if test="${not empty errorFullname}">
+                                                <p style="color:red">${errorFullname}</p>
+                                            </c:if> 
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Email: </td>
                                         <td>
-                                            <input type="text" name="email">
+                                            <input type="text" name="email" class="form-control" placeholder="Email" aria-label="Email"
+                                           aria-describedby="basic-addon1">
+                                            <c:if test="${not empty errorEmail}">
+                                                <p style="color:red">${errorEmail}</p>
+                                            </c:if> 
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Phone Number: </td>
                                         <td>
-                                            <input type="type" name="phone">
+                                            <input type="type" name="phone" class="form-control" placeholder="Phone Number" aria-label="Phone Number"
+                                           aria-describedby="basic-addon1">
+                                            <c:if test="${not empty errorPhone}">
+                                                <p style="color:red">${errorPhone}</p>
+                                            </c:if> 
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Address: </td>
                                         <td>
-                                            <input type="type" name="address">
+                                            <input type="type" name="address" class="form-control" placeholder="Address" aria-label="Address"
+                                           aria-describedby="basic-addon1">
+                                            <c:if test="${not empty errorAddress}">
+                                                <p style="color:red">${errorAddress}</p>
+                                            </c:if> 
                                         </td>
                                     </tr>
 
@@ -243,7 +274,7 @@
 
                                         <td>Role: </td>
                                         <td>
-                                            <select name="option">
+                                            <select class="form-select mb-3" aria-label="Default select example" name="option">
                                                 <c:forEach items="${roleNames}" var="role">
                                                     <option value="${role}">${role}</option>
                                                 </c:forEach>
@@ -252,7 +283,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><input type="submit" name="ad" value="ADD"></td>
+                                        <td><input class="btn btn-primary m-2" type="submit" name="ad" value="ADD"></td>
                                     </tr>
                                 </tbody>
                             </table>

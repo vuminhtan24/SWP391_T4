@@ -120,13 +120,10 @@ public class LoginServlet extends HttpServlet {
             
             if ("on".equals(remember)) {
             Cookie emailCookie = new Cookie("userEmail", username);
-            Cookie sessionIdCookie = new Cookie("JSESSIONID", session.getId());
 
             emailCookie.setMaxAge(60 * 60 * 24 * 7); // 7 ngày
-            sessionIdCookie.setMaxAge(60 * 60 * 24 * 7); // 7 ngày
 
             response.addCookie(emailCookie);
-            response.addCookie(sessionIdCookie);
         }
 
             int roleId = user.getRole();
@@ -137,7 +134,8 @@ public class LoginServlet extends HttpServlet {
                 case "Seller":
                 case "Marketer":
                 case "Warehouse Staff":
-                    response.sendRedirect("/LaFioreria/DashMin/admin.jsp");
+                    response.sendRedirect(request.getContextPath() + "/DashMin/admin");
+
                     break;
                 case "Guest":
                 case "Customer":

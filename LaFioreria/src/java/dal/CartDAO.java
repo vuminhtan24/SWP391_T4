@@ -101,7 +101,7 @@ public class CartDAO extends DBContext {
 
     public Bouquet getBouquetById(int bouquetId) {
         String sql = """
-        SELECT bouquet_id, bouquet_name, created_at, expiration_date, created_by,
+        SELECT bouquet_id, bouquet_name,
                description, image_url, cid, price
         FROM bouquet
         WHERE bouquet_id = ?

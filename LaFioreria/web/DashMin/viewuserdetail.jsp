@@ -106,7 +106,7 @@
                         <i class="fa fa-bars"></i>
                     </a>
                     <form class="d-none d-md-flex ms-4">
-                        <input class="form-control border-0" type="search" placeholder="Search">
+                        <input class="form-control border-0" type="search" placeholder="Search" name="txtSearch" value="${kw}">
                     </form>
                     <div class="navbar-nav align-items-center ms-auto">
                         <div class="nav-item dropdown">
@@ -189,111 +189,155 @@
 
                 <!-- Table Start -->
                 <div class="row">
-                    <div class="col-sm-12 col-xl-2">
-                        <div class="bg-light rounded h-100 p-4">
-                            <div class="btn-toolbar" role="toolbar">
-                                <div class="btn-group me-2" role="group" aria-label="First group">
-                                    <c:forEach items="${userIds}" var="id">
-                                        <a class="btn btn-primary" href="viewuserdetail?id=${id}">${id}</a>
-                                    </c:forEach> 
-                                </div>
+                    <div class="col-sm-12 col-xl-4">
+                        <div class="bg-light rounded p-4" style="max-height: 400px; overflow-y: auto;">
+                            <div class="d-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
+                                <c:forEach items="${userIds}" var="id">
+                                    <a class="btn btn-primary text-center" href="viewuserdetail?id=${id}">${id}</a>
+                                </c:forEach>
                             </div>
-
                         </div>
                     </div>
 
-                    <div class="col-sm-12 col-xl-10">
+                    <div class="col-sm-12 col-xl-8">
                         <div class="bg-light rounded h-100 p-4">
                             <h6 class="mb-4">View User Detail Table</h6>
                             <c:if test="${empty userIds}">
                                 <p>No userIds found</p>
                             </c:if>
-                            <c:if test="${not empty userIds}">
-                                <div class="col-sm-12 col-xl-6">
-                                    <div class="bg-light rounded h-100 p-4">
-                                        <div class="btn-group" role="group">
-                                            <a  class="btn btn-primary" href="${pageContext.request.contextPath}/adduserdetail">Add new User detail</a>
-                                        </div>
+
+                            <div class="col-sm-12 col-xl-6">
+                                <div class="bg-light rounded h-100 p-4">
+                                    <div class="btn-group" role="group">
+                                        <a  class="btn btn-primary" href="${pageContext.request.contextPath}/adduserdetail">Add new User detail</a>
                                     </div>
                                 </div>
+                            </div>
 
-                                <form action="${pageContext.request.contextPath}/viewuserdetail" method="POST">
-                                    <table border="0">
+                            <form action="${pageContext.request.contextPath}/viewuserdetail" method="POST">
+                                <table border="0">
 
-                                        <tbody>
+                                    <tbody>
+                                        <tr>
+                                            <td>User ID: </td>
+                                            <td>
+                                                <input type="text" name="id" class="form-control" placeholder="User ID" aria-label="Username"
+                                                       aria-describedby="basic-addon1" value="${userManager.userid}" readonly="">
+                                            </td>
+                                        </tr>
+                                        <c:if test="${not empty errorID}">
                                             <tr>
-                                                <td>User ID: </td>
-                                                <td>
-                                                    <input type="text" name="id" class="form-control" placeholder="User ID" aria-label="Username"
-                                                           aria-describedby="basic-addon1" value="${userManager.userid}" readonly="">
-                                                </td>
+                                                <td colspan="2"><span style="color:red">${errorID}</span></td>
                                             </tr>
+                                        </c:if> 
+
+                                        <tr>
+                                            <td>User Name: </td>
+                                            <td>
+                                                <input type="text" name="name" class="form-control" placeholder="Username" aria-label="Username"
+                                                       aria-describedby="basic-addon1" value="${userManager.username}">
+                                            </td>
+                                        </tr>
+
+                                        <c:if test="${not empty errorName}">
                                             <tr>
-                                                <td>User Name: </td>
-                                                <td>
-                                                    <input type="text" name="name" class="form-control" placeholder="Username" aria-label="Username"
-                                                           aria-describedby="basic-addon1" value="${userManager.username}">
-                                                </td>
+                                                <td colspan="2"><span style="color:red">${errorName}</span></td>
                                             </tr>
+                                        </c:if>
+                                        <tr>
+                                            <td>Password: </td>
+                                            <td>
+                                                <input type="text" name="pass" class="form-control" placeholder="Password" aria-label="Username"
+                                                       aria-describedby="basic-addon1" value="${userManager.password}">
+                                            </td>
+                                        </tr>
+                                        <c:if test="${not empty errorPass}">
                                             <tr>
-                                                <td>Password: </td>
-                                                <td>
-                                                    <input type="text" name="pass" class="form-control" placeholder="Password" aria-label="Username"
-                                                           aria-describedby="basic-addon1" value="${userManager.password}">
-                                                </td>
+                                                <td colspan="2"><span style="color:red">${errorPass}</span></td>
                                             </tr>
-                                            <tr>
-                                                <td>Full Name: </td>
-                                                <td>
-                                                    <input type="text" name="FullName" class="form-control" placeholder="Full Name" aria-label="Username"
-                                                           aria-describedby="basic-addon1" value="${userManager.fullname}">
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Email: </td>
-                                                <td>
-                                                    <input type="text" class="form-control" placeholder="Email"
-                                                           aria-label="Recipient's username" aria-describedby="basic-addon2" name="email" value="${userManager.email}">
-                                                </td>
-                                                <td>
-                                                    <span class="input-group-text" id="basic-addon2">@flower.com</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Phone Number: </td>
-                                                <td>
-                                                    <input type="type" name="phone" class="form-control" placeholder="Phone Number" aria-label="Username"
-                                                           aria-describedby="basic-addon1" value="${userManager.phone}">
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Address: </td>
-                                                <td>
-                                                    <input type="type" name="address" class="form-control" placeholder="Address" aria-label="Username"
-                                                           aria-describedby="basic-addon1" value="${userManager.address}">
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Role: </td>
-                                                <td>
-                                                    <input type="type" name="role" class="form-control" placeholder="Role" aria-label="Username"
-                                                           aria-describedby="basic-addon1" value="${userManager.role}" readonly="">
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <select class="form-select mb-3" aria-label="Default select example" name="option">
-                                                        <c:forEach items="${roleNames}" var="role">
-                                                            <option value="${role}">${role}</option>
-                                                        </c:forEach>
-                                                    </select>
-                                                </td>
-                                                <td><input  class="btn btn-primary"type="submit" name="ud" value="UPDATE"></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>           
-                                </form>
-                            </c:if>
+                                        </c:if>
+                                        <tr>
+                                            <c:if test="${not empty passwordStrength}">
+                                        <div style="font-size: small;
+                                             color: ${passwordStrength == 'Mạnh' ? 'green' :
+                                                      passwordStrength == 'Trung bình' ? 'orange' : 'red'};">
+                                            Mật khẩu: ${passwordStrength}
+                                        </div>
+                                    </c:if>
+                                    </tr>
+                                    <tr>
+                                        <td>Full Name: </td>
+                                        <td>
+                                            <input type="text" name="FullName" class="form-control" placeholder="Full Name" aria-label="Username"
+                                                   aria-describedby="basic-addon1" value="${userManager.fullname}">
+                                        </td>
+
+                                    </tr>
+                                    <c:if test="${not empty errorFullname}">
+                                        <tr>
+                                            <td colspan="2"><span style="color:red">${errorFullname}</span></td>
+                                        </tr>
+                                    </c:if>
+                                    <tr>
+                                        <td>Email: </td>
+                                        <td>
+                                            <input type="text" class="form-control" placeholder="Email"
+                                                   aria-label="Recipient's username" aria-describedby="basic-addon2" name="email" value="${userManager.email}">
+                                        </td>
+                                        <td>
+                                            <span class="input-group-text" id="basic-addon2">@flower.com</span>
+                                        </td>
+                                    </tr>
+                                    <c:if test="${not empty errorEmail}">
+                                        <tr>
+                                            <td colspan="2"><span style="color:red">${errorEmail}</span></td>
+                                        </tr>
+                                    </c:if>
+                                    <tr>
+                                        <td>Phone Number: </td>
+                                        <td>
+                                            <input type="type" name="phone" class="form-control" placeholder="Phone Number" aria-label="Username"
+                                                   aria-describedby="basic-addon1" value="${userManager.phone}">
+                                        </td>
+                                    </tr>
+                                    <c:if test="${not empty errorPhone}">
+                                        <tr>
+                                            <td colspan="2"><span style="color:red">${errorPhone}</span></td>
+                                        </tr>
+                                    </c:if>
+                                    <tr>
+                                        <td>Address: </td>
+                                        <td>
+                                            <input type="type" name="address" class="form-control" placeholder="Address" aria-label="Username"
+                                                   aria-describedby="basic-addon1" value="${userManager.address}">
+                                        </td>
+                                    </tr>
+                                    <c:if test="${not empty errorAddress}">
+                                        <tr>
+                                            <td colspan="2"><span style="color:red">${errorAddress}</span></td>
+                                        </tr>
+                                    </c:if>
+                                    <tr>
+                                        <td>Role: </td>
+                                        <td>
+                                            <input type="type" name="role" class="form-control" placeholder="Role" aria-label="Username"
+                                                   aria-describedby="basic-addon1" value="${userManager.role}" readonly="">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <select class="form-select mb-3" aria-label="Default select example" name="option">
+                                                <c:forEach items="${roleNames}" var="role">
+                                                    <option value="${role}">${role}</option>
+                                                </c:forEach>
+                                            </select>
+                                        </td>
+                                        <td><input  class="btn btn-primary"type="submit" name="ud" value="UPDATE"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>           
+                            </form>
+
                         </div>
                     </div>   
                 </div>
