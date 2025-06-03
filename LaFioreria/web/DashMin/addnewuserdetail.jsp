@@ -199,43 +199,67 @@
                                         <td>User ID: </td>
                                         <td>
                                             <input type="text" name="id">
+                                            <c:if test="${not empty errorID}">
+                                                <p style="color:red">${errorID}</p>
+                                            </c:if> 
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>User Name: </td>
                                         <td>
                                             <input type="text" name="name">
+                                            <c:if test="${not empty errorName}">
+                                                <p style="color:red">${errorName}</p>
+                                            </c:if> 
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Password: </td>
                                         <td>
                                             <input type="text" name="pass">
-
+                                            <c:if test="${not empty passwordStrength}">
+                                                <div style="font-size: small;
+                                                     color: ${passwordStrength == 'Mạnh' ? 'green' :
+                                                              passwordStrength == 'Trung bình' ? 'orange' : 'red'};">
+                                                    Mật khẩu: ${passwordStrength}
+                                                </div>
+                                            </c:if>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Full Name: </td>
                                         <td>
                                             <input type="text" name="FullName">
+                                            <c:if test="${not empty errorFullname}">
+                                                <p style="color:red">${errorFullname}</p>
+                                            </c:if> 
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Email: </td>
                                         <td>
                                             <input type="text" name="email">
+                                            <c:if test="${not empty errorEmail}">
+                                                <p style="color:red">${errorEmail}</p>
+                                            </c:if> 
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Phone Number: </td>
                                         <td>
                                             <input type="type" name="phone">
+                                            <c:if test="${not empty errorPhone}">
+                                                <p style="color:red">${errorPhone}</p>
+                                            </c:if> 
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Address: </td>
                                         <td>
                                             <input type="type" name="address">
+                                            <c:if test="${not empty errorAddress}">
+                                                <p style="color:red">${errorAddress}</p>
+                                            </c:if> 
                                         </td>
                                     </tr>
 

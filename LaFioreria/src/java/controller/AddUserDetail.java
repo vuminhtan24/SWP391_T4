@@ -81,6 +81,8 @@ public class AddUserDetail extends HttpServlet {
         String id_raw = request.getParameter("id");
         String name_raw = request.getParameter("name");
         String password = request.getParameter("pass");
+        String passwordStrength = "";
+
         String fullName = request.getParameter("FullName");
         String email = request.getParameter("email");
         String phone_Number = request.getParameter("phone");
@@ -91,6 +93,74 @@ public class AddUserDetail extends HttpServlet {
 
         try {
             int id = Integer.parseInt(id_raw);
+
+            if (id <= 0) {
+                List<String> roleNames = ud.getRoleNames();
+                request.setAttribute("roleNames", roleNames);
+
+                request.setAttribute("errorID", "ID must be a natural number greater than 0.");
+                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
+                return;
+            }
+
+            if (!phone_Number.matches("^(090|098)\\d{7}$")) {
+                List<String> roleNames = ud.getRoleNames();
+                request.setAttribute("roleNames", roleNames);
+
+                request.setAttribute("errorPhone", "Phone number must be 10 digits and start with 090 or 098.");
+                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
+                return;
+            }
+
+            if (!email.matches("^[a-zA-Z0-9._%+-]{3,}@flower\\.com$")) {
+                List<String> roleNames = ud.getRoleNames();
+                request.setAttribute("roleNames", roleNames);
+
+                request.setAttribute("errorEmail", "Email must be at least 3 characters before @flower.com");
+                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
+                return;
+            }
+
+            if (password.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$")) {
+                passwordStrength = "Mạnh";
+                request.setAttribute("passwordStrength", passwordStrength);
+            } else if (password.matches("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$")) {
+                passwordStrength = "Trung bình";
+                request.setAttribute("passwordStrength", passwordStrength);
+            } else if (password.matches("^[a-zA-Z0-9]{7,}$")) {
+                passwordStrength = "Yếu";
+                request.setAttribute("passwordStrength", passwordStrength);
+            } else {
+                List<String> roleNames = ud.getRoleNames();
+                request.setAttribute("roleNames", roleNames);
+                request.setAttribute("error", "Password không hợp lệ. Tối thiểu 7 ký tự.");
+                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
+                return;
+            }
+
+            if (!fullName.matches("^[a-zA-Z\\s]{4,}$")) {
+                List<String> roleNames = ud.getRoleNames();
+                request.setAttribute("roleNames", roleNames);
+
+                request.setAttribute("errorFullname", "Full name must be at least 4 characters and contain no digits.");
+                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
+                return;
+            }
+            if (!name_raw.matches("^[a-zA-Z\\s]+$")) {
+                List<String> roleNames = ud.getRoleNames();
+                request.setAttribute("roleNames", roleNames);
+                request.setAttribute("errorName", "Name must not contain digits.");
+                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
+                return;
+            }
+            if (!Address.matches("^[a-zA-Z0-9\\s]+$")) {
+                List<String> roleNames = ud.getRoleNames();
+                request.setAttribute("roleNames", roleNames);
+                request.setAttribute("errorAddress", "Address must contain only letters, digits, and spaces.");
+                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
+                return;
+            }
+
             int role = 0;
             switch (role_raw) {
                 case "Admin" ->
