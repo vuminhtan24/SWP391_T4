@@ -164,6 +164,20 @@ public class CategoryDAO extends DBContext {
         }
     }
     
+    // Xóa danh mục theo ID
+    public boolean deleteCategory(int categoryId) {
+        String sql = "DELETE FROM la_fioreria.category WHERE category_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, categoryId);
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.out.println("Error in deleteCategory: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
     public static void main(String[] args) {
         Category c = new Category();
         CategoryDAO dao = new CategoryDAO();
