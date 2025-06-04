@@ -45,7 +45,7 @@ public class ProductDetailController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ProductDetailController</title>");            
+            out.println("<title>Servlet ProductDetailController</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet ProductDetailController at " + request.getContextPath() + "</h1>");
@@ -66,6 +66,32 @@ public class ProductDetailController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String idStr = request.getParameter("id");
+
+        int id = Integer.parseInt(idStr);
+        BouquetDAO bqdao = new BouquetDAO();
+        RawFlowerDAO rfdao = new RawFlowerDAO();
+        CategoryDAO cdao = new CategoryDAO();
+
+        Bouquet detailsBQ = bqdao.getBouquetByID(id);
+        String cateName = cdao.getCategoryNameByBouquet(id);
+        List<RawFlower> allFlowers = rfdao.getRawFlower();
+        List<BouquetRaw> bqRaws = bqdao.getFlowerByBouquetID(id);
+        List<Bouquet> sameCate = bqdao.searchBouquet(null, null, null, detailsBQ.getCid());
+
+        for (int i = sameCate.size() - 1; i >= 0; i--) {
+            Bouquet b = sameCate.get(i);
+            if (b.getBouquetId() == detailsBQ.getBouquetId()) {
+                sameCate.remove(i);
+            }
+        }
+
+        request.setAttribute("listBouquet", sameCate);
+        request.setAttribute("bouquetDetail", detailsBQ);
+        request.setAttribute("cateName", cateName);
+        request.setAttribute("allFlowers", allFlowers);
+        request.setAttribute("cateList", cdao.getBouquetCategory());
+        request.setAttribute("flowerInBQ", bqRaws);
         request.getRequestDispatcher("./ZeShopper/product-details.jsp").forward(request, response);
     }
 
