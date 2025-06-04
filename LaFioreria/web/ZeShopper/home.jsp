@@ -562,7 +562,7 @@
                                         <div class="single-products">
                                             <div class="productinfo text-center">
                                                 <img src="${lb.getImageUrl()}" alt="" />
-                                                <h2>${lb.getBouquetName()}</h2>
+                                                <h2><a href="${pageContext.request.contextPath}/productDetail?id=${lb.getBouquetId()}">${lb.getBouquetName()}</a></h2>
                                                 <p>Price: ${lb.getPrice()}</p>
                                                 <a href="#" class="btn btn-default add-to-cart">
                                                     <i class="fa fa-shopping-cart"></i> Add to cart
