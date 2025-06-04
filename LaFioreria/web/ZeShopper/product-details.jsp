@@ -307,7 +307,7 @@
                                     <span>
                                         <span>${bouquetDetail.getPrice()} VND</span>
                                         <label>Quantity:</label>
-                                        <input type="text" value="3" />
+                                        <input type="number" min="0" max="20" value="0"/>
                                         <button type="button" class="btn btn-fefault cart">
                                             <i class="fa fa-shopping-cart"></i>
                                             Add to cart
