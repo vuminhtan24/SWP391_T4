@@ -191,8 +191,11 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
                         <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/table.jsp" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Tables</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/table.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Tables</a>
+                        <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>RawFlower</a>
+                        <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Category</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
@@ -314,47 +317,50 @@
                                         <div class="col-md-8">
                                             <div class="mb-3">
                                                 <label for="name" class="form-label">Name</label>
-                                                <input type="text" id="name" name="name" class="form-control" value="${item.rawName}" required>
+                                                <input type="text" id="name" name="raw_name" class="form-control" value="${item.rawName}" required>
                                             </div>
-                                            <div class="row g-3 align-items-center">
-                                                <div class="col-md-4">
-                                                    <label for="raw_quantity" class="form-label">Quantity</label>
-                                                    <input type="number" name="raw_quantity" class="form-control" min="0" value="${item.rawQuantity}" readonly>
+                                                <div class="row g-3 align-items-center">
+                                                    <div class="col-md-4">
+                                                        <label for="raw_quantity_display" class="form-label">Quantity</label>
+                                                        <input type="number" id="raw_quantity_display" class="form-control" value="${item.rawQuantity}" readonly>
+                                                        <input type="hidden" name="raw_quantity" value="${item.rawQuantity}">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="unit_price" class="form-label">Unit Price ($)</label>
+                                                        <input type="number" name="unit_price" class="form-control" min="0" value="${item.unitPrice}" required>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="import_price" class="form-label">Import Price ($)</label>
+                                                        <input type="number" name="import_price" class="form-control" min="0" value="${item.importPrice}" required>
+                                                    </div>
                                                 </div>
-                                                <div class="col-md-4">
-                                                    <label for="unit_price" class="form-label">Unit Price ($)</label>
-                                                    <input type="number" name="unit_price" class="form-control" min="0" value="${item.unitPrice}" required>
+                                                <div class="row g-3 align-items-center">
+                                                    <div class="col-md-6">
+                                                        <label for="warehouse_id" class="form-label">Warehouse</label>
+                                                        <select id="warehouse_id" name="warehouse_id" class="form-select" required>
+                                                            <option value="${item.warehouse.warehouseId}">${item.warehouse.name}</option>
+                                                            <c:forEach items="${sessionScope.listW}" var="w">
+                                                                <c:if test="${w.warehouseId != item.warehouse.warehouseId}">
+                                                                    <option value="${w.warehouseId}">${w.name}</option>
+                                                                </c:if>
+                                                            </c:forEach>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="expiration_date_display" class="form-label">Expiration Date</label>
+                                                        <input type="date" id="expiration_date_display" class="form-control" value="${item.expirationDate}" readonly>
+                                                        <input type="hidden" name="expiration_date" value="${item.expirationDate}">
+                                                    </div>
                                                 </div>
-                                                <div class="col-md-4">
-                                                    <label for="import_price" class="form-label">Import Price ($)</label>
-                                                    <input type="number" name="import_price" class="form-control" min="0" value="${item.importPrice}" required>
+                                                <div class="mb-3">
+                                                    <label for="hold_display" class="form-label">Hold Quantity</label>
+                                                    <input type="number" id="hold_display" class="form-control" value="${item.hold}" readonly>
+                                                    <input type="hidden" name="hold" value="${item.hold}">
                                                 </div>
-                                            </div>
-                                            <div class="row g-3 align-items-center">
-                                                <div class="col-md-6">
-                                                    <label for="warehouse_id" class="form-label">Warehouse</label>
-                                                    <select id="warehouse_id" name="warehouse_id" class="form-select" required>
-                                                        <option value="${item.warehouse.warehouseId}">${item.warehouse.name}</option>
-                                                        <c:forEach items="${sessionScope.listW}" var="w">
-                                                            <c:if test="${w.warehouseId != item.warehouse.warehouseId}">
-                                                                <option value="${w.warehouseId}">${w.name}</option>
-                                                            </c:if>
-                                                        </c:forEach>
-                                                    </select>
+                                                <div class="mb-3">
+                                                    <label for="image_url" class="form-label">Image URL</label>
+                                                    <input type="text" id="imageUrl" name="image_url" class="form-control" value="${item.imageUrl}" required>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <label class="form-label">Expiration Date:</label>
-                                                    <input type="date" class="form-control" name="expiration_date" value="${item.expirationDate}" readonly>
-                                                </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="hold" class="form-label">Hold Quantity</label>
-                                                <input type="number" id="hold" name="hold" class="form-control" min="0" value="${item.hold}" readonly>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="image_url" class="form-label">Image URL</label>
-                                                <input type="text" id="imageUrl" name="image_url" class="form-control" value="${item.imageUrl}" required>
-                                            </div>
                                             <div class="mt-3">
                                                 <button type="submit" class="btn btn-primary">Update</button>
                                                 <button type="reset" class="btn btn-secondary">Reset</button>

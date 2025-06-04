@@ -187,7 +187,7 @@ public class RawFlowerDAO extends DBContext {
     //Cập nhật toàn bộ thông tin
     public void updateRawFlower4(int raw_id, String raw_name, int raw_quantity, int unit_price,
             Date expiration_date, int warehouse_id, String image_url,
-            int hold, int import_price) {
+            int hold, int import_price) throws SQLException {
         String sql = "UPDATE la_fioreria.raw_flower SET raw_name = ?, raw_quantity = ?, unit_price = ?, "
                 + "expiration_date = ?, warehouse_id = ?, image_url = ?, hold = ?, import_price = ? "
                 + "WHERE raw_id = ?";
@@ -201,9 +201,12 @@ public class RawFlowerDAO extends DBContext {
             ps.setInt(7, hold);
             ps.setInt(8, import_price);
             ps.setInt(9, raw_id);
-            ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("No rows updated. Raw flower with ID " + raw_id + " not found.");
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw e; // Re-throw the exception for the servlet to handle
         }
     }
     

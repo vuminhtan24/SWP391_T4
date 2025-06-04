@@ -94,7 +94,7 @@ public class CategoryServlet extends HttpServlet {
                 listCategory = cdao.getAll();
             }
 
-            // Phân trang thủ công (có thể tối ưu thêm bằng SQL trong CategoryDAO)
+            // Phân trang thủ công
             int totalItems = listCategory.size();
             int totalPages = (int) Math.ceil((double) totalItems / itemsPerPage);
             int end = Math.min(start + itemsPerPage, totalItems);

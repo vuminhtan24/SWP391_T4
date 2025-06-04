@@ -19,14 +19,14 @@ public class WarehouseDAO extends DBContext { // DBContext để lấy biến co
 
     public List<Warehouse> getAllWarehouse() {
         List<Warehouse> list = new ArrayList<>();
-        String sql = "SELECT * FROM la_fioreria.warehouse"; // sửa lại nếu tên schema khác
-        Warehouse w = new Warehouse();
+        String sql = "SELECT * FROM la_fioreria.warehouse";
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
             ResultSet rs = statement.executeQuery();
-            while (rs.next()) {                
+            while (rs.next()) {
+                Warehouse w = new Warehouse(); // Tạo mới đối tượng cho mỗi bản ghi
                 w.setWarehouseId(rs.getInt("Warehouse_ID"));
-                w.setName(rs.getString("name"));
+                w.setName(rs.getString("name").trim()); // Thêm .trim() để loại bỏ khoảng trắng thừa
                 w.setAddress(rs.getString("address"));
                 w.setManagerId(rs.getInt("Manager_Id"));
                 list.add(w);
