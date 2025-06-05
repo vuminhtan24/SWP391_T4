@@ -95,7 +95,7 @@
 
     <body>
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        
+
         <div class="container-fluid position-relative bg-white d-flex p-0">
             <!-- Spinner Start -->
             <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
@@ -123,7 +123,7 @@
                         </div>
                     </div>
                     <div class="navbar-nav w-100">
-                        <a href="${pageContext.request.contextPath}/DashMin/admin.jsp" class="nav-item nav-link"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/admin" class="nav-item nav-link active"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Elements</a>
                             <div class="dropdown-menu bg-transparent border-0">
@@ -134,13 +134,18 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
                         <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/table.jsp" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Tables</a>
+                        <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>User</a>
+                        <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>RawFlower</a>
+                        <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Category</a>
                         <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
-                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item active">Blank Page</a>
+                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
+                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item active">View User Detail</a>
+                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item active">Add new User </a>
                             </div>
                         </div>
                     </div>
@@ -397,28 +402,28 @@
         <!-- Template Main Script -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
         <script>
-        $(document).ready(function () {
-            $('#productTable').DataTable({
-                "paging": true, // Bật phân trang
-                "searching": true, // Bật tìm kiếm
-                "ordering": true, // Bật sắp xếp
-                "info": true, // Hiển thị thông tin bảng
-                "pageLength": 6, // Số dòng mỗi trang (có thể chỉnh lại theo ý muốn)
-                "lengthChange": false, // Ẩn tùy chọn thay đổi số dòng mỗi trang nếu không cần
-                "language": {
-                    "paginate": {
-                        "previous": "Previous",
-                        "next": "Next"
-                    },
-                    "emptyTable": "No data available in table", // Thông báo nếu bảng rỗng
-                }
-            });
-        });
+                                                        $(document).ready(function () {
+                                                            $('#productTable').DataTable({
+                                                                "paging": true, // Bật phân trang
+                                                                "searching": true, // Bật tìm kiếm
+                                                                "ordering": true, // Bật sắp xếp
+                                                                "info": true, // Hiển thị thông tin bảng
+                                                                "pageLength": 6, // Số dòng mỗi trang (có thể chỉnh lại theo ý muốn)
+                                                                "lengthChange": false, // Ẩn tùy chọn thay đổi số dòng mỗi trang nếu không cần
+                                                                "language": {
+                                                                    "paginate": {
+                                                                        "previous": "Previous",
+                                                                        "next": "Next"
+                                                                    },
+                                                                    "emptyTable": "No data available in table", // Thông báo nếu bảng rỗng
+                                                                }
+                                                            });
+                                                        });
         </script> 
         <script>
-    function confirmHide() {
-        return confirm("Are you sure you want to hide this product?");
-    }
+            function confirmHide() {
+                return confirm("Are you sure you want to hide this product?");
+            }
         </script>
         <style>
             /* Khoảng cách giữa các nút phân trang */
@@ -441,10 +446,10 @@
             .dataTables_wrapper .dataTables_paginate .paginate_button.current {
                 background-color: #007bff;
                 color: white;
-                
-                
+
+
             }
-            
+
             /* Tăng khoảng cách giữa dòng "Showing..." và dòng phân trang */
             .dataTables_wrapper .dataTables_info {
                 margin-bottom: 20px; /* Khoảng cách dưới dòng "Showing..." */
