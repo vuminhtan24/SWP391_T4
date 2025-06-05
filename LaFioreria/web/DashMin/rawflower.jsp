@@ -95,7 +95,7 @@
 
     <body>
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        
+
         <div class="container-fluid position-relative bg-white d-flex p-0">
             <!-- Spinner Start -->
             <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
@@ -319,6 +319,28 @@
                                     </div>
                                     <c:remove var="message" scope="session"/> <!-- Xóa thông báo sau khi hiển thị -->
                                 </c:if>
+                                <!-- Form lựa chọn sắp xếp -->
+                                <div class="mb-3">
+                                    <form action="${pageContext.request.contextPath}/DashMin/rawflower2" method="get" class="d-flex gap-3 align-items-center">
+                                        <div class="form-group">
+                                            <label for="sortBy" class="form-label">Sắp xếp bởi:</label>
+                                            <select id="sortBy" name="sortBy" class="form-select">
+                                                <option value="" ${empty sessionScope.sortBy ? 'selected' : ''}>None</option>
+                                                <option value="unit_price" ${sessionScope.sortBy == 'unit_price' ? 'selected' : ''}>Giá bán</option>
+                                                <option value="import_price" ${sessionScope.sortBy == 'import_price' ? 'selected' : ''}>Giá mua</option>
+                                                <option value="quantity" ${sessionScope.sortBy == 'quantity' ? 'selected' : ''}>Số lượng</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="sortOrder" class="form-label">Sắp xếp theo:</label>
+                                            <select id="sortOrder" name="sortOrder" class="form-select">
+                                                <option value="asc" ${sessionScope.sortOrder == 'asc' ? 'selected' : ''}>Tăng dần</option>
+                                                <option value="desc" ${sessionScope.sortOrder == 'desc' ? 'selected' : ''}>Giảm dần</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Sort</button>
+                                    </form>
+                                </div>
                                 <table id="productTable" class="table table-hover align-middle table-bordered border-secondary-subtle">
                                     <thead>
                                         <tr>
@@ -400,28 +422,28 @@
         <!-- Template Main Script -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
         <script>
-        $(document).ready(function () {
-            $('#productTable').DataTable({
-                "paging": true, // Bật phân trang
-                "searching": true, // Bật tìm kiếm
-                "ordering": true, // Bật sắp xếp
-                "info": true, // Hiển thị thông tin bảng
-                "pageLength": 6, // Số dòng mỗi trang (có thể chỉnh lại theo ý muốn)
-                "lengthChange": false, // Ẩn tùy chọn thay đổi số dòng mỗi trang nếu không cần
-                "language": {
-                    "paginate": {
-                        "previous": "Previous",
-                        "next": "Next"
-                    },
-                    "emptyTable": "No data available in table", // Thông báo nếu bảng rỗng
-                }
-            });
-        });
+                                                        $(document).ready(function () {
+                                                            $('#productTable').DataTable({
+                                                                "paging": true, // Bật phân trang
+                                                                "searching": true, // Bật tìm kiếm
+                                                                "ordering": false, // Bật sắp xếp
+                                                                "info": true, // Hiển thị thông tin bảng
+                                                                "pageLength": 6, // Số dòng mỗi trang (có thể chỉnh lại theo ý muốn)
+                                                                "lengthChange": false, // Ẩn tùy chọn thay đổi số dòng mỗi trang nếu không cần
+                                                                "language": {
+                                                                    "paginate": {
+                                                                        "previous": "Previous",
+                                                                        "next": "Next"
+                                                                    },
+                                                                    "emptyTable": "No data available in table", // Thông báo nếu bảng rỗng
+                                                                }
+                                                            });
+                                                        });
         </script> 
         <script>
-    function confirmHide() {
-        return confirm("Are you sure you want to hide this product?");
-    }
+            function confirmHide() {
+                return confirm("Are you sure you want to hide this product?");
+            }
         </script>
         <style>
             /* Khoảng cách giữa các nút phân trang */
@@ -444,10 +466,10 @@
             .dataTables_wrapper .dataTables_paginate .paginate_button.current {
                 background-color: #007bff;
                 color: white;
-                
-                
+
+
             }
-            
+
             /* Tăng khoảng cách giữa dòng "Showing..." và dòng phân trang */
             .dataTables_wrapper .dataTables_info {
                 margin-bottom: 20px; /* Khoảng cách dưới dòng "Showing..." */

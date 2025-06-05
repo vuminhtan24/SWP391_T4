@@ -64,18 +64,50 @@ public class RawFlowerServlet2 extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        WarehouseDAO wh = new WarehouseDAO();
-        List<Warehouse> listWarehouse = new ArrayList<>();
-        listWarehouse = wh.getAllWarehouse();
-        RawFlowerDAO rf = new RawFlowerDAO();
-        List<RawFlower> listRF = new ArrayList<>();
-        String warehouseId = request.getParameter("warehouseId");       
-        HttpSession session = request.getSession();
-        session.setAttribute("listW", listWarehouse);
-        List<RawFlower> rawflower = rf.getRawFlower();
-        session.setAttribute("listRF", rawflower);
-        request.getRequestDispatcher("rawflower.jsp").forward(request, response);
+        try {
+            // Lấy danh sách kho
+            WarehouseDAO wh = new WarehouseDAO();
+            List<Warehouse> listWarehouse = wh.getAllWarehouse();
 
+            // Lấy tham số sắp xếp từ request
+            String sortBy = request.getParameter("sortBy"); // "price" hoặc "quantity"
+            String sortOrder = request.getParameter("sortOrder"); // "asc" hoặc "desc"
+
+            // Lấy danh sách nguyên liệu
+            RawFlowerDAO rf = new RawFlowerDAO();
+            List<RawFlower> listRF;
+
+            // Kiểm tra tham số hợp lệ
+            boolean validSort = true;
+            if (sortBy != null && sortOrder != null) {
+                if (!sortBy.matches("^(unit_price|import_price|quantity)$") || !sortOrder.matches("^(asc|desc)$")) {
+                    validSort = false;
+                    request.getSession().setAttribute("message", "Invalid sort option.");
+                }
+            }
+
+            // Lấy danh sách đã sắp xếp
+            if (validSort && sortBy != null && sortOrder != null) {
+                listRF = rf.getRawFlowerSorted(sortBy, sortOrder);
+            } else {
+                listRF = rf.getRawFlower(); // Mặc định nếu không có lựa chọn sắp xếp
+            }
+
+            // Lưu dữ liệu vào session
+            HttpSession session = request.getSession();
+            session.setAttribute("listW", listWarehouse);
+            session.setAttribute("listRF", listRF);
+            // Lưu trạng thái sắp xếp để JSP giữ giá trị dropdown
+            session.setAttribute("sortBy", sortBy);
+            session.setAttribute("sortOrder", sortOrder);
+
+            // Chuyển tiếp đến JSP
+            request.getRequestDispatcher("rawflower.jsp").forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.getSession().setAttribute("message", "An error occurred while processing the request.");
+            response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
+        }
     }
 
     /**
