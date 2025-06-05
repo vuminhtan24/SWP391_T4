@@ -18,7 +18,7 @@
         <meta content="" name="description">
 
         <!-- Favicon -->
-        <link href="img/favicon.ico" rel="icon">
+        <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
 
         <!-- Google Web Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -77,6 +77,14 @@
 
             .btn-secondary:hover {
                 background-color: #5a6268;
+            }
+
+            /* Thêm style cho thông báo lỗi */
+            .error {
+                color: red;
+                font-size: 0.9rem;
+                margin-top: 5px;
+                display: block;
             }
         </style>
     </head>
@@ -235,14 +243,15 @@
                         <h6 class="mb-4">Edit Category</h6>
 
                         <!-- Hiển thị thông báo lỗi nếu có -->
-                        <c:if test="${not empty error}">
+                        <c:if test="${not empty sessionScope.error}">
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                ${error}
+                                ${sessionScope.error}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
+                            <c:remove var="error" scope="session"/>
                         </c:if>
 
-                        <form action="editCategory" method="post">
+                        <form action="${pageContext.request.contextPath}/editCategory" method="post">
                             <input type="hidden" name="id" value="${category.categoryId}">
                             <div class="category-info">
                                 <div class="mb-3">
@@ -252,9 +261,10 @@
                                         id="categoryName" 
                                         name="categoryName" 
                                         class="form-control" 
-                                        value="${category.categoryName}" 
-                                        required
+                                        value="${not empty sessionScope.categoryName ? sessionScope.categoryName : category.categoryName}" 
+                                        placeholder="Enter category name"
                                     />
+                                    <span class="error">${sessionScope.categoryNameError}</span>
                                 </div>
                                 <div class="mb-3">
                                     <label for="description" class="form-label fw-semibold">Description:</label>
@@ -263,7 +273,9 @@
                                         name="description" 
                                         class="form-control" 
                                         rows="4"
-                                    >${category.description}</textarea>
+                                        placeholder="Enter description"
+                                    >${not empty sessionScope.description ? sessionScope.description : category.description}</textarea>
+                                    <span class="error">${sessionScope.descriptionError}</span>
                                 </div>
                                 <div class="d-flex justify-content-end">
                                     <button type="submit" class="btn btn-success">Save Category</button>

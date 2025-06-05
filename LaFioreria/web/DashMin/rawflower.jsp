@@ -265,39 +265,58 @@
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
+                                                <!-- Hiển thị thông báo lỗi chung -->
+                                                <c:if test="${not empty sessionScope.error}">
+                                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                        ${sessionScope.error}
+                                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                    </div>
+                                                    <c:remove var="error" scope="session"/>
+                                                </c:if>
                                                 <!-- Form Add Perfume -->
-                                                <form enctype="multipart/form-data" action="addRawFlower" method="post">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Raw Flower Name:</label>
-                                                        <input type="text" class="form-control" name="rawName" placeholder="Enter raw flower name" required>
+                                                <form action="${pageContext.request.contextPath}/addRawFlower" method="post" class="mt-3">
+                                                    <div class="form-group">
+                                                        <label for="rawName" class="form-label">Raw Flower Name:</label>
+                                                        <input type="text" id="rawName" name="rawName" class="form-control" 
+                                                               value="${sessionScope.rawName}" placeholder="Enter raw flower name">
+                                                        <span class="error">${sessionScope.rawNameError}</span>
                                                     </div>
 
                                                     <div class="row mb-3">
                                                         <div class="col-sm-6">
-                                                            <label class="form-label">Unit Price ($):</label>
-                                                            <input type="number" class="form-control" name="unitPrice" min="0" required>
+                                                            <label for="unitPrice" class="form-label">Unit Price (VND):</label>
+                                                            <input type="text" id="unitPrice" name="unitPrice" class="form-control" 
+                                                                   value="${sessionScope.unitPrice}" placeholder="Enter unit price">
+                                                            <span class="error">${sessionScope.unitPriceError}</span>
                                                         </div>
                                                         <div class="col-sm-6">
-                                                            <label class="form-label">Import Price ($):</label>
-                                                            <input type="number" class="form-control" name="importPrice" min="0" required>
+                                                            <label for="importPrice" class="form-label">Import Price (VND):</label>
+                                                            <input type="text" id="importPrice" name="importPrice" class="form-control" 
+                                                                   value="${sessionScope.importPrice}" placeholder="Enter import price">
+                                                            <span class="error">${sessionScope.importPriceError}</span>
                                                         </div>
                                                     </div>
 
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Warehouse:</label>
-                                                        <select class="form-select" name="warehouseId">
-                                                            <c:forEach items="${listW}" var="w">
-                                                                <option value="${w.warehouseId}">${w.name}</option>
-                                                            </c:forEach>
-                                                        </select>
+                                                    <div class="form-group">
+                                                        <label for="imageUrl" class="form-label">Image URL:</label>
+                                                        <input type="text" id="imageUrl" name="imageUrl" class="form-control" 
+                                                               value="${sessionScope.imageUrl}" placeholder="Enter image URL">
+                                                        <span class="error">${sessionScope.imageUrlError}</span>
                                                     </div>
 
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Image URL:</label>
-                                                        <input type="text" class="form-control" name="imageUrl" placeholder="Enter image URL" required>
+                                                    <div class="form-group">
+                                                        <label for="warehouseId" class="form-label">Warehouse:</label>
+                                                        <select id="warehouseId" name="warehouseId" class="form-select">
+                                                            <c:forEach items="${sessionScope.listW}" var="w">
+                                                                <option value="${w.warehouseId}" ${sessionScope.warehouseId == w.warehouseId ? 'selected' : ''}>${w.name}</option>
+                                                            </c:forEach>
+                                                        </select>
+                                                        <span class="error">${sessionScope.warehouseIdError}</span>
                                                     </div>
-                                                    <div class="text-center">
+
+                                                    <div class="mt-3 text-center">
                                                         <button type="submit" class="btn btn-primary">Add Flower</button>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                                     </div>
                                                 </form>
                                             </div>

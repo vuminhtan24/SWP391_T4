@@ -18,7 +18,7 @@
         <meta content="" name="description">
 
         <!-- Favicon -->
-        <link href="img/favicon.ico" rel="icon">
+        <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
 
         <!-- Google Web Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -77,6 +77,14 @@
 
             .btn-secondary:hover {
                 background-color: #5a6268;
+            }
+
+            /* Thêm style cho thông báo lỗi */
+            .error {
+                color: red;
+                font-size: 0.9rem;
+                margin-top: 5px;
+                display: block;
             }
         </style>
     </head>
@@ -235,14 +243,15 @@
                         <h6 class="mb-4">Add Category</h6>
 
                         <!-- Hiển thị thông báo lỗi nếu có -->
-                        <c:if test="${not empty error}">
+                        <c:if test="${not empty sessionScope.error}">
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                ${error}
+                                ${sessionScope.error}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
+                            <c:remove var="error" scope="session"/>
                         </c:if>
 
-                        <form action="addCategory" method="post">
+                        <form action="${pageContext.request.contextPath}/addCategory" method="post">
                             <div class="category-info">
                                 <div class="mb-3">
                                     <label for="categoryName" class="form-label fw-semibold">Category Name:</label>
@@ -251,9 +260,10 @@
                                         id="categoryName" 
                                         name="categoryName" 
                                         class="form-control" 
-                                        value="${param.categoryName}" 
-                                        required
+                                        value="${sessionScope.categoryName}" 
+                                        placeholder="Enter category name"
                                     />
+                                    <span class="error">${sessionScope.categoryNameError}</span>
                                 </div>
                                 <div class="mb-3">
                                     <label for="description" class="form-label fw-semibold">Description:</label>
@@ -262,7 +272,9 @@
                                         name="description" 
                                         class="form-control" 
                                         rows="4"
-                                    >${param.description}</textarea>
+                                        placeholder="Enter description"
+                                    >${sessionScope.description}</textarea>
+                                    <span class="error">${sessionScope.descriptionError}</span>
                                 </div>
                                 <div class="d-flex justify-content-end">
                                     <button type="submit" class="btn btn-success">Add Category</button>
@@ -310,4 +322,3 @@
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
     </body>
 </html>
-
