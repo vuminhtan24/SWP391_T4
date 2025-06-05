@@ -125,7 +125,7 @@
                                 <tr>
                                     <td>Search name: </td>
                                     <td><input type="text" name="txtSearchName" value="${keyword}" class="form-control" placeholder="Search" aria-label="Search"
-                                           aria-describedby="basic-addon1"></td>
+                                               aria-describedby="basic-addon1"></td>
                                     <td>
                                         <select class="form-select mb-3" aria-label="Default select example" name="sortField">
                                             <option value="User_ID" <c:if test="${sortField == 'User_ID'}">selected</c:if>>User ID</option>
@@ -271,7 +271,12 @@
                                                 <button class="btn btn-danger m-2" type="submit">Delete</button>
                                             </form>
                                         </td>
-
+                                        <td>
+                                            <form action="${pageContext.request.contextPath}/viewuserdetail" method="get">
+                                                <input type="hidden" name="id" value="${user.userid}" />
+                                                <button class="btn btn-danger m-2" type="submit">View User</button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 </c:forEach>
                             </tbody>

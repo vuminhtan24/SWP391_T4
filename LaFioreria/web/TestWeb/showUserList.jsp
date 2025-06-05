@@ -99,6 +99,13 @@
                             </form>
                         </td>
 
+                        <td>
+                            <form action="DeleteUserListServlet" method="post" onsubmit="return confirm('Confirm Delete this user ?');">
+                                <input type="hidden" name="userId" value="${user.userid}" />
+                                <button type="submit">View Detail</button>
+                            </form>
+                        </td>
+
                     </tr>
                 </c:forEach>
             </tbody>
