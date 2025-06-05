@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,6 +17,7 @@ import dal.WarehouseDAO;
 import java.sql.Date;
 import java.util.List;
 import model.Warehouse;
+import util.Validate;
 
 /**
  *
@@ -39,10 +41,12 @@ public class UpdateRawFlower extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession();
         try {
-            int raw_id = Integer.parseInt(request.getParameter("raw_id"));
-            String raw_name = request.getParameter("raw_name");
-            String raw_quantityStr = request.getParameter("raw_quantity");
+            // Lấy tham số từ form
+            String rawIdStr = request.getParameter("raw_id");
+            String rawName = request.getParameter("raw_name");
+            String rawQuantityStr = request.getParameter("raw_quantity");
             String unitPriceStr = request.getParameter("unit_price");
             String expirationDate = request.getParameter("expiration_date");
             String importPriceStr = request.getParameter("import_price");
@@ -50,54 +54,76 @@ public class UpdateRawFlower extends HttpServlet {
             String holdStr = request.getParameter("hold");
             String imageUrl = request.getParameter("image_url");
 
-            // Validate inputs
-            if (raw_name == null || raw_name.trim().isEmpty()) {
-                request.setAttribute("ms", "Error: Product name cannot be empty.");
-                request.getRequestDispatcher("DashMin/updaterawflower.jsp").forward(request, response);
-                return;
-            }
-            if (imageUrl == null || imageUrl.trim().isEmpty()) {
-                request.setAttribute("ms", "Error: Image URL cannot be empty.");
+            // Khởi tạo WarehouseDAO
+            WarehouseDAO wh = new WarehouseDAO();
+
+            // Validate các field
+            String rawNameError = Validate.validateText(rawName, "Raw Flower Name");
+            String unitPriceError = Validate.validateNumberWithRange(unitPriceStr, "Unit Price", 1, Integer.MAX_VALUE);
+            String importPriceError = Validate.validateNumberWithRange(importPriceStr, "Import Price", 1, Integer.MAX_VALUE);
+            String imageUrlError = Validate.validateImageUrl(imageUrl);
+            String warehouseIdError = Validate.validateWarehouseId(warehouseIdStr, wh);
+
+            // Nếu có lỗi, lưu thông báo lỗi và dữ liệu vào session, hiển thị lại form
+            if (rawNameError != null || unitPriceError != null || importPriceError != null || 
+                imageUrlError != null || warehouseIdError != null) {
+                session.setAttribute("rawNameError", rawNameError);
+                session.setAttribute("unitPriceError", unitPriceError);
+                session.setAttribute("importPriceError", importPriceError);
+                session.setAttribute("imageUrlError", imageUrlError);
+                session.setAttribute("warehouseIdError", warehouseIdError);
+                // Lưu dữ liệu đã nhập
+                session.setAttribute("rawId", rawIdStr);
+                session.setAttribute("rawName", rawName);
+                session.setAttribute("rawQuantity", rawQuantityStr);
+                session.setAttribute("unitPrice", unitPriceStr);
+                session.setAttribute("expirationDate", expirationDate);
+                session.setAttribute("importPrice", importPriceStr);
+                session.setAttribute("warehouseId", warehouseIdStr);
+                session.setAttribute("hold", holdStr);
+                session.setAttribute("imageUrl", imageUrl);
+                // Lấy lại thông tin nguyên liệu để hiển thị
+                RawFlowerDAO rf = new RawFlowerDAO();
+                request.setAttribute("item", rf.getRawFlowerById(Integer.parseInt(rawIdStr)));
                 request.getRequestDispatcher("DashMin/updaterawflower.jsp").forward(request, response);
                 return;
             }
 
-            // Parse numeric and date fields with checks
-            int raw_quantity, unitPrice, importPrice, warehouse_id, hold;
-            Date expiration_date;
-            try {
-                raw_quantity = raw_quantityStr != null ? Integer.parseInt(raw_quantityStr) : 0;
-                unitPrice = unitPriceStr != null ? Integer.parseInt(unitPriceStr) : 0;
-                importPrice = importPriceStr != null ? Integer.parseInt(importPriceStr) : 0;
-                warehouse_id = warehouseIdStr != null ? Integer.parseInt(warehouseIdStr) : 0;
-                hold = holdStr != null ? Integer.parseInt(holdStr) : 0;
-                expiration_date = expirationDate != null && !expirationDate.isEmpty() ? Date.valueOf(expirationDate) : null;
-            } catch (NumberFormatException e) {
-                request.setAttribute("ms", "Error: Invalid numeric value provided.");
-                request.getRequestDispatcher("DashMin/updaterawflower.jsp").forward(request, response);
-                return;
-            } catch (IllegalArgumentException e) {
-                request.setAttribute("ms", "Error: Invalid date format for expiration date.");
-                request.getRequestDispatcher("DashMin/updaterawflower.jsp").forward(request, response);
-                return;
-            }
+            // Xóa các lỗi và dữ liệu trong session nếu validate thành công
+            session.removeAttribute("rawNameError");
+            session.removeAttribute("unitPriceError");
+            session.removeAttribute("importPriceError");
+            session.removeAttribute("imageUrlError");
+            session.removeAttribute("warehouseIdError");
+            session.removeAttribute("rawId");
+            session.removeAttribute("rawName");
+            session.removeAttribute("rawQuantity");
+            session.removeAttribute("unitPrice");
+            session.removeAttribute("expirationDate");
+            session.removeAttribute("importPrice");
+            session.removeAttribute("warehouseId");
+            session.removeAttribute("hold");
+            session.removeAttribute("imageUrl");
 
-            // Ensure non-negative values
-            if (unitPrice < 0 || importPrice < 0 || raw_quantity < 0 || hold < 0 || warehouse_id <= 0) {
-                request.setAttribute("ms", "Error: Numeric values must be non-negative and warehouse ID must be valid.");
-                request.getRequestDispatcher("DashMin/updaterawflower.jsp").forward(request, response);
-                return;
-            }
+            // Chuyển đổi dữ liệu
+            int rawId = Integer.parseInt(rawIdStr);
+            int rawQuantity = Integer.parseInt(rawQuantityStr);
+            int unitPrice = Integer.parseInt(unitPriceStr);
+            Date expirationDateParsed = expirationDate != null && !expirationDate.isEmpty() ? Date.valueOf(expirationDate) : null;
+            int importPrice = Integer.parseInt(importPriceStr);
+            int warehouseId = Integer.parseInt(warehouseIdStr);
+            int hold = Integer.parseInt(holdStr);
 
-            // Update the database
+            // Cập nhật nguyên liệu
             RawFlowerDAO rf = new RawFlowerDAO();
-            rf.updateRawFlower4(raw_id, raw_name, raw_quantity, unitPrice, expiration_date, warehouse_id, imageUrl, hold, importPrice);
+            rf.updateRawFlower4(rawId, rawName, rawQuantity, unitPrice, expirationDateParsed, warehouseId, imageUrl, hold, importPrice);
 
-            // Redirect on success
-            response.sendRedirect("update_flower?raw_id=" + raw_id);
+            // Thông báo thành công và chuyển hướng về trang danh sách
+            session.setAttribute("message", "Raw flower updated successfully!");
+            response.sendRedirect("DashMin/rawflower2");
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("ms", "Error: An unexpected error occurred during the update.");
+            session.setAttribute("error", "An error occurred while updating the raw flower.");
             request.getRequestDispatcher("DashMin/updaterawflower.jsp").forward(request, response);
         }
     }
