@@ -16,14 +16,16 @@ import model.OrderItem;
  *
  * @author Legion
  */
-public class CartDAO extends DBContext {
+public class CartDAO extends BaseDao {
 
     public CartDetail getCartItem(int customerId, int bouquetId) {
         String sql = "SELECT * FROM cartdetails WHERE customer_id = ? AND bouquet_id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, customerId);
-            stmt.setInt(2, bouquetId);
-            ResultSet rs = stmt.executeQuery();
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, customerId);
+            ps.setInt(2, bouquetId);
+            rs = ps.executeQuery();
             if (rs.next()) {
                 return new CartDetail(
                         rs.getInt("cart_id"),
@@ -34,68 +36,96 @@ public class CartDAO extends DBContext {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
         }
         return null;
     }
-
+    
+    
     public void updateQuantity(int customerId, int bouquetId, int quantity) {
         String sql = "UPDATE cartdetails SET quantity = ? WHERE customer_id = ? AND bouquet_id = ?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, quantity);
-            stmt.setInt(2, customerId);
-            stmt.setInt(3, bouquetId);
-            stmt.executeUpdate();
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, quantity);
+            ps.setInt(2, customerId);
+            ps.setInt(3, bouquetId);
+            ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
         }
     }
 
     public void deleteItem(int customerId, int bouquetId) {
         String sql = "DELETE FROM cartdetails WHERE customer_id = ? AND bouquet_id = ?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, customerId);
-            stmt.setInt(2, bouquetId);
-            stmt.executeUpdate();
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, customerId);
+            ps.setInt(2, bouquetId);
+            ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
         }
     }
 
     public void insertItem(int customerId, int bouquetId, int quantity) {
         String sql = "INSERT INTO cartdetails (customer_id, bouquet_id, quantity) VALUES (?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, customerId);
-            stmt.setInt(2, bouquetId);
-            stmt.setInt(3, quantity);
-            stmt.executeUpdate();
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, customerId);
+            ps.setInt(2, bouquetId);
+            ps.setInt(3, quantity);
+            ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
         }
     }
 
     public List<CartDetail> getCartDetailsByCustomerId(int customerId) {
         List<CartDetail> list = new ArrayList<>();
         String sql = "SELECT cart_id, customer_id, bouquet_id, quantity FROM cartdetails WHERE customer_id = ?";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
             ps.setInt(1, customerId);
-
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             while (rs.next()) {
                 CartDetail cd = new CartDetail();
                 cd.setCartId(rs.getInt("cart_id"));
                 cd.setCustomerId(rs.getInt("customer_id"));
                 cd.setBouquetId(rs.getInt("bouquet_id"));
                 cd.setQuantity(rs.getInt("quantity"));
-
                 list.add(cd);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
         }
-
         return list;
     }
 
@@ -106,12 +136,11 @@ public class CartDAO extends DBContext {
         FROM bouquet
         WHERE bouquet_id = ?
     """;
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
             ps.setInt(1, bouquetId);
-            ResultSet rs = ps.executeQuery();
-
+            rs = ps.executeQuery();
             if (rs.next()) {
                 Bouquet bouquet = new Bouquet();
                 bouquet.setBouquetId(rs.getInt("bouquet_id"));
@@ -120,56 +149,78 @@ public class CartDAO extends DBContext {
                 bouquet.setImageUrl(rs.getString("image_url"));
                 bouquet.setCid(rs.getInt("cid"));
                 bouquet.setPrice(rs.getInt("price"));
-
                 return bouquet;
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
         }
-
-        return null; // nếu không tìm thấy
+        return null;
     }
 
-    public int insertOrder(Order order) throws SQLException {
+    public int insertOrder(Order order) {
         String sql = "INSERT INTO `order` (order_date, customer_id, total_amount, status_id) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setString(1, order.getOrderDate());
             ps.setInt(2, order.getCustomerId());
             ps.setString(3, order.getTotalAmount());
-            ps.setInt(4, 1); // mặc định status_id = 1 (đang xử lý)
+            ps.setInt(4, 1); // status_id = 1 (processing)
             ps.executeUpdate();
-
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    return rs.getInt(1); // order_id vừa tạo
-                }
+            rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
             }
         }
         return -1;
     }
 
-    public void insertOrderItem(OrderItem item) throws SQLException {
+    public void insertOrderItem(OrderItem item) {
         String sql = "INSERT INTO order_item (order_id, bouquet_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
-        try (
-                PreparedStatement ps = connection.prepareStatement(sql)) {
-
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
             ps.setInt(1, item.getOrderId());
             ps.setInt(2, item.getBouquetId());
             ps.setInt(3, item.getQuantity());
             ps.setDouble(4, item.getUnitPrice());
-
             ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
         }
     }
 
-    public void deleteCartByCustomerId(int customerId) throws SQLException {
+    public void deleteCartByCustomerId(int customerId) {
         String sql = "DELETE FROM cartdetails WHERE customer_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
             ps.setInt(1, customerId);
             ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
         }
     }
 

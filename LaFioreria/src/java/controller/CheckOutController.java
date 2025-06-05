@@ -56,7 +56,7 @@ public class CheckOutController extends HttpServlet {
             }
             dao.deleteCartByCustomerId(customerId);
             response.sendRedirect("./thanks-you.jsp");
-        } catch (IOException | SQLException e) {
+        } catch (IOException e) {
             response.sendRedirect("./404.jsp");
         }
     }
