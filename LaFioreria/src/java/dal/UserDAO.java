@@ -18,16 +18,22 @@ import model.UserManager;
  *
  * @author ADMIN
  */
-public class UserDAO extends DBContext {
+public class UserDAO extends BaseDao {
 
+    // Assuming you have instance variables:
+// private Connection connection;
+// private PreparedStatement ps;
+// private ResultSet rs;
+// private DBC dbc; // Your database connection helper
+// And a method closeResources() that closes rs, ps, and connection.
     public List<User> getAll() {
         List<User> listUser = new ArrayList<>();
-
-        String sql = "Select * from la_fioreria.user";
+        String sql = "SELECT * FROM la_fioreria.user";
 
         try {
-            PreparedStatement pre = connection.prepareStatement(sql);
-            ResultSet rs = pre.executeQuery();
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
             while (rs.next()) {
                 int user_id = rs.getInt("User_ID");
                 String username = rs.getString("Username").trim();
@@ -41,7 +47,13 @@ public class UserDAO extends DBContext {
                 listUser.add(newUser);
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
         }
 
         return listUser;
@@ -74,204 +86,268 @@ public class UserDAO extends DBContext {
 
 
     public void Update(User u) {
-
-        String sql = "update user set Username = ?, Password = ?, Fullname = ?, Email = ?,Phone = ?,Address = ?, Role = ? where User_ID = ?;";
+        String sql = "UPDATE la_fioreria.user SET Username = ?, Password = ?, Fullname = ?, Email = ?, Phone = ?, Address = ?, Role = ? WHERE User_ID = ?";
 
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, u.getUsername());
-            ps.setString(2, u.getPassword());
-            ps.setString(3, u.getFullname());
-            ps.setString(4, u.getEmail());
-            ps.setString(5, u.getPhone());
-            ps.setString(6, u.getAddress());
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, u.getUsername().trim());
+            ps.setString(2, u.getPassword().trim());
+            ps.setString(3, u.getFullname().trim());
+            ps.setString(4, u.getEmail().trim());
+            ps.setString(5, u.getPhone().trim());
+            ps.setString(6, u.getAddress().trim());
             ps.setInt(7, u.getRole());
             ps.setInt(8, u.getUserid());
-            ps.execute();
+            ps.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
         }
     }
 
     public List<Role> getAllRole() {
-
         List<Role> list = new ArrayList<>();
-        String sql = "select * from role;";
+        String sql = "SELECT * FROM la_fioreria.role";
 
         try {
-
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
             while (rs.next()) {
                 int id = rs.getInt("Role_id");
-                String role_name = rs.getString("Role_name");
+                String role_name = rs.getString("Role_name").trim();
                 Role r = new Role(id, role_name);
                 list.add(r);
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
         }
+
         return list;
     }
 
     public List<String> getRoleNames() {
         List<String> listRole = new ArrayList<>();
-
-        String sql = "select Role_name from role;";
+        String sql = "SELECT Role_name FROM la_fioreria.role";
 
         try {
-            PreparedStatement pre = connection.prepareStatement(sql);
-            ResultSet rs = pre.executeQuery();
-
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
             while (rs.next()) {
-                String Role_name = rs.getString("Role_name");
-                listRole.add(Role_name);
+                String role_name = rs.getString("Role_name").trim();
+                listRole.add(role_name);
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
         }
+
         return listRole;
     }
 
     public List<Integer> getIds() {
-
         List<Integer> ids = new ArrayList<>();
-        String sql = "select user_id from user;";
+        String sql = "SELECT User_ID FROM la_fioreria.user";
 
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
             while (rs.next()) {
-                int id = rs.getInt("user_id");
+                int id = rs.getInt("User_ID");
                 ids.add(id);
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
         }
+
         return ids;
     }
 
     public UserManager getUserById(int id) {
-        String sql = "select u.User_ID,u.Username,u.Password,u.Fullname,u.Email,u.Phone,u.Address,r.Role_name from user u join role r on u.Role = r.Role_id where u.User_ID = ?;";
+        String sql
+                = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
+                + "FROM la_fioreria.user u "
+                + "JOIN la_fioreria.role r ON u.Role = r.Role_id "
+                + "WHERE u.User_ID = ?";
 
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
             ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             if (rs.next()) {
-                String user_name = rs.getString("username");
-                String password = rs.getString("password");
-                String fullname = rs.getString("fullname");
-                String email = rs.getString("email");
-                String phone = rs.getString("phone");
-                String address = rs.getString("address");
-                String role = rs.getString("role_name");
-                UserManager user = new UserManager(id, user_name, password, fullname, email, phone, address, role);
-                return user;
+                String user_name = rs.getString("Username").trim();
+                String password = rs.getString("Password").trim();
+                String fullname = rs.getString("Fullname").trim();
+                String email = rs.getString("Email").trim();
+                String phone = rs.getString("Phone").trim();
+                String address = rs.getString("Address").trim();
+                String role = rs.getString("Role_name").trim();
+                return new UserManager(id, user_name, password, fullname, email, phone, address, role);
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
         }
+
         return null;
     }
 
     public List<UserManager> getAllUserManager() {
-        String sql = "select u.User_ID,u.Username,u.Password,u.Fullname,u.Email,u.Phone,u.Address,r.Role_name from user u join role r on u.Role = r.Role_id order by u.User_ID;";
         List<UserManager> list = new ArrayList<>();
+        String sql
+                = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
+                + "FROM la_fioreria.user u "
+                + "JOIN la_fioreria.role r ON u.Role = r.Role_id "
+                + "ORDER BY u.User_ID";
+
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
             while (rs.next()) {
                 int id = rs.getInt("User_ID");
-                String user_name = rs.getString("username");
-                String password = rs.getString("password");
-                String fullname = rs.getString("fullname");
-                String email = rs.getString("email");
-                String phone = rs.getString("phone");
-                String address = rs.getString("address");
-                String role = rs.getString("role_name");
+                String user_name = rs.getString("Username").trim();
+                String password = rs.getString("Password").trim();
+                String fullname = rs.getString("Fullname").trim();
+                String email = rs.getString("Email").trim();
+                String phone = rs.getString("Phone").trim();
+                String address = rs.getString("Address").trim();
+                String role = rs.getString("Role_name").trim();
                 UserManager user = new UserManager(id, user_name, password, fullname, email, phone, address, role);
                 list.add(user);
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
         }
+
         return list;
     }
 
     public List<UserManager> getUserByRoleId(int role_id) {
-        String sql = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
-                + "FROM user u "
-                + "JOIN role r ON u.Role = r.Role_id "
+        List<UserManager> list = new ArrayList<>();
+        String sql
+                = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
+                + "FROM la_fioreria.user u "
+                + "JOIN la_fioreria.role r ON u.Role = r.Role_id "
                 + "WHERE r.Role_id = ? "
                 + "ORDER BY u.User_ID";
-        List<UserManager> list = new ArrayList<>();
+
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
             ps.setInt(1, role_id);
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             while (rs.next()) {
                 int id = rs.getInt("User_ID");
-                String user_name = rs.getString("username");
-                String password = rs.getString("password");
-                String fullname = rs.getString("fullname");
-                String email = rs.getString("email");
-                String phone = rs.getString("phone");
-                String address = rs.getString("address");
-                String role = rs.getString("role_name");
+                String user_name = rs.getString("Username").trim();
+                String password = rs.getString("Password").trim();
+                String fullname = rs.getString("Fullname").trim();
+                String email = rs.getString("Email").trim();
+                String phone = rs.getString("Phone").trim();
+                String address = rs.getString("Address").trim();
+                String role = rs.getString("Role_name").trim();
                 UserManager user = new UserManager(id, user_name, password, fullname, email, phone, address, role);
                 list.add(user);
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
         }
+
         return list;
     }
 
     public List<UserManager> getUserByRoleIdSearchName(int role_id, String kw) {
         List<UserManager> list = new ArrayList<>();
+        boolean filterByRole = (role_id != 0);
         String sql;
-        boolean filterByRole = role_id != 0;
 
         if (filterByRole) {
-            sql = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
-                    + "FROM user u "
-                    + "JOIN role r ON u.Role = r.Role_id "
+            sql
+                    = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
+                    + "FROM la_fioreria.user u "
+                    + "JOIN la_fioreria.role r ON u.Role = r.Role_id "
                     + "WHERE u.Username LIKE ? AND r.Role_id = ? "
                     + "ORDER BY u.User_ID";
         } else {
-            sql = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
-                    + "FROM user u "
-                    + "JOIN role r ON u.Role = r.Role_id "
+            sql
+                    = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
+                    + "FROM la_fioreria.user u "
+                    + "JOIN la_fioreria.role r ON u.Role = r.Role_id "
                     + "WHERE u.Username LIKE ? "
                     + "ORDER BY u.User_ID";
         }
 
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, "%" + kw + "%"); // Tìm theo từ khóa
-
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, "%" + kw.trim() + "%");
             if (filterByRole) {
-                ps.setInt(2, role_id); // Chỉ set nếu có dấu ?
+                ps.setInt(2, role_id);
             }
-
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             while (rs.next()) {
                 int id = rs.getInt("User_ID");
-                String user_name = rs.getString("username");
-                String password = rs.getString("password");
-                String fullname = rs.getString("fullname");
-                String email = rs.getString("email");
-                String phone = rs.getString("phone");
-                String address = rs.getString("address");
-                String role = rs.getString("role_name");
-
+                String user_name = rs.getString("Username").trim();
+                String password = rs.getString("Password").trim();
+                String fullname = rs.getString("Fullname").trim();
+                String email = rs.getString("Email").trim();
+                String phone = rs.getString("Phone").trim();
+                String address = rs.getString("Address").trim();
+                String role = rs.getString("Role_name").trim();
                 UserManager user = new UserManager(id, user_name, password, fullname, email, phone, address, role);
                 list.add(user);
             }
         } catch (SQLException e) {
-            System.out.println("Lỗi SQL: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
         }
 
         return list;
@@ -280,7 +356,6 @@ public class UserDAO extends DBContext {
     public List<UserManager> getSortedUsers(int roleId, String keyword, String sortField, String sortOrder) {
         List<UserManager> list = new ArrayList<>();
 
-        // Xử lý sort mặc định
         if (sortField == null || sortField.isEmpty()) {
             sortField = "Fullname";
         }
@@ -288,8 +363,9 @@ public class UserDAO extends DBContext {
             sortOrder = "asc";
         }
 
-        // Chỉ cho phép các cột được sort
-        List<String> validFields = Arrays.asList("User_ID", "Username", "Password", "Fullname", "Email", "Phone", "Address", "Role_name");
+        List<String> validFields = Arrays.asList(
+                "User_ID", "Username", "Password", "Fullname", "Email", "Phone", "Address", "Role_name"
+        );
         if (!validFields.contains(sortField)) {
             sortField = "User_ID";
         }
@@ -297,48 +373,54 @@ public class UserDAO extends DBContext {
             sortOrder = "asc";
         }
 
+        StringBuilder sql = new StringBuilder(
+                "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
+                + "FROM la_fioreria.user u "
+                + "JOIN la_fioreria.role r ON u.Role = r.Role_id "
+                + "WHERE 1=1"
+        );
+
+        if (roleId != 0) {
+            sql.append(" AND r.Role_id = ?");
+        }
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND u.Fullname LIKE ?");
+        }
+        sql.append(" ORDER BY ").append(sortField).append(" ").append(sortOrder);
+
         try {
-            String sql = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
-                    + "FROM user u "
-                    + "JOIN role r ON u.Role = r.Role_id "
-                    + "WHERE 1=1";
-
-            if (roleId != 0) {
-                sql += " AND r.Role_id = ?";
-            }
-
-            if (keyword != null && !keyword.trim().isEmpty()) {
-                sql += " AND u.Fullname LIKE ?";
-            }
-
-            sql += " ORDER BY " + sortField + " " + sortOrder;
-
-            PreparedStatement ps = connection.prepareStatement(sql);
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql.toString());
 
             int index = 1;
             if (roleId != 0) {
                 ps.setInt(index++, roleId);
             }
             if (keyword != null && !keyword.trim().isEmpty()) {
-                ps.setString(index++, "%" + keyword + "%");
+                ps.setString(index++, "%" + keyword.trim() + "%");
             }
 
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             while (rs.next()) {
                 UserManager u = new UserManager();
                 u.setUserid(rs.getInt("User_ID"));
-                u.setUsername(rs.getString("Username"));
-                u.setPassword(rs.getString("Password"));
-                u.setFullname(rs.getString("Fullname"));
-                u.setEmail(rs.getString("Email"));
-                u.setPhone(rs.getString("Phone"));
-                u.setAddress(rs.getString("Address"));
-                u.setRole(rs.getString("Role_name")); // lấy tên role
+                u.setUsername(rs.getString("Username").trim());
+                u.setPassword(rs.getString("Password").trim());
+                u.setFullname(rs.getString("Fullname").trim());
+                u.setEmail(rs.getString("Email").trim());
+                u.setPhone(rs.getString("Phone").trim());
+                u.setAddress(rs.getString("Address").trim());
+                u.setRole(rs.getString("Role_name").trim());
                 list.add(u);
             }
-
         } catch (SQLException e) {
-            System.out.println("Lỗi SQL: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
         }
 
         return list;
@@ -346,48 +428,57 @@ public class UserDAO extends DBContext {
 
     public List<UserManager> getSortedUsersWithPaging(int roleId, String keyword, String sortField, String sortOrder, int offset, int limit) {
         List<UserManager> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+                "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
+                + "FROM la_fioreria.user u "
+                + "JOIN la_fioreria.role r ON u.Role = r.Role_id "
+                + "WHERE (u.status IS NULL OR u.status != 'rejected')"
+        );
+
+        if (roleId != 0) {
+            sql.append(" AND r.Role_id = ?");
+        }
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND u.Fullname LIKE ?");
+        }
+        sql.append(" ORDER BY ").append(sortField).append(" ").append(sortOrder);
+        sql.append(" LIMIT ?, ?");
+
         try {
-            String sql = "SELECT u.User_ID, u.Username, u.Password, u.Fullname, u.Email, u.Phone, u.Address, r.Role_name "
-                    + "FROM user u JOIN role r ON u.Role = r.Role_id WHERE 1=1 "
-                    + "AND (u.status IS NULL OR u.status != 'rejected')";
-
-            if (roleId != 0) {
-                sql += " AND r.Role_id = ?";
-            }
-            if (keyword != null && !keyword.trim().isEmpty()) {
-                sql += " AND u.Fullname LIKE ?";
-            }
-            sql += " ORDER BY " + sortField + " " + sortOrder;
-            sql += " LIMIT ?, ?";
-
-            PreparedStatement ps = connection.prepareStatement(sql);
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql.toString());
 
             int idx = 1;
             if (roleId != 0) {
                 ps.setInt(idx++, roleId);
             }
             if (keyword != null && !keyword.trim().isEmpty()) {
-                ps.setString(idx++, "%" + keyword + "%");
+                ps.setString(idx++, "%" + keyword.trim() + "%");
             }
             ps.setInt(idx++, offset);
             ps.setInt(idx, limit);
 
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             while (rs.next()) {
                 UserManager u = new UserManager();
                 u.setUserid(rs.getInt("User_ID"));
-                u.setUsername(rs.getString("Username"));
-                u.setPassword(rs.getString("Password"));
-                u.setFullname(rs.getString("Fullname"));
-                u.setEmail(rs.getString("Email"));
-                u.setPhone(rs.getString("Phone"));
-                u.setAddress(rs.getString("Address"));
-                u.setRole(rs.getString("Role_name"));
+                u.setUsername(rs.getString("Username").trim());
+                u.setPassword(rs.getString("Password").trim());
+                u.setFullname(rs.getString("Fullname").trim());
+                u.setEmail(rs.getString("Email").trim());
+                u.setPhone(rs.getString("Phone").trim());
+                u.setAddress(rs.getString("Address").trim());
+                u.setRole(rs.getString("Role_name").trim());
                 list.add(u);
             }
-
         } catch (SQLException e) {
-            System.out.println("Lỗi SQL khi phân trang: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
         }
 
         return list;
@@ -395,82 +486,110 @@ public class UserDAO extends DBContext {
 
     public int getTotalUserCount(int roleId, String keyword) {
         int total = 0;
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(*) FROM la_fioreria.user u "
+                + "JOIN la_fioreria.role r ON u.Role = r.Role_id "
+                + "WHERE (u.status IS NULL OR u.status != 'rejected')"
+        );
+
+        if (roleId != 0) {
+            sql.append(" AND r.Role_id = ?");
+        }
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND u.Fullname LIKE ?");
+        }
+
         try {
-            String sql = "SELECT COUNT(*) FROM user u JOIN role r ON u.Role = r.Role_id WHERE 1=1 "
-                    + "AND(u.status IS NULL OR u.status != 'rejected')";
-
-            if (roleId != 0) {
-                sql += " AND r.Role_id = ?";
-            }
-            if (keyword != null && !keyword.trim().isEmpty()) {
-                sql += " AND u.Fullname LIKE ?";
-            }
-
-            PreparedStatement ps = connection.prepareStatement(sql);
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql.toString());
 
             int idx = 1;
             if (roleId != 0) {
                 ps.setInt(idx++, roleId);
             }
             if (keyword != null && !keyword.trim().isEmpty()) {
-                ps.setString(idx++, "%" + keyword + "%");
+                ps.setString(idx++, "%" + keyword.trim() + "%");
             }
 
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             if (rs.next()) {
                 total = rs.getInt(1);
             }
         } catch (SQLException e) {
-            System.out.println("Lỗi khi đếm số lượng bản ghi: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
         }
 
         return total;
     }
 
-    
-    
     public void insertUser(User u) {
-        String sql = "insert into user (User_ID,Username,Password,Fullname,Email,Phone,Address,Role) values(?,?,?,?,?,?,?,?);";
+        String sql
+                = "INSERT INTO la_fioreria.user "
+                + "(User_ID, Username, Password, Fullname, Email, Phone, Address, Role) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try {
-
-            PreparedStatement ps = connection.prepareStatement(sql);
-
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
             ps.setInt(1, u.getUserid());
-            ps.setString(2, u.getUsername());
-            ps.setString(3, u.getPassword());
-            ps.setString(4, u.getFullname());
-            ps.setString(5, u.getEmail());
-            ps.setString(6, u.getPhone());
-            ps.setString(7, u.getAddress());
+            ps.setString(2, u.getUsername().trim());
+            ps.setString(3, u.getPassword().trim());
+            ps.setString(4, u.getFullname().trim());
+            ps.setString(5, u.getEmail().trim());
+            ps.setString(6, u.getPhone().trim());
+            ps.setString(7, u.getAddress().trim());
             ps.setInt(8, u.getRole());
             ps.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
         }
     }
-    
-    public void rejectUser(int userId){
-        String sql = "UPDATE user SET status = 'rejected' where User_ID = ?";
+
+    public void rejectUser(int userId) {
+        String sql = "UPDATE la_fioreria.user SET status = 'rejected' WHERE User_ID = ?";
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
             ps.setInt(1, userId);
             ps.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
         }
     }
-    
-    
-    public void delete(int id){
-        String sql = "delete from user "
-                + "where User_ID = ?";
+
+    public void delete(int id) {
+        String sql = "DELETE FROM la_fioreria.user WHERE User_ID = ?";
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
             ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
         }
     }
 

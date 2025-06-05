@@ -16,172 +16,191 @@ import model.Category;
  *
  * @author ADMIN
  */
-public class CategoryDAO extends DBContext {
+public class CategoryDAO extends BaseDao {
 
     public List<Category> getAll() {
-    List<Category> listCategory = new ArrayList<>();
-    String sql = "SELECT * FROM la_fioreria.category";
-    try {
-        PreparedStatement pre = connection.prepareStatement(sql);
-        ResultSet rs = pre.executeQuery();
-        while (rs.next()) {
-            int category_id = rs.getInt("category_id");
-            String category_name = rs.getString("category_name").trim();
-            String description = rs.getString("description").trim();
-            Category newCategory = new Category(category_id, category_name, description);
-            listCategory.add(newCategory);
-        }
-    } catch (SQLException e) {
-        System.out.println(e);
-    }
-    return listCategory;
-}
-    
-    public List<Category> getBouquetCategory() {
-        List<Category> listBouquetCategory = new ArrayList<>();
-
-        String sql = "SELECT DISTINCT c.* \n"
-                + "FROM la_fioreria.category c\n"
-                + "JOIN la_fioreria.bouquet b ON c.category_id = b.cid";
-
+        List<Category> listCategory = new ArrayList<>();
+        String sql = "SELECT * FROM la_fioreria.category";
         try {
-            PreparedStatement pre = connection.prepareStatement(sql);
-            ResultSet rs = pre.executeQuery();
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
             while (rs.next()) {
                 int category_id = rs.getInt("category_id");
                 String category_name = rs.getString("category_name").trim();
                 String description = rs.getString("description").trim();
-
-                Category newBouquetCategory = new Category(category_id, category_name, description);
-                listBouquetCategory.add(newBouquetCategory);
+                listCategory.add(new Category(category_id, category_name, description));
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return listCategory;
+    }
+
+    public List<Category> getBouquetCategory() {
+        List<Category> listBouquetCategory = new ArrayList<>();
+        String sql = "SELECT DISTINCT c.* FROM la_fioreria.category c JOIN la_fioreria.bouquet b ON c.category_id = b.cid";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int category_id = rs.getInt("category_id");
+                String category_name = rs.getString("category_name").trim();
+                String description = rs.getString("description").trim();
+                listBouquetCategory.add(new Category(category_id, category_name, description));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
         }
         return listBouquetCategory;
     }
 
     public String getCategoryNameByBouquet(int bqId) {
-        String sql = "SELECT c.category_name FROM la_fioreria.category c\n"
-                + "Join la_fioreria.bouquet b ON b.cid = c.category_id\n"
-                + "WHERE b.Bouquet_ID = ?;";
-        
+        String sql = "SELECT c.category_name FROM la_fioreria.category c JOIN la_fioreria.bouquet b ON b.cid = c.category_id WHERE b.Bouquet_ID = ?";
         try {
-            PreparedStatement pre = connection.prepareStatement(sql);
-            pre.setInt(1, bqId);
-            ResultSet rs = pre.executeQuery();
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, bqId);
+            rs = ps.executeQuery();
             if (rs.next()) {
-                String categoryName = rs.getString("category_name").trim();
-
-                return categoryName;
+                return rs.getString("category_name").trim();
             }
-        } catch (Exception e) {
-            System.out.println(e);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
         }
         return null;
     }
-       
+
     public List<Category> searchCategory(String categoryName) {
         List<Category> searchList = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT category_id, category_name, description "
-                + "FROM la_fioreria.category "
-                + "WHERE 1=1 ");
-
-        // Thêm điều kiện tìm kiếm theo category_name
-        if (categoryName != null && !categoryName.trim().isEmpty()) {
-            sql.append("AND category_name LIKE ? ");
-        } else {
-            // Nếu categoryName rỗng, trả về danh sách rỗng hoặc tất cả danh mục (tùy yêu cầu)
-            return searchList; // Hoặc có thể bỏ điều kiện này để lấy tất cả danh mục
+        String sql = "SELECT category_id, category_name, description FROM la_fioreria.category WHERE category_name LIKE ?";
+        if (categoryName == null || categoryName.trim().isEmpty()) {
+            return searchList;
         }
 
-        try (PreparedStatement pre = connection.prepareStatement(sql.toString())) {
-            if (categoryName != null && !categoryName.trim().isEmpty()) {
-                pre.setString(1, "%" + categoryName + "%");
-            }
-
-            try (ResultSet rs = pre.executeQuery()) {
-                while (rs.next()) {
-                    int category_id = rs.getInt("category_id");
-                    String category_name = rs.getString("category_name") != null ? rs.getString("category_name").trim() : "";
-                    String description = rs.getString("description") != null ? rs.getString("description").trim() : "";
-                    Category category = new Category(category_id, category_name, description);
-                    searchList.add(category);
-                }
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, "%" + categoryName.trim() + "%");
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int category_id = rs.getInt("category_id");
+                String category_name = rs.getString("category_name") != null ? rs.getString("category_name").trim() : "";
+                String description = rs.getString("description") != null ? rs.getString("description").trim() : "";
+                searchList.add(new Category(category_id, category_name, description));
             }
         } catch (SQLException e) {
-            System.out.println("Error in searchCategory: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
         }
         return searchList;
     }
-    
-    // Lấy danh mục theo ID
+
     public Category getCategoryById(int id) {
         String sql = "SELECT category_id, category_name, description FROM la_fioreria.category WHERE category_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
             ps.setInt(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    int categoryId = rs.getInt("category_id");
-                    String categoryName = rs.getString("category_name") != null ? rs.getString("category_name").trim() : "";
-                    String description = rs.getString("description") != null ? rs.getString("description").trim() : "";
-                    return new Category(categoryId, categoryName, description);
-                }
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                int categoryId = rs.getInt("category_id");
+                String categoryName = rs.getString("category_name") != null ? rs.getString("category_name").trim() : "";
+                String description = rs.getString("description") != null ? rs.getString("description").trim() : "";
+                return new Category(categoryId, categoryName, description);
             }
         } catch (SQLException e) {
-            System.out.println("Error in getCategoryById: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
         }
         return null;
     }
 
-    // Cập nhật danh mục
     public boolean updateCategory(Category category) {
         String sql = "UPDATE la_fioreria.category SET category_name = ?, description = ? WHERE category_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
             ps.setString(1, category.getCategoryName());
-            // Nếu description là null hoặc chuỗi rỗng, gán null để tránh vi phạm ràng buộc NOT NULL (nếu có)
             ps.setString(2, category.getDescription());
             ps.setInt(3, category.getCategoryId());
             int rowsAffected = ps.executeUpdate();
             System.out.println("Updated " + rowsAffected + " rows for category ID: " + category.getCategoryId());
-            return rowsAffected > 0; // Trả về true nếu cập nhật thành công
+            return rowsAffected > 0;
         } catch (SQLException e) {
-            System.out.println("Error in updateCategory: " + e.getMessage());
             e.printStackTrace();
-            return false; // Trả về false nếu có lỗi
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
         }
+        return false;
     }
-    
+
     public boolean insertCategory(Category category) {
         String sql = "INSERT INTO la_fioreria.category (category_name, description) VALUES (?, ?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
             ps.setString(1, category.getCategoryName());
             ps.setString(2, category.getDescription());
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
-            System.out.println("Error in insertCategory: " + e.getMessage());
             e.printStackTrace();
-            return false;
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
         }
+        return false;
     }
-    
-    // Xóa danh mục theo ID
+
     public boolean deleteCategory(int categoryId) {
         String sql = "DELETE FROM la_fioreria.category WHERE category_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
             ps.setInt(1, categoryId);
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
-            System.out.println("Error in deleteCategory: " + e.getMessage());
             e.printStackTrace();
-            return false;
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
         }
+        return false;
     }
-    
+
     public static void main(String[] args) {
         Category c = new Category();
         CategoryDAO dao = new CategoryDAO();
