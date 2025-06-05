@@ -4,6 +4,9 @@
  */
 package controller;
 
+import dal.BouquetDAO;
+import dal.CategoryDAO;
+import dal.RawFlowerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -11,20 +14,19 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
-import dal.RawFlowerDAO;
+import model.Bouquet;
+import model.BouquetRaw;
+import model.Category;
 import model.RawFlower;
-import dal.WarehouseDAO;
-import model.Warehouse;
 
 /**
  *
- * @author Admin
+ * @author ADMIN
  */
-@WebServlet(name = "RawFlowerServlet2", urlPatterns = {"/DashMin/rawflower2"})
-public class RawFlowerServlet2 extends HttpServlet {
+@WebServlet(name = "ProductDetailController", urlPatterns = {"/productDetail"})
+public class ProductDetailController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -43,10 +45,10 @@ public class RawFlowerServlet2 extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet AdminServlet</title>");
+            out.println("<title>Servlet ProductDetailController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet AdminServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ProductDetailController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -64,50 +66,33 @@ public class RawFlowerServlet2 extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            // Lấy danh sách kho
-            WarehouseDAO wh = new WarehouseDAO();
-            List<Warehouse> listWarehouse = wh.getAllWarehouse();
+        String idStr = request.getParameter("id");
 
-            // Lấy tham số sắp xếp từ request
-            String sortBy = request.getParameter("sortBy"); // "price" hoặc "quantity"
-            String sortOrder = request.getParameter("sortOrder"); // "asc" hoặc "desc"
+        int id = Integer.parseInt(idStr);
+        BouquetDAO bqdao = new BouquetDAO();
+        RawFlowerDAO rfdao = new RawFlowerDAO();
+        CategoryDAO cdao = new CategoryDAO();
 
-            // Lấy danh sách nguyên liệu
-            RawFlowerDAO rf = new RawFlowerDAO();
-            List<RawFlower> listRF;
+        Bouquet detailsBQ = bqdao.getBouquetByID(id);
+        String cateName = cdao.getCategoryNameByBouquet(id);
+        List<RawFlower> allFlowers = rfdao.getRawFlower();
+        List<BouquetRaw> bqRaws = bqdao.getFlowerByBouquetID(id);
+        List<Bouquet> sameCate = bqdao.searchBouquet(null, null, null, detailsBQ.getCid());
 
-            // Kiểm tra tham số hợp lệ
-            boolean validSort = true;
-            if (sortBy != null && sortOrder != null) {
-                if (!sortBy.matches("^(unit_price|import_price|quantity)$") || !sortOrder.matches("^(asc|desc)$")) {
-                    validSort = false;
-                    request.getSession().setAttribute("message", "Invalid sort option.");
-                }
+        for (int i = sameCate.size() - 1; i >= 0; i--) {
+            Bouquet b = sameCate.get(i);
+            if (b.getBouquetId() == detailsBQ.getBouquetId()) {
+                sameCate.remove(i);
             }
-
-            // Lấy danh sách đã sắp xếp
-            if (validSort && sortBy != null && sortOrder != null) {
-                listRF = rf.getRawFlowerSorted(sortBy, sortOrder);
-            } else {
-                listRF = rf.getRawFlower(); // Mặc định nếu không có lựa chọn sắp xếp
-            }
-
-            // Lưu dữ liệu vào session
-            HttpSession session = request.getSession();
-            session.setAttribute("listW", listWarehouse);
-            session.setAttribute("listRF", listRF);
-            // Lưu trạng thái sắp xếp để JSP giữ giá trị dropdown
-            session.setAttribute("sortBy", sortBy);
-            session.setAttribute("sortOrder", sortOrder);
-
-            // Chuyển tiếp đến JSP
-            request.getRequestDispatcher("rawflower.jsp").forward(request, response);
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.getSession().setAttribute("message", "An error occurred while processing the request.");
-            response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
         }
+
+        request.setAttribute("listBouquet", sameCate);
+        request.setAttribute("bouquetDetail", detailsBQ);
+        request.setAttribute("cateName", cateName);
+        request.setAttribute("allFlowers", allFlowers);
+        request.setAttribute("cateList", cdao.getBouquetCategory());
+        request.setAttribute("flowerInBQ", bqRaws);
+        request.getRequestDispatcher("./ZeShopper/product-details.jsp").forward(request, response);
     }
 
     /**
@@ -133,11 +118,5 @@ public class RawFlowerServlet2 extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-    
-    public static void main(String[] args) {
-        RawFlowerDAO rf = new RawFlowerDAO();
-        List<RawFlower> listRF = new ArrayList<>();
-        System.out.println(rf.getRawFlower());
-    }
 
 }

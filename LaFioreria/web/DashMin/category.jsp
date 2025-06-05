@@ -151,6 +151,8 @@
                         <a href="${pageContext.request.contextPath}/DashMin/table.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Tables</a>
                         <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>RawFlower</a>
+                        <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Category</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
@@ -264,6 +266,15 @@
                 <!-- Table Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded h-100 p-4">
+                        <!-- Hiển thị thông báo -->
+                        <c:if test="${not empty sessionScope.message}">
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                ${sessionScope.message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            <c:remove var="message" scope="session"/> <!-- Xóa thông báo sau khi hiển thị -->
+                        </c:if>
+
                         <!-- Header with title and Add Category button -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0">Category List</h6>
@@ -287,7 +298,8 @@
                                         <td>
                                             <button type="button"
                                                     class="btn btn-delete"
-                                                    onclick="if (confirm('Do you want to delete this category?')) location.href = '${pageContext.request.contextPath}/deleteCategory?id=${category.categoryId}';">
+                                                    onclick="if (confirm('Do you want to delete this category?'))
+                                                location.href = '${pageContext.request.contextPath}/deleteCategory?id=${category.categoryId}';">
                                                 Delete
                                             </button>
                                         </td>    
@@ -319,7 +331,7 @@
                                     <!-- Ellipsis before current page range -->
                                     <c:if test="${currentPage > 3}">
                                         <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                    </c:if>
+                                        </c:if>
 
                                     <!-- Page range around current -->
                                     <c:forEach var="i" begin="${currentPage - 1}" end="${currentPage + 1}">
@@ -333,7 +345,7 @@
                                     <!-- Ellipsis after current page range -->
                                     <c:if test="${currentPage < totalPages - 2}">
                                         <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                    </c:if>
+                                        </c:if>
 
                                     <!-- Last Page -->
                                     <c:if test="${totalPages > 1}">

@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dal.DAOContact;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -11,20 +12,15 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import java.util.ArrayList;
 import java.util.List;
-import dal.RawFlowerDAO;
-import model.RawFlower;
-import dal.WarehouseDAO;
-import model.Warehouse;
+import model.Contact;
 
 /**
  *
- * @author Admin
+ * @author VU MINH TAN
  */
-@WebServlet(name = "RawFlowerServlet2", urlPatterns = {"/DashMin/rawflower2"})
-public class RawFlowerServlet2 extends HttpServlet {
+@WebServlet(name = "ContactListServlet", urlPatterns = {"/DashMin/admin"})
+public class AdminServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -35,6 +31,7 @@ public class RawFlowerServlet2 extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -64,50 +61,11 @@ public class RawFlowerServlet2 extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            // Lấy danh sách kho
-            WarehouseDAO wh = new WarehouseDAO();
-            List<Warehouse> listWarehouse = wh.getAllWarehouse();
+        DAOContact dao = new DAOContact();
+        List<Contact> contactList = dao.getAllContacts();
 
-            // Lấy tham số sắp xếp từ request
-            String sortBy = request.getParameter("sortBy"); // "price" hoặc "quantity"
-            String sortOrder = request.getParameter("sortOrder"); // "asc" hoặc "desc"
-
-            // Lấy danh sách nguyên liệu
-            RawFlowerDAO rf = new RawFlowerDAO();
-            List<RawFlower> listRF;
-
-            // Kiểm tra tham số hợp lệ
-            boolean validSort = true;
-            if (sortBy != null && sortOrder != null) {
-                if (!sortBy.matches("^(unit_price|import_price|quantity)$") || !sortOrder.matches("^(asc|desc)$")) {
-                    validSort = false;
-                    request.getSession().setAttribute("message", "Invalid sort option.");
-                }
-            }
-
-            // Lấy danh sách đã sắp xếp
-            if (validSort && sortBy != null && sortOrder != null) {
-                listRF = rf.getRawFlowerSorted(sortBy, sortOrder);
-            } else {
-                listRF = rf.getRawFlower(); // Mặc định nếu không có lựa chọn sắp xếp
-            }
-
-            // Lưu dữ liệu vào session
-            HttpSession session = request.getSession();
-            session.setAttribute("listW", listWarehouse);
-            session.setAttribute("listRF", listRF);
-            // Lưu trạng thái sắp xếp để JSP giữ giá trị dropdown
-            session.setAttribute("sortBy", sortBy);
-            session.setAttribute("sortOrder", sortOrder);
-
-            // Chuyển tiếp đến JSP
-            request.getRequestDispatcher("rawflower.jsp").forward(request, response);
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.getSession().setAttribute("message", "An error occurred while processing the request.");
-            response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
-        }
+        request.setAttribute("messages", contactList);
+        request.getRequestDispatcher("/DashMin/admin.jsp").forward(request, response);
     }
 
     /**
@@ -133,11 +91,5 @@ public class RawFlowerServlet2 extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-    
-    public static void main(String[] args) {
-        RawFlowerDAO rf = new RawFlowerDAO();
-        List<RawFlower> listRF = new ArrayList<>();
-        System.out.println(rf.getRawFlower());
-    }
 
 }

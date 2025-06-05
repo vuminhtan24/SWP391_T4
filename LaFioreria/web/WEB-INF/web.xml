@@ -1,59 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee                               https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
+<web-app version="6.0"
+         xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
+
+    <!-- Login -->
     <servlet>
         <servlet-name>LoginServlet</servlet-name>
         <servlet-class>controller.LoginServlet</servlet-class>
     </servlet>
-    <servlet>
-        <servlet-name>Register</servlet-name>
-        <servlet-class>controller.Register</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>ViewUserDetail</servlet-name>
-        <servlet-class>controller.ViewUserDetail</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>AddUserDetail</servlet-name>
-        <servlet-class>controller.AddUserDetail</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>ViewUserList</servlet-name>
-        <servlet-class>controller.ViewUserList</servlet-class>
-
-    </servlet>
-    <servlet>
-        <servlet-name>RawFlowerServlet</servlet-name>
-        <servlet-class>controller.RawFlowerServlet</servlet-class>
-
-    </servlet>
-    <servlet>
-        <servlet-name>ContactServlet</servlet-name>
-        <servlet-class>controller.ContactServlet</servlet-class>
-    </servlet>
-    
-    <servlet>
-        <servlet-name>requestPassword</servlet-name>
-        <servlet-class>controller.requestPassword</servlet-class>
-    </servlet>
-    
-    <servlet>
-        <servlet-name>resetPassword</servlet-name>
-        <servlet-class>controller.resetPassword</servlet-class>
-
-    </servlet>
-    <servlet>
-        <servlet-name>RejectUserListServlet</servlet-name>
-        <servlet-class>controller.RejectUserListServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>DeleteUserListServlet</servlet-name>
-        <servlet-class>controller.DeleteUserListServlet</servlet-class>
-    </servlet>
-    
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/LoginServlet</url-pattern>
     </servlet-mapping>
+
     <!-- Register -->
     <servlet>
         <servlet-name>Register</servlet-name>
@@ -63,6 +23,7 @@
         <servlet-name>Register</servlet-name>
         <url-pattern>/Register</url-pattern>
     </servlet-mapping>
+
     <!-- User Detail -->
     <servlet>
         <servlet-name>ViewUserDetail</servlet-name>
@@ -72,6 +33,7 @@
         <servlet-name>ViewUserDetail</servlet-name>
         <url-pattern>/viewuserdetail</url-pattern>
     </servlet-mapping>
+
     <servlet>
         <servlet-name>AddUserDetail</servlet-name>
         <servlet-class>controller.AddUserDetail</servlet-class>
@@ -80,6 +42,7 @@
         <servlet-name>AddUserDetail</servlet-name>
         <url-pattern>/adduserdetail</url-pattern>
     </servlet-mapping>
+
     <servlet>
         <servlet-name>ViewUserList</servlet-name>
         <servlet-class>controller.ViewUserList</servlet-class>
@@ -89,26 +52,58 @@
         <url-pattern>/ViewUserList</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>RejectUserListServlet</servlet-name>
+        <servlet-class>controller.RejectUserListServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
-        <servlet-name>RawFlowerServlet</servlet-name>
-        <url-pattern>/rawflower</url-pattern>
+        <servlet-name>RejectUserListServlet</servlet-name>
+        <url-pattern>/rejectuserlist</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DeleteUserListServlet</servlet-name>
+        <servlet-class>controller.DeleteUserListServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DeleteUserListServlet</servlet-name>
+        <url-pattern>/DeleteUserListServlet</url-pattern>
+    </servlet-mapping>
+
+    <!-- Admin -->
+    <servlet>
+        <servlet-name>AdminServlet</servlet-name>
+        <servlet-class>controller.AdminServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminServlet</servlet-name>
+        <url-pattern>/AdminServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>RawFlowerServlet</servlet-name>
-        <url-pattern>/DashMin/rawlower</url-pattern>
+        <servlet-name>AdminServlet</servlet-name>
+        <url-pattern>/DashMin/admin</url-pattern>
     </servlet-mapping>
 
 
-    <!-- Raw Flower management -->
+    <!-- Raw Flower -->
     <servlet>
         <servlet-name>RawFlowerServlet</servlet-name>
         <servlet-class>controller.RawFlowerServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>RawFlowerServlet</servlet-name>
+        <url-pattern>/rawflower</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RawFlowerServlet</servlet-name>
         <url-pattern>/DashMin/rawflower</url-pattern>
     </servlet-mapping>
-    <!-- Contact / Password -->
+    <servlet-mapping>
+        <servlet-name>RawFlowerServlet</servlet-name>
+        <url-pattern>/DashMin/rawlower</url-pattern>
+    </servlet-mapping>
+
+    <!-- Contact -->
     <servlet>
         <servlet-name>ContactServlet</servlet-name>
         <servlet-class>controller.ContactServlet</servlet-class>
@@ -117,6 +112,17 @@
         <servlet-name>ContactServlet</servlet-name>
         <url-pattern>/contact</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ContactListServlet</servlet-name>
+        <servlet-class>controller.ContactListServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ContactListServlet</servlet-name>
+        <url-pattern>/DashMin/contact-list</url-pattern>
+    </servlet-mapping>
+
+    <!-- Password Reset -->
     <servlet>
         <servlet-name>requestPassword</servlet-name>
         <servlet-class>controller.requestPassword</servlet-class>
@@ -125,6 +131,7 @@
         <servlet-name>requestPassword</servlet-name>
         <url-pattern>/requestPassword</url-pattern>
     </servlet-mapping>
+
     <servlet>
         <servlet-name>resetPassword</servlet-name>
         <servlet-class>controller.resetPassword</servlet-class>
@@ -133,16 +140,10 @@
         <servlet-name>resetPassword</servlet-name>
         <url-pattern>/resetPassword</url-pattern>
     </servlet-mapping>
-    <!-- Welcome -->
-    <servlet-mapping>
-        <servlet-name>RejectUserListServlet</servlet-name>
-        <url-pattern>/rejectuserlist</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>DeleteUserListServlet</servlet-name>
-        <url-pattern>/DeleteUserListServlet</url-pattern>
-    </servlet-mapping>
+
+    <!-- Welcome Page -->
     <welcome-file-list>
         <welcome-file>home</welcome-file>
     </welcome-file-list>
+
 </web-app>
