@@ -18,4 +18,7 @@ public class IConstant {
     public static final String REGEX_PHONE_NUMBER = "^\\d{10}$";
     public static final String REGEX_PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$";
     public static final String REGEX_EMAIL = "^[\\w-\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
+    public static final String REGEX_NUMBER = "^\\d+$";
+    public static final String REGEX_TEXT = "^[a-zA-Z\\s]+$";
+    public static final String REGEX_URL = "^(https?://)?([\\w-]+\\.)+[\\w-]+(/[\\w-./?%&=]*)?$";
 }

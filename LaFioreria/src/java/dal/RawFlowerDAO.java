@@ -46,12 +46,7 @@ public class RawFlowerDAO extends DBContext {
 
         return listRawFlower;
     }
-    
-        public static void main(String[] args) {
-        RawFlowerDAO dao = new RawFlowerDAO();
-        System.out.println(dao.getRawFlower());
-    }
-    
+       
     public int count() {
         try {
             String sql = "SELECT COUNT(*) AS `count` FROM rawflower";
@@ -187,7 +182,7 @@ public class RawFlowerDAO extends DBContext {
     //Cập nhật toàn bộ thông tin
     public void updateRawFlower4(int raw_id, String raw_name, int raw_quantity, int unit_price,
             Date expiration_date, int warehouse_id, String image_url,
-            int hold, int import_price) {
+            int hold, int import_price) throws SQLException {
         String sql = "UPDATE la_fioreria.raw_flower SET raw_name = ?, raw_quantity = ?, unit_price = ?, "
                 + "expiration_date = ?, warehouse_id = ?, image_url = ?, hold = ?, import_price = ? "
                 + "WHERE raw_id = ?";
@@ -201,9 +196,12 @@ public class RawFlowerDAO extends DBContext {
             ps.setInt(7, hold);
             ps.setInt(8, import_price);
             ps.setInt(9, raw_id);
-            ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("No rows updated. Raw flower with ID " + raw_id + " not found.");
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw e; // Re-throw the exception for the servlet to handle
         }
     }
     
@@ -393,5 +391,56 @@ public class RawFlowerDAO extends DBContext {
         return list;
     }
     
+    public ArrayList<RawFlower> getRawFlowerSorted(String sortBy, String sortOrder) {
+        ArrayList<RawFlower> list = new ArrayList<>();
+        String sql = "SELECT raw_id, raw_name, raw_quantity, unit_price, expiration_date, warehouse_id, image_url, hold, import_price, active "
+                + "FROM la_fioreria.raw_flower "
+                + "WHERE active = 1";
 
+        // Thêm điều kiện sắp xếp
+        if (sortBy != null && sortOrder != null) {
+            // Kiểm tra giá trị hợp lệ
+            if (!sortBy.matches("^(unit_price|import_price|quantity)$") || !sortOrder.matches("^(asc|desc)$")) {
+                System.out.println("Invalid sortBy or sortOrder: sortBy=" + sortBy + ", sortOrder=" + sortOrder);
+                return getRawFlower(); // Trả về danh sách mặc định nếu tham số không hợp lệ
+            }
+
+            // Thêm khoảng trắng trước ORDER BY
+            sql += " ORDER BY ";
+            if (sortBy.equals("unit_price")) {
+                sql += "unit_price " + sortOrder.toUpperCase();
+            } else if (sortBy.equals("quantity")) {
+                sql += "(raw_quantity) " + sortOrder.toUpperCase();
+            } else if (sortBy.equals("import_price")) {
+                sql += "(import_price) " + sortOrder.toUpperCase();
+            }
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                RawFlower rf = new RawFlower();
+                WarehouseDAO wdao = new WarehouseDAO();
+                rf.setRawId(rs.getInt("raw_id"));
+                rf.setRawName(rs.getString("raw_name"));
+                rf.setRawQuantity(rs.getInt("raw_quantity"));
+                rf.setUnitPrice(rs.getInt("unit_price"));
+                rf.setExpirationDate(rs.getString("expiration_date"));
+                rf.setWarehouse(wdao.getWarehouseById(rs.getInt("warehouse_id")));
+                rf.setImageUrl(rs.getString("image_url").trim());
+                rf.setHold(rs.getInt("hold"));
+                rf.setImportPrice(rs.getInt("import_price"));
+                rf.setActive(rs.getBoolean("active"));
+                list.add(rf);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in getRawFlowerSorted: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return list;
+    }    
+
+    public static void main(String[] args) {
+        RawFlowerDAO dao = new RawFlowerDAO();
+        System.out.println(dao.getRawFlowerSorted("import_price", "asc"));
+    }
 }

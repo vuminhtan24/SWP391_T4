@@ -272,7 +272,12 @@
                                                 <button class="btn btn-danger m-2" type="submit">Delete</button>
                                             </form>
                                         </td>
-
+                                        <td>
+                                            <form action="${pageContext.request.contextPath}/viewuserdetail" method="get">
+                                                <input type="hidden" name="id" value="${user.userid}" />
+                                                <button class="btn btn-danger m-2" type="submit">View User</button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 </c:forEach>
                             </tbody>

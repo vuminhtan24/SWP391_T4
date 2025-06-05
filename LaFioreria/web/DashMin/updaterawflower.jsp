@@ -1,40 +1,33 @@
 <%-- 
-    Document   : rawflower
-    Created on : May 23, 2025, 9:35:15 AM
+    Document   : updaterawflower
+    Created on : June 05, 2025, 10:12 PM
     Author     : Admin
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
-        <title>DASHMIN - Bootstrap Admin Template</title>
+        <title>Update Raw Flower - DASHMIN</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
         <!-- Favicon -->
         <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
-
         <!-- Google Web Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
-
         <!-- Icon Font Stylesheet -->
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
-
         <!-- Libraries Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
-
-        <!-- Bootstrap from CDN (chỉ dùng 1 bản) -->
+        <!-- Bootstrap CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
         <!-- Template Stylesheet -->
-        <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">    
+        <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
         <style>
             /* Tổng thể khu vực Update Raw Flower */
             .container-fluid.pt-4.px-4 .content {
@@ -136,7 +129,14 @@
             }
 
             /* Thông báo lỗi */
-            .container-fluid.pt-4.px-4 .content span[style="color:red"] {
+            .error {
+                display: block;
+                color: #dc3545;
+                font-size: 14px;
+                margin-top: 5px;
+            }
+
+            .error-common {
                 display: block;
                 color: #dc3545;
                 font-size: 14px;
@@ -149,10 +149,7 @@
             }
         </style>
     </head>
-
     <body>
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-
         <div class="container-fluid position-relative bg-white d-flex p-0">
             <!-- Spinner Start -->
             <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
@@ -161,7 +158,6 @@
                 </div>
             </div>
             <!-- Spinner End -->
-
 
             <!-- Sidebar Start -->
             <div class="sidebar pe-4 pb-3">
@@ -191,7 +187,9 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
                         <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
-                        <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>User</a>
+
+                        <a href="${pageContext.request.contextPath}/DashMin/table.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Tables</a>
+
                         <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>RawFlower</a>
@@ -209,7 +207,6 @@
                 </nav>
             </div>
             <!-- Sidebar End -->
-
 
             <!-- Content Start -->
             <div class="content">
@@ -303,7 +300,6 @@
                 </nav>
                 <!-- Navbar End -->
 
-
                 <!-- Update Raw Flower -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="row bg-light rounded align-items-center justify-content-center mx-0">
@@ -311,81 +307,101 @@
                             <div class="content">
                                 <h1 class="h2">Product Details</h1>
 
-                                <form action="${pageContext.request.contextPath}/update_flower?raw_id=${item.rawId}" method="post">
+                                <!-- Hiển thị thông báo lỗi chung -->
+                                <c:if test="${not empty sessionScope.error}">
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        ${sessionScope.error}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                    <c:remove var="error" scope="session"/>
+                                </c:if>
+
+                                <form action="${pageContext.request.contextPath}/update_flower" method="post">
+                                    <input type="hidden" name="raw_id" value="${item.rawId}">
                                     <div class="row mb-3">
                                         <div class="col-md-4">
                                             <img class="img-fluid img-thumbnail" src="${item.imageUrl}" alt="${item.rawName}">
                                         </div>
                                         <div class="col-md-8">
                                             <div class="mb-3">
-                                                <label for="name" class="form-label">Name</label>
-                                                <input type="text" id="name" name="name" class="form-control" value="${item.rawName}" required>
+                                                <label for="raw_name" class="form-label">Name</label>
+                                                <input type="text" id="raw_name" name="raw_name" class="form-control" 
+                                                       value="${not empty sessionScope.rawName ? sessionScope.rawName : item.rawName}" placeholder="Enter raw flower name">
+                                                <span class="error">${sessionScope.rawNameError}</span>
                                             </div>
                                             <div class="row g-3 align-items-center">
                                                 <div class="col-md-4">
-                                                    <label for="raw_quantity" class="form-label">Quantity</label>
-                                                    <input type="number" name="raw_quantity" class="form-control" min="0" value="${item.rawQuantity}" readonly>
+                                                    <label for="raw_quantity_display" class="form-label">Quantity</label>
+                                                    <input type="number" id="raw_quantity_display" class="form-control" 
+                                                           value="${item.rawQuantity}" readonly>
+                                                    <input type="hidden" name="raw_quantity" value="${item.rawQuantity}">
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <label for="unit_price" class="form-label">Unit Price ($)</label>
-                                                    <input type="number" name="unit_price" class="form-control" min="0" value="${item.unitPrice}" required>
+                                                    <label for="unit_price" class="form-label">Unit Price (VND)</label>
+                                                    <input type="text" id="unit_price" name="unit_price" class="form-control" 
+                                                           value="${not empty sessionScope.unitPrice ? sessionScope.unitPrice : item.unitPrice}" placeholder="Enter unit price">
+                                                    <span class="error">${sessionScope.unitPriceError}</span>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <label for="import_price" class="form-label">Import Price ($)</label>
-                                                    <input type="number" name="import_price" class="form-control" min="0" value="${item.importPrice}" required>
+                                                    <label for="import_price" class="form-label">Import Price (VND)</label>
+                                                    <input type="text" id="import_price" name="import_price" class="form-control" 
+                                                           value="${not empty sessionScope.importPrice ? sessionScope.importPrice : item.importPrice}" placeholder="Enter import price">
+                                                    <span class="error">${sessionScope.importPriceError}</span>
                                                 </div>
                                             </div>
                                             <div class="row g-3 align-items-center">
                                                 <div class="col-md-6">
                                                     <label for="warehouse_id" class="form-label">Warehouse</label>
-                                                    <select id="warehouse_id" name="warehouse_id" class="form-select" required>
-                                                        <option value="${item.warehouse.warehouseId}">${item.warehouse.name}</option>
+                                                    <select id="warehouse_id" name="warehouse_id" class="form-select">
                                                         <c:forEach items="${sessionScope.listW}" var="w">
-                                                            <c:if test="${w.warehouseId != item.warehouse.warehouseId}">
-                                                                <option value="${w.warehouseId}">${w.name}</option>
-                                                            </c:if>
+                                                            <option value="${w.warehouseId}" 
+                                                                    ${not empty sessionScope.warehouseId ? (sessionScope.warehouseId == w.warehouseId ? 'selected' : '') : (item.warehouse.warehouseId == w.warehouseId ? 'selected' : '')}>
+                                                                ${w.name}
+                                                            </option>
                                                         </c:forEach>
                                                     </select>
+                                                    <span class="error">${sessionScope.warehouseIdError}</span>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <label class="form-label">Expiration Date:</label>
-                                                    <input type="date" class="form-control" name="expiration_date" value="${item.expirationDate}" readonly>
+                                                    <label for="expiration_date_display" class="form-label">Expiration Date</label>
+                                                    <input type="date" id="expiration_date_display" class="form-control" 
+                                                           value="${item.expirationDate}" readonly>
+                                                    <input type="hidden" name="expiration_date" value="${item.expirationDate}">
                                                 </div>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="hold" class="form-label">Hold Quantity</label>
-                                                <input type="number" id="hold" name="hold" class="form-control" min="0" value="${item.hold}" readonly>
+                                                <label for="hold_display" class="form-label">Hold Quantity</label>
+                                                <input type="number" id="hold_display" class="form-control" 
+                                                       value="${item.hold}" readonly>
+                                                <input type="hidden" name="hold" value="${item.hold}">
                                             </div>
                                             <div class="mb-3">
                                                 <label for="image_url" class="form-label">Image URL</label>
-                                                <input type="text" id="imageUrl" name="image_url" class="form-control" value="${item.imageUrl}" required>
+                                                <input type="text" id="image_url" name="image_url" class="form-control" 
+                                                       value="${not empty sessionScope.imageUrl ? sessionScope.imageUrl : item.imageUrl}" placeholder="Enter image URL">
+                                                <span class="error">${sessionScope.imageUrlError}</span>
                                             </div>
                                             <div class="mt-3">
                                                 <button type="submit" class="btn btn-primary">Update</button>
-                                                <button type="reset" class="btn btn-secondary">Reset</button>
+                                                <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="btn btn-secondary">Cancel</a>
                                             </div>
                                         </div>
                                     </div>
                                 </form>
-
-                                <span style="color:red">${ms}</span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- Update Raw Flowe End -->
-
-
+                <!-- Update Raw Flower End -->
 
                 <!-- Footer Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded-top p-4">
                         <div class="row">
                             <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">La Fioreria</a>, All Right Reserved. 
+                                © <a href="#">La Fioreria</a>, All Right Reserved. 
                             </div>
                             <div class="col-12 col-sm-6 text-center text-sm-end">
-                                <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
                                 Designed By <a href="https://htmlcodex.com">La Fioreria</a>
                             </div>
                         </div>
@@ -395,7 +411,6 @@
             </div>
             <!-- Content End -->
 
-
             <!-- Back to Top -->
             <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
         </div>
@@ -403,7 +418,6 @@
         <!-- JavaScript Libraries -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
@@ -415,5 +429,3 @@
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
     </body>
 </html>
-
-
