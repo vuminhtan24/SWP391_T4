@@ -46,12 +46,7 @@ public class RawFlowerDAO extends DBContext {
 
         return listRawFlower;
     }
-    
-        public static void main(String[] args) {
-        RawFlowerDAO dao = new RawFlowerDAO();
-        System.out.println(dao.getRawFlower());
-    }
-    
+       
     public int count() {
         try {
             String sql = "SELECT COUNT(*) AS `count` FROM rawflower";
@@ -396,5 +391,56 @@ public class RawFlowerDAO extends DBContext {
         return list;
     }
     
+    public ArrayList<RawFlower> getRawFlowerSorted(String sortBy, String sortOrder) {
+        ArrayList<RawFlower> list = new ArrayList<>();
+        String sql = "SELECT raw_id, raw_name, raw_quantity, unit_price, expiration_date, warehouse_id, image_url, hold, import_price, active "
+                + "FROM la_fioreria.raw_flower "
+                + "WHERE active = 1";
 
+        // Thêm điều kiện sắp xếp
+        if (sortBy != null && sortOrder != null) {
+            // Kiểm tra giá trị hợp lệ
+            if (!sortBy.matches("^(unit_price|import_price|quantity)$") || !sortOrder.matches("^(asc|desc)$")) {
+                System.out.println("Invalid sortBy or sortOrder: sortBy=" + sortBy + ", sortOrder=" + sortOrder);
+                return getRawFlower(); // Trả về danh sách mặc định nếu tham số không hợp lệ
+            }
+
+            // Thêm khoảng trắng trước ORDER BY
+            sql += " ORDER BY ";
+            if (sortBy.equals("unit_price")) {
+                sql += "unit_price " + sortOrder.toUpperCase();
+            } else if (sortBy.equals("quantity")) {
+                sql += "(raw_quantity) " + sortOrder.toUpperCase();
+            } else if (sortBy.equals("import_price")) {
+                sql += "(import_price) " + sortOrder.toUpperCase();
+            }
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                RawFlower rf = new RawFlower();
+                WarehouseDAO wdao = new WarehouseDAO();
+                rf.setRawId(rs.getInt("raw_id"));
+                rf.setRawName(rs.getString("raw_name"));
+                rf.setRawQuantity(rs.getInt("raw_quantity"));
+                rf.setUnitPrice(rs.getInt("unit_price"));
+                rf.setExpirationDate(rs.getString("expiration_date"));
+                rf.setWarehouse(wdao.getWarehouseById(rs.getInt("warehouse_id")));
+                rf.setImageUrl(rs.getString("image_url").trim());
+                rf.setHold(rs.getInt("hold"));
+                rf.setImportPrice(rs.getInt("import_price"));
+                rf.setActive(rs.getBoolean("active"));
+                list.add(rf);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in getRawFlowerSorted: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return list;
+    }    
+
+    public static void main(String[] args) {
+        RawFlowerDAO dao = new RawFlowerDAO();
+        System.out.println(dao.getRawFlowerSorted("import_price", "asc"));
+    }
 }

@@ -95,7 +95,7 @@
 
     <body>
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        
+
         <div class="container-fluid position-relative bg-white d-flex p-0">
             <!-- Spinner Start -->
             <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
@@ -265,39 +265,58 @@
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
+                                                <!-- Hiển thị thông báo lỗi chung -->
+                                                <c:if test="${not empty sessionScope.error}">
+                                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                        ${sessionScope.error}
+                                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                    </div>
+                                                    <c:remove var="error" scope="session"/>
+                                                </c:if>
                                                 <!-- Form Add Perfume -->
-                                                <form enctype="multipart/form-data" action="addRawFlower" method="post">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Raw Flower Name:</label>
-                                                        <input type="text" class="form-control" name="rawName" placeholder="Enter raw flower name" required>
+                                                <form action="${pageContext.request.contextPath}/addRawFlower" method="post" class="mt-3">
+                                                    <div class="form-group">
+                                                        <label for="rawName" class="form-label">Raw Flower Name:</label>
+                                                        <input type="text" id="rawName" name="rawName" class="form-control" 
+                                                               value="${sessionScope.rawName}" placeholder="Enter raw flower name">
+                                                        <span class="error">${sessionScope.rawNameError}</span>
                                                     </div>
 
                                                     <div class="row mb-3">
                                                         <div class="col-sm-6">
-                                                            <label class="form-label">Unit Price ($):</label>
-                                                            <input type="number" class="form-control" name="unitPrice" min="0" required>
+                                                            <label for="unitPrice" class="form-label">Unit Price (VND):</label>
+                                                            <input type="text" id="unitPrice" name="unitPrice" class="form-control" 
+                                                                   value="${sessionScope.unitPrice}" placeholder="Enter unit price">
+                                                            <span class="error">${sessionScope.unitPriceError}</span>
                                                         </div>
                                                         <div class="col-sm-6">
-                                                            <label class="form-label">Import Price ($):</label>
-                                                            <input type="number" class="form-control" name="importPrice" min="0" required>
+                                                            <label for="importPrice" class="form-label">Import Price (VND):</label>
+                                                            <input type="text" id="importPrice" name="importPrice" class="form-control" 
+                                                                   value="${sessionScope.importPrice}" placeholder="Enter import price">
+                                                            <span class="error">${sessionScope.importPriceError}</span>
                                                         </div>
                                                     </div>
 
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Warehouse:</label>
-                                                        <select class="form-select" name="warehouseId">
-                                                            <c:forEach items="${listW}" var="w">
-                                                                <option value="${w.warehouseId}">${w.name}</option>
-                                                            </c:forEach>
-                                                        </select>
+                                                    <div class="form-group">
+                                                        <label for="imageUrl" class="form-label">Image URL:</label>
+                                                        <input type="text" id="imageUrl" name="imageUrl" class="form-control" 
+                                                               value="${sessionScope.imageUrl}" placeholder="Enter image URL">
+                                                        <span class="error">${sessionScope.imageUrlError}</span>
                                                     </div>
 
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Image URL:</label>
-                                                        <input type="text" class="form-control" name="imageUrl" placeholder="Enter image URL" required>
+                                                    <div class="form-group">
+                                                        <label for="warehouseId" class="form-label">Warehouse:</label>
+                                                        <select id="warehouseId" name="warehouseId" class="form-select">
+                                                            <c:forEach items="${sessionScope.listW}" var="w">
+                                                                <option value="${w.warehouseId}" ${sessionScope.warehouseId == w.warehouseId ? 'selected' : ''}>${w.name}</option>
+                                                            </c:forEach>
+                                                        </select>
+                                                        <span class="error">${sessionScope.warehouseIdError}</span>
                                                     </div>
-                                                    <div class="text-center">
+
+                                                    <div class="mt-3 text-center">
                                                         <button type="submit" class="btn btn-primary">Add Flower</button>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -319,6 +338,28 @@
                                     </div>
                                     <c:remove var="message" scope="session"/> <!-- Xóa thông báo sau khi hiển thị -->
                                 </c:if>
+                                <!-- Form lựa chọn sắp xếp -->
+                                <div class="mb-3">
+                                    <form action="${pageContext.request.contextPath}/DashMin/rawflower2" method="get" class="d-flex gap-3 align-items-center">
+                                        <div class="form-group">
+                                            <label for="sortBy" class="form-label">Sắp xếp bởi:</label>
+                                            <select id="sortBy" name="sortBy" class="form-select">
+                                                <option value="" ${empty sessionScope.sortBy ? 'selected' : ''}>None</option>
+                                                <option value="unit_price" ${sessionScope.sortBy == 'unit_price' ? 'selected' : ''}>Giá bán</option>
+                                                <option value="import_price" ${sessionScope.sortBy == 'import_price' ? 'selected' : ''}>Giá mua</option>
+                                                <option value="quantity" ${sessionScope.sortBy == 'quantity' ? 'selected' : ''}>Số lượng</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="sortOrder" class="form-label">Sắp xếp theo:</label>
+                                            <select id="sortOrder" name="sortOrder" class="form-select">
+                                                <option value="asc" ${sessionScope.sortOrder == 'asc' ? 'selected' : ''}>Tăng dần</option>
+                                                <option value="desc" ${sessionScope.sortOrder == 'desc' ? 'selected' : ''}>Giảm dần</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Sort</button>
+                                    </form>
+                                </div>
                                 <table id="productTable" class="table table-hover align-middle table-bordered border-secondary-subtle">
                                     <thead>
                                         <tr>
@@ -400,28 +441,28 @@
         <!-- Template Main Script -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
         <script>
-        $(document).ready(function () {
-            $('#productTable').DataTable({
-                "paging": true, // Bật phân trang
-                "searching": true, // Bật tìm kiếm
-                "ordering": true, // Bật sắp xếp
-                "info": true, // Hiển thị thông tin bảng
-                "pageLength": 6, // Số dòng mỗi trang (có thể chỉnh lại theo ý muốn)
-                "lengthChange": false, // Ẩn tùy chọn thay đổi số dòng mỗi trang nếu không cần
-                "language": {
-                    "paginate": {
-                        "previous": "Previous",
-                        "next": "Next"
-                    },
-                    "emptyTable": "No data available in table", // Thông báo nếu bảng rỗng
-                }
-            });
-        });
+                                                        $(document).ready(function () {
+                                                            $('#productTable').DataTable({
+                                                                "paging": true, // Bật phân trang
+                                                                "searching": true, // Bật tìm kiếm
+                                                                "ordering": false, // Bật sắp xếp
+                                                                "info": true, // Hiển thị thông tin bảng
+                                                                "pageLength": 6, // Số dòng mỗi trang (có thể chỉnh lại theo ý muốn)
+                                                                "lengthChange": false, // Ẩn tùy chọn thay đổi số dòng mỗi trang nếu không cần
+                                                                "language": {
+                                                                    "paginate": {
+                                                                        "previous": "Previous",
+                                                                        "next": "Next"
+                                                                    },
+                                                                    "emptyTable": "No data available in table", // Thông báo nếu bảng rỗng
+                                                                }
+                                                            });
+                                                        });
         </script> 
         <script>
-    function confirmHide() {
-        return confirm("Are you sure you want to hide this product?");
-    }
+            function confirmHide() {
+                return confirm("Are you sure you want to hide this product?");
+            }
         </script>
         <style>
             /* Khoảng cách giữa các nút phân trang */
@@ -444,10 +485,10 @@
             .dataTables_wrapper .dataTables_paginate .paginate_button.current {
                 background-color: #007bff;
                 color: white;
-                
-                
+
+
             }
-            
+
             /* Tăng khoảng cách giữa dòng "Showing..." và dòng phân trang */
             .dataTables_wrapper .dataTables_info {
                 margin-bottom: 20px; /* Khoảng cách dưới dòng "Showing..." */

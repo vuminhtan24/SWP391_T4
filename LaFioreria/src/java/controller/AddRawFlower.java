@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.io.PrintWriter;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +21,7 @@ import java.sql.Date;
 import java.util.List;
 import dal.RawFlowerDAO;
 import dal.WarehouseDAO;
+import util.Validate;
 
 /**
  *
@@ -47,17 +49,74 @@ public class AddRawFlower extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        String name = request.getParameter("rawName");
-        int unitPrice = Integer.parseInt(request.getParameter("unitPrice"));
-        int importPrice = Integer.parseInt(request.getParameter("importPrice"));
-        String imageUrl = request.getParameter("imageUrl");
-        int warehouseId = Integer.parseInt(request.getParameter("warehouseId"));
-        // Gọi phương thức DAO với đúng thứ tự tham số
-        RawFlowerDAO rf = new RawFlowerDAO();
-        rf.addRawFlower1(name, unitPrice, warehouseId, imageUrl, importPrice); // truyền tên file và description vào
+        try {
+            // Lấy tham số từ form
+            String rawName = request.getParameter("rawName");
+            String unitPriceStr = request.getParameter("unitPrice");
+            String importPriceStr = request.getParameter("importPrice");
+            String imageUrl = request.getParameter("imageUrl");
+            String warehouseIdStr = request.getParameter("warehouseId");
 
-        response.sendRedirect("DashMin/rawflower2");
+            // Khởi tạo WarehouseDAO
+            WarehouseDAO wh = new WarehouseDAO();
+
+            // Validate các field
+            String rawNameError = Validate.validateText(rawName, "Raw Flower Name");
+            String unitPriceError = Validate.validateNumberWithRange(unitPriceStr, "Unit Price", 1, Integer.MAX_VALUE);
+            String importPriceError = Validate.validateNumberWithRange(importPriceStr, "Import Price", 1, Integer.MAX_VALUE);
+            String imageUrlError = Validate.validateImageUrl(imageUrl);
+            String warehouseIdError = Validate.validateWarehouseId(warehouseIdStr, wh);
+
+            // Lưu dữ liệu vào session để giữ giá trị đã nhập
+            HttpSession session = request.getSession();
+            session.setAttribute("rawName", rawName);
+            session.setAttribute("unitPrice", unitPriceStr);
+            session.setAttribute("importPrice", importPriceStr);
+            session.setAttribute("imageUrl", imageUrl);
+            session.setAttribute("warehouseId", warehouseIdStr);
+
+            // Nếu có lỗi, lưu thông báo lỗi vào session và chuyển hướng
+            if (rawNameError != null || unitPriceError != null || importPriceError != null || 
+                imageUrlError != null || warehouseIdError != null) {
+                session.setAttribute("rawNameError", rawNameError);
+                session.setAttribute("unitPriceError", unitPriceError);
+                session.setAttribute("importPriceError", importPriceError);
+                session.setAttribute("imageUrlError", imageUrlError);
+                session.setAttribute("warehouseIdError", warehouseIdError);
+                response.sendRedirect("DashMin/rawflower2");
+                return;
+            }
+
+            // Xóa các lỗi và dữ liệu trong session nếu validate thành công
+            session.removeAttribute("rawNameError");
+            session.removeAttribute("unitPriceError");
+            session.removeAttribute("importPriceError");
+            session.removeAttribute("imageUrlError");
+            session.removeAttribute("warehouseIdError");
+            session.removeAttribute("rawName");
+            session.removeAttribute("unitPrice");
+            session.removeAttribute("importPrice");
+            session.removeAttribute("imageUrl");
+            session.removeAttribute("warehouseId");
+
+            // Chuyển đổi dữ liệu
+            int unitPrice = Integer.parseInt(unitPriceStr);
+            int importPrice = Integer.parseInt(importPriceStr);
+            int warehouseId = Integer.parseInt(warehouseIdStr);
+
+            // Gọi phương thức DAO để thêm nguyên liệu
+            RawFlowerDAO rf = new RawFlowerDAO();
+            rf.addRawFlower1(rawName, unitPrice, warehouseId, imageUrl, importPrice);
+
+            // Thông báo thành công và chuyển hướng
+            session.setAttribute("message", "Raw flower added successfully!");
+            response.sendRedirect("DashMin/rawflower2");
+        } catch (Exception e) {
+            e.printStackTrace();
+            HttpSession session = request.getSession();
+            session.setAttribute("error", "An error occurred while adding the raw flower.");
+            response.sendRedirect("DashMin/rawflower2");
+        }
     }
 
     /**

@@ -137,16 +137,20 @@ public class CategoryDAO extends DBContext {
     }
 
     // Cập nhật danh mục
-    public void updateCategory(Category category) {
+    public boolean updateCategory(Category category) {
         String sql = "UPDATE la_fioreria.category SET category_name = ?, description = ? WHERE category_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, category.getCategoryName());
+            // Nếu description là null hoặc chuỗi rỗng, gán null để tránh vi phạm ràng buộc NOT NULL (nếu có)
             ps.setString(2, category.getDescription());
             ps.setInt(3, category.getCategoryId());
-            ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
+            System.out.println("Updated " + rowsAffected + " rows for category ID: " + category.getCategoryId());
+            return rowsAffected > 0; // Trả về true nếu cập nhật thành công
         } catch (SQLException e) {
             System.out.println("Error in updateCategory: " + e.getMessage());
             e.printStackTrace();
+            return false; // Trả về false nếu có lỗi
         }
     }
     
