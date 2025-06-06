@@ -222,6 +222,41 @@ public class UserDAO extends BaseDao {
 
         return null;
     }
+    public User getUserByID(int userId) {
+        
+        User user = null;
+            String sql = "SELECT * FROM la_fioreria.user WHERE User_ID = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            
+            ps.setInt(1, userId);
+            rs = ps.executeQuery();
+            
+
+            if (rs.next()) {
+                user = new User();
+                user.setUserid(rs.getInt("User_ID"));
+                user.setUsername(rs.getString("Username"));
+                user.setPassword(rs.getString("Password"));
+                user.setFullname(rs.getString("Fullname"));
+                user.setEmail(rs.getString("Email"));
+                user.setPhone(rs.getString("Phone"));
+                user.setAddress(rs.getString("Address"));
+                user.setRole(rs.getInt("Role"));
+            }
+
+
+        } catch (SQLException e) {
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return user;
+    }
 
     public List<UserManager> getAllUserManager() {
         List<UserManager> list = new ArrayList<>();
@@ -597,13 +632,7 @@ public class UserDAO extends BaseDao {
 
         UserDAO ud = new UserDAO();
 
-        List<UserManager> users = ud.getSortedUsersWithPaging(
-                0, "John", "Fullname", "ASC", 0, 10
-        );
-
-        for (UserManager user : users) {
-            System.out.println(user);
-        }
+        System.out.println(ud.getUserByID(1));
 
     }
 
