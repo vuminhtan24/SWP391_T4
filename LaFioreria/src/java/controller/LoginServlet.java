@@ -150,6 +150,12 @@ public class LoginServlet extends HttpServlet {
             request.getRequestDispatcher("login.jsp").forward(request, response);
         }
     }
+    public void returnInputValue(HttpServletRequest request,
+            HttpServletResponse response,  String username)
+            throws ServletException, IOException {
+        request.setAttribute("username", username);    
+        request.getRequestDispatcher("login.jsp").forward(request, response);
+    }
 
     /**
      * Returns a short description of the servlet.

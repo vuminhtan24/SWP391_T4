@@ -202,7 +202,7 @@ public class ViewUserDetail extends HttpServlet {
                 request.setAttribute("roleNames", roleNames);
 
                 // Gửi lại trang với thông tin lỗi và dữ liệu form đã nhập
-                request.getRequestDispatcher("DashMin/viewuserdetail.jsp").forward(request, response);
+                request.getRequestDispatcher("ZeShopper/viewUserDetail.jsp").forward(request, response);
                 return;
             }
 

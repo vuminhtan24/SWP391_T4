@@ -327,7 +327,7 @@
 
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/wishlist.jsp"><i class="fa fa-star"></i> Wishlist</a></li>
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp"><i class="fa fa-crosshairs"></i> Checkout</a></li>
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp"><i class="fa fa-shopping-cart"></i> Cart</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/cart"><i class="fa fa-shopping-cart"></i> Cart</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -505,6 +505,26 @@
 
                     <div class="col-sm-9 padding-right">
                         <div class="features_items"><!--features_items-->
+                            <div id="popup" class="popup-overlay" style="display:none;">
+                        <div class="popup-content">
+                            <span class="close-btn" onclick="closePopup()">&times;</span>
+                            <form id="addToCartForm">
+                                <h3 id="popup-name"></h3>
+                                <img id="popup-image" src="" alt="" class="popup-img">
+                                <p id="popup-price" class="popup-price"></p>
+                                <p id="popup-description" class="popup-description"></p>
+
+                                <label class="popup-label">Quantity:</label>
+                                <input id="popup-quantity" type="number" name="quantity" value="1" min="1" required class="popup-input">
+
+                                <input type="hidden" name="bouquetId" id="popup-id">
+                                <div class="popup-buttons">
+                                    <button type="submit" class="popup-btn">Add to Cart</button>
+                                    <button type="button" onclick="closePopup()" class="popup-btn cancel">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                             <h2 class="title text-center">Features Items</h2>
 
                             <c:forEach items="${requestScope.listBouquet}" var="lb">
@@ -515,9 +535,16 @@
                                                 <img src="${lb.getImageUrl()}" alt="" />
                                                 <h2><a href="${pageContext.request.contextPath}/productDetail?id=${lb.getBouquetId()}">${lb.getBouquetName()}</a></h2>
                                                 <p>Price: ${lb.getPrice()}</p>
-                                                <a href="#" class="btn btn-default add-to-cart">
-                                                    <i class="fa fa-shopping-cart"></i>Add to cart
-                                                </a>
+                                                <button 
+                                                    class="btn btn-default add-to-cart" 
+                                                    onclick="openPopup(
+                                                                    '${lb.getBouquetId()}',
+                                                                    '${lb.getBouquetName()}',
+                                                                    '${lb.getImageUrl()}',
+                                                                    '${lb.getPrice()}'
+                                                                    )">
+                                                    <i class="fa fa-shopping-cart"></i> Add to cart
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -733,6 +760,67 @@
           errorDiv.innerText = ""; // Xóa lỗi nếu hợp lệ
           return true; // Cho phép submit
       }
+</script>
+<script>
+    function openPopup(id, name, imageUrl, price, description) {
+        document.getElementById("popup-id").value = id;
+        document.getElementById("popup-name").textContent = name;
+        document.getElementById("popup-image").src = imageUrl;
+        document.getElementById("popup-price").textContent = "Price: " + price;
+        document.getElementById("popup-description").textContent = description;
+        document.getElementById("popup").style.display = "flex";
+    }
+
+    function closePopup() {
+        document.getElementById("popup").style.display = "none";
+        document.getElementById("popup-quantity").value = 1;
+    }
+</script>
+<script>
+    document.getElementById("addToCartForm").addEventListener("submit", function (e) {
+        e.preventDefault(); // Ngăn form reload
+
+        const bouquetId = document.getElementById("popup-id").value;
+        const quantity = document.getElementById("popup-quantity").value;
+
+        const formData = new URLSearchParams();
+        formData.append("action", "add");
+        formData.append("bouquetId", bouquetId);
+        formData.append("quantity", quantity);
+
+        fetch("${pageContext.request.contextPath}/cart", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: formData.toString()
+        })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "added") {
+                        closePopup(); // Đóng popup sau khi thêm
+
+                        showSuccessPopup("Added to cart successfully!");
+                    } else {
+                        alert("Error: " + data.status);
+                    }
+                })
+                .catch(err => {
+                    console.error("Error adding to cart:", err);
+                    alert("Something went wrong.");
+                });
+    });
+
+    function showSuccessPopup(message) {
+        const successBox = document.getElementById("success-popup");
+        successBox.innerText = message;
+        successBox.style.display = "block";
+
+        // Ẩn sau 3 giây
+        setTimeout(() => {
+            successBox.style.display = "none";
+        }, 3000);
+    }
 </script>
 </body>
 </html>
