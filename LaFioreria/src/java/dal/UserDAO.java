@@ -251,6 +251,34 @@ public class UserDAO extends DBContext {
         return list;
     }
 
+    // UserDAO.java
+    public User getUserByID(int userId) {
+        
+        User user = null;
+        try {
+            String sql = "SELECT * FROM user WHERE User_ID = ?";
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                user = new User();
+                user.setUserid(rs.getInt("User_ID"));
+                user.setUsername(rs.getString("Username"));
+                user.setPassword(rs.getString("Password"));
+                user.setFullname(rs.getString("Fullname"));
+                user.setEmail(rs.getString("Email"));
+                user.setPhone(rs.getString("Phone"));
+                user.setAddress(rs.getString("Address"));
+                user.setRole(rs.getInt("Role"));
+            }
+
+
+        } catch (SQLException e) {
+        }
+        return user;
+    }
+
     public List<UserManager> getSortedUsers(int roleId, String keyword, String sortField, String sortOrder) {
         List<UserManager> list = new ArrayList<>();
 
@@ -401,8 +429,6 @@ public class UserDAO extends DBContext {
         return total;
     }
 
-    
-    
     public void insertUser(User u) {
         String sql = "insert into user (User_ID,Username,Password,Fullname,Email,Phone,Address,Role) values(?,?,?,?,?,?,?,?);";
 
@@ -423,8 +449,8 @@ public class UserDAO extends DBContext {
             System.out.println(e);
         }
     }
-    
-    public void rejectUser(int userId){
+
+    public void rejectUser(int userId) {
         String sql = "UPDATE user SET status = 'rejected' where User_ID = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
@@ -434,9 +460,8 @@ public class UserDAO extends DBContext {
             System.out.println(e);
         }
     }
-    
-    
-    public void delete(int id){
+
+    public void delete(int id) {
         String sql = "delete from user "
                 + "where User_ID = ?";
         try {
