@@ -227,7 +227,7 @@
                 </nav>
                 <!-- Navbar End -->
 
-
+                <a href="${pageContext.request.contextPath}/viewBouquet" style="margin: 15px">Back to Bouquet List</a>
                 <!-- Blank Start -->
                 <form action="editBouquet" method="post">
                     <div class="background-qvm" style="background-color: #f3f6f9; margin-top: 20px; margin-left: 20px; margin-right: 20px; border-radius: 5px;">
@@ -313,7 +313,7 @@
                                                                 </select>
                                                             </td>
                                                             <td>
-                                                                <span class="form-text price-text">$0.00</span>
+                                                                <span class="form-text price-text">0.00 VND</span>
                                                                 <input type="hidden" class="price-input" name="prices[]" value="0" />
                                                             </td>
                                                             <td>
@@ -339,7 +339,7 @@
                                                     <tr>
                                                         <td colspan="4" class="text-start fw-bold text-primary">
                                                             Total Value:
-                                                            <span id="totalValueDisplay">$0.00</span>
+                                                            <span id="totalValueDisplay">0.00 VND</span>
                                                             <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
                                                         </td>
                                                     </tr>
@@ -441,7 +441,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Định dạng tiền tệ
             function formatCurrency(val) {
-                return '$' + parseFloat(val).toFixed(2);
+                return parseFloat(val).toFixed(2) + ' VND';
             }
 
             // Cập nhật giá của từng dòng khi chọn hoặc khởi tạo

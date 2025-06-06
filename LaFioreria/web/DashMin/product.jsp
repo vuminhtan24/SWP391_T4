@@ -376,7 +376,7 @@
                                             <c:if test="${!matched}">Unknown</c:if>
                                             </td>
 
-                                            <td>${bouquet.getPrice()}</td>
+                                            <td>${bouquet.getPrice()} VND</td>
                                         <td>
                                             <button type="button"
                                                     class="btn btn-delete"
