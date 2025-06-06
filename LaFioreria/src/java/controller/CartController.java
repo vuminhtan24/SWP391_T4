@@ -68,26 +68,34 @@ public class CartController extends HttpServlet {
     }
 
     private void add(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        int customerId = ((User) request.getSession().getAttribute("currentAcc")).getUserid();
-        int bouquetId = Integer.parseInt(request.getParameter("bouquetId"));
-        int quantity = Integer.parseInt(request.getParameter("quantity"));
-
-        CartDAO dao = new CartDAO();
-        System.out.println("nam");
-
-        // Kiểm tra đã có chưa
-        CartDetail existing = dao.getCartItem(customerId, bouquetId);
-        if (existing != null) {
-            int newQuantity = existing.getQuantity() + quantity;
-            dao.updateQuantity(customerId, bouquetId, newQuantity);
-        } else {
-            dao.insertItem(customerId, bouquetId, quantity);
-        }
-
+    User currentUser = (User) request.getSession().getAttribute("currentAcc");
+    if (currentUser == null) {
+        // Trả về JSON báo lỗi
         response.setContentType("application/json");
-        response.getWriter().write("{\"status\": \"added\"}");
-
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"status\": \"not_logged_in\"}");
+        return;
     }
+
+    int customerId = currentUser.getUserid();
+    int bouquetId = Integer.parseInt(request.getParameter("bouquetId"));
+    int quantity = Integer.parseInt(request.getParameter("quantity"));
+
+    CartDAO dao = new CartDAO();
+
+    CartDetail existing = dao.getCartItem(customerId, bouquetId);
+    if (existing != null) {
+        int newQuantity = existing.getQuantity() + quantity;
+        dao.updateQuantity(customerId, bouquetId, newQuantity);
+    } else {
+        dao.insertItem(customerId, bouquetId, quantity);
+    }
+
+    response.setContentType("application/json");
+    response.setCharacterEncoding("UTF-8");
+    response.getWriter().write("{\"status\": \"added\"}");
+}
+
     private void update(HttpServletRequest request, HttpServletResponse response) throws IOException {
         int customerId = ((User) request.getSession().getAttribute("currentAcc")).getUserid();
         int bouquetId = Integer.parseInt(request.getParameter("bouquetId"));

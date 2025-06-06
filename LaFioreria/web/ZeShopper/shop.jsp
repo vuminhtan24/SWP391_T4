@@ -327,7 +327,7 @@
 
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/wishlist.jsp"><i class="fa fa-star"></i> Wishlist</a></li>
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp"><i class="fa fa-crosshairs"></i> Checkout</a></li>
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp"><i class="fa fa-shopping-cart"></i> Cart</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/cart"><i class="fa fa-shopping-cart"></i> Cart</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -788,7 +788,7 @@
         formData.append("bouquetId", bouquetId);
         formData.append("quantity", quantity);
 
-        fetch("ZeShopper/cart", {
+        fetch("${pageContext.request.contextPath}/cart", {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
