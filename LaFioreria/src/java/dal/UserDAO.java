@@ -58,6 +58,32 @@ public class UserDAO extends BaseDao {
 
         return listUser;
     }
+    public UserManager getUserByUsername(String username) {
+    UserManager user = null;
+    String sql = "SELECT username, password, fullname, email, phone, address FROM Users WHERE username = ?";
+
+    try {
+         PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, username);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            user = new UserManager();
+            user.setUsername(rs.getString("username"));
+            user.setPassword(rs.getString("password"));
+            user.setFullname(rs.getString("fullname"));
+            user.setEmail(rs.getString("email"));
+            user.setPhone(rs.getString("phone"));
+            user.setAddress(rs.getString("address"));
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return user;
+}
+
 
     public void Update(User u) {
         String sql = "UPDATE la_fioreria.user SET Username = ?, Password = ?, Fullname = ?, Email = ?, Phone = ?, Address = ?, Role = ? WHERE User_ID = ?";
