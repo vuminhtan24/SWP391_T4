@@ -1,3 +1,4 @@
+
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
@@ -5,11 +6,23 @@
 <!DOCTYPE html>
 <html>
     <head>
+
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    
+
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="">
         <meta name="author" content="">
+
         <title>Home | E-Shopper</title>
+
+        <title>Contact | E-Shopper</title>
+
         <link href="${pageContext.request.contextPath}/ZeShopper/css/bootstrap.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/font-awesome.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/prettyPhoto.css" rel="stylesheet">
@@ -26,6 +39,7 @@
         <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-114-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-57-precomposed.png">
+
         <style>
             .popup-overlay {
                 position: fixed;
@@ -306,25 +320,44 @@
     <body>
 
         <header id="header"><!--header-->
+
+    
+</head>
+<body>
+    <header id="header"><!--header-->
+
             <div class="header_top"><!--header_top-->
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-6">
                             <div class="contactinfo">
                                 <ul class="nav nav-pills">
+
                                     <li><a href="#"><i class="fa fa-phone"></i> +2 95 01 88 821</a></li>
                                     <li><a href="#"><i class="fa fa-envelope"></i> info@domain.com</a></li>
+
+                                    <li><a href=""><i class="fa fa-phone"></i> +2 95 01 88 821</a></li>
+                                    <li><a href=""><i class="fa fa-envelope"></i> info@domain.com</a></li>
+
                                 </ul>
                             </div>
                         </div>
                         <div class="col-sm-6">
                             <div class="social-icons pull-right">
                                 <ul class="nav navbar-nav">
+
                                     <li><a href="#"><i class="fa fa-facebook"></i></a></li>
                                     <li><a href="#"><i class="fa fa-twitter"></i></a></li>
                                     <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
                                     <li><a href="#"><i class="fa fa-dribbble"></i></a></li>
                                     <li><a href="#"><i class="fa fa-google-plus"></i></a></li>
+
+                                    <li><a href=""><i class="fa fa-facebook"></i></a></li>
+                                    <li><a href=""><i class="fa fa-twitter"></i></a></li>
+                                    <li><a href=""><i class="fa fa-linkedin"></i></a></li>
+                                    <li><a href=""><i class="fa fa-dribbble"></i></a></li>
+                                    <li><a href=""><i class="fa fa-google-plus"></i></a></li>
+
                                 </ul>
                             </div>
                         </div>
@@ -346,8 +379,13 @@
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
+
                                         <li><a href="#">Canada</a></li>
                                         <li><a href="#">UK</a></li>
+
+                                        <li><a href="">Canada</a></li>
+                                        <li><a href="">UK</a></li>
+
                                     </ul>
                                 </div>
 
@@ -357,8 +395,13 @@
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
+
                                         <li><a href="#">Canadian Dollar</a></li>
                                         <li><a href="#">Pound</a></li>
+
+                                        <li><a href="">Canadian Dollar</a></li>
+                                        <li><a href="">Pound</a></li>
+
                                     </ul>
                                 </div>
                             </div>
@@ -374,21 +417,34 @@
                                                 </a>
                                                 <ul class="dropdown-menu">
 
+
                                                     <li><a href="${pageContext.request.contextPath}/viewuserdetailhome"><i class="fa fa-id-card"></i> User Detail</a></li>
+
+                                                    <li><a href="userDetail.jsp"><i class="fa fa-id-card"></i> User Detail</a></li>
+
                                                     <li><a href="changePassword.jsp"><i class="fa fa-key"></i> Change Password</a></li>
                                                     <li class="divider"></li>
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
                                                 </ul>
                                             </li>
+
                                         </c:when>
                                         <c:otherwise>
+
+                                            </c:when>
+                                            <c:otherwise>
+
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
                                             </c:otherwise>
                                         </c:choose>
 
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/wishlist.jsp"><i class="fa fa-star"></i> Wishlist</a></li>
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp"><i class="fa fa-crosshairs"></i> Checkout</a></li>
+
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/cart"><i class="fa fa-shopping-cart"></i> Cart</a></li>
+
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp"><i class="fa fa-shopping-cart"></i> Cart</a></li>
+
                                 </ul>
                             </div>
                         </div>
@@ -410,10 +466,17 @@
                             </div>
                             <div class="mainmenu pull-left">
                                 <ul class="nav navbar-nav collapse navbar-collapse">
+
                                     <li><a href="${pageContext.request.contextPath}/home" class="active">Home</a></li>
                                     <li class="dropdown"><a href="#">Shop<i class="fa fa-angle-down"></i></a>
                                         <ul role="menu" class="sub-menu">
                                             <li><a href="${pageContext.request.contextPath}/product">Products</a></li>
+
+                                    <li><a href="${pageContext.request.contextPath}/home">Home</a></li>
+                                    <li class="dropdown"><a href="#">Shop<i class="fa fa-angle-down"></i></a>
+                                        <ul role="menu" class="sub-menu">
+                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/shop.jsp">Products</a></li>
+
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/product-details.jsp">Product Details</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp">Checkout</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp">Cart</a></li> 
@@ -427,7 +490,11 @@
                                         </ul>
                                     </li> 
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/404.jsp">404</a></li>
+
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/contact-us.jsp">Contact</a></li>
+
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/contact-us.jsp" class="active">Contact</a></li>
+
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/about-us.jsp">About us</a></li>
                                 </ul>
                             </div>
@@ -441,6 +508,7 @@
                 </div>
             </div><!--/header-bottom-->
         </header><!--/header-->
+
 
         <div class="container user-detail-form">
             <form action="${pageContext.request.contextPath}/viewuserdetailhome" method="POST" onsubmit="return confirm('Are you sure, Please thing again, you sure that you should UPDATE your information  ?');">
@@ -485,12 +553,24 @@
                             </tr>
                         </c:if>
                         <tr>
-                            <c:if test="${not empty passwordStrength}">
-                        <div style="font-size: small;
-                             color: ${passwordStrength == 'Mạnh' ? 'green' :
-                                      passwordStrength == 'Trung bình' ? 'orange' : 'red'};">
-                            Mật khẩu: ${passwordStrength}
-                        </div>
+                    <c:if test="${not empty passwordStrength}">
+                        <c:choose>
+                            <c:when test="${passwordStrength == 'Mạnh'}">
+                                <div style="font-size: small; color: green;">
+                                    Mật khẩu: ${passwordStrength}
+                                </div>
+                            </c:when>
+                            <c:when test="${passwordStrength == 'Trung bình'}">
+                                <div style="font-size: small; color: orange;">
+                                    Mật khẩu: ${passwordStrength}
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div style="font-size: small; color: red;">
+                                    Mật khẩu: ${passwordStrength}
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
                     </c:if>
                     </tr>
                     <tr>
@@ -556,6 +636,45 @@
 
 
         <footer id="footer"><!--Footer-->
+
+    <div class="container">
+        <form action="viewuserdetailhome" method="POST">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>User ID:</td>
+                        <td><input type="text" name="id" value="${userManager.userid}" readonly></td>
+                    </tr>
+                    <tr>
+                        <td>User Name:</td>
+                        <td><input type="text" name="name" value="${userManager.username}"></td>
+                    </tr>
+                    <tr>
+                        <td>Password:</td>
+                        <td><input type="text" name="pass" value="${userManager.password}"></td>
+                    </tr>
+                    <tr>
+                        <td>Full Name:</td>
+                        <td><input type="text" name="FullName" value="${userManager.fullname}"></td>
+                    </tr>
+                    <tr>
+                        <td>Email:</td>
+                        <td><input type="text" name="email" value="${userManager.email}"></td>
+                    </tr>
+                    <tr>
+                        <td>Phone Number:</td>
+                        <td><input type="text" name="phone" value="${userManager.phone}"></td>
+                    </tr>
+                    <tr>
+                        <td>Address:</td>
+                        <td><input type="text" name="address" value="${userManager.address}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+                    <footer id="footer"><!--Footer-->
+
             <div class="footer-top">
                 <div class="container">
                     <div class="row">
@@ -615,7 +734,10 @@
                                 <div class="video-gallery text-center">
                                     <a href="#">
                                         <div class="iframe-img">
+
                                             <img src="${pageContext.request.contextPath}/images/home/iframe4.png" alt="" />
+
+                                            <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe4.png" alt="" />
                                         </div>
                                         <div class="overlay-icon">
                                             <i class="fa fa-play-circle-o"></i>
@@ -630,6 +752,16 @@
                             <div class="address">
                                 <img src="${pageContext.request.contextPath}/ZeShopper/images/home/map.png" alt="" />
                                 <p>505 S Atlantic Ave Virginia Beach, VA(Virginia)</p>
+                                <iframe 
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.344983050298!2d105.52674837508753!3d21.01807248062373!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345299efec69a1%3A0x2fd2f7482ad04c43!2zVHLGsOG7nW5nIMSQ4bqhaSBI4buNYyBGUFQgLSBIw6AgTMOgbg!5e0!3m2!1svi!2s!4v1716273663654!5m2!1svi!2s" 
+                                    width="100%" 
+                                    height="250" 
+                                    style="border:0;" 
+                                    allowfullscreen="" 
+                                    loading="lazy" 
+                                    referrerpolicy="no-referrer-when-downgrade">
+                                </iframe>
+                                <p>Trường Đại học FPT, Khu CNC Hòa Lạc, Km29 Đại lộ Thăng Long, Thạch Thất, Hà Nội</p>
                             </div>
                         </div>
                     </div>
@@ -648,6 +780,11 @@
                                     <li><a href="#">Order Status</a></li>
                                     <li><a href="#">Change Location</a></li>
                                     <li><a href="#">FAQ’s</a></li>
+                                    <li><a href="">Online Help</a></li>
+                                    <li><a href="">Contact Us</a></li>
+                                    <li><a href="">Order Status</a></li>
+                                    <li><a href="">Change Location</a></li>
+                                    <li><a href="">FAQ’s</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -660,6 +797,11 @@
                                     <li><a href="#">Womens</a></li>
                                     <li><a href="#">Gift Cards</a></li>
                                     <li><a href="#">Shoes</a></li>
+                                    <li><a href="">T-Shirt</a></li>
+                                    <li><a href="">Mens</a></li>
+                                    <li><a href="">Womens</a></li>
+                                    <li><a href="">Gift Cards</a></li>
+                                    <li><a href="">Shoes</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -672,6 +814,11 @@
                                     <li><a href="#">Refund Policy</a></li>
                                     <li><a href="#">Billing System</a></li>
                                     <li><a href="#">Ticket System</a></li>
+                                    <li><a href="">Terms of Use</a></li>
+                                    <li><a href="">Privecy Policy</a></li>
+                                    <li><a href="">Refund Policy</a></li>
+                                    <li><a href="">Billing System</a></li>
+                                    <li><a href="">Ticket System</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -684,6 +831,11 @@
                                     <li><a href="#">Store Location</a></li>
                                     <li><a href="#">Affillate Program</a></li>
                                     <li><a href="#">Copyright</a></li>
+                                    <li><a href="">Company Information</a></li>
+                                    <li><a href="">Careers</a></li>
+                                    <li><a href="">Store Location</a></li>
+                                    <li><a href="">Affillate Program</a></li>
+                                    <li><a href="">Copyright</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -713,4 +865,5 @@
 
         </footer><!--/Footer-->
     </body>
+</body>
 </html>

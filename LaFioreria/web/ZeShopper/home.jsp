@@ -313,9 +313,13 @@
                                                 </a>
                                                 <ul class="dropdown-menu">
 
+
                                                     <li><a href="${pageContext.request.contextPath}/viewuserdetailhome"><i class="fa fa-id-card"></i> User Detail</a></li>
 
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/user-detail"><i class="fa fa-id-card"></i> User Detail</a></li>
+
+
+                                                    <li><a href="${pageContext.request.contextPath}/viewuserdetailhome"><i class="fa fa-id-card"></i> User Detail</a></li>
 
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/changePassword.jsp"><i class="fa fa-key"></i> Change Password</a></li>
                                                     <li class="divider"></li>
