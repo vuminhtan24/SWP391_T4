@@ -18,7 +18,7 @@
         <meta content="" name="description">
 
         <!-- Favicon -->
-        <link href="img/favicon.ico" rel="icon">
+        <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
 
         <!-- Google Web Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -78,6 +78,14 @@
             .btn-secondary:hover {
                 background-color: #5a6268;
             }
+
+            /* Thêm style cho thông báo lỗi */
+            .error {
+                color: red;
+                font-size: 0.9rem;
+                margin-top: 5px;
+                display: block;
+            }
         </style>
     </head>
 
@@ -108,7 +116,7 @@
                         </div>
                     </div>
                     <div class="navbar-nav w-100">
-                        <a href="${pageContext.request.contextPath}/DashMin/admin.jsp" class="nav-item nav-link"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/admin" class="nav-item nav-link active"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Elements</a>
                             <div class="dropdown-menu bg-transparent border-0">
@@ -119,7 +127,7 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
                         <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/table.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Tables</a>
+                        <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>User</a>
                         <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>RawFlower</a>
@@ -130,9 +138,11 @@
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
                                 <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
                                 <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item active">View User Detail</a>
+                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item active">Add new User </a>
                             </div>
                         </div>
                     </div>
+                </nav>
                 </nav>
             </div>
             <!-- Sidebar End -->
@@ -235,14 +245,15 @@
                         <h6 class="mb-4">Add Category</h6>
 
                         <!-- Hiển thị thông báo lỗi nếu có -->
-                        <c:if test="${not empty error}">
+                        <c:if test="${not empty sessionScope.error}">
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                ${error}
+                                ${sessionScope.error}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
+                            <c:remove var="error" scope="session"/>
                         </c:if>
 
-                        <form action="addCategory" method="post">
+                        <form action="${pageContext.request.contextPath}/addCategory" method="post">
                             <div class="category-info">
                                 <div class="mb-3">
                                     <label for="categoryName" class="form-label fw-semibold">Category Name:</label>
@@ -251,9 +262,10 @@
                                         id="categoryName" 
                                         name="categoryName" 
                                         class="form-control" 
-                                        value="${param.categoryName}" 
-                                        required
+                                        value="${sessionScope.categoryName}" 
+                                        placeholder="Enter category name"
                                     />
+                                    <span class="error">${sessionScope.categoryNameError}</span>
                                 </div>
                                 <div class="mb-3">
                                     <label for="description" class="form-label fw-semibold">Description:</label>
@@ -262,7 +274,9 @@
                                         name="description" 
                                         class="form-control" 
                                         rows="4"
-                                    >${param.description}</textarea>
+                                        placeholder="Enter description"
+                                    >${sessionScope.description}</textarea>
+                                    <span class="error">${sessionScope.descriptionError}</span>
                                 </div>
                                 <div class="d-flex justify-content-end">
                                     <button type="submit" class="btn btn-success">Add Category</button>
@@ -310,4 +324,3 @@
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
     </body>
 </html>
-

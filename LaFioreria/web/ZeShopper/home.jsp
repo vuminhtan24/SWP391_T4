@@ -312,7 +312,11 @@
                                                     <i class="fa fa-user"></i> Hello, ${sessionScope.currentAcc.username} <b class="caret"></b>
                                                 </a>
                                                 <ul class="dropdown-menu">
+
                                                     <li><a href="${pageContext.request.contextPath}/viewuserdetailhome"><i class="fa fa-id-card"></i> User Detail</a></li>
+
+                                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/user-detail"><i class="fa fa-id-card"></i> User Detail</a></li>
+
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/changePassword.jsp"><i class="fa fa-key"></i> Change Password</a></li>
                                                     <li class="divider"></li>
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
@@ -564,20 +568,49 @@
                                                 <img src="${lb.getImageUrl()}" alt="" />
                                                 <h2><a href="${pageContext.request.contextPath}/productDetail?id=${lb.getBouquetId()}">${lb.getBouquetName()}</a></h2>
                                                 <p>Price: ${lb.getPrice()}</p>
-                                                <a href="#" class="btn btn-default add-to-cart">
+                                                <button 
+                                                    class="btn btn-default add-to-cart" 
+                                                    onclick="openPopup(
+                                                                    '${lb.getBouquetId()}',
+                                                                    '${lb.getBouquetName()}',
+                                                                    '${lb.getImageUrl()}',
+                                                                    '${lb.getPrice()}'
+                                                                    )">
                                                     <i class="fa fa-shopping-cart"></i> Add to cart
-                                                </a>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </c:forEach>
-
+                            
                         </div>
+                        
                     </div>  
+                            
                     <a href="${pageContext.request.contextPath}/product" class="active" style="margin-left: 700px; font-size: 15px; text-decoration: underline; margin-bottom: 10px;">View more Products&nbsp;&rarr;</a>
 
                 </div><!--features_items-->
+                <div id="popup" class="popup-overlay" style="display:none;">
+                        <div class="popup-content">
+                            <span class="close-btn" onclick="closePopup()">&times;</span>
+                            <form id="addToCartForm">
+                                <h3 id="popup-name"></h3>
+                                <img id="popup-image" src="" alt="" class="popup-img">
+                                <p id="popup-price" class="popup-price"></p>
+                                <p id="popup-description" class="popup-description"></p>
+
+                                <label class="popup-label">Quantity:</label>
+                                <input id="popup-quantity" type="number" name="quantity" value="1" min="1" required class="popup-input">
+
+                                <input type="hidden" name="bouquetId" id="popup-id">
+                                <div class="popup-buttons">
+                                    <button type="submit" class="popup-btn">Add to Cart</button>
+                                    <button type="button" onclick="closePopup()" class="popup-btn cancel">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
             </div>
         </div>
     </div>

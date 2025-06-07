@@ -72,21 +72,21 @@ public class ContactServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        DAOContact cDao = new DAOContact();
+        
         // Lấy dữ liệu từ form
         String name = request.getParameter("name");
         String email = request.getParameter("email");
         String subject = request.getParameter("subject");
         String message = request.getParameter("message");
         String messContact;
-        boolean success = DAOContact.insertContact(name, email, subject, message);
+        boolean success = cDao.insertContact(name, email, subject, message);
         if (success) {
             messContact = "Contact success";
              returnInputValue(request, response, name, email, subject,message, messContact);
-             return;
         } else {
             messContact = "Contact error";
             returnInputValue(request, response, name, email, subject,message, messContact);
-            return;
         }
 
     }
