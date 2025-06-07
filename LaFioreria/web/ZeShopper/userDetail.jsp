@@ -1,100 +1,716 @@
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>User Detail</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f7f9fc;
-            margin: 0;
-            padding: 0;
-        }
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>Home | E-Shopper</title>
+        <link href="${pageContext.request.contextPath}/ZeShopper/css/bootstrap.min.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/ZeShopper/css/font-awesome.min.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/ZeShopper/css/prettyPhoto.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/ZeShopper/css/price-range.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/ZeShopper/css/animate.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/ZeShopper/css/main.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/ZeShopper/css/responsive.css" rel="stylesheet">
+        <!--[if lt IE 9]>
+        <script src="js/html5shiv.js"></script>
+        <script src="js/respond.min.js"></script>
+        <![endif]-->       
+        <link rel="shortcut icon" href="${pageContext.request.contextPath}/ZeShopper/images/ico/favicon.ico">
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-144-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-114-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-72-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-57-precomposed.png">
+        <style>
+            .popup-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                animation: fadeIn 0.3s ease-in-out;
+            }
 
-        h1 {
-            text-align: center;
-            margin-top: 30px;
-            color: #333;
-        }
+            .popup-content {
+                background: #ffffff;
+                padding: 25px 30px;
+                border-radius: 12px;
+                max-width: 400px;
+                width: 90%;
+                position: relative;
+                box-shadow: 0 0 10px rgba(0,0,0,0.2);
+                animation: scaleUp 0.3s ease;
+            }
 
-        .container {
-            width: 500px;
-            margin: 40px auto;
-            background: #fff;
-            padding: 30px 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
+            .popup-img {
+                width: 100%;
+                max-height: 200px;
+                object-fit: contain;
+                border-radius: 8px;
+                margin-bottom: 15px;
+            }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+            .popup-price {
+                font-weight: bold;
+                margin: 5px 0;
+            }
 
-        td {
-            padding: 12px 8px;
-            vertical-align: middle;
-        }
+            .popup-description {
+                font-size: 14px;
+                color: #555;
+                margin-bottom: 15px;
+            }
 
-        td:first-child {
-            font-weight: bold;
-            width: 35%;
-            color: #444;
-        }
+            .popup-label {
+                display: block;
+                font-weight: 500;
+                margin-bottom: 5px;
+            }
 
-        input[type="text"], input[type="type"] {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 14px;
-        }
+            .popup-input {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 15px;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+            }
 
-        input[readonly] {
-            background-color: #f0f0f0;
-            color: #555;
-        }
-    </style>
-</head>
-<body>
-    <h1>User Detail</h1>
-    <div class="container">
-        <form action="viewuserdetailhome" method="POST">
-            <table>
-                <tbody>
-                    <tr>
-                        <td>User ID:</td>
-                        <td><input type="text" name="id" value="${userManager.userid}" readonly></td>
+            .popup-buttons {
+                display: flex;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            .popup-btn {
+                flex: 1;
+                padding: 10px;
+                border: none;
+                border-radius: 6px;
+                background-color: #28a745;
+                color: white;
+                font-weight: bold;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+            .popup-btn.cancel {
+                background-color: #dc3545;
+            }
+
+            .popup-btn:hover {
+                filter: brightness(0.9);
+            }
+
+            .close-btn {
+                position: absolute;
+                top: 10px;
+                right: 15px;
+                font-size: 22px;
+                cursor: pointer;
+                color: #aaa;
+                transition: color 0.2s;
+            }
+            .productinfo {
+                min-height: 400px; /* chỉnh tùy theo độ dài nội dung */
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .productinfo img {
+                height: 200px;
+                object-fit: cover;
+            }
+
+            .single-products {
+                height: 100%;
+            }
+
+            .product-image-wrapper {
+                border: 1px solid #f0f0f0;
+                padding: 10px;
+                height: 100%;
+            }
+
+            .close-btn:hover {
+                color: #000;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+            @keyframes scaleUp {
+                from {
+                    transform: scale(0.95);
+                    opacity: 0;
+                }
+                to {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+            }
+
+            .success-toast {
+                display: none;
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background-color: #4CAF50;
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.2);
+                font-size: 16px;
+                z-index: 9999;
+                animation: fadein 0.5s;
+            }
+
+            @keyframes fadein {
+                from {
+                    opacity: 0;
+                    bottom: 10px;
+                }
+                to {
+                    opacity: 1;
+                    bottom: 30px;
+                }
+            }
+            .productinfo {
+                min-height: 400px; /* chỉnh tùy theo độ dài nội dung */
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .productinfo img {
+                height: 200px;
+                object-fit: cover;
+            }
+
+            .single-products {
+                height: 100%;
+            }
+
+            .product-image-wrapper {
+                border: 1px solid #f0f0f0;
+                padding: 10px;
+                height: 100%;
+            }
+
+            .category-button {
+                background: none;       /* Bỏ màu nền */
+                border: none;           /* Bỏ viền */
+                padding: 0;             /* Bỏ khoảng đệm */
+                margin: 0;              /* Bỏ margin */
+                font: inherit;          /* Kế thừa toàn bộ font-family/ font-size/ font-weight từ h4 */
+                color: inherit;         /* Kế thừa màu chữ từ h4 */
+                cursor: pointer;        /* Vẫn hiện con trỏ tay khi hover */
+                text-align: inherit;    /* Kế thừa canh lề (nếu cần) */
+                display: inline;        /* Giữ nguyên kiểu inline để không giãn block */
+                text-decoration: none;  /* Bỏ gạch chân (nếu có) */
+            }
+
+            .category-button:hover {
+                text-decoration: underline; /* Hoặc đổi màu, tuỳ thích */
+            }
+
+            /* Chỉ ví dụ highlight category đang chọn */
+            .selected-category h4 .category-button {
+                font-weight: bold;
+                color: #d35400;
+            }
+
+            .user-detail-form {
+                background-color: #fff8f5; /* nền nhẹ nhàng */
+                border-radius: 16px;
+                padding: 30px;
+                max-width: 600px;
+                margin: 30px auto;
+                box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+                font-family: 'Segoe UI', sans-serif;
+            }
+
+            .user-detail-form h1 {
+                text-align: center;
+                color: #d96c75; /* hồng nhạt */
+                margin-bottom: 20px;
+                font-size: 26px;
+            }
+
+            .user-detail-form table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0 12px; /* tạo khoảng cách giữa các dòng */
+            }
+
+            .user-detail-form td {
+                padding: 10px;
+                font-size: 15px;
+                color: #444;
+                vertical-align: middle;
+            }
+
+            .user-detail-form input[type="text"] {
+                width: 100%;
+                padding: 10px 14px;
+                border: 1px solid #f0cfcf;
+                border-radius: 10px;
+                font-size: 14px;
+                background-color: #fff;
+                box-sizing: border-box;
+                transition: border-color 0.2s ease;
+            }
+
+            .user-detail-form input[type="text"]:focus {
+                border-color: #d96c75;
+                outline: none;
+                box-shadow: 0 0 5px rgba(217, 108, 117, 0.2);
+            }
+
+            .user-detail-form input[readonly] {
+                background-color: #fdf0f0;
+                color: #888;
+                cursor: not-allowed;
+            }
+
+            /* Optional: nhấn nhẹ các dòng */
+            .user-detail-form tr {
+                background-color: #fff;
+                border-radius: 12px;
+            }
+
+            /* Tăng tính nhẹ nhàng cho input */
+            .user-detail-form input {
+                font-family: inherit;
+                font-weight: 400;
+            }
+
+
+        </style>
+    </head>
+    <body>
+
+        <header id="header"><!--header-->
+            <div class="header_top"><!--header_top-->
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="contactinfo">
+                                <ul class="nav nav-pills">
+                                    <li><a href="#"><i class="fa fa-phone"></i> +2 95 01 88 821</a></li>
+                                    <li><a href="#"><i class="fa fa-envelope"></i> info@domain.com</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="social-icons pull-right">
+                                <ul class="nav navbar-nav">
+                                    <li><a href="#"><i class="fa fa-facebook"></i></a></li>
+                                    <li><a href="#"><i class="fa fa-twitter"></i></a></li>
+                                    <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
+                                    <li><a href="#"><i class="fa fa-dribbble"></i></a></li>
+                                    <li><a href="#"><i class="fa fa-google-plus"></i></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!--/header_top-->
+
+            <div class="header-middle"><!--header-middle-->
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="logo pull-left">
+                                <a href="${pageContext.request.contextPath}/home"><img src="${pageContext.request.contextPath}/ZeShopper/images/home/logo1.jpg" style="width:150px;" alt="" /></a>
+                            </div>
+                            <div class="btn-group pull-right">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default dropdown-toggle usa" data-toggle="dropdown">
+                                        USA
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#">Canada</a></li>
+                                        <li><a href="#">UK</a></li>
+                                    </ul>
+                                </div>
+
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default dropdown-toggle usa" data-toggle="dropdown">
+                                        DOLLAR
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#">Canadian Dollar</a></li>
+                                        <li><a href="#">Pound</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="shop-menu pull-right">
+                                <ul class="nav navbar-nav">
+                                    <c:choose>
+                                        <c:when test="${sessionScope.currentAcc != null}">
+                                            <li class="dropdown">
+                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                                    <i class="fa fa-user"></i> Hello, ${sessionScope.currentAcc.username} <b class="caret"></b>
+                                                </a>
+                                                <ul class="dropdown-menu">
+
+                                                    <li><a href="${pageContext.request.contextPath}/viewuserdetailhome"><i class="fa fa-id-card"></i> User Detail</a></li>
+                                                    <li><a href="changePassword.jsp"><i class="fa fa-key"></i> Change Password</a></li>
+                                                    <li class="divider"></li>
+                                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
+                                                </ul>
+                                            </li>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
+                                            </c:otherwise>
+                                        </c:choose>
+
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/wishlist.jsp"><i class="fa fa-star"></i> Wishlist</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp"><i class="fa fa-crosshairs"></i> Checkout</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/cart"><i class="fa fa-shopping-cart"></i> Cart</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!--/header-middle-->
+
+            <div class="header-bottom"><!--header-bottom-->
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-9">
+                            <div class="navbar-header">
+                                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                                    <span class="sr-only">Toggle navigation</span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                </button>
+                            </div>
+                            <div class="mainmenu pull-left">
+                                <ul class="nav navbar-nav collapse navbar-collapse">
+                                    <li><a href="${pageContext.request.contextPath}/home" class="active">Home</a></li>
+                                    <li class="dropdown"><a href="#">Shop<i class="fa fa-angle-down"></i></a>
+                                        <ul role="menu" class="sub-menu">
+                                            <li><a href="${pageContext.request.contextPath}/product">Products</a></li>
+                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/product-details.jsp">Product Details</a></li> 
+                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp">Checkout</a></li> 
+                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp">Cart</a></li> 
+                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp">Login</a></li> 
+                                        </ul>
+                                    </li> 
+                                    <li class="dropdown"><a href="#">Blog<i class="fa fa-angle-down"></i></a>
+                                        <ul role="menu" class="sub-menu">
+                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/blog.jsp">Blog List</a></li>
+                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/blog-single.jsp">Blog Single</a></li>
+                                        </ul>
+                                    </li> 
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/404.jsp">404</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/contact-us.jsp">Contact</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/about-us.jsp">About us</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="search_box pull-right">
+                                <input type="text" placeholder="Search"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!--/header-bottom-->
+        </header><!--/header-->
+
+        <div class="container user-detail-form">
+            <form action="${pageContext.request.contextPath}/viewuserdetailhome" method="POST" onsubmit="return confirm('Are you sure, Please thing again, you sure that you should UPDATE your information  ?');">
+                <table border="0">
+
+                    <tbody>
+                        <tr>
+                            <td>
+                                <input type="hidden" name="id" class="form-control" placeholder="User ID" aria-label="Username"
+                                       aria-describedby="basic-addon1" value="${userManager.userid}" readonly="">
+                            </td>
+                        </tr>
+                        <c:if test="${not empty errorID}">
+                            <tr>
+                                <td colspan="2"><span style="color:red">${errorID}</span></td>
+                            </tr>
+                        </c:if> 
+
+                        <tr>
+                            <td>User Name: </td>
+                            <td>
+                                <input type="text" name="name" class="form-control" placeholder="Username" aria-label="Username"
+                                       aria-describedby="basic-addon1" value="${userManager.username}">
+                            </td>
+                        </tr>
+
+                        <c:if test="${not empty errorName}">
+                            <tr>
+                                <td colspan="2"><span style="color:red">${errorName}</span></td>
+                            </tr>
+                        </c:if>
+                        <tr>
+                            <td>Password: </td>
+                            <td>
+                                <input type="text" name="pass" class="form-control" placeholder="Password" aria-label="Username"
+                                       aria-describedby="basic-addon1" value="${userManager.password}">
+                            </td>
+                        </tr>
+                        <c:if test="${not empty errorPass}">
+                            <tr>
+                                <td colspan="2"><span style="color:red">${errorPass}</span></td>
+                            </tr>
+                        </c:if>
+                        <tr>
+                            <c:if test="${not empty passwordStrength}">
+                        <div style="font-size: small;
+                             color: ${passwordStrength == 'Mạnh' ? 'green' :
+                                      passwordStrength == 'Trung bình' ? 'orange' : 'red'};">
+                            Mật khẩu: ${passwordStrength}
+                        </div>
+                    </c:if>
                     </tr>
                     <tr>
-                        <td>User Name:</td>
-                        <td><input type="text" name="name" value="${userManager.username}"></td>
+                        <td>Full Name: </td>
+                        <td>
+                            <input type="text" name="FullName" class="form-control" placeholder="Full Name" aria-label="Username"
+                                   aria-describedby="basic-addon1" value="${userManager.fullname}">
+                        </td>
+
                     </tr>
+                    <c:if test="${not empty errorFullname}">
+                        <tr>
+                            <td colspan="2"><span style="color:red">${errorFullname}</span></td>
+                        </tr>
+                    </c:if>
                     <tr>
-                        <td>Password:</td>
-                        <td><input type="text" name="pass" value="${userManager.password}"></td>
+                        <td>Email: </td>
+                        <td>
+                            <input type="text" class="form-control" placeholder="Email"
+                                   aria-label="Recipient's username" aria-describedby="basic-addon2" name="email" value="${userManager.email}">
+                        </td>
+                        <td>
+                            <span class="input-group-text" id="basic-addon2">@flower.com</span>
+                        </td>
                     </tr>
+                    <c:if test="${not empty errorEmail}">
+                        <tr>
+                            <td colspan="2"><span style="color:red">${errorEmail}</span></td>
+                        </tr>
+                    </c:if>
                     <tr>
-                        <td>Full Name:</td>
-                        <td><input type="text" name="FullName" value="${userManager.fullname}"></td>
+                        <td>Phone Number: </td>
+                        <td>
+                            <input type="type" name="phone" class="form-control" placeholder="Phone Number" aria-label="Username"
+                                   aria-describedby="basic-addon1" value="${userManager.phone}">
+                        </td>
                     </tr>
+                    <c:if test="${not empty errorPhone}">
+                        <tr>
+                            <td colspan="2"><span style="color:red">${errorPhone}</span></td>
+                        </tr>
+                    </c:if>
                     <tr>
-                        <td>Email:</td>
-                        <td><input type="text" name="email" value="${userManager.email}"></td>
+                        <td>Address: </td>
+                        <td>
+                            <input type="type" name="address" class="form-control" placeholder="Address" aria-label="Username"
+                                   aria-describedby="basic-addon1" value="${userManager.address}">
+                        </td>
                     </tr>
+                    <c:if test="${not empty errorAddress}">
+                        <tr>
+                            <td colspan="2"><span style="color:red">${errorAddress}</span></td>
+                        </tr>
+                    </c:if>
+
                     <tr>
-                        <td>Phone Number:</td>
-                        <td><input type="text" name="phone" value="${userManager.phone}"></td>
+                        <td><input  class="btn btn-primary"type="submit" name="updateform" value="UPDATE" ></td>
                     </tr>
-                    <tr>
-                        <td>Address:</td>
-                        <td><input type="text" name="address" value="${userManager.address}"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </form>
-    </div>
-</body>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+
+        <footer id="footer"><!--Footer-->
+            <div class="footer-top">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <div class="companyinfo">
+                                <h2><span>e</span>-shopper</h2>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit,sed do eiusmod tempor</p>
+                            </div>
+                        </div>
+                        <div class="col-sm-7">
+                            <div class="col-sm-3">
+                                <div class="video-gallery text-center">
+                                    <a href="#">
+                                        <div class="iframe-img">
+                                            <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe1.png" alt="" />
+                                        </div>
+                                        <div class="overlay-icon">
+                                            <i class="fa fa-play-circle-o"></i>
+                                        </div>
+                                    </a>
+                                    <p>Circle of Hands</p>
+                                    <h2>24 DEC 2014</h2>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-3">
+                                <div class="video-gallery text-center">
+                                    <a href="#">
+                                        <div class="iframe-img">
+                                            <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe2.png" alt="" />
+                                        </div>
+                                        <div class="overlay-icon">
+                                            <i class="fa fa-play-circle-o"></i>
+                                        </div>
+                                    </a>
+                                    <p>Circle of Hands</p>
+                                    <h2>24 DEC 2014</h2>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-3">
+                                <div class="video-gallery text-center">
+                                    <a href="#">
+                                        <div class="iframe-img">
+                                            <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe3.png" alt="" />
+                                        </div>
+                                        <div class="overlay-icon">
+                                            <i class="fa fa-play-circle-o"></i>
+                                        </div>
+                                    </a>
+                                    <p>Circle of Hands</p>
+                                    <h2>24 DEC 2014</h2>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-3">
+                                <div class="video-gallery text-center">
+                                    <a href="#">
+                                        <div class="iframe-img">
+                                            <img src="${pageContext.request.contextPath}/images/home/iframe4.png" alt="" />
+                                        </div>
+                                        <div class="overlay-icon">
+                                            <i class="fa fa-play-circle-o"></i>
+                                        </div>
+                                    </a>
+                                    <p>Circle of Hands</p>
+                                    <h2>24 DEC 2014</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="address">
+                                <img src="${pageContext.request.contextPath}/ZeShopper/images/home/map.png" alt="" />
+                                <p>505 S Atlantic Ave Virginia Beach, VA(Virginia)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-widget">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <div class="single-widget">
+                                <h2>Service</h2>
+                                <ul class="nav nav-pills nav-stacked">
+                                    <li><a href="#">Online Help</a></li>
+                                    <li><a href="#">Contact Us</a></li>
+                                    <li><a href="#">Order Status</a></li>
+                                    <li><a href="#">Change Location</a></li>
+                                    <li><a href="#">FAQ’s</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="single-widget">
+                                <h2>Quock Shop</h2>
+                                <ul class="nav nav-pills nav-stacked">
+                                    <li><a href="#">T-Shirt</a></li>
+                                    <li><a href="#">Mens</a></li>
+                                    <li><a href="#">Womens</a></li>
+                                    <li><a href="#">Gift Cards</a></li>
+                                    <li><a href="#">Shoes</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="single-widget">
+                                <h2>Policies</h2>
+                                <ul class="nav nav-pills nav-stacked">
+                                    <li><a href="#">Terms of Use</a></li>
+                                    <li><a href="#">Privecy Policy</a></li>
+                                    <li><a href="#">Refund Policy</a></li>
+                                    <li><a href="#">Billing System</a></li>
+                                    <li><a href="#">Ticket System</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="single-widget">
+                                <h2>About Shopper</h2>
+                                <ul class="nav nav-pills nav-stacked">
+                                    <li><a href="#">Company Information</a></li>
+                                    <li><a href="#">Careers</a></li>
+                                    <li><a href="#">Store Location</a></li>
+                                    <li><a href="#">Affillate Program</a></li>
+                                    <li><a href="#">Copyright</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 col-sm-offset-1">
+                            <div class="single-widget">
+                                <h2>About Shopper</h2>
+                                <form action="#" class="searchform">
+                                    <input type="text" placeholder="Your email address" />
+                                    <button type="submit" class="btn btn-default"><i class="fa fa-arrow-circle-o-right"></i></button>
+                                    <p>Get the most recent updates from <br />our site and be updated your self...</p>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="container">
+                    <div class="row">
+                        <p class="pull-left">Copyright © 2013 E-SHOPPER Inc. All rights reserved.</p>
+                        <p class="pull-right">Designed by <span><a target="_blank" href="http://www.themeum.com">Themeum</a></span></p>
+                    </div>
+                </div>
+            </div>
+
+        </footer><!--/Footer-->
+    </body>
 </html>
