@@ -1,28 +1,17 @@
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="java.util.List,model.Bouquet, model.Category, model.RawFlower" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
     <head>
-
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html>
-<head>
-    
-
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="">
         <meta name="author" content="">
-
-        <title>Home | E-Shopper</title>
-
-        <title>Contact | E-Shopper</title>
-
+        <title>Product Details | E-Shopper</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"/>
         <link href="${pageContext.request.contextPath}/ZeShopper/css/bootstrap.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/font-awesome.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/prettyPhoto.css" rel="stylesheet">
@@ -39,216 +28,99 @@
         <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-114-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-57-precomposed.png">
-
         <style>
-            .popup-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
+            /* 1. Toàn bộ card viền trắng, đổ nhẹ shadow như Product List */
+            .product-card {
+                background-color: #fff;
+                border: 1px solid #ededed;
+                /* Tạo shadow nhẹ giống Product List */
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                border-radius: 4px;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.5);
+            }
+
+            /* 2. Khung ảnh cố định chiều cao, nhưng ảnh hiển thị đầy đủ (object-fit: contain) */
+            .product-card__image {
+                width: 100%;
+                height: 200px;       /* Giữ đúng cao 200px cho tất cả ảnh */
+                background-color: #f9f9f9; /* Màu nền nhạt nếu ảnh không lấp đầy khung */
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                z-index: 9999;
-                animation: fadeIn 0.3s ease-in-out;
+                overflow: hidden;
             }
 
-            .popup-content {
-                background: #ffffff;
-                padding: 25px 30px;
-                border-radius: 12px;
-                max-width: 400px;
-                width: 90%;
-                position: relative;
-                box-shadow: 0 0 10px rgba(0,0,0,0.2);
-                animation: scaleUp 0.3s ease;
-            }
-
-            .popup-img {
-                width: 100%;
-                max-height: 200px;
+            .product-card__image img {
+                width: auto;
+                height: 100%;
                 object-fit: contain;
-                border-radius: 8px;
-                margin-bottom: 15px;
-            }
-
-            .popup-price {
-                font-weight: bold;
-                margin: 5px 0;
-            }
-
-            .popup-description {
-                font-size: 14px;
-                color: #555;
-                margin-bottom: 15px;
-            }
-
-            .popup-label {
                 display: block;
-                font-weight: 500;
-                margin-bottom: 5px;
             }
 
-            .popup-input {
+            /* 3. Phần body chứa title/price/button */
+            .product-card__body {
+                padding: 15px;
+                flex: 1;             /* Chiếm hết không gian còn lại trong card */
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            /* 4. Title (tên sản phẩm) giống Product List: màu xanh, font-size lớn */
+            .product-card__title {
+                font-size: 1.4rem;          /* tương đương ~22px */
+                color: #337ab7;             /* màu xanh giống Bootstrap “link-primary” */
+                margin: 0 0 10px 0;
+                text-align: center;
+                line-height: 1.2;
+            }
+
+            .product-card__title a {
+                color: inherit;
+                text-decoration: none;
+            }
+            .product-card__title a:hover {
+                text-decoration: underline;
+            }
+
+            /* 5. Price: nhỏ hơn title, màu xám đậm */
+            .product-card__price {
+                font-size: 1rem;
+                color: #777;
+                text-align: center;
+                margin: 0 0 15px 0;
+            }
+
+            /* 6. Button “Add to cart”: full-width, màu nền vàng nhạt giống Product List */
+            .product-card__button {
                 width: 100%;
-                padding: 8px;
-                margin-bottom: 15px;
-                border: 1px solid #ccc;
-                border-radius: 6px;
+                font-size: 1rem;
+                background-color: #f5f5f0;  /* màu nền giống “#f5f5f0” */
+                color: #444;                /* màu chữ xám đậm */
+                border: 1px solid #eee;
+                padding: 10px 0;
+                text-align: center;
+                border-radius: 2px;
+                transition: background-color 0.2s ease;
             }
 
-            .popup-buttons {
-                display: flex;
-                justify-content: space-between;
-                gap: 10px;
+            .product-card__button i {
+                margin-right: 5px;
             }
 
-            .popup-btn {
-                flex: 1;
-                padding: 10px;
-                border: none;
-                border-radius: 6px;
-                background-color: #28a745;
-                color: white;
-                font-weight: bold;
-                cursor: pointer;
-                transition: background 0.2s;
+            .product-card__button:hover {
+                background-color: #e8e8dc;  /* hơi đậm hơn một chút */
+                text-decoration: none;
+                color: #333;
             }
 
-            .popup-btn.cancel {
-                background-color: #dc3545;
+            /* Khi hiển thị ở col-sm-4: cho margin-bottom để card cách nhau */
+            .carousel .col-sm-4 {
+                margin-bottom: 30px;
             }
-
-            .popup-btn:hover {
-                filter: brightness(0.9);
-            }
-
-            .close-btn {
-                position: absolute;
-                top: 10px;
-                right: 15px;
-                font-size: 22px;
-                cursor: pointer;
-                color: #aaa;
-                transition: color 0.2s;
-            }
-            .productinfo {
-                min-height: 400px; /* chỉnh tùy theo độ dài nội dung */
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-            }
-
-            .productinfo img {
-                height: 200px;
-                object-fit: cover;
-            }
-
-            .single-products {
-                height: 100%;
-            }
-
-            .product-image-wrapper {
-                border: 1px solid #f0f0f0;
-                padding: 10px;
-                height: 100%;
-            }
-
-            .close-btn:hover {
-                color: #000;
-            }
-
-            @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                }
-                to {
-                    opacity: 1;
-                }
-            }
-            @keyframes scaleUp {
-                from {
-                    transform: scale(0.95);
-                    opacity: 0;
-                }
-                to {
-                    transform: scale(1);
-                    opacity: 1;
-                }
-            }
-
-            .success-toast {
-                display: none;
-                position: fixed;
-                bottom: 30px;
-                right: 30px;
-                background-color: #4CAF50;
-                color: white;
-                padding: 16px 24px;
-                border-radius: 8px;
-                box-shadow: 0 0 10px rgba(0,0,0,0.2);
-                font-size: 16px;
-                z-index: 9999;
-                animation: fadein 0.5s;
-            }
-
-            @keyframes fadein {
-                from {
-                    opacity: 0;
-                    bottom: 10px;
-                }
-                to {
-                    opacity: 1;
-                    bottom: 30px;
-                }
-            }
-            .productinfo {
-                min-height: 400px; /* chỉnh tùy theo độ dài nội dung */
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-            }
-
-            .productinfo img {
-                height: 200px;
-                object-fit: cover;
-            }
-
-            .single-products {
-                height: 100%;
-            }
-
-            .product-image-wrapper {
-                border: 1px solid #f0f0f0;
-                padding: 10px;
-                height: 100%;
-            }
-
-            .category-button {
-                background: none;       /* Bỏ màu nền */
-                border: none;           /* Bỏ viền */
-                padding: 0;             /* Bỏ khoảng đệm */
-                margin: 0;              /* Bỏ margin */
-                font: inherit;          /* Kế thừa toàn bộ font-family/ font-size/ font-weight từ h4 */
-                color: inherit;         /* Kế thừa màu chữ từ h4 */
-                cursor: pointer;        /* Vẫn hiện con trỏ tay khi hover */
-                text-align: inherit;    /* Kế thừa canh lề (nếu cần) */
-                display: inline;        /* Giữ nguyên kiểu inline để không giãn block */
-                text-decoration: none;  /* Bỏ gạch chân (nếu có) */
-            }
-
-            .category-button:hover {
-                text-decoration: underline; /* Hoặc đổi màu, tuỳ thích */
-            }
-
-            /* Chỉ ví dụ highlight category đang chọn */
-            .selected-category h4 .category-button {
-                font-weight: bold;
-                color: #d35400;
-            }
-
             .user-detail-form {
                 background-color: #fff8f5; /* nền nhẹ nhàng */
                 border-radius: 16px;
@@ -313,51 +185,30 @@
                 font-family: inherit;
                 font-weight: 400;
             }
-
-
         </style>
-    </head>
+    </head><!--/head-->
+
     <body>
-
         <header id="header"><!--header-->
-
-    
-</head>
-<body>
-    <header id="header"><!--header-->
-
             <div class="header_top"><!--header_top-->
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-6">
                             <div class="contactinfo">
                                 <ul class="nav nav-pills">
-
-                                    <li><a href="#"><i class="fa fa-phone"></i> +2 95 01 88 821</a></li>
-                                    <li><a href="#"><i class="fa fa-envelope"></i> info@domain.com</a></li>
-
                                     <li><a href=""><i class="fa fa-phone"></i> +2 95 01 88 821</a></li>
                                     <li><a href=""><i class="fa fa-envelope"></i> info@domain.com</a></li>
-
                                 </ul>
                             </div>
                         </div>
                         <div class="col-sm-6">
                             <div class="social-icons pull-right">
                                 <ul class="nav navbar-nav">
-
-                                    <li><a href="#"><i class="fa fa-facebook"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-dribbble"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-google-plus"></i></a></li>
-
                                     <li><a href=""><i class="fa fa-facebook"></i></a></li>
                                     <li><a href=""><i class="fa fa-twitter"></i></a></li>
                                     <li><a href=""><i class="fa fa-linkedin"></i></a></li>
                                     <li><a href=""><i class="fa fa-dribbble"></i></a></li>
                                     <li><a href=""><i class="fa fa-google-plus"></i></a></li>
-
                                 </ul>
                             </div>
                         </div>
@@ -379,13 +230,8 @@
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
-
-                                        <li><a href="#">Canada</a></li>
-                                        <li><a href="#">UK</a></li>
-
                                         <li><a href="">Canada</a></li>
                                         <li><a href="">UK</a></li>
-
                                     </ul>
                                 </div>
 
@@ -395,13 +241,8 @@
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
-
-                                        <li><a href="#">Canadian Dollar</a></li>
-                                        <li><a href="#">Pound</a></li>
-
                                         <li><a href="">Canadian Dollar</a></li>
                                         <li><a href="">Pound</a></li>
-
                                     </ul>
                                 </div>
                             </div>
@@ -416,35 +257,21 @@
                                                     <i class="fa fa-user"></i> Hello, ${sessionScope.currentAcc.username} <b class="caret"></b>
                                                 </a>
                                                 <ul class="dropdown-menu">
-
-
                                                     <li><a href="${pageContext.request.contextPath}/viewuserdetailhome"><i class="fa fa-id-card"></i> User Detail</a></li>
-
-                                                    <li><a href="userDetail.jsp"><i class="fa fa-id-card"></i> User Detail</a></li>
-
                                                     <li><a href="changePassword.jsp"><i class="fa fa-key"></i> Change Password</a></li>
                                                     <li class="divider"></li>
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
                                                 </ul>
                                             </li>
-
                                         </c:when>
                                         <c:otherwise>
-
-                                            </c:when>
-                                            <c:otherwise>
-
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
                                             </c:otherwise>
                                         </c:choose>
 
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/wishlist.jsp"><i class="fa fa-star"></i> Wishlist</a></li>
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp"><i class="fa fa-crosshairs"></i> Checkout</a></li>
-
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/cart"><i class="fa fa-shopping-cart"></i> Cart</a></li>
-
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp"><i class="fa fa-shopping-cart"></i> Cart</a></li>
-
                                 </ul>
                             </div>
                         </div>
@@ -466,17 +293,10 @@
                             </div>
                             <div class="mainmenu pull-left">
                                 <ul class="nav navbar-nav collapse navbar-collapse">
-
-                                    <li><a href="${pageContext.request.contextPath}/home" class="active">Home</a></li>
-                                    <li class="dropdown"><a href="#">Shop<i class="fa fa-angle-down"></i></a>
-                                        <ul role="menu" class="sub-menu">
-                                            <li><a href="${pageContext.request.contextPath}/product">Products</a></li>
-
                                     <li><a href="${pageContext.request.contextPath}/home">Home</a></li>
-                                    <li class="dropdown"><a href="#">Shop<i class="fa fa-angle-down"></i></a>
+                                    <li class="dropdown"><a href="#" class="active">Shop<i class="fa fa-angle-down"></i></a>
                                         <ul role="menu" class="sub-menu">
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/shop.jsp">Products</a></li>
-
+                                            <li><a href="${pageContext.request.contextPath}/product" class="active">Products</a></li>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/product-details.jsp">Product Details</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp">Checkout</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp">Cart</a></li> 
@@ -490,11 +310,7 @@
                                         </ul>
                                     </li> 
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/404.jsp">404</a></li>
-
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/contact-us.jsp">Contact</a></li>
-
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/contact-us.jsp" class="active">Contact</a></li>
-
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/about-us.jsp">About us</a></li>
                                 </ul>
                             </div>
@@ -508,7 +324,6 @@
                 </div>
             </div><!--/header-bottom-->
         </header><!--/header-->
-
 
         <div class="container user-detail-form">
             <form action="${pageContext.request.contextPath}/viewuserdetailhome" method="POST" onsubmit="return confirm('Are you sure, Please thing again, you sure that you should UPDATE your information  ?');">
@@ -553,9 +368,9 @@
                             </tr>
                         </c:if>
                         <tr>
-                    <c:if test="${not empty passwordStrength}">
-                        <c:choose>
-                            <c:when test="${passwordStrength == 'Mạnh'}">
+                            <c:if test="${not empty passwordStrength}">
+                                <c:choose>
+                                    <c:when test="${passwordStrength == 'Mạnh'}">
                                 <div style="font-size: small; color: green;">
                                     Mật khẩu: ${passwordStrength}
                                 </div>
@@ -634,47 +449,7 @@
             </form>
         </div>
 
-
         <footer id="footer"><!--Footer-->
-
-    <div class="container">
-        <form action="viewuserdetailhome" method="POST">
-            <table>
-                <tbody>
-                    <tr>
-                        <td>User ID:</td>
-                        <td><input type="text" name="id" value="${userManager.userid}" readonly></td>
-                    </tr>
-                    <tr>
-                        <td>User Name:</td>
-                        <td><input type="text" name="name" value="${userManager.username}"></td>
-                    </tr>
-                    <tr>
-                        <td>Password:</td>
-                        <td><input type="text" name="pass" value="${userManager.password}"></td>
-                    </tr>
-                    <tr>
-                        <td>Full Name:</td>
-                        <td><input type="text" name="FullName" value="${userManager.fullname}"></td>
-                    </tr>
-                    <tr>
-                        <td>Email:</td>
-                        <td><input type="text" name="email" value="${userManager.email}"></td>
-                    </tr>
-                    <tr>
-                        <td>Phone Number:</td>
-                        <td><input type="text" name="phone" value="${userManager.phone}"></td>
-                    </tr>
-                    <tr>
-                        <td>Address:</td>
-                        <td><input type="text" name="address" value="${userManager.address}"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </form>
-    </div>
-                    <footer id="footer"><!--Footer-->
-
             <div class="footer-top">
                 <div class="container">
                     <div class="row">
@@ -734,9 +509,6 @@
                                 <div class="video-gallery text-center">
                                     <a href="#">
                                         <div class="iframe-img">
-
-                                            <img src="${pageContext.request.contextPath}/images/home/iframe4.png" alt="" />
-
                                             <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe4.png" alt="" />
                                         </div>
                                         <div class="overlay-icon">
@@ -752,16 +524,6 @@
                             <div class="address">
                                 <img src="${pageContext.request.contextPath}/ZeShopper/images/home/map.png" alt="" />
                                 <p>505 S Atlantic Ave Virginia Beach, VA(Virginia)</p>
-                                <iframe 
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.344983050298!2d105.52674837508753!3d21.01807248062373!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345299efec69a1%3A0x2fd2f7482ad04c43!2zVHLGsOG7nW5nIMSQ4bqhaSBI4buNYyBGUFQgLSBIw6AgTMOgbg!5e0!3m2!1svi!2s!4v1716273663654!5m2!1svi!2s" 
-                                    width="100%" 
-                                    height="250" 
-                                    style="border:0;" 
-                                    allowfullscreen="" 
-                                    loading="lazy" 
-                                    referrerpolicy="no-referrer-when-downgrade">
-                                </iframe>
-                                <p>Trường Đại học FPT, Khu CNC Hòa Lạc, Km29 Đại lộ Thăng Long, Thạch Thất, Hà Nội</p>
                             </div>
                         </div>
                     </div>
@@ -775,11 +537,6 @@
                             <div class="single-widget">
                                 <h2>Service</h2>
                                 <ul class="nav nav-pills nav-stacked">
-                                    <li><a href="#">Online Help</a></li>
-                                    <li><a href="#">Contact Us</a></li>
-                                    <li><a href="#">Order Status</a></li>
-                                    <li><a href="#">Change Location</a></li>
-                                    <li><a href="#">FAQ’s</a></li>
                                     <li><a href="">Online Help</a></li>
                                     <li><a href="">Contact Us</a></li>
                                     <li><a href="">Order Status</a></li>
@@ -792,11 +549,6 @@
                             <div class="single-widget">
                                 <h2>Quock Shop</h2>
                                 <ul class="nav nav-pills nav-stacked">
-                                    <li><a href="#">T-Shirt</a></li>
-                                    <li><a href="#">Mens</a></li>
-                                    <li><a href="#">Womens</a></li>
-                                    <li><a href="#">Gift Cards</a></li>
-                                    <li><a href="#">Shoes</a></li>
                                     <li><a href="">T-Shirt</a></li>
                                     <li><a href="">Mens</a></li>
                                     <li><a href="">Womens</a></li>
@@ -809,11 +561,6 @@
                             <div class="single-widget">
                                 <h2>Policies</h2>
                                 <ul class="nav nav-pills nav-stacked">
-                                    <li><a href="#">Terms of Use</a></li>
-                                    <li><a href="#">Privecy Policy</a></li>
-                                    <li><a href="#">Refund Policy</a></li>
-                                    <li><a href="#">Billing System</a></li>
-                                    <li><a href="#">Ticket System</a></li>
                                     <li><a href="">Terms of Use</a></li>
                                     <li><a href="">Privecy Policy</a></li>
                                     <li><a href="">Refund Policy</a></li>
@@ -826,11 +573,6 @@
                             <div class="single-widget">
                                 <h2>About Shopper</h2>
                                 <ul class="nav nav-pills nav-stacked">
-                                    <li><a href="#">Company Information</a></li>
-                                    <li><a href="#">Careers</a></li>
-                                    <li><a href="#">Store Location</a></li>
-                                    <li><a href="#">Affillate Program</a></li>
-                                    <li><a href="#">Copyright</a></li>
                                     <li><a href="">Company Information</a></li>
                                     <li><a href="">Careers</a></li>
                                     <li><a href="">Store Location</a></li>
@@ -864,6 +606,16 @@
             </div>
 
         </footer><!--/Footer-->
+
+
+
+        <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.js"></script>
+        <script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
+        <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
+        <script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
+        <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
+        <script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     </body>
-</body>
 </html>

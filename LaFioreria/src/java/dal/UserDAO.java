@@ -388,34 +388,7 @@ public class UserDAO extends BaseDao {
         return list;
     }
 
-    // UserDAO.java
-    public User getUserByID(int userId) {
-
-        User user = null;
-        try {
-            connection = dbc.getConnection();
-            String sql = "SELECT * FROM user WHERE User_ID = ?";
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, userId);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                user = new User();
-                user.setUserid(rs.getInt("User_ID"));
-                user.setUsername(rs.getString("Username"));
-                user.setPassword(rs.getString("Password"));
-                user.setFullname(rs.getString("Fullname"));
-                user.setEmail(rs.getString("Email"));
-                user.setPhone(rs.getString("Phone"));
-                user.setAddress(rs.getString("Address"));
-                user.setRole(rs.getInt("Role"));
-            }
-
-        } catch (SQLException e) {
-        }
-        return user;
-    }
-
+    
     public List<UserManager> getSortedUsers(int roleId, String keyword, String sortField, String sortOrder) {
         List<UserManager> list = new ArrayList<>();
 
