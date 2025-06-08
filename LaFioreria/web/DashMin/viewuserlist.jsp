@@ -230,7 +230,13 @@
                     </div>
                 </nav>
                 <!-- Navbar End -->
-
+                <div class="col-sm-12 col-xl-6">
+                    <div class="bg-light rounded h-100 p-4">
+                        <div class="btn-group" role="group">
+                            <a  class="btn btn-primary" href="${pageContext.request.contextPath}/adduserdetail">Add new User detail</a>
+                        </div>
+                    </div>
+                </div>
                 <!-- Table Start -->
                 <div class="col-sm-12 col-xl-6">
                     <div class="bg-light rounded h-100 p-4">
