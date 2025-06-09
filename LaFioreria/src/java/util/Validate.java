@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package util;
 
 import constant.IConstant;
@@ -17,7 +13,7 @@ import model.Warehouse;
  */
 public class Validate {
 
-  public static final boolean isValidEmail(String email) {
+    public static final boolean isValidEmail(String email) {
         Pattern pattern = Pattern.compile(IConstant.REGEX_EMAIL);
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
@@ -35,9 +31,9 @@ public class Validate {
         return matcher.matches();
     }
 
-    public static final boolean  isImageFile(Part part) {
-      String contentType = part.getContentType();
-      return contentType.startsWith("image/");
+    public static final boolean isImageFile(Part part) {
+        String contentType = part.getContentType();
+        return contentType != null && contentType.startsWith("image/");
     }
     
     // Kiểm tra số (không chứa chữ hoặc ký tự đặc biệt)
@@ -144,17 +140,17 @@ public class Validate {
         return null; // Hợp lệ
     }
     
-    // Thêm phương thức validate description (không giới hạn độ dài)
+    // Kiểm tra description (không giới hạn độ dài, thêm nhiều ký tự đặc biệt)
+    // Kiểm tra description (không giới hạn độ dài, xử lý ký tự ẩn)
     public static String validateDescription(String description) {
-        // Không bắt buộc, có thể rỗng hoặc toàn khoảng trắng
+        System.out.println("Validating description: [" + (description != null ? description.replaceAll("[^\\p{Print}]", "?") : "null") + "]"); // Thay ký tự không in được bằng "?"
         if (description == null || description.trim().isEmpty() || description.trim().matches("^\\s+$")) {
             return null; // Hợp lệ (cho phép rỗng)
         }
-        // Nếu có giá trị, kiểm tra format: chỉ chứa chữ, số, khoảng trắng và một số ký tự đặc biệt (dấu câu)
-        Pattern pattern = Pattern.compile("^[a-zA-Z0-9\\s.,!?()-]*$");
+        Pattern pattern = Pattern.compile("^[\\p{Print}]*$"); // Cho phép tất cả ký tự in được
         Matcher matcher = pattern.matcher(description);
         if (!matcher.matches()) {
-            return "Description can only contain letters, numbers, spaces, and common punctuation (.,!?()-).";
+            return "Description contains invalid characters.";
         }
         return null; // Hợp lệ
     }

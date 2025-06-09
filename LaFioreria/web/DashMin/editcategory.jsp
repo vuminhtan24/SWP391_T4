@@ -7,7 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -79,12 +79,45 @@
                 background-color: #5a6268;
             }
 
-            /* Thêm style cho thông báo lỗi */
-            .error {
-                color: red;
-                font-size: 0.9rem;
-                margin-top: 5px;
-                display: block;
+            /* Style cho popup lỗi */
+            .error-popup {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                z-index: 1050;
+                max-width: 500px;
+                width: 90%;
+            }
+
+            .error-popup .error-header {
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #e74c3c;
+            }
+
+            .error-popup .error-body {
+                color: #333;
+                margin-bottom: 15px;
+            }
+
+            .error-popup .btn-close {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                font-size: 1.5rem;
+                border: none;
+                background: none;
+                cursor: pointer;
+            }
+
+            .error-popup .btn-close:hover {
+                color: #c0392b;
             }
         </style>
     </head>
@@ -116,7 +149,7 @@
                         </div>
                     </div>
                     <div class="navbar-nav w-100">
-                        <a href="${pageContext.request.contextPath}/DashMin/admin" class="nav-item nav-link active"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/admin" class="nav-item nav-link"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Elements</a>
                             <div class="dropdown-menu bg-transparent border-0">
@@ -127,18 +160,18 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
                         <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
-                        <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>User</a>
-                        <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
+                        <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link"><i class="fa fa-table me-2"></i>User</a>
+                        <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>RawFlower</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
                         <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Category</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
-                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
-                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item active">View User Detail</a>
-                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item active">Add new User </a>
+                                <a href="${pageContext.request.contextPath}/DashMin/categoryDetails" class="dropdown-item active">Category Details</a>
+                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item">View User Detail</a>
+                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item">Add new User</a>
                             </div>
                         </div>
                     </div>
@@ -243,17 +276,25 @@
                     <div class="bg-light rounded h-100 p-4">
                         <h6 class="mb-4">Edit Category</h6>
 
-                        <!-- Hiển thị thông báo lỗi nếu có -->
-                        <c:if test="${not empty sessionScope.error}">
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                ${sessionScope.error}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <!-- Popup lỗi -->
+                        <div id="errorPopup" class="error-popup">
+                            <button type="button" class="btn-close" onclick="closePopup()">&times;</button>
+                            <div class="error-header">Validation Errors</div>
+                            <div class="error-body">
+                                <c:if test="${not empty categoryNameError}">
+                                    <p><strong>Category Name:</strong> ${categoryNameError}</p>
+                                </c:if>
+                                <c:if test="${not empty descriptionError}">
+                                    <p><strong>Description:</strong> ${descriptionError}</p>
+                                </c:if>
+                                <c:if test="${not empty error}">
+                                    <p><strong>Error:</strong> ${error}</p>
+                                </c:if>
                             </div>
-                            <c:remove var="error" scope="session"/>
-                        </c:if>
+                        </div>
 
                         <form action="${pageContext.request.contextPath}/editCategory" method="post">
-                            <input type="hidden" name="id" value="${category.categoryId}">
+                            <input type="hidden" name="id" value="${category.categoryId != null ? category.categoryId : categoryId}">
                             <div class="category-info">
                                 <div class="mb-3">
                                     <label for="categoryName" class="form-label fw-semibold">Category Name:</label>
@@ -262,11 +303,9 @@
                                         id="categoryName" 
                                         name="categoryName" 
                                         class="form-control" 
-                                        value="${not empty sessionScope.categoryName ? sessionScope.categoryName : category.categoryName}" 
+                                        value="${category.categoryName != null ? category.categoryName : categoryName}" 
                                         placeholder="Enter category name"
                                     />
-                                    <span class="error">${sessionScope.categoryNameError}</span>
-
                                 </div>
                                 <div class="mb-3">
                                     <label for="description" class="form-label fw-semibold">Description:</label>
@@ -275,11 +314,8 @@
                                         name="description" 
                                         class="form-control" 
                                         rows="4"
-
                                         placeholder="Enter description"
-                                    >${not empty sessionScope.description ? sessionScope.description : category.description}</textarea>
-                                    <span class="error">${sessionScope.descriptionError}</span>
-
+                                    >${category.description != null ? category.description : description}</textarea>
                                 </div>
                                 <div class="d-flex justify-content-end">
                                     <button type="submit" class="btn btn-success">Save Category</button>
@@ -325,5 +361,25 @@
 
         <!-- Template Javascript -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+
+        <script>
+            // Hiển thị popup lỗi khi có lỗi
+            document.addEventListener('DOMContentLoaded', function() {
+                var showErrorPopup = ${requestScope.showErrorPopup != null ? requestScope.showErrorPopup : false};
+                if (showErrorPopup) {
+                    var errorPopup = document.getElementById('errorPopup');
+                    errorPopup.style.display = 'block';
+                }
+            });
+
+            // Đóng popup
+            function closePopup() {
+                var errorPopup = document.getElementById('errorPopup');
+                errorPopup.style.display = 'none';
+            }
+
+            // Tự động đóng popup sau 5 giây
+            setTimeout(closePopup, 5000);
+        </script>
     </body>
 </html>
