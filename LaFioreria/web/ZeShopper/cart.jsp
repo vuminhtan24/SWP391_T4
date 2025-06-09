@@ -216,7 +216,7 @@
                                     <li><a href="${pageContext.request.contextPath}/home">Home</a></li>
                                     <li class="dropdown"><a href="#">Shop<i class="fa fa-angle-down"></i></a>
                                         <ul role="menu" class="sub-menu">
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/shop.jsp">Products</a></li>
+                                            <li><a href="${pageContext.request.contextPath}/product">Products</a></li>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/product-details.jsp">Product Details</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp">Checkout</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp" class="active">Cart</a></li> 
