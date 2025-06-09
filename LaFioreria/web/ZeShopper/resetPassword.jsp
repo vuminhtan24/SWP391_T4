@@ -98,7 +98,7 @@
                                     <li><a href=""><i class="fa fa-star"></i> Wishlist</a></li>
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp"><i class="fa fa-crosshairs"></i> Checkout</a></li>
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp"><i class="fa fa-shopping-cart"></i> Cart</a></li>
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp" class="active"><i class="fa fa-lock"></i> Login</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/LoginServlet" class="active"><i class="fa fa-lock"></i> Login</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -127,7 +127,7 @@
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/product-details.jsp">Product Details</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp">Checkout</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp">Cart</a></li> 
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp" class="active">Login</a></li> 
+                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/LoginServlet" class="active">Login</a></li> 
                                         </ul>
                                     </li> 
                                     <li class="dropdown"><a href="#">Blog<i class="fa fa-angle-down"></i></a>
