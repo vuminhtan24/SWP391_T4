@@ -738,6 +738,7 @@
 
 </footer><!--/Footer-->
 
+<div id="success-popup" class="success-toast">Added to cart successfully!</div>
 
 
 <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.js"></script>
@@ -788,7 +789,11 @@
         formData.append("bouquetId", bouquetId);
         formData.append("quantity", quantity);
 
-        fetch("${pageContext.request.contextPath}/cart", {
+        for (const [key, value] of formData.entries()) {
+                    console.log(key, `:`, value);
+                }
+
+        fetch("${pageContext.request.contextPath}/ZeShopper/cart", {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
@@ -797,6 +802,7 @@
         })
                 .then(res => res.json())
                 .then(data => {
+                    console.log(data)
                     if (data.status === "added") {
                         closePopup(); // Đóng popup sau khi thêm
 
