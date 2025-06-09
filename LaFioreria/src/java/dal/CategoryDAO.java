@@ -200,6 +200,28 @@ public class CategoryDAO extends BaseDao {
         }
         return false;
     }
+    
+    private boolean isCategoryNameExists(String categoryName, int excludeCategoryId) {
+        String sql = "SELECT COUNT(*) FROM la_fioreria.category WHERE category_name = ? AND category_id != ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, categoryName);
+            ps.setInt(2, excludeCategoryId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in isCategoryNameExists: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return false;
+    }
 
     public static void main(String[] args) {
         Category c = new Category();
