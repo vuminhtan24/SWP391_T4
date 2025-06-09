@@ -78,6 +78,7 @@ public class AddUserDetail extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         String id_raw = request.getParameter("id");
         String name_raw = request.getParameter("name");
         String password = request.getParameter("pass");
@@ -94,136 +95,133 @@ public class AddUserDetail extends HttpServlet {
         try {
             int id = Integer.parseInt(id_raw);
 
+            // Check ID
             if (id <= 0) {
-                List<String> roleNames = ud.getRoleNames();
-                request.setAttribute("roleNames", roleNames);
-
+                setAttributes(request, id_raw, name_raw, password, fullName, email, phone_Number, Address, role_raw);
                 request.setAttribute("errorID", "ID must be a natural number greater than 0.");
+                request.setAttribute("roleNames", ud.getRoleNames());
                 request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
                 return;
             }
 
-            if (!phone_Number.matches("^(090|098)\\d{7}$")) {
-                List<String> roleNames = ud.getRoleNames();
-                request.setAttribute("roleNames", roleNames);
-
-                request.setAttribute("errorPhone", "Phone number must be 10 digits and start with 090 or 098.");
+            // Phone validation
+            if (!phone_Number.matches("^(090|098|033|037)\\d{7}$")) {
+                setAttributes(request, id_raw, name_raw, password, fullName, email, phone_Number, Address, role_raw);
+                request.setAttribute("errorPhone", "Phone number must be 10 digits and start with 090,098,033 or 037.");
+                request.setAttribute("roleNames", ud.getRoleNames());
                 request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
                 return;
             }
 
-            if (!email.matches("^[a-zA-Z0-9._%+-]{3,}@flower\\.com$")) {
-                List<String> roleNames = ud.getRoleNames();
-                request.setAttribute("roleNames", roleNames);
-
-                request.setAttribute("errorEmail", "Email must be at least 3 characters before @flower.com");
+            // Email validation
+            if (!email.matches("^[a-zA-Z0-9._%+-]{3,}@(flower\\.com|gmail\\.com)$")) {
+                setAttributes(request, id_raw, name_raw, password, fullName, email, phone_Number, Address, role_raw);
+                request.setAttribute("errorEmail", "Email must be at least 3 characters before @flower.com or @gmail.com");
+                request.setAttribute("roleNames", ud.getRoleNames());
                 request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
                 return;
             }
 
+            // Password strength
             if (password.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$")) {
                 passwordStrength = "Mạnh";
-                request.setAttribute("passwordStrength", passwordStrength);
             } else if (password.matches("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$")) {
                 passwordStrength = "Trung bình";
-                request.setAttribute("passwordStrength", passwordStrength);
             } else if (password.matches("^[a-zA-Z0-9]{7,}$")) {
                 passwordStrength = "Yếu";
-                request.setAttribute("passwordStrength", passwordStrength);
             } else {
-                List<String> roleNames = ud.getRoleNames();
-                request.setAttribute("roleNames", roleNames);
+                setAttributes(request, id_raw, name_raw, password, fullName, email, phone_Number, Address, role_raw);
                 request.setAttribute("error", "Password không hợp lệ. Tối thiểu 7 ký tự.");
+                request.setAttribute("roleNames", ud.getRoleNames());
                 request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
                 return;
             }
+            request.setAttribute("passwordStrength", passwordStrength);
 
-            if (!fullName.matches("^[a-zA-Z\\s]{4,}$")) {
-                List<String> roleNames = ud.getRoleNames();
-                request.setAttribute("roleNames", roleNames);
-
+            // Full name validation
+            if (!fullName.matches("^(?=.*[a-zA-Z])[a-zA-Z\\s]{4,}$")) {
+                setAttributes(request, id_raw, name_raw, password, fullName, email, phone_Number, Address, role_raw);
                 request.setAttribute("errorFullname", "Full name must be at least 4 characters and contain no digits.");
+                request.setAttribute("roleNames", ud.getRoleNames());
                 request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
                 return;
             }
+
+            // Name validation
             if (!name_raw.matches("^[a-zA-Z\\s]+$")) {
-                List<String> roleNames = ud.getRoleNames();
-                request.setAttribute("roleNames", roleNames);
+                setAttributes(request, id_raw, name_raw, password, fullName, email, phone_Number, Address, role_raw);
                 request.setAttribute("errorName", "Name must not contain digits.");
+                request.setAttribute("roleNames", ud.getRoleNames());
                 request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
                 return;
             }
+
+            // Address validation
             if (!Address.matches("^[a-zA-Z0-9\\s]+$")) {
-                List<String> roleNames = ud.getRoleNames();
-                request.setAttribute("roleNames", roleNames);
+                setAttributes(request, id_raw, name_raw, password, fullName, email, phone_Number, Address, role_raw);
                 request.setAttribute("errorAddress", "Address must contain only letters, digits, and spaces.");
+                request.setAttribute("roleNames", ud.getRoleNames());
                 request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
                 return;
             }
 
-            int role = 0;
-            switch (role_raw) {
+            // Chuyển role từ text sang số
+            int role = switch (role_raw) {
                 case "Admin" ->
-                    role = 1;
+                    1;
                 case "Sales Manager" ->
-                    role = 2;
+                    2;
                 case "Seller" ->
-                    role = 3;
+                    3;
                 case "Marketer" ->
-                    role = 4;
+                    4;
                 case "Warehouse Staff" ->
-                    role = 5;
+                    5;
                 case "Guest" ->
-                    role = 6;
+                    6;
                 case "Customer" ->
-                    role = 7;
+                    7;
+                default ->
+                    0;
+            };
 
-            }
-
+            // Check ID tồn tại
             UserManager um = ud.getUserById(id);
-
             if (um == null) {
                 User u = new User(id, name_raw, password, fullName, email, phone_Number, Address, role);
                 ud.insertUser(u);
                 response.sendRedirect("viewuserdetail");
-
             } else {
-                request.setAttribute("error", id + " exited");
-
-                List<String> roleNames = ud.getRoleNames();
-                request.setAttribute("roleNames", roleNames);
-
+                setAttributes(request, id_raw, name_raw, password, fullName, email, phone_Number, Address, role_raw);
+                request.setAttribute("error", id + " đã tồn tại.");
+                request.setAttribute("roleNames", ud.getRoleNames());
                 request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
             }
 
         } catch (NumberFormatException e) {
-            // Ghi log nếu cần
-            System.err.println("Lỗi định dạng ID: " + e.getMessage());
-
-            // Gửi thông báo lỗi chung cho giao diện (nếu muốn)
+            setAttributes(request, id_raw, name_raw, password, fullName, email, phone_Number, Address, role_raw);
             request.setAttribute("error", "Invalid input data. Please try again.");
-
-            // Gửi lại roleNames để hiển thị lại form
-            List<String> roleNames = ud.getRoleNames();
-            request.setAttribute("roleNames", roleNames);
-
-            // Quay lại form
+            request.setAttribute("roleNames", ud.getRoleNames());
             request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
-        } catch (ServletException | IOException e) { // Ghi log nội bộ (hoặc dùng Logger nếu có)
-            // 👈 chỉ nên dùng khi debug, không để trong production
-            // 👈 chỉ nên dùng khi debug, không để trong production
-
-            // Thông báo lỗi tổng quát
+        } catch (ServletException | IOException e) {
+            setAttributes(request, id_raw, name_raw, password, fullName, email, phone_Number, Address, role_raw);
             request.setAttribute("error", "An unexpected error occurred. Please try again.");
-
-            // Truyền lại roleNames nếu muốn giữ lại form
-            List<String> roleNames = ud.getRoleNames();
-            request.setAttribute("roleNames", roleNames);
-
-            // Quay lại form
+            request.setAttribute("roleNames", ud.getRoleNames());
             request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
         }
+    }
 
+// ✅ Hàm hỗ trợ: giữ lại giá trị đã nhập
+    private void setAttributes(HttpServletRequest request, String id, String name, String pass,
+            String fullName, String email, String phone, String address, String role) {
+        request.setAttribute("idValue", id);
+        request.setAttribute("nameValue", name);
+        request.setAttribute("passValue", pass);
+        request.setAttribute("fullNameValue", fullName);
+        request.setAttribute("emailValue", email);
+        request.setAttribute("phoneValue", phone);
+        request.setAttribute("addressValue", address);
+        request.setAttribute("selectedRole", role);
     }
 
     /**
