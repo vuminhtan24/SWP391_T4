@@ -111,7 +111,7 @@
                                             </li>
                                         </c:when>
                                         <c:otherwise>
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
+                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/LoginServlet"><i class="fa fa-lock"></i> Login</a></li>
                                             </c:otherwise>
                                         </c:choose>
 

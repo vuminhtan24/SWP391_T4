@@ -321,7 +321,7 @@
                                             </li>
                                         </c:when>
                                         <c:otherwise>
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
+                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/LoginServlet"><i class="fa fa-lock"></i> Login</a></li>
                                             </c:otherwise>
                                         </c:choose>
 
@@ -356,7 +356,7 @@
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/product-details.jsp">Product Details</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp">Checkout</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp">Cart</a></li> 
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp">Login</a></li> 
+                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/LoginServlet">Login</a></li> 
                                         </ul>
                                     </li> 
                                     <li class="dropdown"><a href="#">Blog<i class="fa fa-angle-down"></i></a>
