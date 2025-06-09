@@ -290,37 +290,58 @@
                         </table>
 
                         <!-- PAGINATION -->
+                        <%
+                            int currentPage = (Integer) request.getAttribute("currentPage");
+                            int totalPages = (Integer) request.getAttribute("totalPages");
+
+                            int maxDisplayPages = 5;
+                            int startPage = currentPage - maxDisplayPages / 2;
+                            if (startPage < 1) startPage = 1;
+
+                            int endPage = startPage + maxDisplayPages - 1;
+                            if (endPage > totalPages) {
+                                endPage = totalPages;
+                                startPage = endPage - maxDisplayPages + 1;
+                                if (startPage < 1) startPage = 1;
+                            }
+                        %>
+
                         <div style="margin-top: 20px;">
                             <c:if test="${totalPages > 1}">
                                 <form action="${pageContext.request.contextPath}/ViewUserList" method="post" id="paginationForm">
-                                    <!-- preserve current filters -->
+                                    <!-- preserve filters -->
                                     <input type="hidden" name="txtSearchName" value="${keyword}" />
                                     <input type="hidden" name="txtRoleList" value="${roleId}" />
                                     <input type="hidden" name="sortField" value="${sortField}" />
                                     <input type="hidden" name="sortOrder" value="${sortOrder}" />
 
-                                    <c:set var="prevPage" value="${currentPage - 1}" />
-                                    <c:set var="nextPage" value="${currentPage + 1}" />
-
+                                    <!-- << và < -->
                                     <c:if test="${currentPage > 1}">
                                         <button class="btn btn-outline-primary m-2" type="submit" name="page" value="1"><<</button>
-                                        <button class="btn btn-outline-primary m-2" type="submit" name="page" value="${prevPage}"><</button>
+                                        <button class="btn btn-outline-primary m-2" type="submit" name="page" value="${currentPage - 1}"><</button>
                                     </c:if>
 
-                                    <c:forEach begin="1" end="${totalPages}" var="i">
-                                        <button class="btn btn-outline-primary m-2" type="submit" name="page" value="${i}"
-                                                <c:if test="${i == currentPage}">style="font-weight:bold;"</c:if>>
-                                            ${i}
-                                        </button>
-                                    </c:forEach>
+                                    <!-- Các trang từ startPage đến endPage -->
+                                    <%
+                                        for (int i = startPage; i <= endPage; i++) {
+                                    %>
+                                    <button class="btn btn-outline-primary m-2" type="submit" name="page" value="<%= i %>"
+                                            <%= (i == currentPage ? "style='font-weight:bold;'" : "") %>>
+                                        <%= i %>
+                                    </button>
+                                    <%
+                                        }
+                                    %>
 
+                                    <!-- > và >> -->
                                     <c:if test="${currentPage < totalPages}">
-                                        <button class="btn btn-outline-primary m-2" type="submit" name="page" value="${nextPage}">></button>
+                                        <button class="btn btn-outline-primary m-2" type="submit" name="page" value="${currentPage + 1}">></button>
                                         <button class="btn btn-outline-primary m-2" type="submit" name="page" value="${totalPages}">>></button>
                                     </c:if>
                                 </form>
                             </c:if>
                         </div>
+
                     </div>
                 </div>
 

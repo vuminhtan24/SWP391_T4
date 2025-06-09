@@ -296,7 +296,11 @@
                                 <c:forEach var="category" items="${listCategory}" varStatus="status">
                                     <tr>
                                         <td>${category.categoryId}</td>
-                                        <td>${category.categoryName}</td>
+                                        <td>
+                                            <a href="${pageContext.request.contextPath}/categoryDetails?id=${category.categoryId}" class="category-link">
+                                                ${category.categoryName}
+                                            </a>
+                                        </td>
                                         <td>${category.description}</td>
                                         <td>
                                             <button type="button"

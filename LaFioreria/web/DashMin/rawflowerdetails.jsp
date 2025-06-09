@@ -1,9 +1,3 @@
-<%-- 
-    Document   : updaterawflower
-    Created on : June 05, 2025, 10:12 PM
-    Author     : Admin
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
@@ -165,6 +159,9 @@
             .btn-edit:hover {
                 background-color: #2980b9;
             }
+            .btn-back {
+                background-color: #c3c3c3; /* Xám */
+            }
         </style>
     </head>
     <body>
@@ -321,7 +318,7 @@
                     <div class="row bg-light rounded align-items-center justify-content-center mx-0">
                         <div>
                             <div class="content">
-                                <h1 class="h2">Edit Raw Flower</h1>
+                                <h1 class="h2">Raw Flower Details</h1>
 
                                 <!-- Hiển thị thông báo lỗi chung -->
                                 <c:if test="${not empty sessionScope.error}">
@@ -332,7 +329,7 @@
                                     <c:remove var="error" scope="session"/>
                                 </c:if>
 
-                                <form action="${pageContext.request.contextPath}/update_flower" method="post">
+                                <form action="${pageContext.request.contextPath}/rawFlowerDetails" method="get">
                                     <input type="hidden" name="raw_id" value="${item.rawId}">
                                     <div class="row mb-3">
                                         <div class="col-md-4">
@@ -342,41 +339,39 @@
                                             <div class="mb-3">
                                                 <label for="raw_name" class="form-label">Name</label>
                                                 <input type="text" id="raw_name" name="raw_name" class="form-control" 
-                                                       value="${not empty sessionScope.rawName ? sessionScope.rawName : item.rawName}" placeholder="Enter raw flower name">
-                                                <span class="error">${sessionScope.rawNameError}</span>
+                                                       value="${item.rawName}" readonly>
                                             </div>
                                             <div class="row g-3 align-items-center">
-                                                <div class="col-md-4">
+                                                <div class="col-md-6">
                                                     <label for="raw_quantity_display" class="form-label">Quantity</label>
                                                     <input type="number" id="raw_quantity_display" class="form-control" 
                                                            value="${item.rawQuantity}" readonly>
                                                     <input type="hidden" name="raw_quantity" value="${item.rawQuantity}">
                                                 </div>
-                                                <div class="col-md-4">
-                                                    <label for="unit_price" class="form-label">Unit Price (VND)</label>
-                                                    <input type="text" id="unit_price" name="unit_price" class="form-control" 
-                                                           value="${not empty sessionScope.unitPrice ? sessionScope.unitPrice : item.unitPrice}" placeholder="Enter unit price">
-                                                    <span class="error">${sessionScope.unitPriceError}</span>
+                                                <div class="col-md-6">
+                                                    <label for="hold_display" class="form-label">Hold Quantity</label>
+                                                    <input type="number" id="hold_display" class="form-control" 
+                                                           value="${item.hold}" readonly>
+                                                    <input type="hidden" name="hold" value="${item.hold}">
                                                 </div>
-                                                <div class="col-md-4">
+                                            </div>
+                                            <div class="row g-3 align-items-center">
+                                                <div class="col-md-6">
                                                     <label for="import_price" class="form-label">Import Price (VND)</label>
                                                     <input type="text" id="import_price" name="import_price" class="form-control" 
-                                                           value="${not empty sessionScope.importPrice ? sessionScope.importPrice : item.importPrice}" placeholder="Enter import price">
-                                                    <span class="error">${sessionScope.importPriceError}</span>
+                                                           value="${item.importPrice}" readonly>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="unit_price" class="form-label">Unit Price (VND)</label>
+                                                    <input type="text" id="unit_price" name="unit_price" class="form-control" 
+                                                           value="${item.unitPrice}" readonly>
                                                 </div>
                                             </div>
                                             <div class="row g-3 align-items-center">
                                                 <div class="col-md-6">
                                                     <label for="warehouse_id" class="form-label">Warehouse</label>
-                                                    <select id="warehouse_id" name="warehouse_id" class="form-select">
-                                                        <c:forEach items="${sessionScope.listW}" var="w">
-                                                            <option value="${w.warehouseId}" 
-                                                                    ${not empty sessionScope.warehouseId ? (sessionScope.warehouseId == w.warehouseId ? 'selected' : '') : (item.warehouse.warehouseId == w.warehouseId ? 'selected' : '')}>
-                                                                ${w.name}
-                                                            </option>
-                                                        </c:forEach>
-                                                    </select>
-                                                    <span class="error">${sessionScope.warehouseIdError}</span>
+                                                    <input type="text" id="warehouse_id" name="warehouse_id" class="form-control" 
+                                                           value="${item.warehouse.name}" readonly>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label for="expiration_date_display" class="form-label">Expiration Date</label>
@@ -386,24 +381,29 @@
                                                 </div>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="hold_display" class="form-label">Hold Quantity</label>
-                                                <input type="number" id="hold_display" class="form-control" 
-                                                       value="${item.hold}" readonly>
-                                                <input type="hidden" name="hold" value="${item.hold}">
-                                            </div>
-                                            <div class="mb-3">
                                                 <label for="image_url" class="form-label">Image URL</label>
                                                 <input type="text" id="image_url" name="image_url" class="form-control" 
-                                                       value="${not empty sessionScope.imageUrl ? sessionScope.imageUrl : item.imageUrl}" placeholder="Enter image URL">
-                                                <span class="error">${sessionScope.imageUrlError}</span>
-                                            </div>
-                                            <div class="mt-3">
-                                                <button type="submit" class="btn btn-primary">Update</button>
-                                                <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="btn btn-secondary">Cancel</a>
-                                            </div>
+                                                       value="${item.imageUrl}" readonly>
+                                            </div>                                            
                                         </div>
                                     </div>
                                 </form>
+                                <div class="mt-3">
+                                    <form action="${pageContext.request.contextPath}/hideRawFlower" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn ẩn nguyên liệu này không?');">
+                                        <input type="hidden" name="id" value="${item.rawId}"/>
+                                        <button type="submit" class="btn btn-danger btn-sm">Hide</button>
+                                    </form>
+                                    <button type="button"
+                                            class="btn btn-edit"
+                                            onclick="location.href = '${pageContext.request.contextPath}/update_flower?raw_id=${item.rawId}';">
+                                        Edit
+                                    </button>
+                                    <button type="button"
+                                            class="btn btn-back"
+                                            onclick="location.href = '${pageContext.request.contextPath}/DashMin/rawflower2';">
+                                        Back
+                                    </button>    
+                                </div>            
                             </div>
                         </div>
                     </div>
@@ -431,7 +431,7 @@
             <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
         </div>
 
-        <!-- JavaScript Libraries -->
+        <!-- JavaScript Libraries -->   
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>

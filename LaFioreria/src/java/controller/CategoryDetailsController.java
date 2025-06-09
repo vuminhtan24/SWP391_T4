@@ -61,30 +61,60 @@ public class CategoryDetailsController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-                String idStr = request.getParameter("id");
+        response.setContentType("text/html;charset=UTF-8");
+        try {
+            // Lấy tham số ID từ request
+            String idStr = request.getParameter("id");
+            if (idStr == null || idStr.trim().isEmpty()) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Mã danh mục không được cung cấp.");
+                return;
+            }
 
-        int id = Integer.parseInt(idStr);
-        CategoryDAO cdao = new CategoryDAO();
+            // Chuyển đổi ID thành số nguyên
+            int id;
+            try {
+                id = Integer.parseInt(idStr);
+            } catch (NumberFormatException e) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Mã danh mục không hợp lệ.");
+                return;
+            }
 
-        String cateName = cdao.getCategoryNameByBouquet(id);
+            // Khởi tạo DAO và lấy chi tiết danh mục
+            CategoryDAO cdao = new CategoryDAO();
+            Category category = cdao.getCategoryById(id);
 
-        request.setAttribute("cateName", cateName);
-        request.setAttribute("cateList", cdao.getBouquetCategory());
-        request.getRequestDispatcher("./DashMin/bouquetDetails.jsp").forward(request, response);
+            // Kiểm tra danh mục có tồn tại không
+            if (category == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy danh mục với mã " + id + ".");
+                return;
+            }
+
+            // Đặt thuộc tính cho JSP
+            request.setAttribute("category", category);
+
+            // Chuyển tiếp đến JSP
+            request.getRequestDispatcher("./DashMin/categoryDetails.jsp").forward(request, response);
+        } catch (Exception e) {
+            // Xử lý lỗi bất ngờ
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
+                    "Đã xảy ra lỗi khi lấy chi tiết danh mục: " + e.getMessage());
+        }
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Xử lý HTTP <code>POST</code>. Hiện tại không hỗ trợ cập nhật chi tiết danh mục.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws ServletException nếu xảy ra lỗi liên quan đến servlet
+     * @throws IOException      nếu xảy ra lỗi I/O
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        response.setContentType("text/html;charset=UTF-8");
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, 
+                "Phương thức POST không được hỗ trợ cho chi tiết danh mục.");
     }
 
     /**
