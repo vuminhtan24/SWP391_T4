@@ -64,9 +64,10 @@ public class UserDAO extends BaseDao {
         String sql = "SELECT username, password, fullname, email, phone, address FROM Users WHERE username = ?";
 
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
             ps.setString(1, username);
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
 
             if (rs.next()) {
                 user = new UserManager();
@@ -78,8 +79,7 @@ public class UserDAO extends BaseDao {
                 user.setAddress(rs.getString("address"));
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
         }
 
         return user;
@@ -101,7 +101,6 @@ public class UserDAO extends BaseDao {
             ps.setInt(8, u.getUserid());
             ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
         } finally {
             try {
                 closeResources();
@@ -222,17 +221,17 @@ public class UserDAO extends BaseDao {
 
         return null;
     }
+
     public User getUserByID(int userId) {
-        
+
         User user = null;
-            String sql = "SELECT * FROM la_fioreria.user WHERE User_ID = ?";
+        String sql = "SELECT * FROM la_fioreria.user WHERE User_ID = ?";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
-            
+
             ps.setInt(1, userId);
             rs = ps.executeQuery();
-            
 
             if (rs.next()) {
                 user = new User();
@@ -245,7 +244,6 @@ public class UserDAO extends BaseDao {
                 user.setAddress(rs.getString("Address"));
                 user.setRole(rs.getInt("Role"));
             }
-
 
         } catch (SQLException e) {
         } finally {
@@ -376,7 +374,6 @@ public class UserDAO extends BaseDao {
                 list.add(user);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         } finally {
             try {
                 closeResources();
@@ -388,7 +385,6 @@ public class UserDAO extends BaseDao {
         return list;
     }
 
-    
     public List<UserManager> getSortedUsers(int roleId, String keyword, String sortField, String sortOrder) {
         List<UserManager> list = new ArrayList<>();
 
