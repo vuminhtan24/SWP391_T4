@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
 import jakarta.servlet.ServletException;
@@ -21,6 +17,7 @@ import java.sql.Date;
 import java.util.List;
 import dal.RawFlowerDAO;
 import dal.WarehouseDAO;
+import model.Warehouse;
 import util.Validate;
 
 /**
@@ -31,24 +28,18 @@ import util.Validate;
 public class AddRawFlower extends HttpServlet {
 
     @Override
-
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-//        processRequest(request, response);
-        request.getRequestDispatcher("DashMin/rawflower2").forward(request, response);
+        WarehouseDAO wdao = new WarehouseDAO();
+        List<Warehouse> warehouses = wdao.getAllWarehouse();
+        request.getSession().setAttribute("listW", warehouses);
+        request.getRequestDispatcher("DashMin/rawflower.jsp").forward(request, response); // Sửa đường dẫn
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession();
         try {
             // Lấy tham số từ form
             String rawName = request.getParameter("rawName");
@@ -57,33 +48,47 @@ public class AddRawFlower extends HttpServlet {
             String imageUrl = request.getParameter("imageUrl");
             String warehouseIdStr = request.getParameter("warehouseId");
 
+            System.out.println("Received data - rawName: " + rawName + ", unitPrice: " + unitPriceStr + 
+                             ", importPrice: " + importPriceStr + ", imageUrl: " + imageUrl + 
+                             ", warehouseId: " + warehouseIdStr);
+
             // Khởi tạo WarehouseDAO
             WarehouseDAO wh = new WarehouseDAO();
 
             // Validate các field
-            String rawNameError = Validate.validateText(rawName, "Raw Flower Name");
+            String rawNameError = null;
+            if (rawName != null) {
+                rawNameError = Validate.validateLength(rawName, "Raw Flower Name", 1, 45);
+                if (rawNameError == null) {
+                    rawNameError = Validate.validateText(rawName, "Raw Flower Name");
+                }
+            } else {
+                rawNameError = "Raw Flower Name is required.";
+            }
             String unitPriceError = Validate.validateNumberWithRange(unitPriceStr, "Unit Price", 1, Integer.MAX_VALUE);
             String importPriceError = Validate.validateNumberWithRange(importPriceStr, "Import Price", 1, Integer.MAX_VALUE);
             String imageUrlError = Validate.validateImageUrl(imageUrl);
             String warehouseIdError = Validate.validateWarehouseId(warehouseIdStr, wh);
 
-            // Lưu dữ liệu vào session để giữ giá trị đã nhập
-            HttpSession session = request.getSession();
-            session.setAttribute("rawName", rawName);
-            session.setAttribute("unitPrice", unitPriceStr);
-            session.setAttribute("importPrice", importPriceStr);
-            session.setAttribute("imageUrl", imageUrl);
-            session.setAttribute("warehouseId", warehouseIdStr);
-
-            // Nếu có lỗi, lưu thông báo lỗi vào session và chuyển hướng
+            // Nếu có lỗi, giữ dữ liệu và hiển thị popup
             if (rawNameError != null || unitPriceError != null || importPriceError != null || 
                 imageUrlError != null || warehouseIdError != null) {
-                session.setAttribute("rawNameError", rawNameError);
-                session.setAttribute("unitPriceError", unitPriceError);
-                session.setAttribute("importPriceError", importPriceError);
-                session.setAttribute("imageUrlError", imageUrlError);
-                session.setAttribute("warehouseIdError", warehouseIdError);
-                response.sendRedirect("DashMin/rawflower2");
+                request.setAttribute("rawName", rawName);
+                request.setAttribute("unitPrice", unitPriceStr);
+                request.setAttribute("importPrice", importPriceStr);
+                request.setAttribute("imageUrl", imageUrl);
+                request.setAttribute("warehouseId", warehouseIdStr);
+                request.setAttribute("rawNameError", rawNameError);
+                request.setAttribute("unitPriceError", unitPriceError);
+                request.setAttribute("importPriceError", importPriceError);
+                request.setAttribute("imageUrlError", imageUrlError);
+                request.setAttribute("warehouseIdError", warehouseIdError);
+                request.setAttribute("showErrorPopup", true);
+
+                WarehouseDAO wdao = new WarehouseDAO();
+                List<Warehouse> warehouses = wdao.getAllWarehouse();
+                request.getSession().setAttribute("listW", warehouses);
+                request.getRequestDispatcher("DashMin/rawflower.jsp").forward(request, response); // Sửa đường dẫn
                 return;
             }
 
@@ -113,20 +118,17 @@ public class AddRawFlower extends HttpServlet {
             response.sendRedirect("DashMin/rawflower2");
         } catch (Exception e) {
             e.printStackTrace();
-            HttpSession session = request.getSession();
-            session.setAttribute("error", "An error occurred while adding the raw flower.");
-            response.sendRedirect("DashMin/rawflower2");
+            request.setAttribute("error", "An error occurred while adding the raw flower: " + e.getMessage());
+            request.setAttribute("showErrorPopup", true);
+            WarehouseDAO wdao = new WarehouseDAO();
+            List<Warehouse> warehouses = wdao.getAllWarehouse();
+            request.getSession().setAttribute("listW", warehouses);
+            request.getRequestDispatcher("DashMin/rawflower.jsp").forward(request, response); // Sửa đường dẫn
         }
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Servlet for adding Raw Flower information";
+    }
 }

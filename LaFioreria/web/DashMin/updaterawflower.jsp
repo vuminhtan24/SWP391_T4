@@ -131,14 +131,14 @@
 
             /* Thông báo lỗi */
             .error {
-                display: block;
+                display: none; /* Ẩn lỗi text, sử dụng popup thay thế */
                 color: #dc3545;
                 font-size: 14px;
                 margin-top: 5px;
             }
 
             .error-common {
-                display: block;
+                display: none; /* Ẩn thông báo lỗi chung */
                 color: #dc3545;
                 font-size: 14px;
                 margin-top: 15px;
@@ -148,6 +148,48 @@
                 border-radius: 5px;
                 border: 1px solid #f5c6cb;
             }
+
+            /* Popup lỗi */
+            .error-popup {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                z-index: 1050;
+                max-width: 500px;
+                width: 90%;
+            }
+
+            .error-popup .error-header {
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #dc3545;
+            }
+
+            .error-popup .error-body {
+                color: #333;
+                margin-bottom: 15px;
+            }
+
+            .error-popup .btn-close {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                font-size: 1.5rem;
+                border: none;
+                background: none;
+                cursor: pointer;
+            }
+
+            .error-popup .btn-close:hover {
+                color: #c0392b;
+            }
+
             .btn {
                 padding: 8px 14px;
                 border: none;
@@ -158,6 +200,7 @@
                 margin-right: 5px;
                 transition: background-color 0.2s ease;
             }
+
             .btn-edit {
                 background-color: #3498db; /* Xanh dương */
             }
@@ -304,11 +347,12 @@
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                                 <img class="rounded-circle me-lg-2" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                <span class="d-none d-lg-inline-flex">John Doe</span>
+                                <span class="d-none d-lg-inline-flex">${sessionScope.currentAcc.username}</span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                                 <a href="#" class="dropdown-item">My Profile</a>
                                 <a href="#" class="dropdown-item">Settings</a>
+                                <a href="${pageContext.request.contextPath}/home" class="dropdown-item">Back to home page</a>
                                 <a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet" class="dropdown-item">Log Out</a>
                             </div>
                         </div>
@@ -323,46 +367,60 @@
                             <div class="content">
                                 <h1 class="h2">Edit Raw Flower</h1>
 
-                                <!-- Hiển thị thông báo lỗi chung -->
-                                <c:if test="${not empty sessionScope.error}">
-                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                        ${sessionScope.error}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                <!-- Popup lỗi -->
+                                <div id="errorPopup" class="error-popup">
+                                    <button type="button" class="btn-close" onclick="closePopup()">×</button>
+                                    <div class="error-header">Validation Errors</div>
+                                    <div class="error-body">
+                                        <c:if test="${not empty rawNameError}">
+                                            <p><strong>Raw Flower Name:</strong> ${rawNameError}</p>
+                                        </c:if>
+                                        <c:if test="${not empty unitPriceError}">
+                                            <p><strong>Unit Price:</strong> ${unitPriceError}</p>
+                                        </c:if>
+                                        <c:if test="${not empty importPriceError}">
+                                            <p><strong>Import Price:</strong> ${importPriceError}</p>
+                                        </c:if>
+                                        <c:if test="${not empty imageUrlError}">
+                                            <p><strong>Image URL:</strong> ${imageUrlError}</p>
+                                        </c:if>
+                                        <c:if test="${not empty warehouseIdError}">
+                                            <p><strong>Warehouse:</strong> ${warehouseIdError}</p>
+                                        </c:if>
+                                        <c:if test="${not empty error}">
+                                            <p><strong>Error:</strong> ${error}</p>
+                                        </c:if>
                                     </div>
-                                    <c:remove var="error" scope="session"/>
-                                </c:if>
+                                </div>
 
                                 <form action="${pageContext.request.contextPath}/update_flower" method="post">
-                                    <input type="hidden" name="raw_id" value="${item.rawId}">
+                                    <input type="hidden" name="raw_id" value="${rawId != null ? rawId : item.rawId}">
                                     <div class="row mb-3">
                                         <div class="col-md-4">
-                                            <img class="img-fluid img-thumbnail" src="${item.imageUrl}" alt="${item.rawName}">
+                                            <img class="img-fluid img-thumbnail" src="${imageUrl != null ? imageUrl : item.imageUrl}" alt="${rawName != null ? rawName : item.rawName}">
                                         </div>
                                         <div class="col-md-8">
                                             <div class="mb-3">
                                                 <label for="raw_name" class="form-label">Name</label>
                                                 <input type="text" id="raw_name" name="raw_name" class="form-control" 
-                                                       value="${not empty sessionScope.rawName ? sessionScope.rawName : item.rawName}" placeholder="Enter raw flower name">
-                                                <span class="error">${sessionScope.rawNameError}</span>
+                                                       value="${rawName != null ? rawName : item.rawName}" placeholder="Enter raw flower name">
                                             </div>
                                             <div class="row g-3 align-items-center">
                                                 <div class="col-md-4">
                                                     <label for="raw_quantity_display" class="form-label">Quantity</label>
                                                     <input type="number" id="raw_quantity_display" class="form-control" 
-                                                           value="${item.rawQuantity}" readonly>
-                                                    <input type="hidden" name="raw_quantity" value="${item.rawQuantity}">
+                                                           value="${rawQuantity != null ? rawQuantity : item.rawQuantity}" readonly>
+                                                    <input type="hidden" name="raw_quantity" value="${rawQuantity != null ? rawQuantity : item.rawQuantity}">
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label for="unit_price" class="form-label">Unit Price (VND)</label>
                                                     <input type="text" id="unit_price" name="unit_price" class="form-control" 
-                                                           value="${not empty sessionScope.unitPrice ? sessionScope.unitPrice : item.unitPrice}" placeholder="Enter unit price">
-                                                    <span class="error">${sessionScope.unitPriceError}</span>
+                                                           value="${unitPrice != null ? unitPrice : item.unitPrice}" placeholder="Enter unit price">
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label for="import_price" class="form-label">Import Price (VND)</label>
                                                     <input type="text" id="import_price" name="import_price" class="form-control" 
-                                                           value="${not empty sessionScope.importPrice ? sessionScope.importPrice : item.importPrice}" placeholder="Enter import price">
-                                                    <span class="error">${sessionScope.importPriceError}</span>
+                                                           value="${importPrice != null ? importPrice : item.importPrice}" placeholder="Enter import price">
                                                 </div>
                                             </div>
                                             <div class="row g-3 align-items-center">
@@ -371,31 +429,29 @@
                                                     <select id="warehouse_id" name="warehouse_id" class="form-select">
                                                         <c:forEach items="${sessionScope.listW}" var="w">
                                                             <option value="${w.warehouseId}" 
-                                                                    ${not empty sessionScope.warehouseId ? (sessionScope.warehouseId == w.warehouseId ? 'selected' : '') : (item.warehouse.warehouseId == w.warehouseId ? 'selected' : '')}>
+                                                                    ${warehouseId != null ? (warehouseId == w.warehouseId ? 'selected' : '') : (item.warehouse.warehouseId == w.warehouseId ? 'selected' : '')}>
                                                                 ${w.name}
                                                             </option>
                                                         </c:forEach>
                                                     </select>
-                                                    <span class="error">${sessionScope.warehouseIdError}</span>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label for="expiration_date_display" class="form-label">Expiration Date</label>
                                                     <input type="date" id="expiration_date_display" class="form-control" 
-                                                           value="${item.expirationDate}" readonly>
-                                                    <input type="hidden" name="expiration_date" value="${item.expirationDate}">
+                                                           value="${expirationDate != null ? expirationDate : item.expirationDate}" readonly>
+                                                    <input type="hidden" name="expiration_date" value="${expirationDate != null ? expirationDate : item.expirationDate}">
                                                 </div>
                                             </div>
                                             <div class="mb-3">
                                                 <label for="hold_display" class="form-label">Hold Quantity</label>
                                                 <input type="number" id="hold_display" class="form-control" 
-                                                       value="${item.hold}" readonly>
-                                                <input type="hidden" name="hold" value="${item.hold}">
+                                                       value="${hold != null ? hold : item.hold}" readonly>
+                                                <input type="hidden" name="hold" value="${hold != null ? hold : item.hold}">
                                             </div>
                                             <div class="mb-3">
                                                 <label for="image_url" class="form-label">Image URL</label>
                                                 <input type="text" id="image_url" name="image_url" class="form-control" 
-                                                       value="${not empty sessionScope.imageUrl ? sessionScope.imageUrl : item.imageUrl}" placeholder="Enter image URL">
-                                                <span class="error">${sessionScope.imageUrlError}</span>
+                                                       value="${imageUrl != null ? imageUrl : item.imageUrl}" placeholder="Enter image URL">
                                             </div>
                                             <div class="mt-3">
                                                 <button type="submit" class="btn btn-primary">Update</button>
@@ -443,5 +499,23 @@
         <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>     
         <!-- Template Main Script -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var showErrorPopup = ${requestScope.showErrorPopup != null ? requestScope.showErrorPopup : false};
+                console.log("Show Error Popup: " + showErrorPopup);
+                if (showErrorPopup) {
+                    var errorPopup = document.getElementById('errorPopup');
+                    errorPopup.style.display = 'block';
+                }
+            });
+
+            function closePopup() {
+                var errorPopup = document.getElementById('errorPopup');
+                errorPopup.style.display = 'none';
+            }
+
+            setTimeout(closePopup, 5000);
+        </script>
     </body>
 </html>
