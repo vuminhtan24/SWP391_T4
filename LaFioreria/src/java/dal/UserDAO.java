@@ -589,6 +589,51 @@ public class UserDAO extends BaseDao {
         }
     }
 
+    public void insertNewUser(User u) {
+        String sql = "INSERT INTO la_fioreria.user "
+                + "(Username, Password, Fullname, Email, Phone, Address, Role) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, u.getUsername().trim());
+            ps.setString(2, u.getPassword().trim());
+            ps.setString(3, u.getFullname().trim());
+            ps.setString(4, u.getEmail().trim());
+            ps.setString(5, u.getPhone().trim());
+            ps.setString(6, u.getAddress().trim());
+            ps.setInt(7, u.getRole());
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+
+    public int getNextUserId() {
+        int nextId = 1;
+        String sql = "SELECT MAX(User_ID) FROM la_fioreria.user";
+        try {
+            connection = dbc.getConnection();
+
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                nextId = rs.getInt(1) + 1; // Tăng thêm 1
+            }
+        } catch (SQLException e) {
+            // Có thể log lỗi ra file
+
+        }
+        return nextId;
+    }
+
     public void rejectUser(int userId) {
 
         String sql = "UPDATE user SET status = 'rejected' where User_ID = ?";
@@ -599,7 +644,6 @@ public class UserDAO extends BaseDao {
             ps.setInt(1, userId);
             ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
         } finally {
             try {
                 closeResources();
@@ -634,7 +678,7 @@ public class UserDAO extends BaseDao {
 
         UserDAO ud = new UserDAO();
 
-        System.out.println(ud.getUserByID(1));
+        System.out.println(ud.getNextUserId());
 
     }
 
