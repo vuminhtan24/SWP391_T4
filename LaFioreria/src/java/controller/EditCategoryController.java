@@ -121,7 +121,7 @@ public class EditCategoryController extends HttpServlet {
             session.removeAttribute("categoryName");
             session.removeAttribute("description");
 
-            Category category = new Category(id, categoryName, description != null ? description : "");
+            Category category = new Category(id, categoryName, description != null ? description.trim() : null); // Trim description
             boolean success = cdao.updateCategory(category);
 
             System.out.println("Update result - success: " + success);
