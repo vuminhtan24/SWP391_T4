@@ -247,262 +247,348 @@
     <body>
         <jsp:include page="/ZeShopper/header.jsp"/>
 
-
-        <section id="advertisement">
-            <div class="container">
-                <img src="${pageContext.request.contextPath}/ZeShopper/images/shop/advertisement.jpg" alt="" />
+        <form action="${pageContext.request.contextPath}/product" method="get">
+            <div style="margin-bottom: 10px; display: flex; align-items: center; margin-left: 1130px">
+                <input
+                    type="text"
+                    name="bouquetName"
+                    placeholder="Tìm kiếm sản phẩm"
+                    value="${param.bouquetName != null ? param.bouquetName : ''}"
+                    style="
+                    width: 200px;
+                    padding: 5px 10px;
+                    border-radius: 20px;
+                    border: 1px solid #ccc;
+                    font-size: 16px;
+                    outline: none;
+                    "
+                    />
+                <button
+                    type="submit"
+                    style="
+                    background-color: orange;
+                    color: white;
+                    padding: 5px 10px;
+                    border: none;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    margin-left: 10px;
+                    /* không cần margin-top */
+                    "
+                    >
+                    Search
+                </button>
             </div>
-        </section>
 
-        <section>
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-3">
-                        <div class="left-sidebar">
-                            <h2>Category</h2>
-                            <div class="panel-group category-products" id="accordian" style="margin-bottom: 10px"><!--category-productsr-->   
+            <section id="advertisement">
+                <div class="container">
+                    <img src="${pageContext.request.contextPath}/ZeShopper/images/shop/advertisement.jpg" alt="" />
+                </div>
+            </section>
+
+            <section>
+                <div class="container">
+                    <div class="row">
 
 
-                                <c:forEach var="category" items="${cateBouquetHome}">
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                            <h4 class="panel-title" style="color: #7d7e82">
-                                                <button
-                                                    type="submit"
-                                                    name="categoryId"
-                                                    value="${category.categoryId}"
-                                                    class="category-button">
-                                                    ${category.getCategoryName()}
-                                                </button>
-                                            </h4>
+
+                        <div class="col-sm-3">
+                            <div class="left-sidebar">
+                                <h2>Category</h2>
+                                <div class="panel-group category-products" id="accordian" style="margin-bottom: 10px"><!--category-productsr-->   
+
+
+                                    <c:forEach var="category" items="${cateBouquetHome}">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title" style="color: #7d7e82">
+                                                    <button
+                                                        type="submit"
+                                                        name="categoryId"
+                                                        value="${category.categoryId}"
+                                                        class="category-button">
+                                                        ${category.getCategoryName()}
+                                                    </button>
+                                                </h4>
+                                            </div>
                                         </div>
-                                    </div>
-                                </c:forEach>    
+                                    </c:forEach>    
 
-                            </div><!--/category-products-->
+                                </div><!--/category-products-->
 
-                            <!-- Price range -->    
-                            <h2 style="text-align: center;">Price Range</h2>   
-                            <div style="text-align: center; padding: 20px; border: 1px solid #ccc; border-radius: 10px;">
-                                <!-- Min -->
-                                <label for="minPrice" style="display: block; margin-bottom: 5px;">Min Price</label>
-                                <input
-                                    type="range"
-                                    id="minPrice"
-                                    name="minPrice"
-                                    min="0"
-                                    max="2000000"
-                                    step="1000"
-                                    value="${minPrice != null ? minPrice : 0}"
-                                    oninput="this.nextElementSibling.value = this.value"
-                                    style="width: 80%; accent-color: orange; margin-bottom: 5px;"
-                                    >
-                                <output style="display: block; margin-bottom: 15px;">${minPrice != null ? minPrice : 0}</output>
+                                <!-- Price range -->    
+                                <h2 style="text-align: center;">Price Range</h2>   
+                                <div style="text-align: center; padding: 20px; border: 1px solid #ccc; border-radius: 10px;">
+                                    <!-- Min -->
+                                    <label for="minPrice" style="display: block; margin-bottom: 5px;">Min Price</label>
+                                    <input
+                                        type="range"
+                                        id="minPrice"
+                                        name="minPrice"
+                                        min="0"
+                                        max="2000000"
+                                        step="1000"
+                                        value="${minPrice != null ? minPrice : 0}"
+                                        oninput="this.nextElementSibling.value = this.value"
+                                        style="width: 80%; accent-color: orange; margin-bottom: 5px;"
+                                        >
+                                    <output style="display: block; margin-bottom: 15px;">${minPrice != null ? minPrice : 0}</output>
 
-                                <!-- Max -->
-                                <label for="maxPrice" style="display: block; margin-bottom: 5px;">Max Price</label>
-                                <input
-                                    type="range"
-                                    id="maxPrice"
-                                    name="maxPrice"
-                                    min="0"
-                                    max="2000000"
-                                    step="1000"
-                                    value="${maxPrice != null ? maxPrice : 2000000}"
-                                    oninput="this.nextElementSibling.value = this.value"
-                                    style="width: 80%; accent-color: orange; margin-bottom: 5px;"
-                                    >
-                                <output style="display: block; margin-bottom: 20px;"> ${maxPrice != null ? maxPrice : 2000000}</output>
+                                    <!-- Max -->
+                                    <label for="maxPrice" style="display: block; margin-bottom: 5px;">Max Price</label>
+                                    <input
+                                        type="range"
+                                        id="maxPrice"
+                                        name="maxPrice"
+                                        min="0"
+                                        max="2000000"
+                                        step="1000"
+                                        value="${maxPrice != null ? maxPrice : 2000000}"
+                                        oninput="this.nextElementSibling.value = this.value"
+                                        style="width: 80%; accent-color: orange; margin-bottom: 5px;"
+                                        >
+                                    <output style="display: block; margin-bottom: 20px;"> ${maxPrice != null ? maxPrice : 2000000}</output>
 
-                                <!-- Error Message -->
-                                <div id="error" style="color: red; margin-bottom: 10px;"></div>
+                                    <!-- Error Message -->
+                                    <div id="error" style="color: red; margin-bottom: 10px;"></div>
 
-                                <!-- Submit -->
-                                <input
-                                    type="submit"
-                                    value="Submit"
-                                    style="background-color: orange; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;"
-                                    >                                 
-                                <!-- Price range end -->
-                                </form>
-                            </div>
-
-                            <div class="shipping text-center"><!--shipping-->
-                                <img src="${pageContext.request.contextPath}/ZeShopper/images/home/shipping.jpg" alt="" />
-                            </div><!--/shipping-->
-
-                        </div>
-                    </div>
-
-                    <div class="col-sm-9 padding-right">
-                        <div class="features_items"><!--features_items-->
-                            <div id="popup" class="popup-overlay" style="display:none;">
-                        <div class="popup-content">
-                            <span class="close-btn" onclick="closePopup()">&times;</span>
-                            <form id="addToCartForm">
-                                <h3 id="popup-name"></h3>
-                                <img id="popup-image" src="" alt="" class="popup-img">
-                                <p id="popup-price" class="popup-price"></p>
-                                <p id="popup-description" class="popup-description"></p>
-
-                                <label class="popup-label">Quantity:</label>
-                                <input id="popup-quantity" type="number" name="quantity" value="1" min="1" required class="popup-input">
-
-                                <input type="hidden" name="bouquetId" id="popup-id">
-                                <div class="popup-buttons">
-                                    <button type="submit" class="popup-btn">Add to Cart</button>
-                                    <button type="button" onclick="closePopup()" class="popup-btn cancel">Cancel</button>
+                                    <!-- Submit -->
+                                    <input
+                                        type="submit"
+                                        value="Submit"
+                                        style="background-color: orange; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;"
+                                        >                                 
+                                    <!-- Price range end -->
+                                    </form>
                                 </div>
-                            </form>
-                        </div>
-                    </div>
-                            <h2 class="title text-center">Features Items</h2>
 
-                            <c:forEach items="${requestScope.listBouquet}" var="lb">
-                                <div class="col-sm-4">
-                                    <div class="product-image-wrapper">
-                                        <div class="single-products">
-                                            <div class="productinfo text-center">
-                                                <img src="${lb.getImageUrl()}" alt="" />
-                                                <h2><a href="${pageContext.request.contextPath}/productDetail?id=${lb.getBouquetId()}">${lb.getBouquetName()}</a></h2>
-                                                <p>Price: ${lb.getPrice()}</p>
-                                                <button 
-                                                    class="btn btn-default add-to-cart" 
-                                                    onclick="openPopup(
-                                                                    '${lb.getBouquetId()}',
-                                                                    '${lb.getBouquetName()}',
-                                                                    '${lb.getImageUrl()}',
-                                                                    '${lb.getPrice()}'
-                                                                    )">
-                                                    <i class="fa fa-shopping-cart"></i> Add to cart
-                                                </button>
+                                <div class="shipping text-center"><!--shipping-->
+                                    <img src="${pageContext.request.contextPath}/ZeShopper/images/home/shipping.jpg" alt="" />
+                                </div><!--/shipping-->
+
+                            </div>
+                        </div>
+
+                        <div class="col-sm-9 padding-right">
+                            <div class="features_items"><!--features_items-->
+                                <div id="popup" class="popup-overlay" style="display:none;">
+                                    <div class="popup-content">
+                                        <span class="close-btn" onclick="closePopup()">&times;</span>
+                                        <form id="addToCartForm">
+                                            <h3 id="popup-name"></h3>
+                                            <img id="popup-image" src="" alt="" class="popup-img">
+                                            <p id="popup-price" class="popup-price"></p>
+                                            <p id="popup-description" class="popup-description"></p>
+
+                                            <label class="popup-label">Quantity:</label>
+                                            <input id="popup-quantity" type="number" name="quantity" value="1" min="1" required class="popup-input">
+
+                                            <input type="hidden" name="bouquetId" id="popup-id">
+                                            <div class="popup-buttons">
+                                                <button type="submit" class="popup-btn">Add to Cart</button>
+                                                <button type="button" onclick="closePopup()" class="popup-btn cancel">Cancel</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <h2 class="title text-center">Features Items</h2>
+
+                                <c:forEach items="${requestScope.listBouquet}" var="lb">
+                                    <div class="col-sm-4">
+                                        <div class="product-image-wrapper">
+                                            <div class="single-products">
+                                                <div class="productinfo text-center">
+                                                    <img src="${lb.getImageUrl()}" alt="" />
+                                                    <h2>
+                                                        <a href="${pageContext.request.contextPath}/productDetail?id=${lb.getBouquetId()}">
+                                                            ${lb.getBouquetName()}
+                                                        </a>
+                                                    </h2>
+                                                    <p>Price: ${lb.getPrice()}</p>
+                                                    <button 
+                                                        type="button"                                   
+                                                        class="btn btn-default add-to-cart" 
+                                                        onclick="openPopup(
+                                                        '${lb.getBouquetId()}',
+                                                        '${lb.getBouquetName()}',
+                                                        '${lb.getImageUrl()}',
+                                                        '${lb.getPrice()}'
+                                                        )"
+                                                        >
+                                                        <i class="fa fa-shopping-cart"></i> Add to cart
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </c:forEach>
+
+                            </div>
+                        </div>
+
+                        <ul class="pagination">
+                            <c:if test="${currentPage > 1}">
+                                <li>
+                                    <a href="<c:url value='product'>
+                                           <c:param name='page' value='${currentPage - 1}'/>
+                                           <c:if test='${not empty param.bouquetName}'>
+                                               <c:param name='bouquetName' value='${param.bouquetName}'/>
+                                           </c:if>
+                                           <c:if test='${not empty param.categoryId}'>
+                                               <c:param name='categoryId' value='${param.categoryId}'/>
+                                           </c:if>
+                                           <c:if test='${not empty param.minPrice}'>
+                                               <c:param name='minPrice' value='${param.minPrice}'/>
+                                           </c:if>
+                                           <c:if test='${not empty param.maxPrice}'>
+                                               <c:param name='maxPrice' value='${param.maxPrice}'/>
+                                           </c:if>
+                                       </c:url>">&laquo;</a>
+                                </li>
+                            </c:if>
+
+                            <c:forEach var="i" begin="1" end="${totalPages}">
+                                <li class="${i == currentPage ? 'active' : ''}">
+                                    <a href="<c:url value='product'>
+                                           <c:param name='page' value='${i}'/>
+                                           <c:if test='${not empty param.bouquetName}'>
+                                               <c:param name='bouquetName' value='${param.bouquetName}'/>
+                                           </c:if>
+                                           <c:if test='${not empty param.categoryId}'>
+                                               <c:param name='categoryId' value='${param.categoryId}'/>
+                                           </c:if>
+                                           <c:if test='${not empty param.minPrice}'>
+                                               <c:param name='minPrice' value='${param.minPrice}'/>
+                                           </c:if>
+                                           <c:if test='${not empty param.maxPrice}'>
+                                               <c:param name='maxPrice' value='${param.maxPrice}'/>
+                                           </c:if>
+                                       </c:url>">${i}</a>
+                                </li>
                             </c:forEach>
 
-                        </div>
-                    </div>
+                            <c:if test="${currentPage < totalPages}">
+                                <li>
+                                    <a href="<c:url value='product'>
+                                           <c:param name='page' value='${currentPage + 1}'/>
+                                           <c:if test='${not empty param.bouquetName}'>
+                                               <c:param name='bouquetName' value='${param.bouquetName}'/>
+                                           </c:if>
+                                           <c:if test='${not empty param.categoryId}'>
+                                               <c:param name='categoryId' value='${param.categoryId}'/>
+                                           </c:if>
+                                           <c:if test='${not empty param.minPrice}'>
+                                               <c:param name='minPrice' value='${param.minPrice}'/>
+                                           </c:if>
+                                           <c:if test='${not empty param.maxPrice}'>
+                                               <c:param name='maxPrice' value='${param.maxPrice}'/>
+                                           </c:if>
+                                       </c:url>">&raquo;</a>
+                                </li>
+                            </c:if>
+                        </ul>
 
-                    <ul class="pagination">
-                        <c:if test="${currentPage > 1}">
-                            <li>
-                                <a href="product?page=${currentPage - 1}&bouquetName=${param.bouquetName}">&laquo;</a>
-                            </li>
-                        </c:if>
-
-                        <c:forEach var="i" begin="1" end="${totalPages}">
-                            <li class="${i == currentPage ? 'active' : ''}">
-                                <a href="product?page=${i}&bouquetName=${param.bouquetName}">${i}</a>
-                            </li>
-                        </c:forEach>
-
-                        <c:if test="${currentPage < totalPages}">
-                            <li>
-                                <a href="product?page=${currentPage + 1}&bouquetName=${param.bouquetName}">&raquo;</a>
-                            </li>
-                        </c:if>
-                    </ul>
-
-                </div><!--features_items-->
-            </div>
-        </div>
-    </div>
-</section>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.js"></script>
-<jsp:include page="/ZeShopper/footer.jsp"/>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/gmaps.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/contact.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
-
-<div id="success-popup" class="success-toast">Added to cart successfully!</div>
+                    </div><!--features_items-->
+                </div>
+                </div>
+                </div>
+            </section>
+            <jsp:include page="/ZeShopper/footer.jsp"/>
+            <script src="${pageContext.request.contextPath}/ZeShopper/js/gmaps.js"></script>
+            <script src="${pageContext.request.contextPath}/ZeShopper/js/contact.js"></script>
+            <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.js"></script>
+            <script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
+            <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
+            <script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
+            <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
+            <script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
 
 
-<script>
-      function validateRange() {
-          var min = parseInt(document.getElementById("minPrice").value);
-          var max = parseInt(document.getElementById("maxPrice").value);
-          var errorDiv = document.getElementById("error");
+            <div id="success-popup" class="success-toast">Added to cart successfully!</div>
 
-          if (min > max) {
-              errorDiv.innerText = "Giá trị tối thiểu không được lớn hơn giá trị tối đa.";
-              return false; // Ngăn submit
-          }
 
-          errorDiv.innerText = ""; // Xóa lỗi nếu hợp lệ
-          return true; // Cho phép submit
-      }
-</script>
-<script>
-    function openPopup(id, name, imageUrl, price, description) {
-        document.getElementById("popup-id").value = id;
-        document.getElementById("popup-name").textContent = name;
-        document.getElementById("popup-image").src = imageUrl;
-        document.getElementById("popup-price").textContent = "Price: " + price;
-        document.getElementById("popup-description").textContent = description;
-        document.getElementById("popup").style.display = "flex";
-    }
+            <script>
+                                                                function validateRange() {
+                                                                    var min = parseInt(document.getElementById("minPrice").value);
+                                                                    var max = parseInt(document.getElementById("maxPrice").value);
+                                                                    var errorDiv = document.getElementById("error");
 
-    function closePopup() {
-        document.getElementById("popup").style.display = "none";
-        document.getElementById("popup-quantity").value = 1;
-    }
-</script>
-<script>
-    document.getElementById("addToCartForm").addEventListener("submit", function (e) {
-        e.preventDefault(); // Ngăn form reload
+                                                                    if (min > max) {
+                                                                        errorDiv.innerText = "Giá trị tối thiểu không được lớn hơn giá trị tối đa.";
+                                                                        return false; // Ngăn submit
+                                                                    }
 
-        const bouquetId = document.getElementById("popup-id").value;
-        const quantity = document.getElementById("popup-quantity").value;
+                                                                    errorDiv.innerText = ""; // Xóa lỗi nếu hợp lệ
+                                                                    return true; // Cho phép submit
+                                                                }
+            </script>
 
-        const formData = new URLSearchParams();
-        formData.append("action", "add");
-        formData.append("bouquetId", bouquetId);
-        formData.append("quantity", quantity);
-
-        for (const [key, value] of formData.entries()) {
-                    console.log(key, `:`, value);
+            <script>
+                function openPopup(id, name, imageUrl, price, description) {
+                    document.getElementById("popup-id").value = id;
+                    document.getElementById("popup-name").textContent = name;
+                    document.getElementById("popup-image").src = imageUrl;
+                    document.getElementById("popup-price").textContent = "Price: " + price;
+                    document.getElementById("popup-description").textContent = description;
+                    document.getElementById("popup").style.display = "flex";
                 }
 
-        fetch("${pageContext.request.contextPath}/ZeShopper/cart", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: formData.toString()
-        })
-                .then(res => res.json())
-                .then(data => {
-                    console.log(data)
-                    if (data.status === "added") {
-                        closePopup(); // Đóng popup sau khi thêm
+                function closePopup() {
+                    document.getElementById("popup").style.display = "none";
+                    document.getElementById("popup-quantity").value = 1;
+                }
+            </script>
+            <script>
+                document.getElementById("addToCartForm").addEventListener("submit", function (e) {
+                    e.preventDefault(); // Ngăn form reload
 
-                        showSuccessPopup("Added to cart successfully!");
-                    } else {
-                        alert("Error: " + data.status);
+                    const bouquetId = document.getElementById("popup-id").value;
+                    const quantity = document.getElementById("popup-quantity").value;
+
+                    const formData = new URLSearchParams();
+                    formData.append("action", "add");
+                    formData.append("bouquetId", bouquetId);
+                    formData.append("quantity", quantity);
+
+                    for (const [key, value] of formData.entries()) {
+                        console.log(key, `:`, value);
                     }
-                })
-                .catch(err => {
-                    console.error("Error adding to cart:", err);
-                    alert("Something went wrong.");
+
+                    fetch("${pageContext.request.contextPath}/ZeShopper/cart", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: formData.toString()
+                    })
+                            .then(res => res.json())
+                            .then(data => {
+                                console.log(data)
+                                if (data.status === "added") {
+                                    closePopup(); // Đóng popup sau khi thêm
+
+                                    showSuccessPopup("Added to cart successfully!");
+                                } else {
+                                    alert("Error: " + data.status);
+                                }
+                            })
+                            .catch(err => {
+                                console.error("Error adding to cart:", err);
+                                alert("Something went wrong.");
+                            });
                 });
-    });
 
-    function showSuccessPopup(message) {
-        const successBox = document.getElementById("success-popup");
-        successBox.innerText = message;
-        successBox.style.display = "block";
+                function showSuccessPopup(message) {
+                    const successBox = document.getElementById("success-popup");
+                    successBox.innerText = message;
+                    successBox.style.display = "block";
 
-        // Ẩn sau 3 giây
-        setTimeout(() => {
-            successBox.style.display = "none";
-        }, 3000);
-    }
-</script>
-</body>
+                    // Ẩn sau 3 giây
+                    setTimeout(() => {
+                        successBox.style.display = "none";
+                    }, 3000);
+                }
+            </script>
+    </body>
 </html>

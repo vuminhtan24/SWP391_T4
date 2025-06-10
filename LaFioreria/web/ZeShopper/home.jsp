@@ -311,7 +311,42 @@
         <section>
             <div class="container">
                 <div class="row">
+                    <form action="${pageContext.request.contextPath}/product" method="get">
+                        <div style="margin-bottom: 10px; display: flex; align-items: center; margin-left: 870px">
+                            <input
+                                type="text"
+                                name="bouquetName"
+                                placeholder="Tìm kiếm sản phẩm"
+                                value="${param.bouquetName != null ? param.bouquetName : ''}"
+                                style="
+                                width: 200px;
+                                padding: 5px 10px;
+                                border-radius: 20px;
+                                border: 1px solid #ccc;
+                                font-size: 16px;
+                                outline: none;
+                                "
+                                />
+                            <button
+                                type="submit"
+                                style="
+                                background-color: orange;
+                                color: white;
+                                padding: 5px 10px;
+                                border: none;
+                                border-radius: 20px;
+                                cursor: pointer;
+                                font-size: 16px;
+                                margin-left: 10px;
+                                /* không cần margin-top */
+                                "
+                                >
+                                Search
+                            </button>
+                        </div>
+                        </form>   
                     <div class="col-sm-3">
+                             
                         <div class="left-sidebar">
                             <h2>Category</h2>
                             <div class="panel-group category-products" id="accordian" style="margin-bottom: 10px"><!--category-productsr-->   
