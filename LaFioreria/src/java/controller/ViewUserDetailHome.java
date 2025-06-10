@@ -105,13 +105,13 @@ public class ViewUserDetailHome extends HttpServlet {
             int id = Integer.parseInt(id_raw);
             boolean hasError = false;
 
-            if (!phone_Number.matches("^(090|098)\\d{7}$")) {
+            if (!phone_Number.matches("^(0)\\d{9}$")) {
                 request.setAttribute("errorPhone", "Phone must be 10 digits and start with 090 or 098.");
                 hasError = true;
             }
 
-            if (!email.matches("^[a-zA-Z0-9._%+-]{3,}@flower\\.com$")) {
-                request.setAttribute("errorEmail", "Email must be at least 3 characters before @flower.com.");
+            if (!email.matches("^[a-zA-Z0-9._%+-]{3,}@[a-zA-Z0-9-]{2,}\\.[a-zA-Z]{2,}$")) {
+                request.setAttribute("errorEmail", "Email Invalid, Email form ...@...com/vn/..");
                 hasError = true;
             }
 

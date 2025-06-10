@@ -358,7 +358,7 @@
                         <tr>
                             <td>Password: </td>
                             <td>
-                                <input type="text" name="pass" class="form-control" placeholder="Password" aria-label="Username"
+                                <input type="password" name="pass" class="form-control" placeholder="Password" aria-label="Username"
                                        aria-describedby="basic-addon1" value="${userManager.password}">
                             </td>
                         </tr>
@@ -406,9 +406,6 @@
                         <td>
                             <input type="text" class="form-control" placeholder="Email"
                                    aria-label="Recipient's username" aria-describedby="basic-addon2" name="email" value="${userManager.email}">
-                        </td>
-                        <td>
-                            <span class="input-group-text" id="basic-addon2">@flower.com</span>
                         </td>
                     </tr>
                     <c:if test="${not empty errorEmail}">
