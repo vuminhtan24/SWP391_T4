@@ -83,6 +83,32 @@
                 text-align: center;
                 line-height: 1.2;
             }
+            
+            .success-toast {
+                display: none;
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background-color: #4CAF50;
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.2);
+                font-size: 16px;
+                z-index: 9999;
+                animation: fadein 0.5s;
+            }
+
+            @keyframes fadein {
+                from {
+                    opacity: 0;
+                    bottom: 10px;
+                }
+                to {
+                    opacity: 1;
+                    bottom: 30px;
+                }
+            }
 
             .product-card__title a {
                 color: inherit;
@@ -214,7 +240,7 @@
 
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/wishlist.jsp"><i class="fa fa-star"></i> Wishlist</a></li>
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp"><i class="fa fa-crosshairs"></i> Checkout</a></li>
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp"><i class="fa fa-shopping-cart"></i> Cart</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/cart"><i class="fa fa-shopping-cart"></i> Cart</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -306,12 +332,24 @@
                                     <img src=""/>
                                     <span>
                                         <span>${bouquetDetail.getPrice()} VND</span>
-                                        <label>Quantity:</label>
-                                        <input type="number" min="0" max="20" value="0"/>
-                                        <button type="button" class="btn btn-fefault cart">
-                                            <i class="fa fa-shopping-cart"></i>
-                                            Add to cart
-                                        </button>
+
+
+                                        <form id="addToCartForm">
+                                            <label>Quantity:</label>
+                                            <label class="popup-label">Quantity:</label>
+                                            <input id="popup-quantity" type="number" name="quantity" value="1" min="1" required class="popup-input">
+
+                                            <input type="hidden" name="bouquetId" id="popup-id" value="${bouquetDetail.getBouquetId()}">
+                                            <div class="popup-buttons">
+                                                <button type="submit" class="btn btn-fefault cart">
+                                                    <i class="fa fa-shopping-cart"></i>
+                                                    Add to cart
+                                                </button>
+                                            </div>
+                                        </form>
+
+
+
                                     </span>
                                     <p><b>Availability:</b> In Stock</p>
                                     <p><b>Condition:</b> New</p>
@@ -621,6 +659,62 @@
             </div>
 
         </footer><!--/Footer-->
+
+        <div id="success-popup" class="success-toast">Added to cart successfully!</div>
+        <script>
+            document.getElementById("addToCartForm").addEventListener("submit", function (e) {
+                e.preventDefault(); // Ngăn form reload
+
+                const bouquetId = document.getElementById("popup-id").value;
+                const quantity = document.getElementById("popup-quantity").value;
+                
+                console.log(document.getElementById("popup-id"))
+
+                const formData = new URLSearchParams();
+                formData.append("action", "add");
+                formData.append("bouquetId", bouquetId);
+                formData.append("quantity", quantity);
+
+                for (const [key, value] of formData.entries()) {
+                    console.log(key, `:`, value);
+                }
+
+                fetch("ZeShopper/cart", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: formData.toString()
+                })
+                        .then(res => res.json())
+                        .then(data => {
+                            
+                            
+                            if (data.status === "added") {
+                                showSuccessPopup("Added to cart successfully!");
+                            } else {
+                                alert("Error: " + data.status);
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Error adding to cart:", err);
+                            alert("Something went wrong.");
+                        });
+            });
+
+            function showSuccessPopup(message) {
+                const successBox = document.getElementById("success-popup");
+                console.log(successBox)
+                successBox.innerText = message;
+                successBox.style.display = "block";
+
+                // Ẩn sau 3 giây
+                setTimeout(() => {
+                    successBox.style.display = "none";
+                }, 3000);
+            }
+        </script>
+
 
 
 

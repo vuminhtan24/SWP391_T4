@@ -219,7 +219,7 @@
                                             <li><a href="${pageContext.request.contextPath}/product">Products</a></li>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/product-details.jsp">Product Details</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp">Checkout</a></li> 
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp" class="active">Cart</a></li> 
+                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/cart" class="active">Cart</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp">Login</a></li> 
                                         </ul>
                                     </li> 
