@@ -254,7 +254,7 @@
                                 <div class="flex-grow-1 bouquet-content">
                                     <div class="bouquet-info p-4 shadow-sm rounded bg-white">
                                         <h1 class="fw-bold mb-4 text-primary">
-                                            <input type="text" name="bqName" value="${bouquetDetail.getBouquetName()}" required/>    
+                                            <input type="text" name="bqName" value="${bouquetDetail.getBouquetName()}" maxlength="35" required/>    
                                         </h1>
 
                                         <!-- Thông tin cơ bản -->
