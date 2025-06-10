@@ -179,7 +179,7 @@
                     <p style="font-size: 16px; color: #555;">Your order has been successfully placed. We will contact you shortly with delivery details.</p>
 
                     <div style="margin-top: 30px;">
-                        <a href="home" class="btn btn-success" style="padding: 10px 25px; margin-right: 10px;">Continue Shopping</a>
+                        <a href="${pageContext.request.contextPath}/home" class="btn btn-success" style="padding: 10px 25px; margin-right: 10px;">Continue Shopping</a>
                         <a href="order-history.jsp" class="btn btn-outline-secondary" style="padding: 10px 25px;">View Orders</a>
                     </div>
                 </div>
