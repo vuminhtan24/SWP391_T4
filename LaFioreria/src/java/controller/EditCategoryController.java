@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
 import dal.CategoryDAO;
@@ -22,49 +18,29 @@ import util.Validate;
  *
  * @author Admin
  */
-@WebServlet(name = "EditCategoryControlelr", urlPatterns = {"/editCategory"})
-public class EditCategoryControlelr extends HttpServlet {
+@WebServlet(name = "EditCategoryController", urlPatterns = {"/editCategory"})
+public class EditCategoryController extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet EditCategoryControlelr</title>");            
+            out.println("<title>Servlet EditCategoryController</title>");            
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet EditCategoryControlelr at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet EditCategoryController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-@Override
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            // Lấy tham số id từ request
             String idStr = request.getParameter("id");
             if (idStr == null || idStr.trim().isEmpty()) {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Category ID is missing or empty.");
@@ -77,7 +53,6 @@ public class EditCategoryControlelr extends HttpServlet {
                 return;
             }
 
-            // Lấy thông tin danh mục từ CategoryDAO
             CategoryDAO cdao = new CategoryDAO();
             Category category = cdao.getCategoryById(id);
             if (category == null) {
@@ -85,15 +60,14 @@ public class EditCategoryControlelr extends HttpServlet {
                 return;
             }
 
-            // Gửi thông tin danh mục đến JSP để hiển thị trên form chỉnh sửa
             request.setAttribute("category", category);
-            request.getRequestDispatcher("./DashMin/editcategory.jsp").forward(request, response);
+            request.getRequestDispatcher("/DashMin/editcategory.jsp").forward(request, response);
         } catch (NumberFormatException e) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid category ID format: " + e.getMessage());
         } catch (Exception e) {
-            System.out.println("Error in EditCategoryController doGet: " + e.getMessage());
+            System.out.println("Error in doGet: " + e.getMessage());
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred while processing the request.");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred.");
         }
     }
 
@@ -102,12 +76,12 @@ public class EditCategoryControlelr extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         try {
-            // Lấy dữ liệu từ form
             String idStr = request.getParameter("id");
             String categoryName = request.getParameter("categoryName");
             String description = request.getParameter("description");
 
-            // Validate id
+            System.out.println("Received data - idStr: " + idStr + ", categoryName: " + categoryName + ", description: " + description);
+
             if (idStr == null || idStr.trim().isEmpty()) {
                 throw new IllegalArgumentException("Category ID is missing or empty.");
             }
@@ -116,71 +90,66 @@ public class EditCategoryControlelr extends HttpServlet {
                 throw new IllegalArgumentException("Category ID must be a positive integer.");
             }
 
-            // Validate các field
             String categoryNameError = Validate.validateText(categoryName, "Category Name");
             if (categoryNameError == null) {
-                // Kiểm tra độ dài categoryName (3-100 ký tự)
                 categoryNameError = Validate.validateLength(categoryName, "Category Name", 3, 100);
             }
-            String descriptionError = Validate.validateDescription(description);
+            String descriptionError = null;
+            CategoryDAO cdao = new CategoryDAO();
+            Category oldCategory = cdao.getCategoryById(id);
+            if (description != null && !description.trim().isEmpty() && !description.trim().equals(oldCategory.getDescription())) {
+                descriptionError = Validate.validateDescription(description);
+            }
 
-            // Lưu dữ liệu đã nhập vào session để giữ giá trị
-            session.setAttribute("categoryId", id);
-            session.setAttribute("categoryName", categoryName);
-            session.setAttribute("description", description);
+            System.out.println("Validation - categoryNameError: " + categoryNameError + ", descriptionError: " + descriptionError);
 
-            // Nếu có lỗi, lưu thông báo lỗi vào session và hiển thị lại form
+            request.setAttribute("categoryId", id);
+            request.setAttribute("categoryName", categoryName);
+            request.setAttribute("description", description);
+
             if (categoryNameError != null || descriptionError != null) {
-                session.setAttribute("categoryNameError", categoryNameError);
-                session.setAttribute("descriptionError", descriptionError);
-                doGet(request, response);
+                request.setAttribute("categoryNameError", categoryNameError);
+                request.setAttribute("descriptionError", descriptionError);
+                request.setAttribute("showErrorPopup", true);
+                request.getRequestDispatcher("/DashMin/editcategory.jsp").forward(request, response);
                 return;
             }
 
-            // Xóa các lỗi và dữ liệu trong session nếu validate thành công
             session.removeAttribute("categoryNameError");
             session.removeAttribute("descriptionError");
             session.removeAttribute("categoryId");
             session.removeAttribute("categoryName");
             session.removeAttribute("description");
 
-            // Tạo đối tượng Category với dữ liệu mới
             Category category = new Category(id, categoryName, description != null ? description : "");
-
-            // Cập nhật danh mục trong cơ sở dữ liệu
-            CategoryDAO cdao = new CategoryDAO();
             boolean success = cdao.updateCategory(category);
-            
+
+            System.out.println("Update result - success: " + success);
+
             if (!success) {
-                session.setAttribute("error", "Failed to update category.");
-                doGet(request, response);
+                request.setAttribute("error", "Failed to update category. Please check if the category name already exists or database connection.");
+                request.setAttribute("showErrorPopup", true);
+                request.getRequestDispatcher("/DashMin/editcategory.jsp").forward(request, response);
                 return;
             }
 
-            // Lưu thông báo thành công vào session
             session.setAttribute("message", "Category updated successfully!");
-
-            // Chuyển hướng về trang danh sách danh mục
             response.sendRedirect(request.getContextPath() + "/category");
         } catch (IllegalArgumentException e) {
-            session.setAttribute("error", e.getMessage());
-            doGet(request, response);
+            request.setAttribute("error", e.getMessage());
+            request.setAttribute("showErrorPopup", true);
+            request.getRequestDispatcher("/DashMin/editcategory.jsp").forward(request, response);
         } catch (Exception e) {
-            System.out.println("Error in EditCategoryController doPost: " + e.getMessage());
+            System.out.println("Error in doPost: " + e.getMessage());
             e.printStackTrace();
-            session.setAttribute("error", "An error occurred while processing the request.");
-            doGet(request, response);
+            request.setAttribute("error", "An error occurred while processing the request: " + e.getMessage());
+            request.setAttribute("showErrorPopup", true);
+            request.getRequestDispatcher("/DashMin/editcategory.jsp").forward(request, response);
         }
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Servlet for editing categories with validation";
+    }
 }

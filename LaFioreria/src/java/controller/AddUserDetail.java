@@ -105,18 +105,18 @@ public class AddUserDetail extends HttpServlet {
             }
 
             // Phone validation
-            if (!phone_Number.matches("^(090|098|033|037)\\d{7}$")) {
+            if (!phone_Number.matches("^(0)\\d{9}$")) {
                 setAttributes(request, id_raw, name_raw, password, fullName, email, phone_Number, Address, role_raw);
-                request.setAttribute("errorPhone", "Phone number must be 10 digits and start with 090,098,033 or 037.");
+                request.setAttribute("errorPhone", "Phone number must be 10 digits and start with 0.");
                 request.setAttribute("roleNames", ud.getRoleNames());
                 request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
                 return;
             }
 
             // Email validation
-            if (!email.matches("^[a-zA-Z0-9._%+-]{3,}@(flower\\.com|gmail\\.com)$")) {
+            if (!email.matches("^[a-zA-Z0-9._%+-]{3,}@[a-zA-Z0-9-]{2,}\\.[a-zA-Z]{2,}$")) {
                 setAttributes(request, id_raw, name_raw, password, fullName, email, phone_Number, Address, role_raw);
-                request.setAttribute("errorEmail", "Email must be at least 3 characters before @flower.com or @gmail.com");
+                request.setAttribute("errorEmail", "Email Invalid, Email form ...@...com/vn/..");
                 request.setAttribute("roleNames", ud.getRoleNames());
                 request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
                 return;

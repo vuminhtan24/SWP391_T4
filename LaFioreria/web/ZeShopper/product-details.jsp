@@ -83,6 +83,32 @@
                 text-align: center;
                 line-height: 1.2;
             }
+            
+            .success-toast {
+                display: none;
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background-color: #4CAF50;
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.2);
+                font-size: 16px;
+                z-index: 9999;
+                animation: fadein 0.5s;
+            }
+
+            @keyframes fadein {
+                from {
+                    opacity: 0;
+                    bottom: 10px;
+                }
+                to {
+                    opacity: 1;
+                    bottom: 30px;
+                }
+            }
 
             .product-card__title a {
                 color: inherit;
@@ -132,141 +158,7 @@
     </head><!--/head-->
 
     <body>
-        <header id="header"><!--header-->
-            <div class="header_top"><!--header_top-->
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <div class="contactinfo">
-                                <ul class="nav nav-pills">
-                                    <li><a href=""><i class="fa fa-phone"></i> +2 95 01 88 821</a></li>
-                                    <li><a href=""><i class="fa fa-envelope"></i> info@domain.com</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="social-icons pull-right">
-                                <ul class="nav navbar-nav">
-                                    <li><a href=""><i class="fa fa-facebook"></i></a></li>
-                                    <li><a href=""><i class="fa fa-twitter"></i></a></li>
-                                    <li><a href=""><i class="fa fa-linkedin"></i></a></li>
-                                    <li><a href=""><i class="fa fa-dribbble"></i></a></li>
-                                    <li><a href=""><i class="fa fa-google-plus"></i></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div><!--/header_top-->
-
-            <div class="header-middle"><!--header-middle-->
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <div class="logo pull-left">
-                                <a href="${pageContext.request.contextPath}/home"><img src="${pageContext.request.contextPath}/ZeShopper/images/home/logo1.jpg" style="width:150px;" alt="" /></a>
-                            </div>
-                            <div class="btn-group pull-right">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default dropdown-toggle usa" data-toggle="dropdown">
-                                        USA
-                                        <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a href="">Canada</a></li>
-                                        <li><a href="">UK</a></li>
-                                    </ul>
-                                </div>
-
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default dropdown-toggle usa" data-toggle="dropdown">
-                                        DOLLAR
-                                        <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a href="">Canadian Dollar</a></li>
-                                        <li><a href="">Pound</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-8">
-                            <div class="shop-menu pull-right">
-                                <ul class="nav navbar-nav">
-                                    <c:choose>
-                                        <c:when test="${sessionScope.currentAcc != null}">
-                                            <li class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                                    <i class="fa fa-user"></i> Hello, ${sessionScope.currentAcc.username} <b class="caret"></b>
-                                                </a>
-                                                <ul class="dropdown-menu">
-                                                    <li><a href="${pageContext.request.contextPath}/viewuserdetailhome"><i class="fa fa-id-card"></i> User Detail</a></li>
-                                                    <li><a href="changePassword.jsp"><i class="fa fa-key"></i> Change Password</a></li>
-                                                    <li class="divider"></li>
-                                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
-                                                </ul>
-                                            </li>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
-                                            </c:otherwise>
-                                        </c:choose>
-
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/wishlist.jsp"><i class="fa fa-star"></i> Wishlist</a></li>
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp"><i class="fa fa-crosshairs"></i> Checkout</a></li>
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp"><i class="fa fa-shopping-cart"></i> Cart</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div><!--/header-middle-->
-
-            <div class="header-bottom"><!--header-bottom-->
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-9">
-                            <div class="navbar-header">
-                                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                                    <span class="sr-only">Toggle navigation</span>
-                                    <span class="icon-bar"></span>
-                                    <span class="icon-bar"></span>
-                                    <span class="icon-bar"></span>
-                                </button>
-                            </div>
-                            <div class="mainmenu pull-left">
-                                <ul class="nav navbar-nav collapse navbar-collapse">
-                                    <li><a href="${pageContext.request.contextPath}/home">Home</a></li>
-                                    <li class="dropdown"><a href="#">Shop<i class="fa fa-angle-down"></i></a>
-                                        <ul role="menu" class="sub-menu">
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/shop.jsp">Products</a></li>
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/product-details.jsp" class="active">Product Details</a></li> 
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp">Checkout</a></li> 
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp">Cart</a></li> 
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp">Login</a></li> 
-                                        </ul>
-                                    </li> 
-                                    <li class="dropdown"><a href="#">Blog<i class="fa fa-angle-down"></i></a>
-                                        <ul role="menu" class="sub-menu">
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/blog.jsp">Blog List</a></li>
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/blog-single.jsp">Blog Single</a></li>
-                                        </ul>
-                                    </li> 
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/404.jsp">404</a></li>
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/contact-us.jsp">Contact</a></li>
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/about-us.jsp">About us</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="search_box pull-right">
-                                <input type="text" placeholder="Search"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div><!--/header-bottom-->
-        </header><!--/header-->
+        <jsp:include page="/ZeShopper/header.jsp"/>
 
         <section>
             <div class="container">
@@ -306,12 +198,24 @@
                                     <img src=""/>
                                     <span>
                                         <span>${bouquetDetail.getPrice()} VND</span>
-                                        <label>Quantity:</label>
-                                        <input type="number" min="0" max="20" value="0"/>
-                                        <button type="button" class="btn btn-fefault cart">
-                                            <i class="fa fa-shopping-cart"></i>
-                                            Add to cart
-                                        </button>
+
+
+                                        <form id="addToCartForm">
+                                            <label>Quantity:</label>
+                                            <label class="popup-label">Quantity:</label>
+                                            <input id="popup-quantity" type="number" name="quantity" value="1" min="1" required class="popup-input">
+
+                                            <input type="hidden" name="bouquetId" id="popup-id" value="${bouquetDetail.getBouquetId()}">
+                                            <div class="popup-buttons">
+                                                <button type="submit" class="btn btn-fefault cart">
+                                                    <i class="fa fa-shopping-cart"></i>
+                                                    Add to cart
+                                                </button>
+                                            </div>
+                                        </form>
+
+
+
                                     </span>
                                     <p><b>Availability:</b> In Stock</p>
                                     <p><b>Condition:</b> New</p>
@@ -464,172 +368,65 @@
             </div>
         </section>
 
-        <footer id="footer"><!--Footer-->
-            <div class="footer-top">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-2">
-                            <div class="companyinfo">
-                                <h2><span>e</span>-shopper</h2>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit,sed do eiusmod tempor</p>
-                            </div>
-                        </div>
-                        <div class="col-sm-7">
-                            <div class="col-sm-3">
-                                <div class="video-gallery text-center">
-                                    <a href="#">
-                                        <div class="iframe-img">
-                                            <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe1.png" alt="" />
-                                        </div>
-                                        <div class="overlay-icon">
-                                            <i class="fa fa-play-circle-o"></i>
-                                        </div>
-                                    </a>
-                                    <p>Circle of Hands</p>
-                                    <h2>24 DEC 2014</h2>
-                                </div>
-                            </div>
+        <jsp:include page="/ZeShopper/footer.jsp"/>
 
-                            <div class="col-sm-3">
-                                <div class="video-gallery text-center">
-                                    <a href="#">
-                                        <div class="iframe-img">
-                                            <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe2.png" alt="" />
-                                        </div>
-                                        <div class="overlay-icon">
-                                            <i class="fa fa-play-circle-o"></i>
-                                        </div>
-                                    </a>
-                                    <p>Circle of Hands</p>
-                                    <h2>24 DEC 2014</h2>
-                                </div>
-                            </div>
+        <div id="success-popup" class="success-toast">Added to cart successfully!</div>
+        <script>
+            document.getElementById("addToCartForm").addEventListener("submit", function (e) {
+                e.preventDefault(); // Ngăn form reload
 
-                            <div class="col-sm-3">
-                                <div class="video-gallery text-center">
-                                    <a href="#">
-                                        <div class="iframe-img">
-                                            <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe3.png" alt="" />
-                                        </div>
-                                        <div class="overlay-icon">
-                                            <i class="fa fa-play-circle-o"></i>
-                                        </div>
-                                    </a>
-                                    <p>Circle of Hands</p>
-                                    <h2>24 DEC 2014</h2>
-                                </div>
-                            </div>
+                const bouquetId = document.getElementById("popup-id").value;
+                const quantity = document.getElementById("popup-quantity").value;
+                
+                console.log(document.getElementById("popup-id"))
 
-                            <div class="col-sm-3">
-                                <div class="video-gallery text-center">
-                                    <a href="#">
-                                        <div class="iframe-img">
-                                            <img src="${pageContext.request.contextPath}/ZeShopper/images/home/iframe4.png" alt="" />
-                                        </div>
-                                        <div class="overlay-icon">
-                                            <i class="fa fa-play-circle-o"></i>
-                                        </div>
-                                    </a>
-                                    <p>Circle of Hands</p>
-                                    <h2>24 DEC 2014</h2>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="address">
-                                <img src="${pageContext.request.contextPath}/ZeShopper/images/home/map.png" alt="" />
-                                <p>505 S Atlantic Ave Virginia Beach, VA(Virginia)</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                const formData = new URLSearchParams();
+                formData.append("action", "add");
+                formData.append("bouquetId", bouquetId);
+                formData.append("quantity", quantity);
 
-            <div class="footer-widget">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-2">
-                            <div class="single-widget">
-                                <h2>Service</h2>
-                                <ul class="nav nav-pills nav-stacked">
-                                    <li><a href="">Online Help</a></li>
-                                    <li><a href="">Contact Us</a></li>
-                                    <li><a href="">Order Status</a></li>
-                                    <li><a href="">Change Location</a></li>
-                                    <li><a href="">FAQ’s</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="col-sm-2">
-                            <div class="single-widget">
-                                <h2>Quock Shop</h2>
-                                <ul class="nav nav-pills nav-stacked">
-                                    <li><a href="">T-Shirt</a></li>
-                                    <li><a href="">Mens</a></li>
-                                    <li><a href="">Womens</a></li>
-                                    <li><a href="">Gift Cards</a></li>
-                                    <li><a href="">Shoes</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="col-sm-2">
-                            <div class="single-widget">
-                                <h2>Policies</h2>
-                                <ul class="nav nav-pills nav-stacked">
-                                    <li><a href="">Terms of Use</a></li>
-                                    <li><a href="">Privecy Policy</a></li>
-                                    <li><a href="">Refund Policy</a></li>
-                                    <li><a href="">Billing System</a></li>
-                                    <li><a href="">Ticket System</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="col-sm-2">
-                            <div class="single-widget">
-                                <h2>About Shopper</h2>
-                                <ul class="nav nav-pills nav-stacked">
-                                    <li><a href="">Company Information</a></li>
-                                    <li><a href="">Careers</a></li>
-                                    <li><a href="">Store Location</a></li>
-                                    <li><a href="">Affillate Program</a></li>
-                                    <li><a href="">Copyright</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="col-sm-3 col-sm-offset-1">
-                            <div class="single-widget">
-                                <h2>About Shopper</h2>
-                                <form action="#" class="searchform">
-                                    <input type="text" placeholder="Your email address" />
-                                    <button type="submit" class="btn btn-default"><i class="fa fa-arrow-circle-o-right"></i></button>
-                                    <p>Get the most recent updates from <br />our site and be updated your self...</p>
-                                </form>
-                            </div>
-                        </div>
+                for (const [key, value] of formData.entries()) {
+                    console.log(key, `:`, value);
+                }
 
-                    </div>
-                </div>
-            </div>
+                fetch("ZeShopper/cart", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: formData.toString()
+                })
+                        .then(res => res.json())
+                        .then(data => {
+                            
+                            
+                            if (data.status === "added") {
+                                showSuccessPopup("Added to cart successfully!");
+                            } else {
+                                alert("Error: " + data.status);
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Error adding to cart:", err);
+                            alert("Something went wrong.");
+                        });
+            });
 
-            <div class="footer-bottom">
-                <div class="container">
-                    <div class="row">
-                        <p class="pull-left">Copyright © 2013 E-SHOPPER Inc. All rights reserved.</p>
-                        <p class="pull-right">Designed by <span><a target="_blank" href="http://www.themeum.com">Themeum</a></span></p>
-                    </div>
-                </div>
-            </div>
+            function showSuccessPopup(message) {
+                const successBox = document.getElementById("success-popup");
+                console.log(successBox)
+                successBox.innerText = message;
+                successBox.style.display = "block";
 
-        </footer><!--/Footer-->
+                // Ẩn sau 3 giây
+                setTimeout(() => {
+                    successBox.style.display = "none";
+                }, 3000);
+            }
+        </script>
 
 
 
-        <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.js"></script>
-        <script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
-        <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
-        <script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
-        <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
-        <script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     </body>
