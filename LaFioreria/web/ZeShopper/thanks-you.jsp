@@ -111,7 +111,7 @@
                                             </li>
                                         </c:when>
                                         <c:otherwise>
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/login.jsp"><i class="fa fa-lock"></i> Login</a></li>
+                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/LoginServlet"><i class="fa fa-lock"></i> Login</a></li>
                                             </c:otherwise>
                                         </c:choose>
 
@@ -142,7 +142,7 @@
                                     <li><a href="${pageContext.request.contextPath}/home">Home</a></li>
                                     <li class="dropdown"><a href="#">Shop<i class="fa fa-angle-down"></i></a>
                                         <ul role="menu" class="sub-menu">
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/shop.jsp">Products</a></li>
+                                            <li><a href="${pageContext.request.contextPath}/product">Products</a></li>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/product-details.jsp">Product Details</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/checkout.jsp">Checkout</a></li> 
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/cart.jsp" class="active">Cart</a></li> 
@@ -179,7 +179,7 @@
                     <p style="font-size: 16px; color: #555;">Your order has been successfully placed. We will contact you shortly with delivery details.</p>
 
                     <div style="margin-top: 30px;">
-                        <a href="home" class="btn btn-success" style="padding: 10px 25px; margin-right: 10px;">Continue Shopping</a>
+                        <a href="${pageContext.request.contextPath}/home" class="btn btn-success" style="padding: 10px 25px; margin-right: 10px;">Continue Shopping</a>
                         <a href="order-history.jsp" class="btn btn-outline-secondary" style="padding: 10px 25px;">View Orders</a>
                     </div>
                 </div>

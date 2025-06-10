@@ -1,24 +1,25 @@
 <%-- 
-    Document   : editcategory
-    Created on : May 31, 2025, 2:42:04 PM
+    Document   : categoryDetails
+    Created on : Jun 9, 2025, 1:47:07 PM
     Author     : Admin
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="java.util.List,model.Category" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
-        <title>DASHMIN - Edit Category</title>
+        <title>Chi Tiết Danh Mục - DASHMIN</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
 
         <!-- Favicon -->
-        <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
+        <link href="img/favicon.ico" rel="icon">
 
         <!-- Google Web Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,6 +53,10 @@
                 color: #333;
             }
 
+            .table td, .table th {
+                vertical-align: middle;
+            }
+
             .btn {
                 padding: 6px 12px;
                 border: none;
@@ -63,61 +68,20 @@
                 transition: background-color 0.2s ease;
             }
 
-            .btn-success {
-                background-color: #28a745;
+            .btn-delete {
+                background-color: #e74c3c; /* Đỏ */
             }
 
-            .btn-success:hover {
-                background-color: #218838;
+            .btn-delete:hover {
+                background-color: #c0392b;
             }
 
-            .btn-secondary {
-                background-color: #6c757d;
+            .btn-edit {
+                background-color: #3498db; /* Xanh dương */
             }
 
-            .btn-secondary:hover {
-                background-color: #5a6268;
-            }
-
-            /* Style cho popup lỗi */
-            .error-popup {
-                display: none;
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background-color: #fff;
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-                z-index: 1050;
-                max-width: 500px;
-                width: 90%;
-            }
-
-            .error-popup .error-header {
-                font-weight: bold;
-                margin-bottom: 10px;
-                color: #e74c3c;
-            }
-
-            .error-popup .error-body {
-                color: #333;
-                margin-bottom: 15px;
-            }
-
-            .error-popup .btn-close {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                font-size: 1.5rem;
-                border: none;
-                background: none;
-                cursor: pointer;
-            }
-
-            .error-popup .btn-close:hover {
-                color: #c0392b;
+            .btn-edit:hover {
+                background-color: #2980b9;
             }
         </style>
     </head>
@@ -149,7 +113,7 @@
                         </div>
                     </div>
                     <div class="navbar-nav w-100">
-                        <a href="${pageContext.request.contextPath}/DashMin/admin" class="nav-item nav-link"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/admin" class="nav-item nav-link"><i class="fa fa-tachometer-alt me-2"></i>Bảng điều khiển</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Elements</a>
                             <div class="dropdown-menu bg-transparent border-0">
@@ -169,9 +133,9 @@
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
-                                <a href="${pageContext.request.contextPath}/DashMin/categoryDetails" class="dropdown-item active">Category Details</a>
+                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
                                 <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item">View User Detail</a>
-                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item">Add new User</a>
+                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item">Add new User </a>
                             </div>
                         </div>
                     </div>
@@ -190,21 +154,21 @@
                         <i class="fa fa-bars"></i>
                     </a>
                     <form class="d-none d-md-flex ms-4">
-                        <input class="form-control border-0" type="search" placeholder="Search">
+                        <input class="form-control border-0" type="search" placeholder="Tìm kiếm">
                     </form>
                     <div class="navbar-nav align-items-center ms-auto">
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                                 <i class="fa fa-envelope me-lg-2"></i>
-                                <span class="d-none d-lg-inline-flex">Message</span>
+                                <span class="d-none d-lg-inline-flex">Tin nhắn</span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
                                         <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
-                                            <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                            <small>15 minutes ago</small>
+                                            <h6 class="fw-normal mb-0">Jhon gửi bạn tin nhắn</h6>
+                                            <small>15 phút trước</small>
                                         </div>
                                     </div>
                                 </a>
@@ -213,8 +177,8 @@
                                     <div class="d-flex align-items-center">
                                         <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
-                                            <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                            <small>15 minutes ago</small>
+                                            <h6 class="fw-normal mb-0">Jhon gửi bạn tin nhắn</h6>
+                                            <small>15 phút trước</small>
                                         </div>
                                     </div>
                                 </a>
@@ -223,37 +187,37 @@
                                     <div class="d-flex align-items-center">
                                         <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
-                                            <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                            <small>15 minutes ago</small>
+                                            <h6 class="fw-normal mb-0">Jhon gửi bạn tin nhắn</h6>
+                                            <small>15 phút trước</small>
                                         </div>
                                     </div>
                                 </a>
                                 <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item text-center">See all message</a>
+                                <a href="#" class="dropdown-item text-center">Xem tất cả tin nhắn</a>
                             </div>
                         </div>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                                 <i class="fa fa-bell me-lg-2"></i>
-                                <span class="d-none d-lg-inline-flex">Notificatin</span>
+                                <span class="d-none d-lg-inline-flex">Thông báo</span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                                 <a href="#" class="dropdown-item">
-                                    <h6 class="fw-normal mb-0">Profile updated</h6>
-                                    <small>15 minutes ago</small>
+                                    <h6 class="fw-normal mb-0">Hồ sơ đã cập nhật</h6>
+                                    <small>15 phút trước</small>
                                 </a>
                                 <hr class="dropdown-divider">
                                 <a href="#" class="dropdown-item">
-                                    <h6 class="fw-normal mb-0">New user added</h6>
-                                    <small>15 minutes ago</small>
+                                    <h6 class="fw-normal mb-0">Người dùng mới được thêm</h6>
+                                    <small>15 phút trước</small>
                                 </a>
                                 <hr class="dropdown-divider">
                                 <a href="#" class="dropdown-item">
-                                    <h6 class="fw-normal mb-0">Password changed</h6>
-                                    <small>15 minutes ago</small>
+                                    <h6 class="fw-normal mb-0">Mật khẩu đã thay đổi</h6>
+                                    <small>15 phút trước</small>
                                 </a>
                                 <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item text-center">See all notifications</a>
+                                <a href="#" class="dropdown-item text-center">Xem tất cả thông báo</a>
                             </div>
                         </div>
                         <div class="nav-item dropdown">
@@ -262,39 +226,31 @@
                                 <span class="d-none d-lg-inline-flex">John Doe</span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                                <a href="#" class="dropdown-item">My Profile</a>
-                                <a href="#" class="dropdown-item">Settings</a>
-                                <a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet" class="dropdown-item">Log Out</a>
+                                <a href="#" class="dropdown-item">Hồ sơ của tôi</a>
+                                <a href="#" class="dropdown-item">Cài đặt</a>
+                                <a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet" class="dropdown-item">Đăng xuất</a>
                             </div>
                         </div>
                     </div>
                 </nav>
                 <!-- Navbar End -->
 
-                <!-- Edit Category Form -->
+                <!-- Chi Tiết Danh Mục Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded h-100 p-4">
-                        <h6 class="mb-4">Edit Category</h6>
+                        <h6 class="mb-4">Category Details</h6>
 
-                        <!-- Popup lỗi -->
-                        <div id="errorPopup" class="error-popup">
-                            <button type="button" class="btn-close" onclick="closePopup()">&times;</button>
-                            <div class="error-header">Validation Errors</div>
-                            <div class="error-body">
-                                <c:if test="${not empty categoryNameError}">
-                                    <p><strong>Category Name:</strong> ${categoryNameError}</p>
-                                </c:if>
-                                <c:if test="${not empty descriptionError}">
-                                    <p><strong>Description:</strong> ${descriptionError}</p>
-                                </c:if>
-                                <c:if test="${not empty error}">
-                                    <p><strong>Error:</strong> ${error}</p>
-                                </c:if>
+                        <!-- Hiển thị thông báo lỗi nếu có -->
+                        <c:if test="${not empty sessionScope.error}">
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                ${sessionScope.error}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
-                        </div>
+                            <c:remove var="error" scope="session"/>
+                        </c:if>
 
-                        <form action="${pageContext.request.contextPath}/editCategory" method="post">
-                            <input type="hidden" name="id" value="${category.categoryId != null ? category.categoryId : categoryId}">
+                        <form action="${pageContext.request.contextPath}/categoryDetails" method="get">
+                            <input type="hidden" name="id" value="${category.categoryId}">
                             <div class="category-info">
                                 <div class="mb-3">
                                     <label for="categoryName" class="form-label fw-semibold">Category Name:</label>
@@ -303,9 +259,9 @@
                                         id="categoryName" 
                                         name="categoryName" 
                                         class="form-control" 
-                                        value="${category.categoryName != null ? category.categoryName : categoryName}" 
-                                        placeholder="Enter category name"
-                                    />
+                                        value="${category.categoryName}" 
+                                        readonly=""
+                                        />
                                 </div>
                                 <div class="mb-3">
                                     <label for="description" class="form-label fw-semibold">Description:</label>
@@ -314,72 +270,61 @@
                                         name="description" 
                                         class="form-control" 
                                         rows="4"
-                                        placeholder="Enter description"
-                                    >${category.description != null ? category.description : description}</textarea>
+                                        readonly
+                                    >${category.description}</textarea>
                                 </div>
                                 <div class="d-flex justify-content-end">
-                                    <button type="submit" class="btn btn-success">Save Category</button>
-                                    <a href="${pageContext.request.contextPath}/category" class="btn btn-secondary">Cancel</a>
+                                    <button type="button"
+                                            class="btn btn-delete"
+                                            onclick="if (confirm('Do you want to delete this category?'))
+                                                location.href = '${pageContext.request.contextPath}/deleteCategory?id=${category.categoryId}';">
+                                        Delete
+                                    </button>
+                                    <button type="button"
+                                            class="btn btn-edit"
+                                            onclick="location.href = '${pageContext.request.contextPath}/editCategory?id=${category.categoryId}';">
+                                        Edit
+                                    </button>
                                 </div>
                             </div>
                         </form>
                     </div>
                 </div>
-                <!-- Edit Category Form End -->
+                    <!-- Chi Tiết Danh Mục End -->
 
-                <!-- Footer Start -->
-                <div class="container-fluid pt-4 px-4">
-                    <div class="bg-light rounded-top p-4">
-                        <div class="row">
-                            <div class="col-12 col-sm-6 text-center text-sm-start">
-                                © <a href="#">Your Site Name</a>, All Right Reserved. 
-                            </div>
-                            <div class="col-12 col-sm-6 text-center text-sm-end">
-                                Designed By <a href="https://htmlcodex.com">HTML Codex</a>
+                    <!-- Footer Start -->
+                    <div class="container-fluid pt-4 px-4">
+                        <div class="bg-light rounded-top p-4">
+                            <div class="row">
+                                <div class="col-12 col-sm-6 text-center text-sm-start">
+                                    © <a href="#">Tên Trang Web Của Bạn</a>, Mọi Quyền Được Bảo Lưu. 
+                                </div>
+                                <div class="col-12 col-sm-6 text-center text-sm-end">
+                                    Thiết Kế Bởi <a href="https://htmlcodex.com">HTML Codex</a>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <!-- Footer End -->
                 </div>
-                <!-- Footer End -->
+                <!-- Content End -->
+
+                <!-- Back to Top -->
+                <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
             </div>
-            <!-- Content End -->
 
-            <!-- Back to Top -->
-            <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
-        </div>
+            <!-- JavaScript Libraries -->
+            <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
+            <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
+            <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
+            <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
+            <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
+            <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
+            <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
-        <!-- JavaScript Libraries -->
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
-
-        <!-- Template Javascript -->
-        <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
-
-        <script>
-            // Hiển thị popup lỗi khi có lỗi
-            document.addEventListener('DOMContentLoaded', function() {
-                var showErrorPopup = ${requestScope.showErrorPopup != null ? requestScope.showErrorPopup : false};
-                if (showErrorPopup) {
-                    var errorPopup = document.getElementById('errorPopup');
-                    errorPopup.style.display = 'block';
-                }
-            });
-
-            // Đóng popup
-            function closePopup() {
-                var errorPopup = document.getElementById('errorPopup');
-                errorPopup.style.display = 'none';
-            }
-
-            // Tự động đóng popup sau 5 giây
-            setTimeout(closePopup, 5000);
-        </script>
+            <!-- Template Javascript -->
+            <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
     </body>
 </html>

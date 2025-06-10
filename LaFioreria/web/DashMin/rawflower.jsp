@@ -381,14 +381,18 @@
                                             <tr>
                                                 <td>${item.rawId}</td>
                                                 <td><img src="${item.imageUrl}" class="img-thumbnail" alt="${item.rawName}"></td>
-                                                <td>${item.rawName}</td>
+                                                <td>
+                                                    <a href="${pageContext.request.contextPath}/rawFlowerDetails?raw_id=${item.rawId}" class="category-link">
+                                                        ${item.rawName}
+                                                    </a>
+                                                </td>
                                                 <td>${item.unitPrice} VND</td>
                                                 <td>${item.availableQuantity}</td>
                                                 <td>${item.expirationDate}</td>
                                                 <td>${item.importPrice} VND</td>
                                                 <th>${item.warehouse.name}</th>
                                                 <td class="actions-btn">
-                                                    <a href="${pageContext.request.contextPath}/update_flower?raw_id=${item.rawId}" class="btn btn-warning btn-sm">View detail</a>
+                                                    <a href="${pageContext.request.contextPath}/update_flower?raw_id=${item.rawId}" class="btn btn-warning btn-sm">Edit</a>
                                                     <form action="${pageContext.request.contextPath}/hideRawFlower" method="post" style="display:inline;" onsubmit="return confirmHide();">
                                                         <input type="hidden" name="id" value="${item.rawId}"/>
                                                         <button type="submit" class="btn btn-danger btn-sm">Hide</button>

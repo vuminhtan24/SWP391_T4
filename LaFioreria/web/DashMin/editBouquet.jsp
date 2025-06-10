@@ -73,6 +73,11 @@
                 }
             }
 
+            .flower-select option.already-selected {
+                background-color: #e9ecef;  /* xám nhạt */
+                color: #6c757d;             /* chữ xám đậm hơn một chút */
+            }
+
         </style>    
     </head>
 
@@ -444,17 +449,47 @@
                 return parseFloat(val).toFixed(2) + ' VND';
             }
 
+            // Lấy danh sách ID hoa đã được chọn (loại bỏ rỗng)
+            function getSelectedFlowerIds() {
+                return Array.from(document.querySelectorAll('.flower-select'))
+                        .map(sel => sel.value)
+                        .filter(v => v);
+            }
+
+            // Vô hiệu hóa và thêm class cho các option đã chọn ở các select khác
+            function updateFlowerOptions() {
+                const selected = getSelectedFlowerIds();
+                document.querySelectorAll('.flower-select').forEach(select => {
+                    const current = select.value;
+                    Array.from(select.options).forEach(opt => {
+                        const isTaken = opt.value && selected.includes(opt.value) && opt.value !== current;
+                        opt.disabled = isTaken;
+                        if (isTaken)
+                            opt.classList.add('already-selected');
+                        else
+                            opt.classList.remove('already-selected');
+                    });
+                });
+            }
+
             // Cập nhật giá của từng dòng khi chọn hoặc khởi tạo
             function updateRowPrice(row) {
                 const sel = row.querySelector('.flower-select');
                 const priceInput = row.querySelector('.price-input');
                 const priceText = row.querySelector('.price-text');
+
+                if (!sel.value) {
+                    priceInput.value = 0;
+                    priceText.textContent = formatCurrency(0);
+                    return;
+                }
+
                 const unitPrice = sel.selectedOptions[0].dataset.price;
                 priceInput.value = unitPrice;
                 priceText.textContent = formatCurrency(unitPrice);
             }
 
-            // Tính lại tổng
+            // Tính lại tổng giá trị
             function updateTotalValue() {
                 let total = 0;
                 document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
@@ -468,41 +503,63 @@
 
             // Gắn event cho 1 dòng: change select, input quantity, click remove
             function bindRowEvents(row) {
-                row.querySelector('.flower-select')
-                        .addEventListener('change', () => {
-                            updateRowPrice(row);
-                            updateTotalValue();
-                        });
-                row.querySelector('.quantity-input')
-                        .addEventListener('input', () => updateTotalValue());
-                row.querySelector('.remove-btn')
-                        .addEventListener('click', () => {
-                            row.remove();
-                            updateTotalValue();
-                        });
+                const sel = row.querySelector('.flower-select');
+                const qtyInput = row.querySelector('.quantity-input');
+                const removeBtn = row.querySelector('.remove-btn');
+
+                sel.addEventListener('change', () => {
+                    updateRowPrice(row);
+                    updateFlowerOptions();
+                    updateTotalValue();
+                });
+
+                qtyInput.addEventListener('input', () => {
+                    updateTotalValue();
+                });
+
+                removeBtn.addEventListener('click', () => {
+                    row.remove();
+                    updateFlowerOptions();
+                    updateTotalValue();
+                });
             }
 
-            // Khởi tạo: bind và cập nhật cho các dòng đã có sẵn
+            // Khởi tạo cho các dòng đã có sẵn
             document.querySelectorAll('#flowerTable tbody tr').forEach(r => {
                 bindRowEvents(r);
                 updateRowPrice(r);
             });
+            updateFlowerOptions();
             updateTotalValue();
 
             // Thêm dòng mới khi click nút
-            document.getElementById('addFlowerBtn')
-                    .addEventListener('click', () => {
-                        const tpl = document.getElementById('flowerRowTemplate');
-                        const newRow = tpl.cloneNode(true);    // clone <tr>
-                        newRow.removeAttribute('id');
-                        newRow.style.display = '';             // hiển thị
-                        bindRowEvents(newRow);
-                        updateRowPrice(newRow);
-                        document.querySelector('#flowerTable tbody').appendChild(newRow);
-                        updateTotalValue();
-                    });
+            document.getElementById('addFlowerBtn').addEventListener('click', () => {
+                const tpl = document.getElementById('flowerRowTemplate');
+                const newRow = tpl.cloneNode(true);
+                newRow.removeAttribute('id');
+                newRow.style.display = '';
+
+                // Thêm placeholder buộc chọn
+                const sel = newRow.querySelector('.flower-select');
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.text = '-- Select flower --';
+                placeholder.disabled = true;
+                placeholder.selected = true;
+                sel.insertBefore(placeholder, sel.firstChild);
+
+                bindRowEvents(newRow);
+                updateRowPrice(newRow);
+                document.querySelector('#flowerTable tbody').appendChild(newRow);
+
+                updateFlowerOptions();
+                updateTotalValue();
+            });
         });
     </script>
+
+
+
 
 </body>
 </html>
