@@ -200,10 +200,8 @@
                                         <td>User ID: </td>
                                         <td>
                                             <input type="text" name="id" class="form-control" placeholder="id"
-                                                   value="${param.id}" aria-label="id" aria-describedby="basic-addon1">
-                                            <c:if test="${not empty errorID}">
-                                                <p style="color:red">${errorID}</p>
-                                            </c:if>
+                                                   value="${idValue}" readonly aria-label="id" aria-describedby="basic-addon1">
+
                                         </td>
                                     </tr>
 

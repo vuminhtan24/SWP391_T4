@@ -1,5 +1,5 @@
 <%-- 
-    Document   : rawflower
+    Document   : rawflower2
     Created on : May 23, 2025, 9:35:15 AM
     Author     : Admin
 --%>
@@ -90,6 +90,60 @@
             .table-hover tbody tr:hover {
                 background-color: #f3f6fa;
             }
+
+            .btn-edit {
+                background-color: #3498db;
+            }
+
+            .btn-edit:hover {
+                background-color: #2980b9;
+            }
+
+            /* Popup lỗi */
+            .error-popup {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                z-index: 1050;
+                max-width: 500px;
+                width: 90%;
+            }
+
+            .error-popup .error-header {
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #dc3545;
+            }
+
+            .error-popup .error-body {
+                color: #333;
+                margin-bottom: 15px;
+            }
+
+            .error-popup .btn-close {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                font-size: 1.5rem;
+                border: none;
+                background: none;
+                cursor: pointer;
+            }
+
+            .error-popup .btn-close:hover {
+                color: #c0392b;
+            }
+
+            /* Ẩn lỗi text trong form */
+            .error {
+                display: none;
+            }
         </style>        
     </head>
 
@@ -105,7 +159,6 @@
             </div>
             <!-- Spinner End -->
 
-
             <!-- Sidebar Start -->
             <div class="sidebar pe-4 pb-3">
                 <nav class="navbar bg-light navbar-light">
@@ -114,7 +167,7 @@
                     </a>
                     <div class="d-flex align-items-center ms-4 mb-4">
                         <div class="position-relative">
-                            <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                            <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                             <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
                         </div>
                         <div class="ms-3">
@@ -123,7 +176,7 @@
                         </div>
                     </div>
                     <div class="navbar-nav w-100">
-                        <a href="${pageContext.request.contextPath}/DashMin/admin" class="nav-item nav-link "><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/admin" class="nav-item nav-link"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Elements</a>
                             <div class="dropdown-menu bg-transparent border-0">
@@ -134,18 +187,18 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
                         <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/table.jsp" class="nav-item nav-link "><i class="fa fa-table me-2"></i>Tables</a>
-                        <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link "><i class="fa fa-table me-2"></i>Bouquet</a>
+                        <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link"><i class="fa fa-table me-2"></i>User</a>
+                        <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>RawFlower</a>
-                        <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link "><i class="fa fa-table me-2"></i>Category</a>
+                        <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
                                 <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
-                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item ">View User Detail</a>
-                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item ">Add new User </a>
+                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item">View User Detail</a>
+                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item">Add new User</a>
                             </div>
                         </div>
                     </div>
@@ -153,99 +206,9 @@
             </div>
             <!-- Sidebar End -->
 
-
             <!-- Content Start -->
             <div class="content">
-                <!-- Navbar Start -->
-                <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
-                    <a href="${pageContext.request.contextPath}/DashMin/admin.jsp" class="navbar-brand d-flex d-lg-none me-4">
-                        <h2 class="text-primary mb-0"><i class="fa fa-hashtag"></i></h2>
-                    </a>
-                    <a href="#" class="sidebar-toggler flex-shrink-0">
-                        <i class="fa fa-bars"></i>
-                    </a>
-                    <form class="d-none d-md-flex ms-4">
-                        <input class="form-control border-0" type="search" placeholder="Search">
-                    </form>
-                    <div class="navbar-nav align-items-center ms-auto">
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                <i class="fa fa-envelope me-lg-2"></i>
-                                <span class="d-none d-lg-inline-flex">Message</span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                                <a href="#" class="dropdown-item">
-                                    <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                        <div class="ms-2">
-                                            <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                            <small>15 minutes ago</small>
-                                        </div>
-                                    </div>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item">
-                                    <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                        <div class="ms-2">
-                                            <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                            <small>15 minutes ago</small>
-                                        </div>
-                                    </div>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item">
-                                    <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                        <div class="ms-2">
-                                            <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                            <small>15 minutes ago</small>
-                                        </div>
-                                    </div>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item text-center">See all message</a>
-                            </div>
-                        </div>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                <i class="fa fa-bell me-lg-2"></i>
-                                <span class="d-none d-lg-inline-flex">Notificatin</span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                                <a href="#" class="dropdown-item">
-                                    <h6 class="fw-normal mb-0">Profile updated</h6>
-                                    <small>15 minutes ago</small>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item">
-                                    <h6 class="fw-normal mb-0">New user added</h6>
-                                    <small>15 minutes ago</small>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item">
-                                    <h6 class="fw-normal mb-0">Password changed</h6>
-                                    <small>15 minutes ago</small>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item text-center">See all notifications</a>
-                            </div>
-                        </div>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                <img class="rounded-circle me-lg-2" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                <span class="d-none d-lg-inline-flex">John Doe</span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                                <a href="#" class="dropdown-item">My Profile</a>
-                                <a href="#" class="dropdown-item">Settings</a>
-                                <a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet" class="dropdown-item">Log Out</a>
-                            </div>
-                        </div>
-                    </div>
-                </nav>
-                <!-- Navbar End -->
-
+                <jsp:include page="/DashMin/navbar.jsp"/> <!-- nav bar -->
 
                 <!-- Raw Flower Management Start -->
                 <div class="container-fluid pt-4 px-4">
@@ -267,7 +230,33 @@
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                                <!-- Hiển thị thông báo lỗi chung -->
+                                                <!-- Popup lỗi -->
+                                                <div id="errorPopup" class="error-popup">
+                                                    <button type="button" class="btn-close" onclick="closePopup()">×</button>
+                                                    <div class="error-header">Validation Errors</div>
+                                                    <div class="error-body">
+                                                        <c:if test="${not empty rawNameError}">
+                                                            <p><strong>Raw Flower Name:</strong> ${rawNameError}</p>
+                                                        </c:if>
+                                                        <c:if test="${not empty unitPriceError}">
+                                                            <p><strong>Unit Price:</strong> ${unitPriceError}</p>
+                                                        </c:if>
+                                                        <c:if test="${not empty importPriceError}">
+                                                            <p><strong>Import Price:</strong> ${importPriceError}</p>
+                                                        </c:if>
+                                                        <c:if test="${not empty imageUrlError}">
+                                                            <p><strong>Image URL:</strong> ${imageUrlError}</p>
+                                                        </c:if>
+                                                        <c:if test="${not empty warehouseIdError}">
+                                                            <p><strong>Warehouse:</strong> ${warehouseIdError}</p>
+                                                        </c:if>
+                                                        <c:if test="${not empty error}">
+                                                            <p><strong>Error:</strong> ${error}</p>
+                                                        </c:if>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Hiển thị thông báo chung (nếu cần) -->
                                                 <c:if test="${not empty sessionScope.error}">
                                                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                                         ${sessionScope.error}
@@ -275,45 +264,43 @@
                                                     </div>
                                                     <c:remove var="error" scope="session"/>
                                                 </c:if>
+
                                                 <!-- Form Add Perfume -->
                                                 <form action="${pageContext.request.contextPath}/addRawFlower" method="post" class="mt-3">
                                                     <div class="form-group">
                                                         <label for="rawName" class="form-label">Raw Flower Name:</label>
                                                         <input type="text" id="rawName" name="rawName" class="form-control" 
-                                                               value="${sessionScope.rawName}" placeholder="Enter raw flower name">
-                                                        <span class="error">${sessionScope.rawNameError}</span>
+                                                               value="${rawName != null ? rawName : sessionScope.rawName}" placeholder="Enter raw flower name" maxlength="45">
                                                     </div>
 
                                                     <div class="row mb-3">
                                                         <div class="col-sm-6">
                                                             <label for="unitPrice" class="form-label">Unit Price (VND):</label>
                                                             <input type="text" id="unitPrice" name="unitPrice" class="form-control" 
-                                                                   value="${sessionScope.unitPrice}" placeholder="Enter unit price">
-                                                            <span class="error">${sessionScope.unitPriceError}</span>
+                                                                   value="${unitPrice != null ? unitPrice : sessionScope.unitPrice}" placeholder="Enter unit price">
                                                         </div>
                                                         <div class="col-sm-6">
                                                             <label for="importPrice" class="form-label">Import Price (VND):</label>
                                                             <input type="text" id="importPrice" name="importPrice" class="form-control" 
-                                                                   value="${sessionScope.importPrice}" placeholder="Enter import price">
-                                                            <span class="error">${sessionScope.importPriceError}</span>
+                                                                   value="${importPrice != null ? importPrice : sessionScope.importPrice}" placeholder="Enter import price">
                                                         </div>
                                                     </div>
 
                                                     <div class="form-group">
                                                         <label for="imageUrl" class="form-label">Image URL:</label>
                                                         <input type="text" id="imageUrl" name="imageUrl" class="form-control" 
-                                                               value="${sessionScope.imageUrl}" placeholder="Enter image URL">
-                                                        <span class="error">${sessionScope.imageUrlError}</span>
+                                                               value="${imageUrl != null ? imageUrl : sessionScope.imageUrl}" placeholder="Enter image URL">
                                                     </div>
 
                                                     <div class="form-group">
                                                         <label for="warehouseId" class="form-label">Warehouse:</label>
                                                         <select id="warehouseId" name="warehouseId" class="form-select">
                                                             <c:forEach items="${sessionScope.listW}" var="w">
-                                                                <option value="${w.warehouseId}" ${sessionScope.warehouseId == w.warehouseId ? 'selected' : ''}>${w.name}</option>
+                                                                <option value="${w.warehouseId}" ${warehouseId != null ? (warehouseId == w.warehouseId ? 'selected' : '') : (sessionScope.warehouseId == w.warehouseId ? 'selected' : '')}>
+                                                                    ${w.name}
+                                                                </option>
                                                             </c:forEach>
                                                         </select>
-                                                        <span class="error">${sessionScope.warehouseIdError}</span>
                                                     </div>
 
                                                     <div class="mt-3 text-center">
@@ -325,13 +312,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <script>
-                                    $(document).ready(function () {
-                                        if ($('.alert-danger').length > 0) {
-                                            $('#addFlowerModal').modal('show');
-                                        }
-                                    });
-                                </script>
+
                                 <!-- Thêm phần hiển thị thông báo -->
                                 <c:if test="${not empty sessionScope.message}">
                                     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -340,6 +321,7 @@
                                     </div>
                                     <c:remove var="message" scope="session"/> <!-- Xóa thông báo sau khi hiển thị -->
                                 </c:if>
+
                                 <!-- Form lựa chọn sắp xếp -->
                                 <div class="mb-3">
                                     <form action="${pageContext.request.contextPath}/DashMin/rawflower2" method="get" class="d-flex gap-3 align-items-center">
@@ -392,7 +374,7 @@
                                                 <td>${item.importPrice} VND</td>
                                                 <th>${item.warehouse.name}</th>
                                                 <td class="actions-btn">
-                                                    <a href="${pageContext.request.contextPath}/update_flower?raw_id=${item.rawId}" class="btn btn-warning btn-sm">Edit</a>
+                                                    <a href="${pageContext.request.contextPath}/update_flower?raw_id=${item.rawId}" class="btn btn-edit btn-sm">Edit</a>
                                                     <form action="${pageContext.request.contextPath}/hideRawFlower" method="post" style="display:inline;" onsubmit="return confirmHide();">
                                                         <input type="hidden" name="id" value="${item.rawId}"/>
                                                         <button type="submit" class="btn btn-danger btn-sm">Hide</button>
@@ -408,17 +390,14 @@
                 </div>
                 <!-- Raw Flower Management End -->
 
-
-
                 <!-- Footer Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded-top p-4">
                         <div class="row">
                             <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">La Fioreria</a>, All Right Reserved. 
+                                © <a href="#">La Fioreria</a>, All Right Reserved. 
                             </div>
                             <div class="col-12 col-sm-6 text-center text-sm-end">
-                                <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
                                 Designed By <a href="https://htmlcodex.com">La Fioreria</a>
                             </div>
                         </div>
@@ -427,7 +406,6 @@
                 <!-- Footer End -->
             </div>
             <!-- Content End -->
-
 
             <!-- Back to Top -->
             <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
@@ -446,42 +424,58 @@
         <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>     
         <!-- Template Main Script -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+
         <script>
-                                                        $(document).ready(function () {
-                                                            $('#productTable').DataTable({
-                                                                "paging": true, // Bật phân trang
-                                                                "searching": true, // Bật tìm kiếm
-
-
-                                                                "ordering": false, // Bật sắp xếp
-
-                                                                "info": true, // Hiển thị thông tin bảng
-                                                                "pageLength": 6, // Số dòng mỗi trang (có thể chỉnh lại theo ý muốn)
-                                                                "lengthChange": false, // Ẩn tùy chọn thay đổi số dòng mỗi trang nếu không cần
-                                                                "language": {
-                                                                    "paginate": {
-                                                                        "previous": "Previous",
-                                                                        "next": "Next"
-                                                                    },
-                                                                    "emptyTable": "No data available in table", // Thông báo nếu bảng rỗng
-                                                                }
-                                                            });
-                                                        });
+            $(document).ready(function () {
+                $('#productTable').DataTable({
+                    "paging": true,
+                    "searching": true,
+                    "ordering": false,
+                    "info": true,
+                    "pageLength": 6,
+                    "lengthChange": false,
+                    "language": {
+                        "paginate": {
+                            "previous": "Previous",
+                            "next": "Next"
+                        },
+                        "emptyTable": "No data available in table",
+                    }
+                });
+            });
         </script> 
         <script>
             function confirmHide() {
                 return confirm("Are you sure you want to hide this product?");
             }
         </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var showErrorPopup = ${requestScope.showErrorPopup != null ? requestScope.showErrorPopup : false};
+                console.log("Show Error Popup: " + showErrorPopup);
+                if (showErrorPopup) {
+                    $('#addFlowerModal').modal('show');
+                    var errorPopup = document.getElementById('errorPopup');
+                    errorPopup.style.display = 'block';
+                }
+            });
+
+            function closePopup() {
+                var errorPopup = document.getElementById('errorPopup');
+                errorPopup.style.display = 'none';
+            }
+
+            setTimeout(closePopup, 5000);
+        </script>
         <style>
             /* Khoảng cách giữa các nút phân trang */
             .dataTables_wrapper .dataTables_paginate .paginate_button {
-                margin: 0 5px; /* Khoảng cách ngang giữa các nút */
-                padding: 5px 10px; /* Độ rộng và chiều cao của nút */
-                border-radius: 5px; /* Bo góc nút */
-                color: #007bff; /* Màu chữ */
-                background-color: #f8f9fa; /* Màu nền nhẹ */
-                border: 1px solid #ddd; /* Đường viền cho nút */
+                margin: 0 5px;
+                padding: 5px 10px;
+                border-radius: 5px;
+                color: #007bff;
+                background-color: #f8f9fa;
+                border: 1px solid #ddd;
             }
 
             /* Đổi màu nền khi di chuột qua */
@@ -490,25 +484,21 @@
                 color: white;
             }
 
-            /* Kiểu dáng nút hiện tại () */
+            /* Kiểu dáng nút hiện tại */
             .dataTables_wrapper .dataTables_paginate .paginate_button.current {
                 background-color: #007bff;
                 color: white;
-
-
             }
 
             /* Tăng khoảng cách giữa dòng "Showing..." và dòng phân trang */
             .dataTables_wrapper .dataTables_info {
-                margin-bottom: 20px; /* Khoảng cách dưới dòng "Showing..." */
+                margin-bottom: 20px;
             }
 
             /* Đảm bảo dòng phân trang không bị ảnh hưởng */
             .dataTables_wrapper .dataTables_paginate {
-                margin-top: 20px; /* Khoảng cách trên dòng "Previous 1 2 Next" */
+                margin-top: 20px;
             }
         </style>
     </body>
 </html>
-
-

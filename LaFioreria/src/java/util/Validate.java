@@ -141,13 +141,17 @@ public class Validate {
     }
     
     // Kiểm tra description (không giới hạn độ dài, thêm nhiều ký tự đặc biệt)
-    // Kiểm tra description (không giới hạn độ dài, xử lý ký tự ẩn)
     public static String validateDescription(String description) {
-        System.out.println("Validating description: [" + (description != null ? description.replaceAll("[^\\p{Print}]", "?") : "null") + "]"); // Thay ký tự không in được bằng "?"
-        if (description == null || description.trim().isEmpty() || description.trim().matches("^\\s+$")) {
+       System.out.println("Validating description: [" + (description != null ? description.replaceAll("[^\\p{Print}]", "?") : "null") + "]");
+        if (description == null || description.trim().isEmpty()) {
             return null; // Hợp lệ (cho phép rỗng)
         }
-        Pattern pattern = Pattern.compile("^[\\p{Print}]*$"); // Cho phép tất cả ký tự in được
+        // Kiểm tra nếu toàn bộ là khoảng trắng
+        if (description.trim().matches("^\\s+$")) {
+            return "Description cannot contain only spaces.";
+        }
+        // Kiểm tra tất cả ký tự in được
+        Pattern pattern = Pattern.compile("^[\\p{Print}]*$");
         Matcher matcher = pattern.matcher(description);
         if (!matcher.matches()) {
             return "Description contains invalid characters.";
