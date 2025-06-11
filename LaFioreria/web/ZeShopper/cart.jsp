@@ -219,16 +219,9 @@
             </div>
 
         </section><!--/#do_action-->
-<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.js"></script>
+
 
         <jsp:include page="/ZeShopper/footer.jsp"/>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/gmaps.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/contact.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
-<script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
 
         <script>
                     function openCheckoutPopup() {

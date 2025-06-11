@@ -142,7 +142,7 @@ public class LoginServlet extends HttpServlet {
                     response.sendRedirect("/LaFioreria/home");
                     break;
                 default:
-                    response.sendRedirect("login.jsp");
+                    response.sendRedirect("/ZeShopper/LoginServlet");
                     break;
             }
         } else {
