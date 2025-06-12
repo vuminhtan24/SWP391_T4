@@ -1,6 +1,6 @@
 <%-- 
-    Document   : rawflower2
-    Created on : May 23, 2025, 9:35:15 AM
+    Document   : rawflower
+    Created on : Jun 12, 2025, 9:36:24 PM
     Author     : Admin
 --%>
 
@@ -13,6 +13,8 @@
         <meta charset="utf-8">
         <title>DASHMIN - Bootstrap Admin Template</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <meta content="" name="keywords">
+        <meta content="" name="description">
 
         <!-- Favicon -->
         <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
@@ -30,65 +32,71 @@
         <link href="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
 
-        <!-- Bootstrap from CDN (chỉ dùng 1 bản) -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Customized Bootstrap Stylesheet -->
+        <link href="${pageContext.request.contextPath}/DashMin/css/bootstrap.min.css" rel="stylesheet">
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
+
         <style>
-            /* Bảng đẹp và đồng nhất */
-            .table th, .table td {
-                vertical-align: middle;
-                text-align: center;
-                font-size: 14px;
+            a.change-color-qvm:active {
+                color: #007bff;
             }
 
-            /* Ảnh thumbnail cho hoa */
-            .img-thumbnail {
-                width: 60px;
-                height: 60px;
-                object-fit: cover;
-                border-radius: 8px;
-            }
-
-            /* Button group cho Action */
-            .actions-btn {
-                display: flex;
-                justify-content: center;
-                gap: 0.5rem;
-            }
-
-            /* Form tìm kiếm nếu có thêm */
+            /* CSS for search form */
             .search-form {
                 display: flex;
-                flex-wrap: wrap;
-                gap: 1rem;
-                align-items: end;
+                justify-content: flex-end;
+                align-items: center;
+                gap: 8px;
+                margin-top: 20px;
+                margin-right: 30px;
+                padding: 0;
             }
 
-            .form-group label {
-                font-size: 13px;
-                font-weight: 500;
+            .search-form input[type="text"] {
+                padding: 8px 12px;
+                border: 1px solid #ccc;
+                border-radius: 20px;
+                outline: none;
+                transition: border-color .2s;
             }
 
-            /* Tăng padding cho card-body */
-            .card-body {
-                padding: 1.5rem;
+            .search-form input[type="text"]:focus {
+                border-color: #007bff;
             }
 
-            /* Nút thêm hoa nổi bật hơn */
-            .btn-light.btn-sm {
-                font-weight: 500;
+            .search-form button {
+                padding: 8px 16px;
+                background-color: #007bff;
+                color: #fff;
+                border: none;
+                border-radius: 20px;
+                cursor: pointer;
+                transition: background-color .2s;
             }
 
-            /* Responsive: bảng cuộn tốt trên thiết bị nhỏ */
-            .table-responsive {
-                overflow-x: auto;
+            .search-form button:hover {
+                background-color: #0056b3;
             }
 
-            /* Tăng độ rõ khi hover vào dòng */
-            .table-hover tbody tr:hover {
-                background-color: #f3f6fa;
+            .btn {
+                padding: 6px 12px;
+                border: none;
+                border-radius: 4px;
+                color: white;
+                font-size: 14px;
+                cursor: pointer;
+                margin-right: 5px;
+                transition: background-color 0.2s ease;
+            }
+
+            .btn-delete {
+                background-color: #e74c3c;
+            }
+
+            .btn-delete:hover {
+                background-color: #c0392b;
             }
 
             .btn-edit {
@@ -97,6 +105,16 @@
 
             .btn-edit:hover {
                 background-color: #2980b9;
+            }
+
+            .fixed-container {
+                width: 1400px;
+                height: 720px;
+                min-width: 1400px;
+                max-width: 1400px;
+                min-height: 720px;
+                max-height: 720px;
+                overflow: auto;
             }
 
             /* Popup lỗi */
@@ -140,16 +158,18 @@
                 color: #c0392b;
             }
 
-            /* Ẩn lỗi text trong form */
-            .error {
-                display: none;
+            /* CSS for thumbnail images */
+            .thumbnail-img {
+                width: 60px;
+                height: 60px;
+                object-fit: cover; /* Cắt ảnh để lấp đầy khung, giữ tỷ lệ */
+                display: block;
+                margin: 0 auto; /* Căn giữa ảnh trong ô */
             }
-        </style>        
+        </style>
     </head>
 
     <body>
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-
         <div class="container-fluid position-relative bg-white d-flex p-0">
             <!-- Spinner Start -->
             <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
@@ -209,184 +229,246 @@
 
             <!-- Content Start -->
             <div class="content">
-                <jsp:include page="/DashMin/navbar.jsp"/> <!-- nav bar -->
+                <!-- Navbar Start -->
+                <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+                    <a href="${pageContext.request.contextPath}/DashMin/admin.jsp" class="navbar-brand d-flex d-lg-none me-4">
+                        <h2 class="text-primary mb-0"><i class="fa fa-hashtag"></i></h2>
+                    </a>
+                    <a href="#" class="sidebar-toggler flex-shrink-0">
+                        <i class="fa fa-bars"></i>
+                    </a>
+                    <form class="d-none d-md-flex ms-4">
+                        <input class="form-control border-0" type="search" placeholder="Search">
+                    </form>
+                    <div class="navbar-nav align-items-center ms-auto">
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="fa fa-envelope me-lg-2"></i>
+                                <span class="d-none d-lg-inline-flex">Message</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                                <a href="#" class="dropdown-item">
+                                    <div class="d-flex align-items-center">
+                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <div class="ms-2">
+                                            <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                            <small>15 minutes ago</small>
+                                        </div>
+                                    </div>
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a href="#" class="dropdown-item">
+                                    <div class="d-flex align-items-center">
+                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <div class="ms-2">
+                                            <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                            <small>15 minutes ago</small>
+                                        </div>
+                                    </div>
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a href="#" class="dropdown-item">
+                                    <div class="d-flex align-items-center">
+                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <div class="ms-2">
+                                            <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                            <small>15 minutes ago</small>
+                                        </div>
+                                    </div>
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a href="#" class="dropdown-item text-center">See all message</a>
+                            </div>
+                        </div>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="fa fa-bell me-lg-2"></i>
+                                <span class="d-none d-lg-inline-flex">Notificatin</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                                <a href="#" class="dropdown-item">
+                                    <h6 class="fw-normal mb-0">Profile updated</h6>
+                                    <small>15 minutes ago</small>
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a href="#" class="dropdown-item">
+                                    <h6 class="fw-normal mb-0">New user added</h6>
+                                    <small>15 minutes ago</small>
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a href="#" class="dropdown-item">
+                                    <h6 class="fw-normal mb-0">Password changed</h6>
+                                    <small>15 minutes ago</small>
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a href="#" class="dropdown-item text-center">See all notifications</a>
+                            </div>
+                        </div>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                <img class="rounded-circle me-lg-2" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                <span class="d-none d-lg-inline-flex">John Doe</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                                <a href="#" class="dropdown-item">My Profile</a>
+                                <a href="#" class="dropdown-item">Settings</a>
+                                <a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet" class="dropdown-item">Log Out</a>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+                <!-- Navbar End -->
 
                 <!-- Raw Flower Management Start -->
                 <div class="container-fluid pt-4 px-4">
-                    <div class="card shadow-sm rounded-4">
-                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center rounded-top-4">
-                            <h4 class="mb-0">🌸 Raw Flowers Management</h4>
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addFlowerModal">
-                                Add New Product
-                            </button>
+                    <div class="bg-light rounded h-100 p-4 fixed-container">
+                        <!-- Header with title and Add Bouquet button -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Raw Flower List</h6>
+                            <a href="${pageContext.request.contextPath}/addRawFlower" class="btn btn-primary">Add New Product</a>
                         </div>
-                        <div class="card-body bg-light rounded-bottom-4">
-                            <div class="table-responsive">
-                                <!-- Add Perfume Modal -->
-                                <div class="modal fade" id="addFlowerModal" tabindex="-1" aria-labelledby="addFlowerModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="addFlowerModalLabel">Add New Flower</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <!-- Popup lỗi -->
-                                                <div id="errorPopup" class="error-popup">
-                                                    <button type="button" class="btn-close" onclick="closePopup()">×</button>
-                                                    <div class="error-header">Validation Errors</div>
-                                                    <div class="error-body">
-                                                        <c:if test="${not empty rawNameError}">
-                                                            <p><strong>Raw Flower Name:</strong> ${rawNameError}</p>
-                                                        </c:if>
-                                                        <c:if test="${not empty unitPriceError}">
-                                                            <p><strong>Unit Price:</strong> ${unitPriceError}</p>
-                                                        </c:if>
-                                                        <c:if test="${not empty importPriceError}">
-                                                            <p><strong>Import Price:</strong> ${importPriceError}</p>
-                                                        </c:if>
-                                                        <c:if test="${not empty imageUrlError}">
-                                                            <p><strong>Image URL:</strong> ${imageUrlError}</p>
-                                                        </c:if>
-                                                        <c:if test="${not empty warehouseIdError}">
-                                                            <p><strong>Warehouse:</strong> ${warehouseIdError}</p>
-                                                        </c:if>
-                                                        <c:if test="${not empty error}">
-                                                            <p><strong>Error:</strong> ${error}</p>
-                                                        </c:if>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Hiển thị thông báo chung (nếu cần) -->
-                                                <c:if test="${not empty sessionScope.error}">
-                                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                                        ${sessionScope.error}
-                                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                                    </div>
-                                                    <c:remove var="error" scope="session"/>
-                                                </c:if>
-
-                                                <!-- Form Add Perfume -->
-                                                <form action="${pageContext.request.contextPath}/addRawFlower" method="post" class="mt-3">
-                                                    <div class="form-group">
-                                                        <label for="rawName" class="form-label">Raw Flower Name:</label>
-                                                        <input type="text" id="rawName" name="rawName" class="form-control" 
-                                                               value="${rawName != null ? rawName : sessionScope.rawName}" placeholder="Enter raw flower name" maxlength="45">
-                                                    </div>
-
-                                                    <div class="row mb-3">
-                                                        <div class="col-sm-6">
-                                                            <label for="unitPrice" class="form-label">Unit Price (VND):</label>
-                                                            <input type="text" id="unitPrice" name="unitPrice" class="form-control" 
-                                                                   value="${unitPrice != null ? unitPrice : sessionScope.unitPrice}" placeholder="Enter unit price">
-                                                        </div>
-                                                        <div class="col-sm-6">
-                                                            <label for="importPrice" class="form-label">Import Price (VND):</label>
-                                                            <input type="text" id="importPrice" name="importPrice" class="form-control" 
-                                                                   value="${importPrice != null ? importPrice : sessionScope.importPrice}" placeholder="Enter import price">
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="form-group">
-                                                        <label for="imageUrl" class="form-label">Image URL:</label>
-                                                        <input type="text" id="imageUrl" name="imageUrl" class="form-control" 
-                                                               value="${imageUrl != null ? imageUrl : sessionScope.imageUrl}" placeholder="Enter image URL">
-                                                    </div>
-
-                                                    <div class="form-group">
-                                                        <label for="warehouseId" class="form-label">Warehouse:</label>
-                                                        <select id="warehouseId" name="warehouseId" class="form-select">
-                                                            <c:forEach items="${sessionScope.listW}" var="w">
-                                                                <option value="${w.warehouseId}" ${warehouseId != null ? (warehouseId == w.warehouseId ? 'selected' : '') : (sessionScope.warehouseId == w.warehouseId ? 'selected' : '')}>
-                                                                    ${w.name}
-                                                                </option>
-                                                            </c:forEach>
-                                                        </select>
-                                                    </div>
-
-                                                    <div class="mt-3 text-center">
-                                                        <button type="submit" class="btn btn-primary">Add Flower</button>
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Thêm phần hiển thị thông báo -->
-                                <c:if test="${not empty sessionScope.message}">
-                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                        ${sessionScope.message}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>
-                                    <c:remove var="message" scope="session"/> <!-- Xóa thông báo sau khi hiển thị -->
-                                </c:if>
-
-                                <!-- Form lựa chọn sắp xếp -->
-                                <div class="mb-3">
-                                    <form action="${pageContext.request.contextPath}/DashMin/rawflower2" method="get" class="d-flex gap-3 align-items-center">
-                                        <div class="form-group">
-                                            <label for="sortBy" class="form-label">Sắp xếp bởi:</label>
-                                            <select id="sortBy" name="sortBy" class="form-select">
-                                                <option value="" ${empty sessionScope.sortBy ? 'selected' : ''}>None</option>
-                                                <option value="unit_price" ${sessionScope.sortBy == 'unit_price' ? 'selected' : ''}>Giá bán</option>
-                                                <option value="import_price" ${sessionScope.sortBy == 'import_price' ? 'selected' : ''}>Giá mua</option>
-                                                <option value="quantity" ${sessionScope.sortBy == 'quantity' ? 'selected' : ''}>Số lượng</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="sortOrder" class="form-label">Sắp xếp theo:</label>
-                                            <select id="sortOrder" name="sortOrder" class="form-select">
-                                                <option value="asc" ${sessionScope.sortOrder == 'asc' ? 'selected' : ''}>Tăng dần</option>
-                                                <option value="desc" ${sessionScope.sortOrder == 'desc' ? 'selected' : ''}>Giảm dần</option>
-                                            </select>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Sort</button>
-                                    </form>
-                                </div>
-                                <table id="productTable" class="table table-hover align-middle table-bordered border-secondary-subtle">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Thumbnail</th>
-                                            <th>Name</th>
-                                            <th>Unit Price</th>
-                                            <th>Quantity</th>
-                                            <th>Expiration Date</th>
-                                            <th>Import Price</th>
-                                            <th>Warehouse ID</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <c:forEach items="${sessionScope.listRF}" var="item">
-                                            <tr>
-                                                <td>${item.rawId}</td>
-                                                <td><img src="${item.imageUrl}" class="img-thumbnail" alt="${item.rawName}"></td>
-                                                <td>
-                                                    <a href="${pageContext.request.contextPath}/rawFlowerDetails?raw_id=${item.rawId}" class="category-link">
-                                                        ${item.rawName}
-                                                    </a>
-                                                </td>
-                                                <td>${item.unitPrice} VND</td>
-                                                <td>${item.availableQuantity}</td>
-                                                <td>${item.expirationDate}</td>
-                                                <td>${item.importPrice} VND</td>
-                                                <th>${item.warehouse.name}</th>
-                                                <td class="actions-btn">
-                                                    <a href="${pageContext.request.contextPath}/update_flower?raw_id=${item.rawId}" class="btn btn-edit btn-sm">Edit</a>
-                                                    <form action="${pageContext.request.contextPath}/hideRawFlower" method="post" style="display:inline;" onsubmit="return confirmHide();">
-                                                        <input type="hidden" name="id" value="${item.rawId}"/>
-                                                        <button type="submit" class="btn btn-danger btn-sm">Hide</button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        </c:forEach>
-                                    </tbody>
-                                </table>
+                        <form action="${pageContext.request.contextPath}/DashMin/rawflower2" method="get"
+                              style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; width:100%;">
+                            <!-- Phần sort ở bên trái -->
+                            <div style="display:flex; align-items:center;">
+                                <label for="sortField" style="margin-right:0.5rem; white-space:nowrap;">
+                                    Sắp xếp theo:
+                                </label>
+                                <select name="sortField"
+                                        id="sortField"
+                                        onchange="this.form.submit()"
+                                        style="
+                                        width:auto;
+                                        min-width:max-content;
+                                        padding:0.25rem 0.5rem;
+                                        border:1px solid #ccc;
+                                        border-radius:0.5rem;
+                                        background-color:#fff;
+                                        ">
+                                    <option value="">-- Mặc định --</option>
+                                    <option value="unit_price_asc" ${param.sortField == 'unit_price_asc' ? 'selected' : ''}>Giá bán tăng dần</option>
+                                    <option value="unit_price_desc" ${param.sortField == 'unit_price_desc' ? 'selected' : ''}>Giá bán giảm dần</option>
+                                    <option value="import_price_asc" ${param.sortField == 'import_price_asc' ? 'selected' : ''}>Giá mua tăng dần</option>
+                                    <option value="import_price_desc" ${param.sortField == 'import_price_desc' ? 'selected' : ''}>Giá mua giảm dần</option>
+                                    <option value="quantity_asc" ${param.sortField == 'quantity_asc' ? 'selected' : ''}>Số lượng tăng dần</option>
+                                    <option value="quantity_desc" ${param.sortField == 'quantity_desc' ? 'selected' : ''}>Số lượng giảm dần</option>
+                                </select>
                             </div>
-                        </div>
+
+                            <!-- Phần search ở bên phải -->
+                            <div style="display:flex; align-items:center;">
+                                <input type="text"
+                                       name="rawFlowerName"
+                                       placeholder="Tìm kiếm sản phẩm"
+                                       value="${param.rawFlowerName}"
+                                       style="
+                                       width:200px;
+                                       padding:0.25rem 0.5rem;
+                                       border:1px solid #ccc;
+                                       border-radius:0.5rem;
+                                       margin-right:0.5rem;
+                                       " />
+
+                                <button type="submit"
+                                        style="
+                                        padding:0.25rem 0.75rem;
+                                        border:none;
+                                        border-radius:0.5rem;
+                                        background-color:#007bff;
+                                        color:#fff;
+                                        cursor:pointer;
+                                        ">
+                                    Search
+                                </button>
+                            </div>
+                        </form>
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Image</th>
+                                    <th scope="col">Raw Flower Name</th>
+                                    <th scope="col">Unit Price</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Expiration Date</th>
+                                    <th scope="col">Import Price</th>
+                                    <th scope="col">Warehouse</th>
+                                    <th colspan="2">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach var="rawFlower" items="${sessionScope.listRF}" varStatus="status">
+                                    <tr>
+                                        <td>${rawFlower.rawId}</td>
+                                        <td>
+                                            <img src="${rawFlower.imageUrl}" alt="Raw Flower Image" class="thumbnail-img" />
+                                        </td>
+                                        <td>
+                                            <a href="${pageContext.request.contextPath}/rawFlowerDetails?raw_id=${rawFlower.rawId}" class="change-color-qvm">
+                                                ${rawFlower.rawName}
+                                            </a>
+                                        </td>
+                                        <td>${rawFlower.unitPrice} VND</td>
+                                        <td>${rawFlower.availableQuantity}</td>
+                                        <td>${rawFlower.expirationDate}</td>
+                                        <td>${rawFlower.importPrice} VND</td>
+                                        <td>${rawFlower.warehouse.name}</td>
+                                        <td>
+                                            <button type="button"
+                                                    class="btn btn-delete"
+                                                    onclick="if (confirm('Do you want to delete?'))
+                                                                location.href = '${pageContext.request.contextPath}/deleteRawFlower?raw_id=${rawFlower.rawId}';">
+                                                Delete
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-edit"
+                                                    onclick="location.href = '${pageContext.request.contextPath}/update_flower?raw_id=${rawFlower.rawId}';">
+                                                Edit
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+
+                        <c:if test="${totalPages > 1}">
+                            <nav>
+                                <ul class="pagination">
+                                    <!-- Previous -->
+                                    <c:url var="prevUrl" value="/DashMin/rawflower2">
+                                        <c:param name="page" value="${currentPage - 1}" />
+                                        <c:param name="rawFlowerName" value="${param.rawFlowerName}" />
+                                        <c:param name="sortField" value="${param.sortField}" />
+                                    </c:url>
+                                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                        <a class="page-link" href="${prevUrl}">Previous</a>
+                                    </li>
+
+                                    <!-- Các trang -->
+                                    <c:forEach var="i" begin="1" end="${totalPages}">
+                                        <c:url var="pageUrl" value="/DashMin/rawflower2">
+                                            <c:param name="page" value="${i}" />
+                                            <c:param name="rawFlowerName" value="${param.rawFlowerName}" />
+                                            <c:param name="sortField" value="${param.sortField}" />
+                                        </c:url>
+                                        <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                            <a class="page-link" href="${pageUrl}">${i}</a>
+                                        </li>
+                                    </c:forEach>
+
+                                    <!-- Next -->
+                                    <c:url var="nextUrl" value="/DashMin/rawflower2">
+                                        <c:param name="page" value="${currentPage + 1}" />
+                                        <c:param name="rawFlowerName" value="${param.rawFlowerName}" />
+                                        <c:param name="sortField" value="${param.sortField}" />
+                                    </c:url>
+                                    <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                                        <a class="page-link" href="${nextUrl}">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </c:if>
                     </div>
                 </div>
                 <!-- Raw Flower Management End -->
@@ -413,93 +495,17 @@
         </div>
 
         <!-- JavaScript Libraries -->
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>     
-        <!-- Template Main Script -->
+        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+        <!-- Template Javascript -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
-
-        <script>
-            $(document).ready(function () {
-                $('#productTable').DataTable({
-                    "paging": true,
-                    "searching": true,
-                    "ordering": false,
-                    "info": true,
-                    "pageLength": 6,
-                    "lengthChange": false,
-                    "language": {
-                        "paginate": {
-                            "previous": "Previous",
-                            "next": "Next"
-                        },
-                        "emptyTable": "No data available in table",
-                    }
-                });
-            });
-        </script> 
-        <script>
-            function confirmHide() {
-                return confirm("Are you sure you want to hide this product?");
-            }
-        </script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                var showErrorPopup = ${requestScope.showErrorPopup != null ? requestScope.showErrorPopup : false};
-                console.log("Show Error Popup: " + showErrorPopup);
-                if (showErrorPopup) {
-                    $('#addFlowerModal').modal('show');
-                    var errorPopup = document.getElementById('errorPopup');
-                    errorPopup.style.display = 'block';
-                }
-            });
-
-            function closePopup() {
-                var errorPopup = document.getElementById('errorPopup');
-                errorPopup.style.display = 'none';
-            }
-
-            setTimeout(closePopup, 5000);
-        </script>
-        <style>
-            /* Khoảng cách giữa các nút phân trang */
-            .dataTables_wrapper .dataTables_paginate .paginate_button {
-                margin: 0 5px;
-                padding: 5px 10px;
-                border-radius: 5px;
-                color: #007bff;
-                background-color: #f8f9fa;
-                border: 1px solid #ddd;
-            }
-
-            /* Đổi màu nền khi di chuột qua */
-            .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-                background-color: #007bff;
-                color: white;
-            }
-
-            /* Kiểu dáng nút hiện tại */
-            .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-                background-color: #007bff;
-                color: white;
-            }
-
-            /* Tăng khoảng cách giữa dòng "Showing..." và dòng phân trang */
-            .dataTables_wrapper .dataTables_info {
-                margin-bottom: 20px;
-            }
-
-            /* Đảm bảo dòng phân trang không bị ảnh hưởng */
-            .dataTables_wrapper .dataTables_paginate {
-                margin-top: 20px;
-            }
-        </style>
     </body>
 </html>

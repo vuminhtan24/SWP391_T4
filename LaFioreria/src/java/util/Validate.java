@@ -3,6 +3,7 @@ package util;
 import constant.IConstant;
 import dal.WarehouseDAO;
 import jakarta.servlet.http.Part;
+import java.sql.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import model.Warehouse;
@@ -71,8 +72,14 @@ public class Validate {
 
     // Kiểm tra văn bản (chỉ chứa chữ và khoảng trắng)
     public static String validateText(String text, String fieldName) {
-        if (text == null || text.trim().isEmpty()) {
+//        if (text == null || text.trim().isEmpty()) {
+//            return fieldName + " is required.";
+//        }
+        if (text == null) {
             return fieldName + " is required.";
+        }
+        if (text.trim().isEmpty()) {
+            return fieldName + " cannot contain only spaces.";
         }
         if (text.trim().matches("^\\s+$")) {
             return fieldName + " cannot contain only spaces.";
@@ -87,14 +94,15 @@ public class Validate {
 
     // Kiểm tra độ dài chuỗi
     public static String validateLength(String value, String fieldName, int minLength, int maxLength) {
-        if (value == null || value.trim().isEmpty()) {
+        if (value == null) {
             return fieldName + " is required.";
         }
-        if (value.trim().matches("^\\s+$")) {
-            return fieldName + " cannot contain only spaces.";
+        if (value.trim().isEmpty()) {
+            return fieldName + " cannot be empty or contain only spaces.";
         }
-        if (value.length() < minLength || value.length() > maxLength) {
-            return fieldName + " must be between " + minLength + " and " + maxLength + " characters.";
+        String trimmedValue = value.trim();
+        if (trimmedValue.length() < minLength || trimmedValue.length() > maxLength) {
+            return fieldName + " must be between " + minLength + " and " + maxLength + " characters after trimming spaces.";
         }
         return null; // Hợp lệ
     }
@@ -157,5 +165,28 @@ public class Validate {
             return "Description contains invalid characters.";
         }
         return null; // Hợp lệ
+    }
+    
+    public static String validateDate(String dateStr, String fieldName) {
+        if (dateStr == null || dateStr.trim().isEmpty()) {
+            return fieldName + " is required.";
+        }
+
+        // Trim to avoid accidental spaces
+        dateStr = dateStr.trim();
+
+        // Check date format using regex (optional but improves validation before parsing)
+        if (!dateStr.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            return fieldName + " must be in the format YYYY-MM-DD.";
+        }
+
+        try {
+            // Attempt to parse the date
+            Date.valueOf(dateStr);
+        } catch (IllegalArgumentException e) {
+            return fieldName + " must be a valid date.";
+        }
+
+        return null; // No errors
     }
 }
