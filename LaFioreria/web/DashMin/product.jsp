@@ -155,7 +155,7 @@
                         </div>
                     </div>
                     <div class="navbar-nav w-100">
-                        <a href="${pageContext.request.contextPath}/DashMin/admin" class="nav-item nav-link active"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/admin" class="nav-item nav-link"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Elements</a>
                             <div class="dropdown-menu bg-transparent border-0">
@@ -166,18 +166,19 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
                         <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
-                        <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>User</a>
+                        <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link"><i class="fa fa-table me-2"></i>User</a>
                         <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>RawFlower</a>
-                        <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Category</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
+                        <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
+                        <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
                                 <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
-                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item active">View User Detail</a>
-                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item active">Add new User </a>
+                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item">View User Detail</a>
+                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item">Add new User </a>
                             </div>
                         </div>
                     </div>
@@ -201,7 +202,7 @@
                             <a href="${pageContext.request.contextPath}/addBouquet" class="btn btn-primary">Add Bouquet</a>
                         </div>
                         <form action="viewBouquet" method="get"
-                              style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; width:100%;">
+                              style="display:flex; justify-content:flex-start; align-items:center; margin-bottom:1rem; width:100%;">
                             <!-- Phần sort ở bên trái -->
                             <div style="display:flex; align-items:center;">
                                 <label for="sortField" style="margin-right:0.5rem; white-space:nowrap;">
@@ -219,13 +220,43 @@
                                         background-color:#fff;
                                         ">
                                     <option value="">-- Mặc định --</option>
-                                    <option value="sPriceBQasc"  ${param.sortField == 'sPriceBQasc' ? 'selected' : ''}>Giá tăng dần</option>
+                                    <option value="sPriceBQasc" ${param.sortField == 'sPriceBQasc' ? 'selected' : ''}>Giá tăng dần</option>
                                     <option value="sPriceBQdesc" ${param.sortField == 'sPriceBQdesc' ? 'selected' : ''}>Giá giảm dần</option>
                                 </select>
                             </div>
 
+                            <!-- Category: cách sort 50px -->
+                            <div style="display:flex; align-items:center; margin-left:50px;">
+                                <label for="categoryS" style="margin-right:0.5rem; white-space:nowrap;">
+                                    Category:
+                                </label>
+                                <select name="categoryS"
+                                        id="categoryS"
+                                        onchange="this.form.submit()"
+                                        style="
+                                        width:auto;
+                                        min-width:max-content;
+                                        padding:0.25rem 0.5rem;
+                                        border:1px solid #ccc;
+                                        border-radius:0.5rem;
+                                        background-color:#fff;
+                                        ">
+                                    <option value="" <c:if test="${empty param.categoryS}">selected="selected"</c:if>>
+                                            -- Mặc định --
+                                        </option>
+                                    <c:forEach var="cateS" items="${cateBouquetHome}">
+                                        <option value="${cateS.getCategoryId()}"
+                                                <c:if test="${param.categoryS eq cateS.getCategoryId()}">
+                                                    selected="selected"
+                                                </c:if>>
+                                            ${cateS.getCategoryName()}
+                                        </option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+
                             <!-- Phần search ở bên phải -->
-                            <div style="display:flex; align-items:center;">
+                            <div style="display:flex; align-items:center; margin-left:auto;">
                                 <input type="text"
                                        name="bouquetName"
                                        placeholder="Tìm kiếm sản phẩm"
@@ -237,7 +268,6 @@
                                        border-radius:0.5rem;
                                        margin-right:0.5rem;
                                        " />
-
                                 <button type="submit"
                                         style="
                                         padding:0.25rem 0.75rem;

@@ -86,6 +86,27 @@ public class CategoryDAO extends BaseDao {
         }
         return null;
     }
+    
+    public String getCategoryDesByBouquet(int bqId) {
+        String sql = "SELECT c.description FROM la_fioreria.category c JOIN la_fioreria.bouquet b ON b.cid = c.category_id WHERE b.Bouquet_ID = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, bqId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("description").trim();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return null;
+    }
 
     public List<Category> searchCategory(String categoryName) {
         List<Category> searchList = new ArrayList<>();

@@ -266,8 +266,10 @@
                                                             </c:forEach>
                                                         </c:forEach>
                                                     </p>
-                                                    <p><strong>Description:</strong></p>
+                                                    <p><strong>Bouquet Description:</strong></p>
                                                     <p>${bouquetDetail.getDescription()}</p>
+                                                    <p><strong>Category Description:</strong></p>
+                                                    <p>${cateDes}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -333,7 +335,7 @@
 
                                                             <!-- Giá (màu xám) -->
                                                             <p class="product-card__price">
-                                                                Price: ${lb.getPrice()}
+                                                                Price: ${lb.getPrice()} VND
                                                             </p>
 
                                                             <!-- Nút Add to cart (full-width) -->

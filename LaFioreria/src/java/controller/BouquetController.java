@@ -87,10 +87,22 @@ public class BouquetController extends HttpServlet {
         listCategoryBQ = cdao.getBouquetCategory();
         String name = request.getParameter("bouquetName");
         String sort = request.getParameter("sortField");
-
+        String cateIDstr = request.getParameter("categoryS");
+        Integer cateID = null;
+        if (cateIDstr != null && !cateIDstr.trim().isEmpty()) {
+            try {
+                cateID = Integer.parseInt(cateIDstr);
+            } catch (NumberFormatException e) {
+                cateID = null;
+            }
+        }
+        
+        boolean hasName = (name != null && !name.trim().isEmpty());
+        boolean hasCate = (cateID != null && cateID > 0);
+        
         // Lấy list gốc (với hoặc không có filter tìm kiếm)
-        if (name != null && !name.trim().isEmpty()) {
-            listBouquet = bdao.searchBouquet(name, null, null, null);
+        if (hasName || hasCate) {
+            listBouquet = bdao.searchBouquet(name, null, null, cateID);
         } else {
             listBouquet = bdao.getAll();
         }
