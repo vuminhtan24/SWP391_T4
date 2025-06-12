@@ -441,7 +441,7 @@
                                         <c:param name="sortField" value="${param.sortField}" />
                                     </c:url>
                                     <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a class="nav-link" href="${prevUrl}">Previous</a>
+                                        <a class="page-link" href="${prevUrl}">Previous</a>
                                     </li>
 
                                     <!-- Các trang -->
@@ -452,7 +452,7 @@
                                             <c:param name="sortField" value="${param.sortField}" />
                                         </c:url>
                                         <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                            <a class="nav-link" href="${pageUrl}">${i}</a>
+                                            <a class="page-link" href="${pageUrl}">${i}</a>
                                         </li>
                                     </c:forEach>
 
@@ -463,7 +463,7 @@
                                         <c:param name="sortField" value="${param.sortField}" />
                                     </c:url>
                                     <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                        <a class="nav-link" href="${nextUrl}">Next</a>
+                                        <a class="page-link" href="${nextUrl}">Next</a>
                                     </li>
                                 </ul>
                             </nav>
