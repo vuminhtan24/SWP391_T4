@@ -66,9 +66,12 @@ public class AddBouquetController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        RawFlowerDAO dao = new RawFlowerDAO();
-        List<RawFlower> all = dao.getRawFlower();
+        RawFlowerDAO rdao = new RawFlowerDAO();
+        CategoryDAO cdao = new CategoryDAO();
+        List<Category> cAll = cdao.getBouquetCategory();
+        List<RawFlower> all = rdao.getRawFlower();
         // 1. Tất cả hoa để đổ vào dropdown
+        request.setAttribute("cateBouquetHome", cAll);
         request.setAttribute("flowerInBouquet", all);
 
         request.getRequestDispatcher("./DashMin/addBouquet.jsp").forward(request, response);
@@ -92,10 +95,18 @@ public class AddBouquetController extends HttpServlet {
         int cid = Integer.parseInt(request.getParameter("category"));
         double totalValueDbl = Double.parseDouble(request.getParameter("totalValue"));
         int price = (int) Math.round(totalValueDbl);
-
+        BouquetDAO dao = new BouquetDAO();
+        
         String[] flowerIds = request.getParameterValues("flowerIds");
         String[] quantities = request.getParameterValues("quantities");
-
+        
+        for (Bouquet bouquet : dao.getAll()) {
+            if(bouquetName.equalsIgnoreCase(bouquet.getBouquetName())){
+                request.setAttribute("err", "Duplicated name. Please enter another name!!!");
+                doGet(request, response);
+                return;
+            }
+        }
         // 2. Tạo và insert Bouquet
         Bouquet bouquet = new Bouquet();
         bouquet.setBouquetName(bouquetName);
@@ -104,7 +115,6 @@ public class AddBouquetController extends HttpServlet {
         bouquet.setCid(cid);
         bouquet.setPrice(price);
 
-        BouquetDAO dao = new BouquetDAO();
         int bouquetId = dao.insertBouquet(bouquet);  // <-- lấy ID sinh ra
 
         if (bouquetId <= 0) {

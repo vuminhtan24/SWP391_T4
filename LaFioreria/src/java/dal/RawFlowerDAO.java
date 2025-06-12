@@ -356,8 +356,8 @@ public class RawFlowerDAO extends BaseDao {
             int warehouse_id, String image_url, int hold, int import_price) {
         String sql
                 = "INSERT INTO la_fioreria.raw_flower "
-                + "(raw_name, raw_quantity, unit_price, expiration_date, warehouse_id, image_url, hold, import_price) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                + "(raw_name, raw_quantity, unit_price, expiration_date, warehouse_id, image_url, hold, import_price, active) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);

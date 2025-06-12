@@ -106,35 +106,51 @@ public class BouquetDAO extends BaseDao {
      */
     public int insertBouquet(Bouquet bouquet) {
         String sql = """
-      INSERT INTO la_fioreria.bouquet
-        (bouquet_name, description, image_url, cid, price)
-      VALUES (?, ?, ?, ?, ?)
-      """;
-        // 1. Chỉ định rõ cột PK cần lấy
+        INSERT INTO la_fioreria.bouquet
+          (bouquet_name, description, image_url, cid, price)
+        VALUES (?, ?, ?, ?, ?)
+        """;
+        // Chỉ định rõ cột PK cần lấy
         String[] genCols = {"bouquet_id"};
-        try (PreparedStatement pre = connection.prepareStatement(sql, genCols)) {
-            pre.setString(1, bouquet.getBouquetName());
-            pre.setString(2, bouquet.getDescription());
-            pre.setString(3, bouquet.getImageUrl());
-            pre.setInt(4, bouquet.getCid());
-            pre.setInt(5, bouquet.getPrice());
 
-            int affected = pre.executeUpdate();
+        try {
+            // 1. Lấy connection tương tự getAll()
+            connection = dbc.getConnection();
+            // 2. Chuẩn bị statement với generated keys
+            ps = connection.prepareStatement(sql, genCols);
+
+            // 3. Set tham số
+            ps.setString(1, bouquet.getBouquetName());
+            ps.setString(2, bouquet.getDescription());
+            ps.setString(3, bouquet.getImageUrl());
+            ps.setInt(4, bouquet.getCid());
+            ps.setInt(5, bouquet.getPrice());
+
+            // 4. Thực thi
+            int affected = ps.executeUpdate();
             if (affected == 0) {
                 throw new SQLException("Insert đã chạy nhưng không có row nào bị ảnh hưởng.");
             }
 
-            try (ResultSet rs = pre.getGeneratedKeys()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                } else {
-                    throw new SQLException("Insert thành công nhưng không lấy được generated key.");
-                }
+            // 5. Lấy generated key
+            rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            } else {
+                throw new SQLException("Insert thành công nhưng không lấy được generated key.");
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
+            return -1;
+        } finally {
+            // 6. Đóng connection, ps, rs giống getAll()
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
         }
-        return -1;
     }
 
     /**
