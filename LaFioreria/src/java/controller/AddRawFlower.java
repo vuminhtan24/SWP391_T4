@@ -2,17 +2,11 @@ package controller;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import java.io.IOException;
-import java.io.PrintWriter;
-import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Part;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
 import java.sql.Date;
 import java.util.List;
 import dal.RawFlowerDAO;
@@ -20,20 +14,17 @@ import dal.WarehouseDAO;
 import model.Warehouse;
 import util.Validate;
 
-/**
- *
- * @author Admin
- */
 @WebServlet(name = "AddRawFlower", urlPatterns = {"/addRawFlower"})
 public class AddRawFlower extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        // Lấy danh sách kho để hiển thị trong form
         WarehouseDAO wdao = new WarehouseDAO();
         List<Warehouse> warehouses = wdao.getAllWarehouse();
         request.getSession().setAttribute("listW", warehouses);
-        request.getRequestDispatcher("DashMin/rawflower.jsp").forward(request, response); // Sửa đường dẫn
+        request.getRequestDispatcher("/DashMin/addrawflower.jsp").forward(request, response);
     }
 
     @Override
@@ -47,83 +38,72 @@ public class AddRawFlower extends HttpServlet {
             String importPriceStr = request.getParameter("importPrice");
             String imageUrl = request.getParameter("imageUrl");
             String warehouseIdStr = request.getParameter("warehouseId");
-
-            System.out.println("Received data - rawName: " + rawName + ", unitPrice: " + unitPriceStr + 
-                             ", importPrice: " + importPriceStr + ", imageUrl: " + imageUrl + 
-                             ", warehouseId: " + warehouseIdStr);
-
+            String rawQuantityStr = request.getParameter("rawQuantity");
+            String expirationDateStr = request.getParameter("expirationDate");
+            
             // Khởi tạo WarehouseDAO
             WarehouseDAO wh = new WarehouseDAO();
 
             // Validate các field
-            String rawNameError = null;
-            if (rawName != null) {
+            String rawNameError = Validate.validateText(rawName, "Raw Flower Name");
+            if (rawNameError == null) {
+                // Kiểm tra độ dài categoryName (3-100 ký tự)
                 rawNameError = Validate.validateLength(rawName, "Raw Flower Name", 1, 45);
-                if (rawNameError == null) {
-                    rawNameError = Validate.validateText(rawName, "Raw Flower Name");
-                }
-            } else {
-                rawNameError = "Raw Flower Name is required.";
             }
             String unitPriceError = Validate.validateNumberWithRange(unitPriceStr, "Unit Price", 1, Integer.MAX_VALUE);
             String importPriceError = Validate.validateNumberWithRange(importPriceStr, "Import Price", 1, Integer.MAX_VALUE);
             String imageUrlError = Validate.validateImageUrl(imageUrl);
             String warehouseIdError = Validate.validateWarehouseId(warehouseIdStr, wh);
+            String rawQuantityError = Validate.validateNumberWithRange(rawQuantityStr, "Quantity", 0, Integer.MAX_VALUE);
+            String expirationDateError = Validate.validateDate(expirationDateStr, "Expiration Date");
 
             // Nếu có lỗi, giữ dữ liệu và hiển thị popup
-            if (rawNameError != null || unitPriceError != null || importPriceError != null || 
-                imageUrlError != null || warehouseIdError != null) {
+            if (rawNameError != null || unitPriceError != null || importPriceError != null ||
+                    imageUrlError != null || warehouseIdError != null || rawQuantityError != null ||
+                    expirationDateError != null) {
                 request.setAttribute("rawName", rawName);
                 request.setAttribute("unitPrice", unitPriceStr);
                 request.setAttribute("importPrice", importPriceStr);
                 request.setAttribute("imageUrl", imageUrl);
                 request.setAttribute("warehouseId", warehouseIdStr);
+                request.setAttribute("rawQuantity", rawQuantityStr);
+                request.setAttribute("expirationDate", expirationDateStr);
                 request.setAttribute("rawNameError", rawNameError);
                 request.setAttribute("unitPriceError", unitPriceError);
                 request.setAttribute("importPriceError", importPriceError);
                 request.setAttribute("imageUrlError", imageUrlError);
                 request.setAttribute("warehouseIdError", warehouseIdError);
+                request.setAttribute("rawQuantityError", rawQuantityError);
+                request.setAttribute("expirationDateError", expirationDateError);
                 request.setAttribute("showErrorPopup", true);
 
-                WarehouseDAO wdao = new WarehouseDAO();
-                List<Warehouse> warehouses = wdao.getAllWarehouse();
-                request.getSession().setAttribute("listW", warehouses);
-                request.getRequestDispatcher("DashMin/rawflower.jsp").forward(request, response); // Sửa đường dẫn
+                List<Warehouse> warehouses = wh.getAllWarehouse();
+                session.setAttribute("listW", warehouses);
+                request.getRequestDispatcher("/DashMin/addrawflower.jsp").forward(request, response);
                 return;
             }
-
-            // Xóa các lỗi và dữ liệu trong session nếu validate thành công
-            session.removeAttribute("rawNameError");
-            session.removeAttribute("unitPriceError");
-            session.removeAttribute("importPriceError");
-            session.removeAttribute("imageUrlError");
-            session.removeAttribute("warehouseIdError");
-            session.removeAttribute("rawName");
-            session.removeAttribute("unitPrice");
-            session.removeAttribute("importPrice");
-            session.removeAttribute("imageUrl");
-            session.removeAttribute("warehouseId");
 
             // Chuyển đổi dữ liệu
             int unitPrice = Integer.parseInt(unitPriceStr);
             int importPrice = Integer.parseInt(importPriceStr);
             int warehouseId = Integer.parseInt(warehouseIdStr);
+            int rawQuantity = Integer.parseInt(rawQuantityStr);
+            Date expirationDate = Date.valueOf(expirationDateStr);
 
             // Gọi phương thức DAO để thêm nguyên liệu
             RawFlowerDAO rf = new RawFlowerDAO();
-            rf.addRawFlower1(rawName, unitPrice, warehouseId, imageUrl, importPrice);
-
+            rf.addRawFlower(rawName, rawQuantity, unitPrice, expirationDate, warehouseId, imageUrl, 0, importPrice);
             // Thông báo thành công và chuyển hướng
             session.setAttribute("message", "Raw flower added successfully!");
-            response.sendRedirect("DashMin/rawflower2");
+            response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "An error occurred while adding the raw flower: " + e.getMessage());
             request.setAttribute("showErrorPopup", true);
             WarehouseDAO wdao = new WarehouseDAO();
             List<Warehouse> warehouses = wdao.getAllWarehouse();
-            request.getSession().setAttribute("listW", warehouses);
-            request.getRequestDispatcher("DashMin/rawflower.jsp").forward(request, response); // Sửa đường dẫn
+            session.setAttribute("listW", warehouses);
+            request.getRequestDispatcher("/DashMin/addrawflower.jsp").forward(request, response);
         }
     }
 
