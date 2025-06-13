@@ -159,7 +159,7 @@
                         <div class="login-form">
                             <h2>Request Password Reset</h2>
                             <form action="requestPassword" method="post">
-                                <input type="email" name="email" placeholder="Enter your email address" required />
+                                <input type="email" name="email" value="${email}" placeholder="Enter your email address" required />
                                 <c:if test="${not empty mess}">
                                     <div class="alert alert-info" style="margin-top:10px;">${mess}</div>
                                 </c:if>
