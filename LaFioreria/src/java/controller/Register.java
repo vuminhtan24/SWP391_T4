@@ -97,6 +97,14 @@ public class Register extends HttpServlet {
             returnInputValue(request, response, email, fullname, "", phone, address, messRegister);
             return;
         }
+        if (hasSpace(username) || hasSpace(fullname) || hasSpace(email)
+                || hasSpace(phone) || hasSpace(address)
+                || hasSpace(password) || hasSpace(confirmPassword)) {
+            messRegister = "Fields must not contain spaces";
+            returnInputValue(request, response, email, fullname, "", phone, address, messRegister);
+            return;
+        }
+
         if (daoAcc.getAccountByEmail(email) != null) {
             messRegister = "This account have exist!";
             returnInputValue(request, response, email, fullname, "", phone, address, messRegister);
@@ -140,6 +148,10 @@ public class Register extends HttpServlet {
         request.setAttribute("address", address);
         request.setAttribute("messRegister", messRegister);
         request.getRequestDispatcher("login.jsp").forward(request, response);
+    }
+
+    public boolean hasSpace(String input) {
+        return input != null && !input.matches("\\S+"); // nếu có space -> true
     }
 
     /**
