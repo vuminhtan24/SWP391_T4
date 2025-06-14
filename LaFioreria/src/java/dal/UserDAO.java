@@ -13,6 +13,7 @@ import java.util.List;
 import model.Role;
 import model.User;
 import model.UserManager;
+import org.mindrot.jbcrypt.BCrypt;
 
 /**
  *
@@ -571,7 +572,8 @@ public class UserDAO extends BaseDao {
             ps = connection.prepareStatement(sql);
             ps.setInt(1, u.getUserid());
             ps.setString(2, u.getUsername().trim());
-            ps.setString(3, u.getPassword().trim());
+            String hashedPassword = BCrypt.hashpw(u.getPassword(), BCrypt.gensalt());
+            ps.setString(3, hashedPassword);
             ps.setString(4, u.getFullname().trim());
             ps.setString(5, u.getEmail().trim());
             ps.setString(6, u.getPhone().trim());
@@ -598,8 +600,8 @@ public class UserDAO extends BaseDao {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setString(1, u.getUsername().trim());
-            ps.setString(2, u.getPassword().trim());
-            ps.setString(3, u.getFullname().trim());
+            ps.setString(2, u.getPassword().trim());String hashedPassword = BCrypt.hashpw(u.getPassword(), BCrypt.gensalt());
+            ps.setString(3, hashedPassword);
             ps.setString(4, u.getEmail().trim());
             ps.setString(5, u.getPhone().trim());
             ps.setString(6, u.getAddress().trim());
@@ -678,7 +680,17 @@ public class UserDAO extends BaseDao {
 
         UserDAO ud = new UserDAO();
 
-        System.out.println(ud.getNextUserId());
+        User user1 = new User(
+            13, // User_ID duy nhất
+            "shipper",
+            "123",
+            "Vu Minh Tan",
+            "vuminhtan2004@gmail.com",
+            "0901234567",
+            "123 Main St, Anytown",
+            8
+        );
+        ud.insertNewUser(user1);
 
     }
 
