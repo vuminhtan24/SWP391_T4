@@ -23,18 +23,12 @@
         <link href="${pageContext.request.contextPath}/ZeShopper/css/animate.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/main.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/responsive.css" rel="stylesheet">
-        <!--[if lt IE 9]>
-        <script src="js/html5shiv.js"></script>
-        <script src="js/respond.min.js"></script>
-        <![endif]-->       
         <link rel="shortcut icon" href="${pageContext.request.contextPath}/ZeShopper/images/ico/favicon.ico">
         <link rel="apple-touch-icon-precomposed" sizes="144x144" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-144-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-114-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-57-precomposed.png">
-    </head><!--/head-->
-
-    <body>
+    </head><body>
         <jsp:include page="/ZeShopper/header.jsp"/>
 
         <section id="cart_items">
@@ -42,12 +36,10 @@
                 <div class="breadcrumbs">
                     <ol class="breadcrumb">
                         <li><a href="#">Home</a></li>
-                        <li class="active">Check out</li>
+                        <li class="active">Checkout</li>
                     </ol>
-                </div><!--/breadcrums-->
-
-                <div class="step-one">
-                    <h2 class="heading">Step1</h2>
+                </div><div class="step-one">
+                    <h2 class="heading">Step 1: Account Options</h2>
                 </div>
                 <div class="checkout-options">
                     <h3>New User</h3>
@@ -63,80 +55,68 @@
                             <a href=""><i class="fa fa-times"></i>Cancel</a>
                         </li>
                     </ul>
-                </div><!--/checkout-options-->
-
-                <div class="register-req">
-                    <p>Please use Register And Checkout to easily get access to your order history, or use Checkout as Guest</p>
-                </div><!--/register-req-->
-
-                <div class="shopper-informations">
+                </div><div class="register-req">
+                    <p>Please use **Register and Checkout** to easily access your order history, or continue with **Guest Checkout**.</p>
+                </div><div class="shopper-informations">
                     <div class="row">
                         <div class="col-sm-3">
                             <div class="shopper-info">
                                 <p>Shopper Information</p>
                                 <form>
-                                    <input type="text" placeholder="Display Name">
-                                    <input type="text" placeholder="User Name">
+                                    <input type="text" placeholder="Full Name">
+                                    <input type="text" placeholder="Email Address">
                                     <input type="password" placeholder="Password">
-                                    <input type="password" placeholder="Confirm password">
+                                    <input type="password" placeholder="Confirm Password">
                                 </form>
-                                <a class="btn btn-primary" href="">Get Quotes</a>
-                                <a class="btn btn-primary" href="">Continue</a>
+                                <a class="btn btn-primary" href="">Continue as Guest</a>
+                                <a class="btn btn-primary" href="">Register & Checkout</a>
                             </div>
                         </div>
                         <div class="col-sm-5 clearfix">
                             <div class="bill-to">
-                                <p>Bill To</p>
+                                <p>Billing Address</p>
                                 <div class="form-one">
                                     <form>
-                                        <input type="text" placeholder="Company Name">
-                                        <input type="text" placeholder="Email*">
-                                        <input type="text" placeholder="Title">
+                                        <input type="text" placeholder="Company Name (Optional)">
+                                        <input type="text" placeholder="Email *">
+                                        <input type="text" placeholder="Title (e.g., Mr., Ms.)">
                                         <input type="text" placeholder="First Name *">
-                                        <input type="text" placeholder="Middle Name">
+                                        <input type="text" placeholder="Middle Name (Optional)">
                                         <input type="text" placeholder="Last Name *">
-                                        <input type="text" placeholder="Address 1 *">
-                                        <input type="text" placeholder="Address 2">
+                                        <input type="text" placeholder="Address Line 1 * (e.g., House No., Street Name)">
+                                        <input type="text" placeholder="Address Line 2 (e.g., Apartment, Alley, Building)">
                                     </form>
                                 </div>
                                 <div class="form-two">
                                     <form>
-                                        <input type="text" placeholder="Zip / Postal Code *">
-                                        <select>
-                                            <option>-- Country --</option>
-                                            <option>United States</option>
-                                            <option>Bangladesh</option>
-                                            <option>UK</option>
-                                            <option>India</option>
-                                            <option>Pakistan</option>
-                                            <option>Ucrane</option>
-                                            <option>Canada</option>
-                                            <option>Dubai</option>
+                                        <select id="provinceCitySelect">
+                                            <option value="">-- Select Province/City * --</option>
+                                            <%-- Options will be loaded dynamically by JavaScript --%>
                                         </select>
-                                        <select>
-                                            <option>-- State / Province / Region --</option>
-                                            <option>United States</option>
-                                            <option>Bangladesh</option>
-                                            <option>UK</option>
-                                            <option>India</option>
-                                            <option>Pakistan</option>
-                                            <option>Ucrane</option>
-                                            <option>Canada</option>
-                                            <option>Dubai</option>
+
+                                        <select id="districtSelect" disabled>
+                                            <option value="">-- Select District * --</option>
+                                            <%-- Options will be loaded dynamically by JavaScript --%>
                                         </select>
-                                        <input type="password" placeholder="Confirm password">
-                                        <input type="text" placeholder="Phone *">
-                                        <input type="text" placeholder="Mobile Phone">
-                                        <input type="text" placeholder="Fax">
+
+                                        <select id="wardSelect" disabled>
+                                            <option value="">-- Select Ward/Commune * --</option>
+                                            <%-- Options will be loaded dynamically by JavaScript --%>
+                                        </select>
+
+                                        <input type="text" placeholder="Zip / Postal Code (Optional)">
+                                        <input type="text" placeholder="Phone Number *"> 
+                                        <input type="text" placeholder="Mobile Phone (Optional)">
+                                        <input type="text" placeholder="Fax (Optional)">
                                     </form>
                                 </div>
                             </div>
                         </div>
                         <div class="col-sm-4">
                             <div class="order-message">
-                                <p>Shipping Order</p>
-                                <textarea name="message"  placeholder="Notes about your order, Special Notes for Delivery" rows="16"></textarea>
-                                <label><input type="checkbox"> Shipping to bill address</label>
+                                <p>Shipping Order Notes</p>
+                                <textarea name="message"  placeholder="Notes about your order, special notes for delivery (e.g., preferred delivery time, leave at security desk)" rows="16"></textarea>
+                                <label><input type="checkbox"> Ship to this billing address</label>
                             </div>	
                         </div>					
                     </div>
@@ -167,7 +147,7 @@
                                     <p>Web ID: 1089772</p>
                                 </td>
                                 <td class="cart_price">
-                                    <p>$59</p>
+                                    <p>59,000 VND</p>
                                 </td>
                                 <td class="cart_quantity">
                                     <div class="cart_quantity_button">
@@ -177,7 +157,7 @@
                                     </div>
                                 </td>
                                 <td class="cart_total">
-                                    <p class="cart_total_price">$59</p>
+                                    <p class="cart_total_price">59,000 VND</p>
                                 </td>
                                 <td class="cart_delete">
                                     <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
@@ -193,7 +173,7 @@
                                     <p>Web ID: 1089772</p>
                                 </td>
                                 <td class="cart_price">
-                                    <p>$59</p>
+                                    <p>59,000 VND</p>
                                 </td>
                                 <td class="cart_quantity">
                                     <div class="cart_quantity_button">
@@ -203,7 +183,7 @@
                                     </div>
                                 </td>
                                 <td class="cart_total">
-                                    <p class="cart_total_price">$59</p>
+                                    <p class="cart_total_price">59,000 VND</p>
                                 </td>
                                 <td class="cart_delete">
                                     <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
@@ -218,7 +198,7 @@
                                     <p>Web ID: 1089772</p>
                                 </td>
                                 <td class="cart_price">
-                                    <p>$59</p>
+                                    <p>59,000 VND</p>
                                 </td>
                                 <td class="cart_quantity">
                                     <div class="cart_quantity_button">
@@ -228,7 +208,7 @@
                                     </div>
                                 </td>
                                 <td class="cart_total">
-                                    <p class="cart_total_price">$59</p>
+                                    <p class="cart_total_price">59,000 VND</p>
                                 </td>
                                 <td class="cart_delete">
                                     <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
@@ -239,20 +219,20 @@
                                 <td colspan="2">
                                     <table class="table table-condensed total-result">
                                         <tr>
-                                            <td>Cart Sub Total</td>
-                                            <td>$59</td>
+                                            <td>Cart Subtotal</td>
+                                            <td>177,000 VND</td>
                                         </tr>
                                         <tr>
-                                            <td>Exo Tax</td>
-                                            <td>$2</td>
+                                            <td>Tax (VAT)</td>
+                                            <td>17,700 VND</td>
                                         </tr>
                                         <tr class="shipping-cost">
-                                            <td>Shipping Cost</td>
+                                            <td>Shipping Fee</td>
                                             <td>Free</td>										
                                         </tr>
                                         <tr>
                                             <td>Total</td>
-                                            <td><span>$61</span></td>
+                                            <td><span>194,700 VND</span></td>
                                         </tr>
                                     </table>
                                 </td>
@@ -262,22 +242,139 @@
                 </div>
                 <div class="payment-options">
                     <span>
-                        <label><input type="checkbox"> Direct Bank Transfer</label>
+                        <label><input type="checkbox"> Cash on Delivery (COD)</label>
                     </span>
                     <span>
-                        <label><input type="checkbox"> Check Payment</label>
+                        <label><input type="checkbox"> Bank Transfer</label>
                     </span>
                     <span>
-                        <label><input type="checkbox"> Paypal</label>
+                        <label><input type="checkbox"> Credit/Debit Card (via Payment Gateway)</label>
+                    </span>
+                    <span>
+                        <label><input type="checkbox"> E-wallet (e.g., MoMo, ZaloPay)</label>
                     </span>
                 </div>
+                <div class="text-right">
+                    <a class="btn btn-primary" href="">Place Order</a>
+                </div>
             </div>
-        </section> <!--/#cart_items-->
+        </section> <jsp:include page="/ZeShopper/footer.jsp"/> 
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <%-- Hoặc nếu bạn thích cục bộ: <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.js"></script> --%>
+
+        <script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
+
+        <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
+        <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
+        <script src="${pageContext.request.contextPath}/ZeShopper/js/price-range.js"></script>
+        <script src="${pageContext.request.contextPath}/ZeShopper/js/contact.js"></script>
+
+        <script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
+
+        <script>
 
 
+            $(document).ready(function () {
+                let provincesData = {};
+                let districtsData = {};
+                let wardsData = {};
+                const basePath = "${pageContext.request.contextPath}/ZeShopper/data/";
 
-        <jsp:include page="/ZeShopper/footer.jsp"/>
+                function loadData(url, type) {
+                    return $.getJSON(url)
+                            .done(function (data) {
+                                if (type === 'provinces')
+                                    provincesData = data;
+                                else if (type === 'districts')
+                                    districtsData = data;
+                                else if (type === 'wards')
+                                    wardsData = data;
+                                console.log(`${type} loaded.`, Object.keys(data).length, 'items');
+                            })
+                            .fail(function (jqXHR, textStatus, errorThrown) {
+                                console.error(`Failed to load ${type}:`, textStatus, errorThrown);
+                            });
+                }
 
+                function populateProvinces() {
+                    let options = '<option value="">-- Select Province/City * --</option>';
+                    console.log("provincesData at start of populateProvinces:", provincesData); 
+                    for (const code in provincesData) {
+                        if (provincesData.hasOwnProperty(code)) {
+                            const p = provincesData[code];
+                            console.log("Current p object:", p); 
+                            options += `<option value="${p.code}">${p.name_with_type}</option>`;
+                        }
+                    }
+                    console.log("Populating provinces with options:", options); // Thêm dòng này để gỡ lỗi
+                    $('#provinceCitySelect').html(options);
+                }
 
+                function populateDistricts(provinceCode) {
+                    let options = '<option value="">-- Select District * --</option>';
+                    const filteredDistricts = [];
+                    for (const code in districtsData) {
+                        if (districtsData.hasOwnProperty(code)) {
+                            const d = districtsData[code];
+                            if (d.parent_code === provinceCode) {
+                                filteredDistricts.push(d);
+                            }
+                        }
+                    }
+                    filteredDistricts.forEach(d => {
+                        options += `<option value="${d.code}">${d.name_with_type}</option>`;
+                    });
+                    $('#districtSelect').html(options).prop('disabled', filteredDistricts.length === 0);
+                    $('#wardSelect').html('<option value="">-- Select Ward/Commune * --</option>').prop('disabled', true);
+                }
+
+                function populateWards(districtCode) {
+                    let options = '<option value="">-- Select Ward/Commune * --</option>';
+                    const filteredWards = [];
+                    for (const code in wardsData) {
+                        if (wardsData.hasOwnProperty(code)) {
+                            const w = wardsData[code];
+                            if (w.parent_code === districtCode) {
+                                filteredWards.push(w);
+                            }
+                        }
+                    }
+                    filteredWards.forEach(w => {
+                        options += `<option value="${w.code}">${w.name_with_type}</option>`;
+                    });
+                    $('#wardSelect').html(options).prop('disabled', filteredWards.length === 0);
+                }
+
+                $.when(
+                        loadData(basePath + 'tinh_tp.json', 'provinces'),
+                        loadData(basePath + 'quan_huyen.json', 'districts'),
+                        loadData(basePath + 'xa_phuong.json', 'wards')
+                        ).done(function () {
+                    populateProvinces();
+                });
+
+                $('#provinceCitySelect').on('change', function () {
+                    const selectedProvinceCode = $(this).val();
+                    if (selectedProvinceCode) {
+                        populateDistricts(selectedProvinceCode);
+                    } else {
+                        $('#districtSelect').html('<option value="">-- Select District * --</option>').prop('disabled', true);
+                        $('#wardSelect').html('<option value="">-- Select Ward/Commune * --</option>').prop('disabled', true);
+                    }
+                });
+
+                $('#districtSelect').on('change', function () {
+                    const selectedDistrictCode = $(this).val();
+                    if (selectedDistrictCode) {
+                        populateWards(selectedDistrictCode);
+                    } else {
+                        $('#wardSelect').html('<option value="">-- Select Ward/Commune * --</option>').prop('disabled', true);
+                    }
+                });
+            });
+        </script>
+        <%-- <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script> --%>
+        <%-- <script type="text/javascript" src="js/gmaps.js"></script> --%>
     </body>
 </html>

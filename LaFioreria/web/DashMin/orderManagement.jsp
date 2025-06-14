@@ -1,18 +1,18 @@
-<%-- 
-    Document   : addcategory
-    Created on : Jun 1, 2025, 10:09:00 PM
-    Author     : Admin
+<%--
+    Document   : orderManagement
+    Created on : Jun 15, 2025, 12:24:18 AM
+    Author     : VU MINH TAN
 --%>
 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
-        <title>DASHMIN - Add Category</title>
+        <title>Order Management - DASHMIN</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -38,65 +38,15 @@
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
-
-        <style>
-            .category-info {
-                background-color: #ffffff;
-                border-radius: 12px;
-                padding: 24px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            }
-
-            label.form-label {
-                margin-bottom: 6px;
-                color: #333;
-            }
-
-            .btn {
-                padding: 6px 12px;
-                border: none;
-                border-radius: 4px;
-                color: white;
-                font-size: 14px;
-                cursor: pointer;
-                margin-right: 5px;
-                transition: background-color 0.2s ease;
-            }
-
-            .btn-success {
-                background-color: #28a745;
-            }
-
-            .btn-success:hover {
-                background-color: #218838;
-            }
-
-            .btn-secondary {
-                background-color: #6c757d;
-            }
-
-            .btn-secondary:hover {
-                background-color: #5a6268;
-            }
-
-            /* Thêm style cho thông báo lỗi */
-            .error {
-                color: red;
-                font-size: 0.9rem;
-                margin-top: 5px;
-                display: block;
-            }
-        </style>
     </head>
-
     <body>
         <div class="container-fluid position-relative bg-white d-flex p-0">
             <!-- Spinner Start -->
-            <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <%-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
                 <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
-            </div>
+            </div> --%>
             <!-- Spinner End -->
 
             <!-- Sidebar Start -->
@@ -120,7 +70,7 @@
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Elements</a>
                             <div class="dropdown-menu bg-transparent border-0">
-                                <a href="${pageContext.request.contextPath}/DashMin/button.jsp" class="dropdown-item">Buttons</a>
+                                <a href="${pageContext.request.contextPath}/DashMin/button.jsp" class="dropdown-item active">Buttons</a>
                                 <a href="${pageContext.request.contextPath}/DashMin/typography.jsp" class="dropdown-item">Typography</a>
                                 <a href="${pageContext.request.contextPath}/DashMin/element.jsp" class="dropdown-item">Other Elements</a>
                             </div>
@@ -130,9 +80,9 @@
                         <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link"><i class="fa fa-table me-2"></i>User</a>
                         <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
-                        <a href="${pageContext.request.contextPath}/orderManagement" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Order</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/orderManagement" class="nav-item nav-link active"><i class="fa fa-th me-2"></i>Order</a>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
-                        <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Category</a>
+                        <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
@@ -145,71 +95,70 @@
                         </div>
                     </div>
                 </nav>
-                </nav>
             </div>
             <!-- Sidebar End -->
 
             <!-- Content Start -->
             <div class="content">
-                <jsp:include page="/DashMin/navbar.jsp"/> <!-- nav bar -->
+                <!-- Navbar Start -->
+                <jsp:include page="/DashMin/navbar.jsp"/>
+                <!-- Navbar End -->
 
-                <!-- Add Category Form -->
+                <!-- Order List Start -->
                 <div class="container-fluid pt-4 px-4">
-                    <div class="bg-light rounded h-100 p-4">
-                        <h6 class="mb-4">Add Category</h6>
-
-                        <!-- Hiển thị thông báo lỗi nếu có -->
-                        <c:if test="${not empty sessionScope.error}">
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                ${sessionScope.error}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                            <c:remove var="error" scope="session"/>
-                        </c:if>
-
-                        <form action="${pageContext.request.contextPath}/addCategory" method="post">
-                            <div class="category-info">
-                                <div class="mb-3">
-                                    <label for="categoryName" class="form-label fw-semibold">Category Name:</label>
-                                    <input 
-                                        type="text" 
-                                        id="categoryName" 
-                                        name="categoryName" 
-                                        class="form-control" 
-                                        value="${sessionScope.categoryName}" 
-                                        placeholder="Enter category name"
-                                    />
-                                    <span class="error">${sessionScope.categoryNameError}</span>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="description" class="form-label fw-semibold">Description:</label>
-                                    <textarea 
-                                        id="description" 
-                                        name="description" 
-                                        class="form-control" 
-                                        rows="4"
-                                        placeholder="Enter description"
-                                    >${sessionScope.description}</textarea>
-                                    <span class="error">${sessionScope.descriptionError}</span>
-                                </div>
-                                <div class="d-flex justify-content-end">
-                                    <button type="submit" class="btn btn-success">Add Category</button>
-                                    <a href="${pageContext.request.contextPath}/category" class="btn btn-secondary">Cancel</a>
-                                </div>
-                            </div>
-                        </form>
+                    <div class="bg-light text-center rounded p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <h6 class="mb-0">Order Management</h6>
+                            <a href="">Show All</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                                <thead>
+                                    <tr class="text-dark">
+                                        <th scope="col">Order ID</th>
+                                        <th scope="col">Order Date</th>
+                                        <th scope="col">Customer ID</th>
+                                        <th scope="col">Total Amount</th>
+                                        <th scope="col">Status ID</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:if test="${empty orders}">
+                                        <tr>
+                                            <td colspan="6">No orders found.</td>
+                                        </tr>
+                                    </c:if>
+                                    <c:forEach var="order" items="${orders}">
+                                        <tr>
+                                            <td>${order.orderId}</td>
+                                            <td>${order.orderDate}</td>
+                                            <td>${order.customerId}</td>
+                                            <td>${order.totalAmount}</td>
+                                            <td>${order.statusId}</td>
+                                            <td>
+                                                <a class="btn btn-sm btn-primary" href="">Detail</a>
+                                                <a class="btn btn-sm btn-info" href="">Edit</a>
+                                                <a class="btn btn-sm btn-danger" href="">Delete</a>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-                <!-- Add Category Form End -->
+                <!-- Order List End -->
 
                 <!-- Footer Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded-top p-4">
                         <div class="row">
                             <div class="col-12 col-sm-6 text-center text-sm-start">
-                                © <a href="#">Your Site Name</a>, All Right Reserved. 
+                                &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
                             </div>
                             <div class="col-12 col-sm-6 text-center text-sm-end">
+                                <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
                                 Designed By <a href="https://htmlcodex.com">HTML Codex</a>
                             </div>
                         </div>

@@ -9,6 +9,14 @@
         <servlet-name>ViewUserDetailHome</servlet-name>
         <servlet-class>controller.ViewUserDetailHome</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>VerifyOTP</servlet-name>
+        <servlet-class>controller.VerifyOTP</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>OrderListServlet</servlet-name>
+        <servlet-class>controller.OrderListServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/LoginServlet</url-pattern>
@@ -131,6 +139,14 @@
     <servlet-mapping>
         <servlet-name>ViewUserDetailHome</servlet-name>
         <url-pattern>/viewuserdetailhome</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>VerifyOTP</servlet-name>
+        <url-pattern>/VerifyOTP</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>OrderListServlet</servlet-name>
+        <url-pattern>/orderManagement</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>home</welcome-file>

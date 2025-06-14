@@ -23,11 +23,7 @@
         <link href="${pageContext.request.contextPath}/ZeShopper/css/price-range.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/animate.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/main.css" rel="stylesheet">
-        <link href="${pageContext.request.contextPath}/ZeShopper/css/responsive.css" rel="stylesheet">
-        <!--[if lt IE 9]>
-        <script src="js/html5shiv.js"></script>
-        <script src="js/respond.min.js"></script>
-        <![endif]-->       
+        <link href="${pageContext.request.contextPath}/ZeShopper/css/responsive.css" rel="stylesheet"> 
         <link rel="shortcut icon" href="${pageContext.request.contextPath}/ZeShopper/images/ico/favicon.ico">
         <link rel="apple-touch-icon-precomposed" sizes="144x144" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-144-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-114-precomposed.png">
