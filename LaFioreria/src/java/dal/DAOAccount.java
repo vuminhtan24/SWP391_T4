@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Vector;
 import model.User;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class DAOAccount extends BaseDao {
 
@@ -70,7 +71,8 @@ public class DAOAccount extends BaseDao {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setString(1, acc.getUsername());
-            ps.setString(2, acc.getPassword());
+            String hashedPassword = BCrypt.hashpw(acc.getPassword(), BCrypt.gensalt());
+            ps.setString(2, hashedPassword);
             ps.setString(3, acc.getFullname());
             ps.setString(4, acc.getEmail());
             ps.setString(5, acc.getPhone());
@@ -89,37 +91,41 @@ public class DAOAccount extends BaseDao {
         return false;
     }
 
-    public User validate(String username, String password) {
-        String sql = "SELECT * FROM la_fioreria.user WHERE username = ? AND password = ?";
-        try {
-            connection = dbc.getConnection();
-            ps = connection.prepareStatement(sql);
-            ps.setString(1, username);
-            ps.setString(2, password);
-            rs = ps.executeQuery();
-            if (rs.next()) {
+   public User validate(String username, String inputPassword) {
+    String sql = "SELECT * FROM la_fioreria.user WHERE username = ?";
+    try {
+        connection = dbc.getConnection();
+        ps = connection.prepareStatement(sql);
+        ps.setString(1, username);
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            String hashedPasswordFromDB = rs.getString("password").trim();
+            
+            // So sánh mật khẩu người dùng nhập với mật khẩu đã mã hóa trong DB
+            if (BCrypt.checkpw(inputPassword, hashedPasswordFromDB)) {
                 return new User(
-                        rs.getInt("User_ID"),
-                        rs.getString("username").trim(),
-                        rs.getString("password").trim(),
-                        rs.getString("fullname").trim(),
-                        rs.getString("email").trim(),
-                        rs.getString("phone").trim(),
-                        rs.getString("address").trim(),
-                        rs.getInt("Role")
+                    rs.getInt("User_ID"),
+                    rs.getString("username").trim(),
+                    rs.getString("password").trim(), // hoặc hashedPasswordFromDB
+                    rs.getString("fullname").trim(),
+                    rs.getString("email").trim(),
+                    rs.getString("phone").trim(),
+                    rs.getString("address").trim(),
+                    rs.getInt("Role")
                 );
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                this.closeResources();
-            } catch (Exception e) {
-                // ignore
-            }
         }
-        return null;
+    } catch (SQLException e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            this.closeResources();
+        } catch (Exception e) {
+            // ignore
+        }
     }
+    return null;
+}
 
     public User getAccountById(int userId) {
         String sql = "SELECT * FROM la_fioreria.user WHERE User_ID = ?";
@@ -234,7 +240,8 @@ public class DAOAccount extends BaseDao {
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
-            ps.setString(1, password);
+            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+            ps.setString(1, hashedPassword);
             ps.setString(2, email);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -253,7 +260,8 @@ public class DAOAccount extends BaseDao {
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
-            ps.setString(1, acc.getPassword());
+            String hashedPassword = BCrypt.hashpw(acc.getPassword(), BCrypt.gensalt());
+            ps.setString(1, hashedPassword);
             ps.setInt(2, acc.getUserid());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -269,10 +277,14 @@ public class DAOAccount extends BaseDao {
     }
 
     public static void main(String[] args) {
-        DAOAccount dao = new DAOAccount();
-        System.out.println("\n== TEST GET BY EMAIL ==");
-        System.out.println(dao.getAccountByEmail("bob@flower.com"));     // ✅ manager01
-        System.out.println(dao.getAccountByEmail("none@abc.com"));
+        String[] passwords = {
+        "admin123", "manager123", "seller123", "marketing1", 
+        "store123", "guest123", "cust123", "cust456"
+    };
 
+    for (String pw : passwords) {
+        String hashed = BCrypt.hashpw(pw, BCrypt.gensalt());
+        System.out.println(pw + " -> " + hashed);
+    }
     }
 }

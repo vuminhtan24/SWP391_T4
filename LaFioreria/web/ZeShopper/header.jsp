@@ -79,7 +79,11 @@
                                                     <i class="fa fa-user"></i> Hello, ${sessionScope.currentAcc.username} <b class="caret"></b>
                                                 </a>
                                                 <ul class="dropdown-menu">
-
+                                                    <c:choose>
+                                                        <c:when test="${sessionScope.currentAcc.getRole() != 7}">
+                                                            <li><a href="${pageContext.request.contextPath}/DashMin/admin"><i class="fa fa-id-card"></i> Manage Page</a></li>
+                                                            </c:when>
+                                                        </c:choose>
 
                                                     <li><a href="${pageContext.request.contextPath}/viewuserdetailhome"><i class="fa fa-id-card"></i> User Detail</a></li>
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/changePassword.jsp"><i class="fa fa-key"></i> Change Password</a></li>
@@ -139,7 +143,7 @@
                                 </ul>
                             </div>
                         </div>
-                        
+
                     </div>
                 </div>
             </div><!--/header-bottom-->

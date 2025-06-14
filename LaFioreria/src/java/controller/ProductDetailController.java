@@ -78,14 +78,16 @@ public class ProductDetailController extends HttpServlet {
         List<RawFlower> allFlowers = rfdao.getRawFlower();
         List<BouquetRaw> bqRaws = bqdao.getFlowerByBouquetID(id);
         List<Bouquet> sameCate = bqdao.searchBouquet(null, null, null, detailsBQ.getCid());
-
+        String cateDes = cdao.getCategoryDesByBouquet(id);
+        
         for (int i = sameCate.size() - 1; i >= 0; i--) {
             Bouquet b = sameCate.get(i);
             if (b.getBouquetId() == detailsBQ.getBouquetId()) {
                 sameCate.remove(i);
             }
         }
-
+        
+        request.setAttribute("cateDes", cateDes);
         request.setAttribute("listBouquet", sameCate);
         request.setAttribute("bouquetDetail", detailsBQ);
         request.setAttribute("cateName", cateName);

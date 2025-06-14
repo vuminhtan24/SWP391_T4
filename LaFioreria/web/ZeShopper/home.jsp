@@ -344,7 +344,7 @@
                                 Search
                             </button>
                         </div>
-                        </form>   
+                          
                     <div class="col-sm-3">
                              
                         <div class="left-sidebar">

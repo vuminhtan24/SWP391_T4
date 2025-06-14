@@ -76,7 +76,7 @@
                         </div>
                     </div>
                     <div class="navbar-nav w-100">
-                        <a href="${pageContext.request.contextPath}/DashMin/admin" class="nav-item nav-link active"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/admin" class="nav-item nav-link"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Elements</a>
                             <div class="dropdown-menu bg-transparent border-0">
@@ -87,18 +87,19 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
                         <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
-                        <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>User</a>
+                        <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link"><i class="fa fa-table me-2"></i>User</a>
                         <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>RawFlower</a>
-                        <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Category</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
+                        <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
+                        <a href="${pageContext.request.contextPath}" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>La Fioreria</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
                                 <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
-                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item active">View User Detail</a>
-                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item active">Add new User </a>
+                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item">View User Detail</a>
+                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item">Add new User </a>
                             </div>
                         </div>
                     </div>
@@ -124,8 +125,19 @@
                                             <!-- Bouquet Name -->
                                             <div class="col-md-6">
                                                 <label for="bouquetName" class="form-label">Bouquet Name</label>
-                                                <input type="text" id="bouquetName" name="bouquetName" class="form-control" placeholder="Enter bouquet name" required />
+                                                <input
+                                                    type="text"
+                                                    id="bouquetName"
+                                                    name="bouquetName"
+                                                    class="form-control"
+                                                    placeholder="Enter bouquet name"
+                                                    maxlength="35"
+                                                    required
+                                                    value="${fn:escapeXml(param.bouquetName)}"
+                                                    />
+                                                <p style="color: red">${fn:escapeXml(requestScope.err)}</p>
                                             </div>
+
                                             <!-- Image URL -->
                                             <div class="col-md-6">
                                                 <label for="imageUrl" class="form-label">Image URL</label>
@@ -137,24 +149,33 @@
                                                     placeholder="https://example.com/image.jpg" 
                                                     required
                                                     pattern="https?://.+\.(jpg|jpeg|JPG|JPEG)$" 
-                                                    title="URL phải kết thúc bằng .jpg hoặc .jpeg" 
+                                                    title="URL phải kết thúc bằng .jpg hoặc .jpeg"
+                                                    value="${fn:escapeXml(param.imageUrl)}"
                                                     />
-
                                             </div>
+
                                             <!-- Description -->
                                             <div class="col-12">
                                                 <label for="description" class="form-label">Description</label>
-                                                <textarea id="description" name="description" class="form-control" rows="3" placeholder="Describe your bouquet..."></textarea>
+                                                <textarea
+                                                    id="description"
+                                                    name="description"
+                                                    class="form-control"
+                                                    rows="3"
+                                                    placeholder="Describe your bouquet..."
+                                                    >${fn:escapeXml(param.description)}</textarea>
                                             </div>
                                             <!-- Category -->
                                             <div class="col-md-6">
                                                 <label for="category" class="form-label">Category</label>
                                                 <select id="category" name="category" class="form-select">
-                                                    <option value="1">Romantic</option>
-                                                    <option value="2">Birthday</option>
-                                                    <option value="3">Congratulations</option>
-                                                    <option value="4">Sympathy</option>
-                                                    <option value="5">Anniversary</option>
+
+                                                    <c:forEach var="c" items="${cateBouquetHome}">
+                                                        <option value="${c.categoryId}"
+                                                                <c:if test="${param.category eq c.categoryId}">selected</c:if>>
+                                                            ${c.categoryName}
+                                                        </option>
+                                                    </c:forEach>
                                                 </select>
                                             </div>
                                         </div>
@@ -165,41 +186,36 @@
                                         <table id="flowerTable" class="table table-striped table-hover align-middle">
                                             <thead class="table-dark">
                                                 <tr>
-                                                    <th scope="col">Flower</th>
-                                                    <th scope="col">Price per Stem</th>
-                                                    <th scope="col">Quantity</th>
-                                                    <th scope="col" style="width: 50px;"></th>
+                                                    <th>Flower</th>
+                                                    <th>Price per Stem</th>
+                                                    <th>Quantity</th>
+                                                    <th style="width:50px;"></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <!-- Dòng đầu tiên hiển thị mặc định -->
+                                                <!-- Dòng mặc định cũng dùng placeholder -->
                                                 <tr>
                                                     <td>
-                                                        <select name="flowerIds" class="form-select form-select-sm flower-select">
+                                                        <select name="flowerIds" class="form-select form-select-sm flower-select" onchange="updatePrice(this)">
+                                                            <option value="0" disabled selected>-- Select Flower --</option>
                                                             <c:forEach var="f" items="${flowerInBouquet}">
-                                                                <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">${f.getRawName()}</option>
+                                                                <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">
+                                                                    ${f.getRawName()}
+                                                                </option>
                                                             </c:forEach>
                                                         </select>
                                                     </td>
                                                     <td>
-                                                        <span class="form-text price-text">$0.00</span>
+                                                        <span class="form-text price-text">0.00 VND</span>
                                                         <input type="hidden" class="price-input" name="prices[]" value="0" />
                                                     </td>
                                                     <td>
-                                                        <input 
-                                                            type="number" 
-                                                            name="quantities" 
-                                                            value="1" 
-                                                            min="1" 
-                                                            step="1"
-                                                            required
-                                                            class="form-control form-control-sm" 
-                                                            />
-
+                                                        <input type="number" name="quantities" value="1" min="1" step="1"
+                                                               required class="form-control form-control-sm" oninput="calculateTotal()" />
                                                     </td>
                                                     <td>
                                                         <button type="button" class="btn btn-sm btn-outline-danger"
-                                                                onclick="this.closest('tr').remove(); updateTotalValue();">
+                                                                onclick="this.closest('tr').remove(); calculateTotal(); refreshAllOptions();">
                                                             &times;
                                                         </button>
                                                     </td>
@@ -207,17 +223,20 @@
                                             </tbody>
                                             <tfoot>
                                                 <tr>
-                                            <div class="mt-3 text-start fw-bold" style="color: #1e40af;">
-                                                Total Value: <span id="totalValueDisplay">$0.00</span>
-                                            </div>
-                                            <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
-                                            </tr>
+                                                    <td colspan="4">
+                                                        <div class="mt-3 text-start fw-bold" style="color: #1e40af;">
+                                                            Total Value: <span id="totalValueDisplay">0.00 VND</span>
+                                                        </div>
+                                                        <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
+                                                    </td>
+                                                </tr>
                                             </tfoot>
-
                                         </table>
 
-                                        <div class="text-end">
-                                            <button type="button" id="addFlowerBtn" class="btn btn-outline-primary btn-sm">+ Add Flower</button>
+                                        <div class="text-end mb-4">
+                                            <button type="button" id="addFlowerBtn" class="btn btn-outline-primary btn-sm">
+                                                + Add Flower
+                                            </button>
                                         </div>
 
                                         <!-- Submit -->
@@ -236,25 +255,28 @@
                     <tbody>
                         <tr id="flowerRowTemplate">
                             <td>
-                                <select name="flowerIds" class="form-select form-select-sm flower-select">
+                                <select name="flowerIds" class="form-select form-select-sm flower-select" onchange="updatePrice(this)">
+                                    <option value="" disabled selected>-- Select Flower --</option>
                                     <c:forEach var="f" items="${flowerInBouquet}">
-                                        <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">${f.getRawName()}</option>
+                                        <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">
+                                            ${f.getRawName()}
+                                        </option>
                                     </c:forEach>
                                 </select>
                             </td>
                             <td>
-                                <span class="form-text price-text">$0.00</span>
+                                <span class="form-text price-text">0.00 VND</span>
                                 <input type="hidden" class="price-input" name="prices[]" value="0" />
                             </td>
                             <td>
-                                <input type="number" name="quantities" value="0" min="0" class="form-control form-control-sm" />
+                                <input type="number" name="quantities" value="1" min="1" step="1"
+                                       class="form-control form-control-sm" oninput="calculateTotal()" />
                             </td>
                             <td>
                                 <button type="button" class="btn btn-sm btn-outline-danger"
-                                        onclick="this.closest('tr').remove(); updateTotalValue();">
+                                        onclick="this.closest('tr').remove(); calculateTotal(); refreshAllOptions();">
                                     &times;
                                 </button>
-
                             </td>
                         </tr>
                     </tbody>
@@ -301,78 +323,79 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-                                            function updatePrice(selectElement) {
-                                                const selectedOption = selectElement.options[selectElement.selectedIndex];
-                                                const price = selectedOption ? parseFloat(selectedOption.getAttribute('data-price') || "0") : 0;
-
-                                                const row = selectElement.closest('tr');
-                                                const priceText = row.querySelector('.price-text');
-                                                const priceInput = row.querySelector('.price-input');
-
-                                                priceText.textContent = '$' + price.toFixed(2);
-                                                priceInput.value = price;
-
+                                            function updatePrice(sel) {
+                                                // khi user chọn 1 hoa (không phải placeholder)
+                                                if (!sel.value)
+                                                    return;
+                                                const price = parseFloat(sel.selectedOptions[0].dataset.price || 0);
+                                                const row = sel.closest('tr');
+                                                row.querySelector('.price-text').textContent = price.toFixed(2) + ' VND';
+                                                row.querySelector('.price-input').value = price;
                                                 calculateTotal();
+                                                refreshAllOptions();
                                             }
 
                                             function calculateTotal() {
                                                 let total = 0;
-                                                const rows = document.querySelectorAll('#flowerTable tbody tr');
-
-                                                rows.forEach(row => {
-                                                    const price = parseFloat(row.querySelector('.price-input')?.value || 0);
-                                                    const quantity = parseInt(row.querySelector('input[name^="quantities"]')?.value || 0);
-                                                    total += price * quantity;
+                                                document.querySelectorAll('#flowerTable tbody tr').forEach(r => {
+                                                    const p = parseFloat(r.querySelector('.price-input').value) || 0;
+                                                    const q = parseInt(r.querySelector('input[name="quantities"]').value) || 0;
+                                                    total += p * q;
                                                 });
-
-                                                // 1) Cập nhật hiển thị
-                                                document.getElementById('totalValueDisplay').textContent = '$' + total.toFixed(2);
-                                                // 2) Gán vào hidden input để gửi lên server
+                                                document.getElementById('totalValueDisplay').textContent = total.toFixed(2) + ' VND';
                                                 document.getElementById('totalValueInput').value = total.toFixed(2);
                                             }
 
-                                            function attachEventsToRow(row) {
-                                                const select = row.querySelector('.flower-select');
-                                                const quantityInput = row.querySelector('input[name^="quantities"]');
-                                                const deleteButton = row.querySelector('.btn-outline-danger');
-
-                                                if (select) {
-                                                    updatePrice(select);
-                                                    select.addEventListener('change', function () {
-                                                        updatePrice(this);
+                                            function refreshAllOptions() {
+                                                const selects = Array.from(document.querySelectorAll('select.flower-select'));
+                                                const chosen = new Set(
+                                                        selects
+                                                        .map(s => s.value)
+                                                        .filter(v => v)  // bỏ placeholder
+                                                        );
+                                                selects.forEach(sel => {
+                                                    sel.querySelectorAll('option').forEach(opt => {
+                                                        if (opt.value && chosen.has(opt.value) && opt.value !== sel.value) {
+                                                            opt.disabled = true;
+                                                            opt.style.backgroundColor = '#e9ecef';
+                                                        } else {
+                                                            opt.disabled = false;
+                                                            opt.style.backgroundColor = '';
+                                                        }
                                                     });
-                                                }
-
-                                                if (quantityInput) {
-                                                    quantityInput.addEventListener('input', calculateTotal);
-                                                }
-
-                                                if (deleteButton) {
-                                                    deleteButton.addEventListener('click', function () {
-                                                        row.remove();
-                                                        calculateTotal(); // ✅ Update lại khi xóa
-                                                    });
-                                                }
+                                                });
                                             }
 
-                                            document.addEventListener('DOMContentLoaded', function () {
-                                                // Gắn sự kiện cho dòng đầu tiên mặc định
-                                                document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
-                                                    attachEventsToRow(row);
+                                            function attachEvents(row) {
+                                                const sel = row.querySelector('select.flower-select');
+                                                const del = row.querySelector('.btn-outline-danger');
+                                                const qty = row.querySelector('input[name="quantities"]');
+                                                sel.addEventListener('change', () => updatePrice(sel));
+                                                qty.addEventListener('input', calculateTotal);
+                                                del.addEventListener('click', () => {
+                                                    row.remove();
+                                                    calculateTotal();
+                                                    refreshAllOptions();
                                                 });
+                                            }
 
-                                                calculateTotal(); // Khởi tạo tổng ban đầu
-                                            });
-
-                                            document.getElementById('addFlowerBtn').addEventListener('click', function () {
-                                                const template = document.getElementById('flowerRowTemplate');
-                                                const newRow = template.cloneNode(true);
-                                                newRow.removeAttribute('id');
-                                                newRow.style.display = '';
-
-                                                document.querySelector('#flowerTable tbody').appendChild(newRow);
-                                                attachEventsToRow(newRow);
+                                            document.addEventListener('DOMContentLoaded', () => {
+                                                // ban đầu gắn event cho row mặc định
+                                                document.querySelectorAll('#flowerTable tbody tr').forEach(r => attachEvents(r));
                                                 calculateTotal();
+                                                refreshAllOptions();
+
+                                                // add new row
+                                                document.getElementById('addFlowerBtn').addEventListener('click', () => {
+                                                    const tpl = document.getElementById('flowerRowTemplate');
+                                                    const newRow = tpl.cloneNode(true);
+                                                    newRow.removeAttribute('id');
+                                                    newRow.style.display = '';
+                                                    document.querySelector('#flowerTable tbody').appendChild(newRow);
+                                                    attachEvents(newRow);
+                                                    calculateTotal();
+                                                    refreshAllOptions();
+                                                });
                                             });
         </script>
 

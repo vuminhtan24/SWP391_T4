@@ -6,7 +6,6 @@
 package controller;
 
 import dal.DAOAccount;
-import dal.DAOTokenForget;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,16 +13,15 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
-import model.TokenForgetPassword;
+import jakarta.servlet.http.HttpSession;
 import model.User;
 
 /**
  *
  * @author VU MINH TAN
  */
-@WebServlet("/ZeShopper/requestPassword")
-public class requestPassword extends HttpServlet {
+@WebServlet("/verifyOTP")
+public class VerifyOTP extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -40,10 +38,10 @@ public class requestPassword extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet requestPassword</title>");  
+            out.println("<title>Servlet VerifyOTP</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet requestPassword at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet VerifyOTP at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -60,7 +58,7 @@ public class requestPassword extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
+        processRequest(request, response);
     } 
 
     /** 
@@ -71,62 +69,40 @@ public class requestPassword extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-protected void doPost(HttpServletRequest request, HttpServletResponse response)
+     protected void doPost(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
-    DAOAccount daoAcc = new DAOAccount();
-    String email = request.getParameter("email");
 
-    email = (email != null) ? email.trim() : "";
+        HttpSession session = request.getSession();
+        String enteredOtp = request.getParameter("otp");
 
-    if (email.isEmpty() || !email.matches("\\S+")) {
-        returnInputValue(request, response, email, "Email must not be empty or contain spaces");
-        return;
+        Integer sessionOtp = (Integer) session.getAttribute("otp");
+        User tempUser = (User) session.getAttribute("tempUser");
+
+        if (sessionOtp == null || tempUser == null) {
+            request.setAttribute("error", "Session expired or invalid!");
+            request.getRequestDispatcher("verifyOTP.jsp").forward(request, response);
+            return;
+        }
+
+        if (!enteredOtp.equals(sessionOtp.toString())) {
+            request.setAttribute("error", "Incorrect OTP! Please try again.");
+            request.getRequestDispatcher("verifyOTP.jsp").forward(request, response);
+            return;
+        }
+
+        DAOAccount dao = new DAOAccount();
+        boolean success = dao.createAccount(tempUser);
+
+        if (success) {
+            session.removeAttribute("otp");
+            session.removeAttribute("tempUser");
+            session.setAttribute("currentAcc", tempUser);
+            response.sendRedirect(request.getContextPath() + "/home");
+        } else {
+            request.setAttribute("error", "Registration failed! Please try again.");
+            request.getRequestDispatcher("verifyOTP.jsp").forward(request, response);
+        }
     }
-    if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-        returnInputValue(request, response, email, "Invalid email format");
-        return;
-    }
-
-    User user = daoAcc.getAccountByEmail(email);
-    if (user == null) {
-        returnInputValue(request, response, email, "Email does not exist or is not registered");
-        return;
-    }
-
-    resetService service = new resetService();
-    String token = service.generateToken();
-    String linkReset = "http://localhost:8080/LaFioreria/ZeShopper/resetPassword?token=" + token;
-
-    TokenForgetPassword newTokenForget = new TokenForgetPassword(
-            user.getUserid(), false, token, service.expireDateTime());
-
-    DAOTokenForget daoToken = new DAOTokenForget();
-    boolean isInsert = daoToken.insertTokenForget(newTokenForget);
-    if (!isInsert) {
-        returnInputValue(request, response, email, "Server error. Please try again later.");
-        return;
-    }
-
-    boolean isSend = service.sendEmail(email, linkReset, user.getFullname());
-    if (!isSend) {
-        returnInputValue(request, response, email, "Cannot send reset email. Please try again.");
-        return;
-    }
-
-    request.setAttribute("email", email);
-    request.setAttribute("mess", "Password reset request sent. Please check your email.");
-    request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
-}
-
-public void returnInputValue(HttpServletRequest request,
-        HttpServletResponse response, String email, String mess)
-        throws ServletException, IOException {
-    request.setAttribute("email", email);
-    request.setAttribute("mess", mess);
-    request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
-}
-
-
 
     /** 
      * Returns a short description of the servlet.

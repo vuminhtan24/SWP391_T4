@@ -109,7 +109,7 @@
                         </div>
                     </div>
                     <div class="navbar-nav w-100">
-                        <a href="${pageContext.request.contextPath}/DashMin/admin" class="nav-item nav-link active"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/admin" class="nav-item nav-link"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Elements</a>
                             <div class="dropdown-menu bg-transparent border-0">
@@ -120,18 +120,19 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
                         <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
-                        <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>User</a>
+                        <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link"><i class="fa fa-table me-2"></i>User</a>
                         <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>RawFlower</a>
-                        <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Category</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
+                        <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
+                        <a href="${pageContext.request.contextPath}" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>La Fioreria</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
                                 <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
-                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item active">View User Detail</a>
-                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item active">Add new User </a>
+                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item">View User Detail</a>
+                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item">Add new User </a>
                             </div>
                         </div>
                     </div>
@@ -356,35 +357,44 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Định dạng tiền tệ
             function formatCurrency(val) {
                 return parseFloat(val).toFixed(2) + ' VND';
             }
 
-            // Lấy danh sách ID hoa đã được chọn (loại bỏ rỗng)
-            function getSelectedFlowerIds() {
-                return Array.from(document.querySelectorAll('.flower-select'))
-                        .map(sel => sel.value)
-                        .filter(v => v);
+            function getSelectedFlowerIdsMap() {
+                const map = new Map();
+                document.querySelectorAll('.flower-select').forEach((sel, index) => {
+                    const value = sel.value;
+                    if (value) {
+                        if (!map.has(value))
+                            map.set(value, []);
+                        map.get(value).push(index); // record where it’s selected
+                    }
+                });
+                return map;
             }
 
-            // Vô hiệu hóa và thêm class cho các option đã chọn ở các select khác
             function updateFlowerOptions() {
-                const selected = getSelectedFlowerIds();
-                document.querySelectorAll('.flower-select').forEach(select => {
-                    const current = select.value;
+                const selectedMap = getSelectedFlowerIdsMap();
+
+                document.querySelectorAll('.flower-select').forEach((select, selectIndex) => {
+                    const currentValue = select.value;
+
                     Array.from(select.options).forEach(opt => {
-                        const isTaken = opt.value && selected.includes(opt.value) && opt.value !== current;
-                        opt.disabled = isTaken;
-                        if (isTaken)
-                            opt.classList.add('already-selected');
-                        else
-                            opt.classList.remove('already-selected');
+                        const val = opt.value;
+                        if (!val)
+                            return;
+
+                        const isTakenElsewhere =
+                                selectedMap.has(val) &&
+                                !(selectedMap.get(val).includes(selectIndex));
+
+                        opt.disabled = isTakenElsewhere;
+                        opt.classList.toggle('already-selected', isTakenElsewhere);
                     });
                 });
             }
 
-            // Cập nhật giá của từng dòng khi chọn hoặc khởi tạo
             function updateRowPrice(row) {
                 const sel = row.querySelector('.flower-select');
                 const priceInput = row.querySelector('.price-input');
@@ -401,7 +411,6 @@
                 priceText.textContent = formatCurrency(unitPrice);
             }
 
-            // Tính lại tổng giá trị
             function updateTotalValue() {
                 let total = 0;
                 document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
@@ -413,7 +422,6 @@
                 document.getElementById('totalValueInput').value = total;
             }
 
-            // Gắn event cho 1 dòng: change select, input quantity, click remove
             function bindRowEvents(row) {
                 const sel = row.querySelector('.flower-select');
                 const qtyInput = row.querySelector('.quantity-input');
@@ -436,7 +444,7 @@
                 });
             }
 
-            // Khởi tạo cho các dòng đã có sẵn
+            // Initialize existing rows
             document.querySelectorAll('#flowerTable tbody tr').forEach(r => {
                 bindRowEvents(r);
                 updateRowPrice(r);
@@ -444,15 +452,19 @@
             updateFlowerOptions();
             updateTotalValue();
 
-            // Thêm dòng mới khi click nút
+            // Add new row
             document.getElementById('addFlowerBtn').addEventListener('click', () => {
                 const tpl = document.getElementById('flowerRowTemplate');
                 const newRow = tpl.cloneNode(true);
                 newRow.removeAttribute('id');
                 newRow.style.display = '';
 
-                // Thêm placeholder buộc chọn
                 const sel = newRow.querySelector('.flower-select');
+
+                // Reset selected index
+                sel.selectedIndex = -1;
+
+                // Add placeholder
                 const placeholder = document.createElement('option');
                 placeholder.value = '';
                 placeholder.text = '-- Select flower --';
@@ -469,9 +481,6 @@
             });
         });
     </script>
-
-
-
 
 </body>
 </html>

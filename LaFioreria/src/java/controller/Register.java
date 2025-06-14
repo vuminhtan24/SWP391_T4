@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.Random;
 import model.User;
 import util.Validate;
 
@@ -97,6 +98,19 @@ public class Register extends HttpServlet {
             returnInputValue(request, response, email, fullname, "", phone, address, messRegister);
             return;
         }
+        if (isBlank(username) || isBlank(fullname) || isBlank(email)
+                || isBlank(phone) || isBlank(address)
+                || isBlank(password) || isBlank(confirmPassword)) {
+            messRegister = "Fields must not be empty or contain only spaces";
+            returnInputValue(request, response, email, fullname, "", phone, address, messRegister);
+            return;
+        }
+        if(username.contains(" ")){
+            messRegister = "Username must not contain spaces";
+            returnInputValue(request, response, email, fullname, "", phone, address, messRegister);
+            return;
+        }
+
         if (daoAcc.getAccountByEmail(email) != null) {
             messRegister = "This account have exist!";
             returnInputValue(request, response, email, fullname, "", phone, address, messRegister);
@@ -117,16 +131,34 @@ public class Register extends HttpServlet {
             returnInputValue(request, response, email, fullname, username, phone, address, messRegister);
             return;
         }
-        User acc = new User(username, password, fullname, email, phone, address, 7);
-        boolean isCreate = daoAcc.createAccount(acc);
-        if (!isCreate) {
-            messRegister = "Create account unsuccess!";
+        User tempUser = new User(username, password, fullname, email, phone, address, 7);
+        // Sinh OTP
+        Random rand = new Random();
+        int otp = 100000 + rand.nextInt(900000);
+
+        // Lưu vào session
+        session.setAttribute("otp", otp);
+        session.setAttribute("tempUser", tempUser);
+        try {
+            SendMail.send(email, "OTP Verification", "Your OTP code is: " + otp);
+        } catch (Exception e) {
+            e.printStackTrace();
+            messRegister = "Can't send OTP. Please try again later.";
             returnInputValue(request, response, email, fullname, username, phone, address, messRegister);
             return;
-        } else {
-            session.setAttribute("currentAcc", acc);
-            response.sendRedirect(request.getContextPath() + "/home");
         }
+
+        response.sendRedirect("verifyOTP.jsp");
+//        User acc = new User(username, password, fullname, email, phone, address, 7);
+//        boolean isCreate = daoAcc.createAccount(acc);
+//        if (!isCreate) {
+//            messRegister = "Create account unsuccess!";
+//            returnInputValue(request, response, email, fullname, username, phone, address, messRegister);
+//            return;
+//        } else {
+//            session.setAttribute("currentAcc", acc);
+//            response.sendRedirect(request.getContextPath() + "/home");
+//        }
     }
 
     public void returnInputValue(HttpServletRequest request,
@@ -141,6 +173,11 @@ public class Register extends HttpServlet {
         request.setAttribute("messRegister", messRegister);
         request.getRequestDispatcher("login.jsp").forward(request, response);
     }
+
+    public boolean isBlank(String input) {
+    return input == null || input.trim().isEmpty(); // true nếu input là null hoặc toàn dấu cách
+}
+
 
     /**
      * Returns a short description of the servlet.
