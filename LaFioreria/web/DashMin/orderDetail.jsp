@@ -12,7 +12,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Chi tiết Đơn hàng - DASHMIN</title>
+        <title>Order detail - DASHMIN</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -113,7 +113,7 @@
                 <!-- Order Detail Section Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded p-4">
-                        <h6 class="mb-4">Chi tiết Đơn hàng - ID: ${order.orderId}</h6>
+                        <h6 class="mb-4">Order details - ID: ${order.orderId}</h6>
 
                         <%-- Display success/error messages from session (after redirect) --%>
                         <c:if test="${not empty sessionScope.errorMessage}">
@@ -139,20 +139,20 @@
                             <input type="hidden" name="orderId" value="${order.orderId}">
 
                             <div class="mb-3">
-                                <label for="orderDate" class="form-label">Ngày Đặt hàng:</label>
+                                <label for="orderDate" class="form-label">Order Date:</label>
                                 <input type="text" class="form-control" id="orderDate" value="${order.orderDate}" readonly>
                             </div>
                             <div class="mb-3">
-                                <label for="customerName" class="form-label">Tên Khách hàng:</label>
+                                <label for="customerName" class="form-label">Customer Name:</label>
                                 <input type="text" class="form-control" id="customerName" value="${order.customerName}" readonly>
                             </div>
                             <div class="mb-3">
-                                <label for="totalAmount" class="form-label">Tổng tiền:</label>
+                                <label for="totalAmount" class="form-label">Total Amount:</label>
                                 <input type="text" class="form-control" id="totalAmount" value="${order.totalAmount}" readonly>
                             </div>
 
                             <div class="mb-3">
-                                <label for="newStatusId" class="form-label">Trạng thái Đơn hàng:</label>
+                                <label for="newStatusId" class="form-label">Status Id:</label>
                                 <select class="form-select" id="newStatusId" name="newStatusId">
                                     <c:forEach var="status" items="${statuses}">
                                         <option value="${status.statusId}" ${order.statusId == status.statusId ? 'selected' : ''}>
@@ -163,7 +163,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="shipperId" class="form-label">Gán Người giao hàng:</label>
+                                <label for="shipperId" class="form-label">Assign Shipper:</label>
                                 <select class="form-select" id="shipperId" name="shipperId">
                                     <option value="">-- Choose shipper --</option> <%-- Option to unassign shipper --%>
                                     <c:forEach var="shipper" items="${shippers}">
@@ -175,7 +175,7 @@
                             </div>
 
                             <button type="submit" class="btn btn-primary">Update order</button>
-                            <a href="${pageContext.request.contextPath}/orderManagement" class="btn btn-secondary">Quay lại Danh sách</a>
+                            <a href="${pageContext.request.contextPath}/orderManagement" class="btn btn-secondary">Back to Order List</a>
                         </form>
                     </div>
                 </div>
@@ -186,10 +186,10 @@
                     <div class="bg-light rounded-top p-4">
                         <div class="row">
                             <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">Tên trang web của bạn</a>, Mọi quyền được bảo lưu. 
+                                &copy; <a href="#">Your Website Name</a>, All rights reserved. 
                             </div>
                             <div class="col-12 col-sm-6 text-center text-sm-end">
-                                Thiết kế bởi <a href="https://htmlcodex.com">HTML Codex</a>
+                                Designed by <a href="https://htmlcodex.com">HTML Codex</a>
                             </div>
                         </div>
                     </div>
