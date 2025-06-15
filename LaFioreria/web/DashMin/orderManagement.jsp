@@ -108,21 +108,21 @@
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light text-center rounded p-4">
                         <div class="d-flex align-items-center justify-content-between mb-4">
-                            <h6 class="mb-0">Quản lý Đơn hàng</h6>
-                            <a href="${pageContext.request.contextPath}/orderManagement">Hiện tất cả</a>
+                            <h6 class="mb-0">Orders Management</h6>
+                            <a href="${pageContext.request.contextPath}/orderManagement">Show all</a>
                         </div>
 
                         <%-- Form Tìm kiếm, Lọc và Sắp xếp --%>
                         <div class="mb-4">
                             <form action="${pageContext.request.contextPath}/orderManagement" method="get" class="d-flex flex-wrap align-items-center">
-                                <div class="input-group me-2 mb-2" style="max-width: 300px;">
-                                    <input type="text" class="form-control" placeholder="Tìm kiếm theo ID, khách hàng, tổng tiền..."
+                                <div class="input-group me-2 mb-2" style="max-width: 400px;">
+                                    <input type="text" class="form-control" placeholder="Find by ID, Customer, total amount..."
                                            name="keyword" value="${currentKeyword != null ? currentKeyword : ''}">
-                                    <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+                                    <button class="btn btn-primary" type="submit">Search</button>
                                 </div>
                                 <div class="me-2 mb-2" style="max-width: 200px;">
                                     <select class="form-select" name="statusId" onchange="this.form.submit()">
-                                        <option value="0" ${currentStatusId == null || currentStatusId == 0 ? 'selected' : ''}>-- Lọc theo Trạng thái --</option>
+                                        <option value="0" ${currentStatusId == null || currentStatusId == 0 ? 'selected' : ''}>-- Filter by status --</option>
                                         <c:forEach var="status" items="${statuses}">
                                             <option value="${status.statusId}" ${currentStatusId != null && currentStatusId == status.statusId ? 'selected' : ''}>
                                                 ${status.statusName}
@@ -132,21 +132,20 @@
                                 </div>
                                 <div class="me-2 mb-2" style="max-width: 200px;">
                                     <select class="form-select" name="sortField" onchange="this.form.submit()">
-                                        <option value="orderDate" ${sortField == 'orderDate' ? 'selected' : ''}>Sắp xếp theo Ngày</option>
-                                        <option value="orderId" ${sortField == 'orderId' ? 'selected' : ''}>Sắp xếp theo ID</option>
-                                        <option value="customerName" ${sortField == 'customerName' ? 'selected' : ''}>Sắp xếp theo Khách hàng</option>
-                                        <option value="totalAmount" ${sortField == 'totalAmount' ? 'selected' : ''}>Sắp xếp theo Tổng tiền</option>
-                                        <option value="statusName" ${sortField == 'statusName' ? 'selected' : ''}>Sắp xếp theo Trạng thái</option>
-                                        <option value="shipperName" ${sortField == 'shipperName' ? 'selected' : ''}>Sắp xếp theo Shipper</option>
+                                        <option value="orderDate" ${sortField == 'orderDate' ? 'selected' : ''}>Sort by Date</option>
+                                        <option value="orderId" ${sortField == 'orderId' ? 'selected' : ''}>Sort by ID</option>
+                                        <option value="customerName" ${sortField == 'customerName' ? 'selected' : ''}>Sort by Customer</option>
+                                        <option value="totalAmount" ${sortField == 'totalAmount' ? 'selected' : ''}>Sort by Total Amount</option>
+                                        <option value="statusName" ${sortField == 'statusName' ? 'selected' : ''}>Sort by Status</option>
+                                        <option value="shipperName" ${sortField == 'shipperName' ? 'selected' : ''}>Sort by Shipper</option>
                                     </select>
                                 </div>
                                 <div class="me-2 mb-2" style="max-width: 150px;">
                                     <select class="form-select" name="sortOrder" onchange="this.form.submit()">
-                                        <option value="desc" ${sortOrder == 'desc' ? 'selected' : ''}>Giảm dần</option>
-                                        <option value="asc" ${sortOrder == 'asc' ? 'selected' : ''}>Tăng dần</option>
+                                        <option value="desc" ${sortOrder == 'desc' ? 'selected' : ''}>Desc</option>
+                                        <option value="asc" ${sortOrder == 'asc' ? 'selected' : ''}>Asc</option>
                                     </select>
                                 </div>
-                                <%-- Hidden fields để giữ lại keyword, statusId, page khi chỉ thay đổi sortField/sortOrder --%>
                                 <input type="hidden" name="keyword" value="${currentKeyword}" />
                                 <input type="hidden" name="statusId" value="${currentStatusId}" />
                                 <input type="hidden" name="page" value="${currentPage}" />
@@ -157,26 +156,23 @@
                             <table class="table text-start align-middle table-bordered table-hover mb-0">
                                 <thead>
                                     <tr class="text-dark">
-                                        <%-- Hàm tiện ích để tạo URL cho tiêu đề cột có sắp xếp --%>
-                                        <c:url var="baseSortUrl" value="${pageContext.request.contextPath}/orderManagement">
+                                        <c:url var="baseSortUrl" value="/orderManagement">
                                             <c:param name="keyword" value="${currentKeyword}" />
                                             <c:param name="statusId" value="${currentStatusId}" />
                                             <c:param name="page" value="${currentPage}" />
                                         </c:url>
 
                                         <th scope="col">
-                                            <%-- ĐÃ SỬA: sortDir thành sortOrder --%>
                                             <a href="${baseSortUrl}&sortField=orderId&sortOrder=${sortField eq 'orderId' && sortOrder eq 'asc' ? 'desc' : 'asc'}">
-                                                ID Đơn hàng
+                                                Order Id
                                                 <c:if test="${sortField eq 'orderId'}">
                                                     <i class="fa fa-sort-${sortOrder eq 'asc' ? 'up' : 'down'}"></i>
                                                 </c:if>
                                             </a>
                                         </th>
                                         <th scope="col">
-                                            <%-- ĐÃ SỬA: sortDir thành sortOrder --%>
                                             <a href="${baseSortUrl}&sortField=orderDate&sortOrder=${sortField eq 'orderDate' && sortOrder eq 'asc' ? 'desc' : 'asc'}">
-                                                Ngày Đặt hàng
+                                                Order Date
                                                 <c:if test="${sortField eq 'orderDate'}">
                                                     <i class="fa fa-sort-${sortOrder eq 'asc' ? 'up' : 'down'}"></i>
                                                 </c:if>
@@ -185,46 +181,43 @@
                                         <th scope="col">
                                             <%-- ĐÃ SỬA: sortDir thành sortOrder --%>
                                             <a href="${baseSortUrl}&sortField=customerName&sortOrder=${sortField eq 'customerName' && sortOrder eq 'asc' ? 'desc' : 'asc'}">
-                                                Khách hàng
+                                                Customer
                                                 <c:if test="${sortField eq 'customerName'}">
                                                     <i class="fa fa-sort-${sortOrder eq 'asc' ? 'up' : 'down'}"></i>
                                                 </c:if>
                                             </a>
                                         </th>
                                         <th scope="col">
-                                            <%-- ĐÃ SỬA: sortDir thành sortOrder --%>
                                             <a href="${baseSortUrl}&sortField=totalAmount&sortOrder=${sortField eq 'totalAmount' && sortOrder eq 'asc' ? 'desc' : 'asc'}">
-                                                Tổng tiền
+                                                Total amount
                                                 <c:if test="${sortField eq 'totalAmount'}">
                                                     <i class="fa fa-sort-${sortOrder eq 'asc' ? 'up' : 'down'}"></i>
                                                 </c:if>
                                             </a>
                                         </th>
                                         <th scope="col">
-                                            <%-- ĐÃ SỬA: sortDir thành sortOrder --%>
                                             <a href="${baseSortUrl}&sortField=statusName&sortOrder=${sortField eq 'statusName' && sortOrder eq 'asc' ? 'desc' : 'asc'}">
-                                                Trạng thái
+                                                Status
                                                 <c:if test="${sortField eq 'statusName'}">
                                                     <i class="fa fa-sort-${sortOrder eq 'asc' ? 'up' : 'down'}"></i>
                                                 </c:if>
                                             </a>
                                         </th>
                                         <th scope="col">
-                                            <%-- ĐÃ SỬA: sortDir thành sortOrder --%>
                                             <a href="${baseSortUrl}&sortField=shipperName&sortOrder=${sortField eq 'shipperName' && sortOrder eq 'asc' ? 'desc' : 'asc'}">
-                                                Người giao hàng
+                                                Shipper
                                                 <c:if test="${sortField eq 'shipperName'}">
                                                     <i class="fa fa-sort-${sortOrder eq 'asc' ? 'up' : 'down'}"></i>
                                                 </c:if>
                                             </a>
                                         </th>
-                                        <th scope="col">Hành động</th>
+                                        <th scope="col">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <c:if test="${empty orders}">
                                         <tr>
-                                            <td colspan="7">Không tìm thấy đơn hàng nào.</td>
+                                            <td colspan="7">Can not find Orders.</td>
                                         </tr>
                                     </c:if>
                                     <c:forEach var="order" items="${orders}">
@@ -234,12 +227,13 @@
                                             <td>${order.customerName}</td>
                                             <td>${order.totalAmount}</td>
                                             <td>${order.statusName}</td>
-                                            <td>${order.shipperName != null ? order.shipperName : "Chưa gán"}</td>
+                                            <td>${order.shipperName != null ? order.shipperName : "not yet assigned"}</td>
                                             <td>
                                                 <a class="btn btn-sm btn-primary"
-                                                   href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}">Chi tiết</a>
-                                                <a class="btn btn-sm btn-info disabled" href="#">Sửa</a>
-                                                <a class="btn btn-sm btn-danger disabled" href="#">Xóa</a>
+                                                   href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}">Detail</a>
+                                                <a class="btn btn-sm btn-info"
+                                                   href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}&action=edit">Edit</a>
+                                                <a class="btn btn-sm btn-danger disabled" href="#">Delete</a>
                                             </td>
                                         </tr>
                                     </c:forEach>
@@ -252,7 +246,6 @@
                             <nav>
                                 <ul class="pagination">
                                     <c:set var="queryParams" value="" />
-                                    <%-- ĐÃ SỬA: Bỏ fn:urlEncode ở đây, vì c:url tự động encode khi tạo baseSortUrl/link cho phân trang --%>
                                     <c:if test="${not empty currentKeyword}">
                                         <c:set var="queryParams" value="${queryParams}&keyword=${currentKeyword}" />
                                     </c:if>
@@ -266,7 +259,6 @@
                                         <c:set var="queryParams" value="${queryParams}&sortOrder=${sortOrder}" />
                                     </c:if>
 
-                                    <%-- Nút Previous --%>
                                     <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
                                         <a class="page-link" href="${pageContext.request.contextPath}/orderManagement?page=${currentPage - 1}${queryParams}" aria-label="Previous">
                                             <span aria-hidden="true">&laquo;</span>
@@ -294,15 +286,16 @@
                 </div>
                 <!-- Order List End -->
 
-                <!-- Footer Start -->
+               <!-- Footer Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded-top p-4">
                         <div class="row">
                             <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">Tên trang web của bạn</a>, Mọi quyền được bảo lưu. 
+                                &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
                             </div>
                             <div class="col-12 col-sm-6 text-center text-sm-end">
-                                Được thiết kế bởi <a href="https://htmlcodex.com">HTML Codex</a>
+                                <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+                                Designed By <a href="https://htmlcodex.com">HTML Codex</a>
                             </div>
                         </div>
                     </div>

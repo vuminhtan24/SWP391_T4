@@ -12,10 +12,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import model.OrderDetail;
 
 /**
- * Data Access Object (DAO) for Order related operations.
- * Handles database interactions for Order, User (Shipper), and OrderStatus entities.
+ * Data Access Object (DAO) for Order related operations. Handles database
+ * interactions for Order, User (Shipper), and OrderStatus entities.
+ *
  * @author VU MINH TAN
  */
 public class OrderDAO extends BaseDao {
@@ -32,7 +34,7 @@ public class OrderDAO extends BaseDao {
 
     public List<Order> searchOrders(String keyword, Integer statusId, int pageIndex, int pageSize, String sortField, String sortOrder) {
         List<Order> listOrders = new ArrayList<>();
-        
+
         // 1. Xây dựng câu truy vấn SQL để đếm tổng số bản ghi
         StringBuilder countSql = new StringBuilder();
         countSql.append("SELECT COUNT(o.order_id) FROM `order` o ");
@@ -84,16 +86,16 @@ public class OrderDAO extends BaseDao {
                 orderByColumnName = "o.order_date";
                 break;
             case "customerName":
-                orderByColumnName = "u.Fullname"; 
+                orderByColumnName = "u.Fullname";
                 break;
             case "totalAmount":
                 orderByColumnName = "o.total_amount";
                 break;
             case "statusName":
-                orderByColumnName = "os.status_name"; 
+                orderByColumnName = "os.status_name";
                 break;
             case "shipperName":
-                orderByColumnName = "s.Fullname"; 
+                orderByColumnName = "s.Fullname";
                 break;
             default:
                 orderByColumnName = "o.order_date"; // Mặc định sắp xếp theo ngày đặt hàng
@@ -105,12 +107,11 @@ public class OrderDAO extends BaseDao {
         } else {
             dataSql.append(" ORDER BY ").append(orderByColumnName).append(" ASC");
         }
-        
+
         // Thêm sắp xếp phụ theo order_id để đảm bảo thứ tự ổn định khi các giá trị của cột chính trùng nhau
         if (!orderByColumnName.equals("o.order_id")) {
-             dataSql.append(", o.order_id DESC"); // Thêm ID để ổn định sắp xếp
+            dataSql.append(", o.order_id DESC"); // Thêm ID để ổn định sắp xếp
         }
-        
 
         // Thêm LIMIT và OFFSET cho câu truy vấn dữ liệu nếu pageIndex và pageSize hợp lệ
         if (pageIndex > 0 && pageSize > 0) {
@@ -171,23 +172,43 @@ public class OrderDAO extends BaseDao {
         return listOrders;
     }
 
+    public boolean updateOrder(int orderId, String totalAmount, int statusId, Integer shipperId) {
+        String sql = "UPDATE `order` SET total_amount = ?, status_id = ?, shipper_id = ? WHERE order_id = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, totalAmount);
+            ps.setInt(2, statusId);
+            if (shipperId == null) {
+                ps.setNull(3, java.sql.Types.INTEGER);
+            } else {
+                ps.setInt(3, shipperId);
+            }
+            ps.setInt(4, orderId);
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Lỗi SQL khi cập nhật đơn hàng (ID: " + orderId + "): " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.err.println("Lỗi khi đóng tài nguyên: " + e.getMessage());
+            }
+        }
+    }
 
-    /**
-     * Lấy chi tiết một đơn hàng cụ thể theo ID, bao gồm tên khách hàng, tên trạng thái,
-     * và thông tin shipper (nếu có).
-     *
-     * @param orderId ID của đơn hàng cần lấy chi tiết.
-     * @return Đối tượng Order chứa thông tin chi tiết, hoặc null nếu không tìm thấy.
-     */
     public Order getOrderDetailById(int orderId) {
         Order order = null;
-        String sql = "SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, " +
-                     "o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name " +
-                     "FROM `order` o " +
-                     "JOIN `user` u ON o.customer_id = u.User_ID " +
-                     "JOIN `order_status` os ON o.status_id = os.order_status_id " +
-                     "LEFT JOIN `user` s ON o.shipper_id = s.User_ID " +
-                     "WHERE o.order_id = ?";
+        String sql = "SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, "
+                + "o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name "
+                + "FROM `order` o "
+                + "JOIN `user` u ON o.customer_id = u.User_ID "
+                + "JOIN `order_status` os ON o.status_id = os.order_status_id "
+                + "LEFT JOIN `user` s ON o.shipper_id = s.User_ID "
+                + "WHERE o.order_id = ?";
 
         try {
             connection = dbc.getConnection();
@@ -226,7 +247,8 @@ public class OrderDAO extends BaseDao {
      *
      * @param orderId ID của đơn hàng cần cập nhật.
      * @param newStatusId ID trạng thái mới.
-     * @return true nếu cập nhật thành công (số hàng bị ảnh hưởng > 0), false nếu ngược lại.
+     * @return true nếu cập nhật thành công (số hàng bị ảnh hưởng > 0), false
+     * nếu ngược lại.
      */
     public boolean updateOrderStatus(int orderId, int newStatusId) {
         String sql = "UPDATE `order` SET status_id = ? WHERE order_id = ?";
@@ -254,7 +276,8 @@ public class OrderDAO extends BaseDao {
      * Gán hoặc hủy gán shipper cho một đơn hàng.
      *
      * @param orderId ID của đơn hàng.
-     * @param shipperId ID của shipper cần gán. Nếu là null, đơn hàng sẽ không được gán shipper.
+     * @param shipperId ID của shipper cần gán. Nếu là null, đơn hàng sẽ không
+     * được gán shipper.
      * @return true nếu cập nhật thành công, false nếu ngược lại.
      */
     public boolean assignShipper(int orderId, Integer shipperId) {
@@ -284,15 +307,15 @@ public class OrderDAO extends BaseDao {
     }
 
     /**
-     * Lấy danh sách tất cả các người dùng có vai trò là 'Shipper'.
-     * Yêu cầu bảng `user` có cột `role` và `Username` để xác định vai trò và tên đăng nhập.
+     * Lấy danh sách tất cả các người dùng có vai trò là 'Shipper'. Yêu cầu bảng
+     * `user` có cột `role` và `Username` để xác định vai trò và tên đăng nhập.
      *
      * @return Danh sách các đối tượng User đại diện cho shipper.
      */
     public List<User> getAllShippers() {
         List<User> shippers = new ArrayList<>();
         // Giữ nguyên role = 8 và email/phone casing như bạn đã cung cấp
-        String sql = "SELECT User_ID, Username, Fullname, Email, Phone, role FROM `user` WHERE role = 8"; 
+        String sql = "SELECT User_ID, Username, Fullname, Email, Phone, role FROM `user` WHERE role = 8";
 
         try {
             connection = dbc.getConnection();
@@ -304,8 +327,8 @@ public class OrderDAO extends BaseDao {
                 shipper.setUsername(rs.getString("Username"));
                 shipper.setFullname(rs.getString("Fullname"));
                 // Giữ nguyên casing cho email và phone như bạn đã cung cấp
-                shipper.setEmail(rs.getString("Email"));   
-                shipper.setPhone(rs.getString("Phone"));   
+                shipper.setEmail(rs.getString("Email"));
+                shipper.setPhone(rs.getString("Phone"));
                 shipper.setRole(rs.getInt("role"));
                 shippers.add(shipper);
             }
@@ -354,66 +377,53 @@ public class OrderDAO extends BaseDao {
         return statuses;
     }
 
+    public List<OrderDetail> getOrderItemsByOrderId(int orderId) {
+        List<OrderDetail> orderItems = new ArrayList<>();
+        String sql = "SELECT od.order_item_id, od.order_id, od.bouquet_id, "
+                + "b.bouquet_name, b.image_url, od.quantity, od.unit_price "
+                + "FROM `order_item` od "
+                + "JOIN `bouquet` b ON od.bouquet_id = b.bouquet_id "
+                + "WHERE od.order_id = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                OrderDetail item = new OrderDetail(
+                        rs.getInt("order_item_id"),
+                        rs.getInt("order_id"),
+                        rs.getInt("bouquet_id"),
+                        rs.getString("bouquet_name"),
+                        rs.getString("image_url"), // Cột image_url trong bảng bouquet
+                        rs.getInt("quantity"),
+                        rs.getString("unit_price") // Cột price_at_purchase trong order_detail
+                );
+                orderItems.add(item);
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi SQL khi lấy danh sách sản phẩm trong đơn hàng (ID: " + orderId + "): " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.err.println("Lỗi khi đóng tài nguyên: " + e.getMessage());
+            }
+        }
+        return orderItems;
+    }
+
     public static void main(String[] args) {
         OrderDAO orderDAO = new OrderDAO();
-
-        // Test searchOrders with pagination (e.g., page 1, size 2)
-        System.out.println("\n--- Orders (Page 1, Size 2, Sorted by Date DESC) ---");
-        List<Order> paginatedOrders = orderDAO.searchOrders(null, null, 1, 2, "orderDate", "desc");
-        if (paginatedOrders.isEmpty()) {
-            System.out.println("No orders found for pagination test.");
+System.out.println("\n--- Test Get Order Items for Order ID 1 ---");
+        // Giả sử có Order ID 1 và có các item trong order_detail
+        List<OrderDetail> items = orderDAO.getOrderItemsByOrderId(1);
+        if (items.isEmpty()) {
+            System.out.println("Không tìm thấy sản phẩm nào cho đơn hàng ID 1.");
         } else {
-            paginatedOrders.forEach(System.out::println);
-            System.out.println("Total records: " + orderDAO.getNoOfRecords());
+            items.forEach(System.out::println);
         }
-
-        // Test searchOrders with keyword and pagination, sorted by customer name ASC
-        System.out.println("\n--- Search Orders (keyword 'Grace', Page 1, Size 1, Sorted by Customer Name ASC) ---");
-        List<Order> searchedPaginatedOrders = orderDAO.searchOrders("Grace", null, 1, 1, "customerName", "asc");
-        if (searchedPaginatedOrders.isEmpty()) {
-            System.out.println("No orders found for keyword 'Grace' with pagination.");
-        } else {
-            searchedPaginatedOrders.forEach(System.out::println);
-            System.out.println("Total records for 'Grace': " + orderDAO.getNoOfRecords());
-        }
-
-        // Test searchOrders with statusId and pagination, sorted by total amount DESC
-        System.out.println("\n--- Filter Orders (Status ID 1, Page 1, Size 2, Sorted by Total Amount DESC) ---");
-        List<Order> filteredPaginatedOrders = orderDAO.searchOrders(null, 1, 1, 2, "totalAmount", "desc");
-        if (filteredPaginatedOrders.isEmpty()) {
-            System.out.println("No orders found for Status ID 1 with pagination.");
-        } else {
-            filteredPaginatedOrders.forEach(System.out::println);
-            System.out.println("Total records for Status ID 1: " + orderDAO.getNoOfRecords());
-        }
-
-        // Original tests (kept for reference)
-        System.out.println("\n--- Kiểm tra chi tiết đơn hàng (ID 1) ---");
-        Order order1 = orderDAO.getOrderDetailById(1);
-        if (order1 != null) {
-            System.out.println(order1);
-        } else {
-            System.out.println("Không tìm thấy đơn hàng ID 1.");
-        }
-
-        System.out.println("\n--- Danh sách Shipper ---");
-        List<User> shippers = orderDAO.getAllShippers();
-        if (shippers.isEmpty()) {
-            System.out.println("Không tìm thấy shipper nào.");
-        } else {
-            for (User shipper : shippers) {
-                System.out.println(shipper);
-            }
-        }
-
-        System.out.println("\n--- Danh sách Trạng thái Đơn hàng ---");
-        List<OrderStatus> statuses = orderDAO.getAllOrderStatuses();
-        if (statuses.isEmpty()) {
-            System.out.println("Không tìm thấy trạng thái đơn hàng nào.");
-        } else {
-            for (OrderStatus status : statuses) {
-                System.out.println(status);
-            }
-        }
+        
     }
 }
