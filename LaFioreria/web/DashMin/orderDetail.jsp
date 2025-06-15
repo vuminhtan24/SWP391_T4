@@ -1,6 +1,6 @@
 <%--
-    Document   : orderManagement
-    Created on : Jun 15, 2025, 12:24:18 AM
+    Document   : orderDetail
+    Created on : Jun 15, 2025, 12:17:02 PM
     Author     : VU MINH TAN
 --%>
 
@@ -12,7 +12,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Order Management - DASHMIN</title>
+        <title>Chi tiết Đơn hàng - DASHMIN</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -41,12 +41,12 @@
     </head>
     <body>
         <div class="container-fluid position-relative bg-white d-flex p-0">
-            <!-- Spinner Start -->
-             <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <!-- Spinner Start (Optional - Uncomment if you use a loading spinner) -->
+            <%-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
                 <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
-            </div> 
+            </div> --%>
             <!-- Spinner End -->
 
             <!-- Sidebar Start -->
@@ -80,7 +80,13 @@
                         <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link"><i class="fa fa-table me-2"></i>User</a>
                         <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/orderManagement" class="nav-item nav-link active"><i class="fa fa-th me-2"></i>Order</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Order</a>
+                            <div class="dropdown-menu bg-transparent border-0">
+                                <a href="${pageContext.request.contextPath}/orderManagement" class="dropdown-item">Order Management</a> <%-- Link to OrderListServlet --%>
+                                <a href="${pageContext.request.contextPath}/orderDetail" class="dropdown-item active">Order Detail</a> <%-- Link to OrderDetailServlet, current page --%>
+                            </div>
+                        </div>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
                         <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
@@ -97,62 +103,83 @@
                 </nav>
             </div>
             <!-- Sidebar End -->
-
+            
             <!-- Content Start -->
             <div class="content">
                 <!-- Navbar Start -->
                 <jsp:include page="/DashMin/navbar.jsp"/>
                 <!-- Navbar End -->
 
-                <!-- Order List Start -->
+                <!-- Order Detail Section Start -->
                 <div class="container-fluid pt-4 px-4">
-                    <div class="bg-light text-center rounded p-4">
-                        <div class="d-flex align-items-center justify-content-between mb-4">
-                            <h6 class="mb-0">Quản lý Đơn hàng</h6> <%-- Updated title to Vietnamese --%>
-                            <a href="${pageContext.request.contextPath}/DashMin/orderManagement">Hiển thị Tất cả</a> <%-- Updated text to Vietnamese --%>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table text-start align-middle table-bordered table-hover mb-0">
-                                <thead>
-                                    <tr class="text-dark">
-                                        <th scope="col">ID Đơn hàng</th>
-                                        <th scope="col">Ngày Đặt hàng</th>
-                                        <th scope="col">Khách hàng</th>
-                                        <th scope="col">Tổng tiền</th>
-                                        <th scope="col">Trạng thái</th>
-                                        <th scope="col">Người giao hàng</th>
-                                        <th scope="col">Hành động</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <c:if test="${empty orders}">
-                                        <tr>
-                                            <td colspan="7">Không tìm thấy đơn hàng nào.</td>
-                                        </tr>
-                                    </c:if>
-                                    <c:forEach var="order" items="${orders}">
-                                        <tr>
-                                            <td>${order.orderId}</td>
-                                            <td>${order.orderDate}</td>
-                                            <td>${order.customerName}</td>
-                                            <td>${order.totalAmount}</td>
-                                            <td>${order.statusName}</td>
-                                            <td>${order.shipperName != null ? order.shipperName : "Chưa gán"}</td>
-                                            <td>
-                                                <a class="btn btn-sm btn-primary"
-                                                   href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}">Chi tiết</a> <%-- Updated button text --%>
-                                                <%-- Các nút Edit và Delete có thể được phát triển sau --%>
-                                                <a class="btn btn-sm btn-info disabled" href="#">Sửa</a>
-                                                <a class="btn btn-sm btn-danger disabled" href="#">Xóa</a>
-                                            </td>
-                                        </tr>
+                    <div class="bg-light rounded p-4">
+                        <h6 class="mb-4">Chi tiết Đơn hàng - ID: ${order.orderId}</h6>
+
+                        <%-- Display success/error messages from session (after redirect) --%>
+                        <c:if test="${not empty sessionScope.errorMessage}">
+                            <div class="alert alert-danger" role="alert">
+                                ${sessionScope.errorMessage}
+                            </div>
+                            <c:remove var="errorMessage" scope="session"/> <%-- Remove message after display --%>
+                        </c:if>
+                        <c:if test="${not empty sessionScope.successMessage}">
+                            <div class="alert alert-success" role="alert">
+                                ${sessionScope.successMessage}
+                            </div>
+                            <c:remove var="successMessage" scope="session"/> <%-- Remove message after display --%>
+                        </c:if>
+                        <%-- Display error messages from request (if forwarded) --%>
+                        <c:if test="${not empty requestScope.errorMessage}">
+                            <div class="alert alert-danger" role="alert">
+                                ${requestScope.errorMessage}
+                            </div>
+                        </c:if>
+
+                        <form action="${pageContext.request.contextPath}/DashMin/orderDetail" method="post">
+                            <input type="hidden" name="orderId" value="${order.orderId}">
+
+                            <div class="mb-3">
+                                <label for="orderDate" class="form-label">Ngày Đặt hàng:</label>
+                                <input type="text" class="form-control" id="orderDate" value="${order.orderDate}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="customerName" class="form-label">Tên Khách hàng:</label>
+                                <input type="text" class="form-control" id="customerName" value="${order.customerName}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="totalAmount" class="form-label">Tổng tiền:</label>
+                                <input type="text" class="form-control" id="totalAmount" value="${order.totalAmount}" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="newStatusId" class="form-label">Trạng thái Đơn hàng:</label>
+                                <select class="form-select" id="newStatusId" name="newStatusId">
+                                    <c:forEach var="status" items="${statuses}">
+                                        <option value="${status.statusId}" ${order.statusId == status.statusId ? 'selected' : ''}>
+                                            ${status.statusName}
+                                        </option>
                                     </c:forEach>
-                                </tbody>
-                            </table>
-                        </div>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="shipperId" class="form-label">Gán Người giao hàng:</label>
+                                <select class="form-select" id="shipperId" name="shipperId">
+                                    <option value="">-- Choose shipper --</option> <%-- Option to unassign shipper --%>
+                                    <c:forEach var="shipper" items="${shippers}">
+                                        <option value="${shipper.userid}" ${order.shipperId == shipper.userid ? 'selected' : ''}>
+                                            ${shipper.fullname} <%-- Display shipper's full name --%>
+                                        </option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Update order</button>
+                            <a href="${pageContext.request.contextPath}/orderManagement" class="btn btn-secondary">Quay lại Danh sách</a>
+                        </form>
                     </div>
                 </div>
-                <!-- Order List End -->
+                <!-- Order Detail Section End -->
 
                 <!-- Footer Start -->
                 <div class="container-fluid pt-4 px-4">
@@ -162,7 +189,7 @@
                                 &copy; <a href="#">Tên trang web của bạn</a>, Mọi quyền được bảo lưu. 
                             </div>
                             <div class="col-12 col-sm-6 text-center text-sm-end">
-                                Được thiết kế bởi <a href="https://htmlcodex.com">HTML Codex</a>
+                                Thiết kế bởi <a href="https://htmlcodex.com">HTML Codex</a>
                             </div>
                         </div>
                     </div>

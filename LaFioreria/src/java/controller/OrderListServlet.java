@@ -15,6 +15,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import model.Order;
+import model.OrderStatus;
+import model.User;
 
 /**
  *
@@ -59,11 +61,14 @@ public class OrderListServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         OrderDAO orderDAO = new OrderDAO();
+
+        // Lấy tất cả các đơn hàng từ cơ sở dữ liệu
         List<Order> orders = orderDAO.getAllOrders();
+
+        // Đặt danh sách đơn hàng vào request attribute để JSP có thể truy cập
         request.setAttribute("orders", orders);
 
-        // Chuyển tiếp yêu cầu đến trang JSP để hiển thị
-        // Đảm bảo đường dẫn này chính xác đến file JSP của bạn
+        // Chuyển tiếp yêu cầu đến trang JSP để hiển thị danh sách
         request.getRequestDispatcher("/DashMin/orderManagement.jsp").forward(request, response);
     }
 
@@ -76,8 +81,8 @@ public class OrderListServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        processRequest(request, response);
+            throws ServletException, IOException {
+        doGet(request, response); 
     }
 
     /** 
