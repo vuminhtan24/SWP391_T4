@@ -62,11 +62,34 @@ public class OrderListServlet extends HttpServlet {
             throws ServletException, IOException {
         OrderDAO orderDAO = new OrderDAO();
 
-        // Lấy tất cả các đơn hàng từ cơ sở dữ liệu
-        List<Order> orders = orderDAO.getAllOrders();
+        // Lấy tham số tìm kiếm (keyword)
+        String keyword = request.getParameter("keyword");
+        if (keyword == null) {
+            keyword = ""; // Đặt mặc định là rỗng nếu không có
+        }
 
-        // Đặt danh sách đơn hàng vào request attribute để JSP có thể truy cập
+        // Lấy tham số lọc theo trạng thái (statusId)
+        Integer statusId = null;
+        String statusIdParam = request.getParameter("statusId");
+        if (statusIdParam != null && !statusIdParam.isEmpty()) {
+            try {
+                statusId = Integer.parseInt(statusIdParam);
+            } catch (NumberFormatException e) {
+                System.err.println("Giá trị statusId không hợp lệ: " + statusIdParam);
+                // Có thể đặt thông báo lỗi vào request nếu cần
+            }
+        }
+
+        // Lấy danh sách đơn hàng dựa trên tìm kiếm và lọc
+        List<Order> orders = orderDAO.searchOrders(keyword, statusId);
+        // Lấy danh sách tất cả các trạng thái để hiển thị trong dropdown lọc
+        List<OrderStatus> statuses = orderDAO.getAllOrderStatuses();
+
+        // Đặt các attribute vào request để JSP có thể truy cập
         request.setAttribute("orders", orders);
+        request.setAttribute("statuses", statuses);
+        request.setAttribute("currentKeyword", keyword); // Giữ lại từ khóa tìm kiếm trên form
+        request.setAttribute("currentStatusId", statusId); // Giữ lại trạng thái đã chọn trên form
 
         // Chuyển tiếp yêu cầu đến trang JSP để hiển thị danh sách
         request.getRequestDispatcher("/DashMin/orderManagement.jsp").forward(request, response);

@@ -12,7 +12,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Order Management - DASHMIN</title>
+        <title>Quản lý Đơn hàng - DASHMIN</title> <%-- Updated title --%>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -41,12 +41,12 @@
     </head>
     <body>
         <div class="container-fluid position-relative bg-white d-flex p-0">
-            <!-- Spinner Start -->
-             <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <!-- Spinner Start (Optional - Uncomment if you use a loading spinner) -->
+            <%-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
                 <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
-            </div> 
+            </div> --%>
             <!-- Spinner End -->
 
             <!-- Sidebar Start -->
@@ -80,7 +80,13 @@
                         <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link"><i class="fa fa-table me-2"></i>User</a>
                         <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/orderManagement" class="nav-item nav-link active"><i class="fa fa-th me-2"></i>Order</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Order</a>
+                            <div class="dropdown-menu bg-transparent border-0">
+                                <a href="${pageContext.request.contextPath}/orderManagement" class="dropdown-item active">Order Management</a>
+                                <a href="${pageContext.request.contextPath}/orderDetail" class="dropdown-item">Order Detail</a>
+                            </div>
+                        </div>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
                         <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
@@ -108,9 +114,32 @@
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light text-center rounded p-4">
                         <div class="d-flex align-items-center justify-content-between mb-4">
-                            <h6 class="mb-0">Quản lý Đơn hàng</h6> <%-- Updated title to Vietnamese --%>
-                            <a href="${pageContext.request.contextPath}/DashMin/orderManagement">Hiển thị Tất cả</a> <%-- Updated text to Vietnamese --%>
+                            <h6 class="mb-0">Quản lý Đơn hàng</h6>
+                            <a href="${pageContext.request.contextPath}/orderManagement">Hiển thị Tất cả</a>
                         </div>
+
+                        <%-- Form Tìm kiếm và Lọc --%>
+                        <div class="mb-4">
+                            <form action="${pageContext.request.contextPath}/orderManagement" method="get" class="d-flex justify-content-between align-items-center">
+                                <div class="input-group me-2" style="width: 40%;">
+                                    <input type="text" class="form-control" placeholder="Tìm kiếm theo ID, khách hàng, tổng tiền..."
+                                           name="keyword" value="${currentKeyword != null ? currentKeyword : ''}">
+                                    <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+                                </div>
+                                <div class="me-2" style="width: 30%;">
+                                    <select class="form-select" name="statusId">
+                                        <option value="0" ${currentStatusId == null || currentStatusId == 0 ? 'selected' : ''}>-- Lọc theo Trạng thái --</option>
+                                        <c:forEach var="status" items="${statuses}">
+                                            <option value="${status.statusId}" ${currentStatusId != null && currentStatusId == status.statusId ? 'selected' : ''}>
+                                                ${status.statusName}
+                                            </option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                                <button class="btn btn-secondary" type="submit">Lọc</button>
+                            </form>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table text-start align-middle table-bordered table-hover mb-0">
                                 <thead>
@@ -140,8 +169,7 @@
                                             <td>${order.shipperName != null ? order.shipperName : "Chưa gán"}</td>
                                             <td>
                                                 <a class="btn btn-sm btn-primary"
-                                                   href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}">Chi tiết</a> <%-- Updated button text --%>
-                                                <%-- Các nút Edit và Delete có thể được phát triển sau --%>
+                                                   href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}">Chi tiết</a>
                                                 <a class="btn btn-sm btn-info disabled" href="#">Sửa</a>
                                                 <a class="btn btn-sm btn-danger disabled" href="#">Xóa</a>
                                             </td>
@@ -159,7 +187,7 @@
                     <div class="bg-light rounded-top p-4">
                         <div class="row">
                             <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">Tên trang web của bạn</a>, Mọi quyền được bảo lưu. 
+                                &copy; <a href="#">Tên trang web của bạn</a>, Mọi quyền được bảo lưu.
                             </div>
                             <div class="col-12 col-sm-6 text-center text-sm-end">
                                 Được thiết kế bởi <a href="https://htmlcodex.com">HTML Codex</a>

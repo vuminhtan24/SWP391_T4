@@ -135,7 +135,7 @@
                             </div>
                         </c:if>
 
-                        <form action="${pageContext.request.contextPath}/DashMin/orderDetail" method="post">
+                        <form action="${pageContext.request.contextPath}/orderDetail" method="post">
                             <input type="hidden" name="orderId" value="${order.orderId}">
 
                             <div class="mb-3">

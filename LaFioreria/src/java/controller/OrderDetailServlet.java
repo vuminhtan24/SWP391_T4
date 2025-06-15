@@ -71,13 +71,13 @@ public class OrderDetailServlet extends HttpServlet {
             } catch (NumberFormatException e) {
                 // Xử lý lỗi nếu orderId không phải là số: chuyển hướng về trang danh sách
                 System.err.println("Order ID không hợp lệ: " + orderIdParam + ". Chuyển hướng về trang quản lý.");
-                response.sendRedirect(request.getContextPath() + "/DashMin/orderManagement");
+                response.sendRedirect(request.getContextPath() + "/orderManagement");
                 return;
             }
         } else {
             // Nếu không có Order ID được cung cấp, chuyển hướng về trang danh sách
             System.err.println("Không có Order ID được cung cấp. Chuyển hướng về trang quản lý.");
-            response.sendRedirect(request.getContextPath() + "/DashMin/orderManagement");
+            response.sendRedirect(request.getContextPath() + "/orderManagement");
             return;
         }
 
@@ -125,7 +125,7 @@ public class OrderDetailServlet extends HttpServlet {
         } catch (NumberFormatException e) {
             System.err.println("Lỗi parse dữ liệu đầu vào khi cập nhật đơn hàng: " + e.getMessage());
             request.getSession().setAttribute("errorMessage", "Dữ liệu đầu vào không hợp lệ. Vui lòng kiểm tra lại.");
-            response.sendRedirect(request.getContextPath() + "/DashMin/orderDetail?orderId=" + orderIdParam);
+            response.sendRedirect(request.getContextPath() + "/orderDetail?orderId=" + orderIdParam);
             return;
         }
 
@@ -139,7 +139,7 @@ public class OrderDetailServlet extends HttpServlet {
         }
 
         // Chuyển hướng người dùng trở lại trang chi tiết đơn hàng sau khi cập nhật
-        response.sendRedirect(request.getContextPath() + "/DashMin/orderDetail?orderId=" + orderId);
+        response.sendRedirect(request.getContextPath() + "/orderDetail?orderId=" + orderId);
     }
 
     /** 

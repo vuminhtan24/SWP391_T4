@@ -96,6 +96,72 @@ public class OrderDAO extends BaseDao{
         }
         return order;
     }
+    public List<Order> searchOrders(String keyword, Integer statusId) {
+        List<Order> listOrders = new ArrayList<>();
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, ");
+        sql.append("o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name ");
+        sql.append("FROM `order` o ");
+        sql.append("JOIN `user` u ON o.customer_id = u.User_ID ");
+        sql.append("JOIN `order_status` os ON o.status_id = os.order_status_id ");
+        sql.append("LEFT JOIN `user` s ON o.shipper_id = s.User_ID ");
+        sql.append("WHERE 1=1 "); // Mệnh đề WHERE luôn đúng để dễ dàng thêm các điều kiện AND
+
+        List<Object> params = new ArrayList<>();
+
+        // Thêm điều kiện tìm kiếm theo từ khóa
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND (o.order_id LIKE ? OR u.Fullname LIKE ? OR o.total_amount LIKE ?) ");
+            params.add("%" + keyword + "%");
+            params.add("%" + keyword + "%");
+            params.add("%" + keyword + "%");
+        }
+
+        // Thêm điều kiện lọc theo trạng thái
+        if (statusId != null && statusId != 0) { // statusId = 0 có thể được dùng để biểu thị "Tất cả"
+            sql.append("AND o.status_id = ? ");
+            params.add(statusId);
+        }
+
+        // Sắp xếp kết quả (tùy chọn)
+        sql.append("ORDER BY o.order_date DESC, o.order_id DESC");
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql.toString());
+
+            // Thiết lập tham số cho PreparedStatement
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                listOrders.add(new Order(
+                        rs.getInt("order_id"),
+                        rs.getString("order_date") != null ? rs.getString("order_date").trim() : null,
+                        rs.getInt("customer_id"),
+                        rs.getString("customer_name"),
+                        rs.getString("total_amount") != null ? rs.getString("total_amount").trim() : null,
+                        rs.getInt("status_id"),
+                        rs.getString("status_name"),
+                        rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
+                        rs.getString("shipper_name")
+                ));
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi SQL khi tìm kiếm/lọc đơn hàng: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.err.println("Lỗi khi đóng tài nguyên: " + e.getMessage());
+            }
+        }
+        return listOrders;
+    }
     public boolean updateOrderStatus(int orderId, int newStatusId) {
         String sql = "UPDATE `order` SET status_id = ? WHERE order_id = ?";
         try {
