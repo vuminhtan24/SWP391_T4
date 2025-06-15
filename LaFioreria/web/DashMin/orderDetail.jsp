@@ -1,6 +1,6 @@
 <%--
-    Document   : orderManagement
-    Created on : Jun 15, 2025, 12:24:18 AM
+    Document   : orderDetail
+    Created on : Jun 15, 2025, 12:17:02 PM
     Author     : VU MINH TAN
 --%>
 
@@ -12,7 +12,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Quản lý Đơn hàng - DASHMIN</title> <%-- Updated title --%>
+        <title>Chi tiết Đơn hàng - DASHMIN</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -83,8 +83,8 @@
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Order</a>
                             <div class="dropdown-menu bg-transparent border-0">
-                                <a href="${pageContext.request.contextPath}/orderManagement" class="dropdown-item active">Order Management</a>
-                                <a href="${pageContext.request.contextPath}/orderDetail" class="dropdown-item">Order Detail</a>
+                                <a href="${pageContext.request.contextPath}/orderManagement" class="dropdown-item">Order Management</a> <%-- Link to OrderListServlet --%>
+                                <a href="${pageContext.request.contextPath}/orderDetail" class="dropdown-item active">Order Detail</a> <%-- Link to OrderDetailServlet, current page --%>
                             </div>
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
@@ -103,94 +103,93 @@
                 </nav>
             </div>
             <!-- Sidebar End -->
-
+            
             <!-- Content Start -->
             <div class="content">
                 <!-- Navbar Start -->
                 <jsp:include page="/DashMin/navbar.jsp"/>
                 <!-- Navbar End -->
 
-                <!-- Order List Start -->
+                <!-- Order Detail Section Start -->
                 <div class="container-fluid pt-4 px-4">
-                    <div class="bg-light text-center rounded p-4">
-                        <div class="d-flex align-items-center justify-content-between mb-4">
-                            <h6 class="mb-0">Quản lý Đơn hàng</h6>
-                            <a href="${pageContext.request.contextPath}/orderManagement">Hiển thị Tất cả</a>
-                        </div>
+                    <div class="bg-light rounded p-4">
+                        <h6 class="mb-4">Chi tiết Đơn hàng - ID: ${order.orderId}</h6>
 
-                        <%-- Form Tìm kiếm và Lọc --%>
-                        <div class="mb-4">
-                            <form action="${pageContext.request.contextPath}/orderManagement" method="get" class="d-flex justify-content-between align-items-center">
-                                <div class="input-group me-2" style="width: 40%;">
-                                    <input type="text" class="form-control" placeholder="Tìm kiếm theo ID, khách hàng, tổng tiền..."
-                                           name="keyword" value="${currentKeyword != null ? currentKeyword : ''}">
-                                    <button class="btn btn-primary" type="submit">Tìm kiếm</button>
-                                </div>
-                                <div class="me-2" style="width: 30%;">
-                                    <select class="form-select" name="statusId">
-                                        <option value="0" ${currentStatusId == null || currentStatusId == 0 ? 'selected' : ''}>-- Lọc theo Trạng thái --</option>
-                                        <c:forEach var="status" items="${statuses}">
-                                            <option value="${status.statusId}" ${currentStatusId != null && currentStatusId == status.statusId ? 'selected' : ''}>
-                                                ${status.statusName}
-                                            </option>
-                                        </c:forEach>
-                                    </select>
-                                </div>
-                                <button class="btn btn-secondary" type="submit">Lọc</button>
-                            </form>
-                        </div>
+                        <%-- Display success/error messages from session (after redirect) --%>
+                        <c:if test="${not empty sessionScope.errorMessage}">
+                            <div class="alert alert-danger" role="alert">
+                                ${sessionScope.errorMessage}
+                            </div>
+                            <c:remove var="errorMessage" scope="session"/> <%-- Remove message after display --%>
+                        </c:if>
+                        <c:if test="${not empty sessionScope.successMessage}">
+                            <div class="alert alert-success" role="alert">
+                                ${sessionScope.successMessage}
+                            </div>
+                            <c:remove var="successMessage" scope="session"/> <%-- Remove message after display --%>
+                        </c:if>
+                        <%-- Display error messages from request (if forwarded) --%>
+                        <c:if test="${not empty requestScope.errorMessage}">
+                            <div class="alert alert-danger" role="alert">
+                                ${requestScope.errorMessage}
+                            </div>
+                        </c:if>
 
-                        <div class="table-responsive">
-                            <table class="table text-start align-middle table-bordered table-hover mb-0">
-                                <thead>
-                                    <tr class="text-dark">
-                                        <th scope="col">ID Đơn hàng</th>
-                                        <th scope="col">Ngày Đặt hàng</th>
-                                        <th scope="col">Khách hàng</th>
-                                        <th scope="col">Tổng tiền</th>
-                                        <th scope="col">Trạng thái</th>
-                                        <th scope="col">Người giao hàng</th>
-                                        <th scope="col">Hành động</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <c:if test="${empty orders}">
-                                        <tr>
-                                            <td colspan="7">Không tìm thấy đơn hàng nào.</td>
-                                        </tr>
-                                    </c:if>
-                                    <c:forEach var="order" items="${orders}">
-                                        <tr>
-                                            <td>${order.orderId}</td>
-                                            <td>${order.orderDate}</td>
-                                            <td>${order.customerName}</td>
-                                            <td>${order.totalAmount}</td>
-                                            <td>${order.statusName}</td>
-                                            <td>${order.shipperName != null ? order.shipperName : "Chưa gán"}</td>
-                                            <td>
-                                                <a class="btn btn-sm btn-primary"
-                                                   href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}">Chi tiết</a>
-                                                <a class="btn btn-sm btn-info disabled" href="#">Sửa</a>
-                                                <a class="btn btn-sm btn-danger disabled" href="#">Xóa</a>
-                                            </td>
-                                        </tr>
+                        <form action="${pageContext.request.contextPath}/orderDetail" method="post">
+                            <input type="hidden" name="orderId" value="${order.orderId}">
+
+                            <div class="mb-3">
+                                <label for="orderDate" class="form-label">Ngày Đặt hàng:</label>
+                                <input type="text" class="form-control" id="orderDate" value="${order.orderDate}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="customerName" class="form-label">Tên Khách hàng:</label>
+                                <input type="text" class="form-control" id="customerName" value="${order.customerName}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="totalAmount" class="form-label">Tổng tiền:</label>
+                                <input type="text" class="form-control" id="totalAmount" value="${order.totalAmount}" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="newStatusId" class="form-label">Trạng thái Đơn hàng:</label>
+                                <select class="form-select" id="newStatusId" name="newStatusId">
+                                    <c:forEach var="status" items="${statuses}">
+                                        <option value="${status.statusId}" ${order.statusId == status.statusId ? 'selected' : ''}>
+                                            ${status.statusName}
+                                        </option>
                                     </c:forEach>
-                                </tbody>
-                            </table>
-                        </div>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="shipperId" class="form-label">Gán Người giao hàng:</label>
+                                <select class="form-select" id="shipperId" name="shipperId">
+                                    <option value="">-- Choose shipper --</option> <%-- Option to unassign shipper --%>
+                                    <c:forEach var="shipper" items="${shippers}">
+                                        <option value="${shipper.userid}" ${order.shipperId == shipper.userid ? 'selected' : ''}>
+                                            ${shipper.fullname} <%-- Display shipper's full name --%>
+                                        </option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Update order</button>
+                            <a href="${pageContext.request.contextPath}/orderManagement" class="btn btn-secondary">Quay lại Danh sách</a>
+                        </form>
                     </div>
                 </div>
-                <!-- Order List End -->
+                <!-- Order Detail Section End -->
 
                 <!-- Footer Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded-top p-4">
                         <div class="row">
                             <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">Tên trang web của bạn</a>, Mọi quyền được bảo lưu.
+                                &copy; <a href="#">Tên trang web của bạn</a>, Mọi quyền được bảo lưu. 
                             </div>
                             <div class="col-12 col-sm-6 text-center text-sm-end">
-                                Được thiết kế bởi <a href="https://htmlcodex.com">HTML Codex</a>
+                                Thiết kế bởi <a href="https://htmlcodex.com">HTML Codex</a>
                             </div>
                         </div>
                     </div>
