@@ -162,12 +162,12 @@
                                                     <td>
                                                         <c:choose>
                                                             <c:when test="${not empty item.bouquetImage}">
-                                                                <img src="${pageContext.request.contextPath}/img/${item.bouquetImage}" 
+                                                                <%-- ĐÃ SỬA: Sử dụng trực tiếp URL từ database --%>
+                                                                <img src="${item.bouquetImage}" 
                                                                      alt="${item.bouquetName}" style="width: 50px; height: 50px; object-fit: cover;">
                                                             </c:when>
                                                             <c:otherwise>
-                                                                [Image of Không có ảnh]
-                                                            </c:otherwise>
+                                                                                                                            </c:otherwise>
                                                         </c:choose>
                                                     </td>
                                                     <td>${item.bouquetName}</td>
