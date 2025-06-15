@@ -8,8 +8,10 @@ import dal.OrderDAO;
 import model.Order;
 import model.User;
 import model.OrderStatus;
-import model.OrderDetail; // Import OrderDetail
+import model.OrderDetail;
 import java.io.IOException;
+import java.net.URLEncoder; 
+import java.nio.charset.StandardCharsets; 
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,7 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Servlet này xử lý việc hiển thị chi tiết đơn hàng và chức năng chỉnh sửa đơn hàng.
+ * This servlet handles displaying order details and order editing functionality.
  * @author VU MINH TAN
  */
 @WebServlet(name = "OrderDetailServlet", urlPatterns = {"/orderDetail"})
@@ -26,7 +28,7 @@ public class OrderDetailServlet extends HttpServlet {
 
     /**
      * Handles the HTTP <code>GET</code> method.
-     * Xử lý yêu cầu hiển thị chi tiết đơn hàng hoặc form chỉnh sửa đơn hàng.
+     * Processes requests to display order details or the order editing form.
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -35,11 +37,15 @@ public class OrderDetailServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        // Set encoding for request and response to handle UTF-8 characters
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
         String orderIdParam = request.getParameter("orderId");
-        String action = request.getParameter("action"); // Tham số để xác định hành động (view hoặc edit)
+        String action = request.getParameter("action"); 
 
         if (orderIdParam == null || orderIdParam.isEmpty()) {
-            System.out.println("OrderDetailServlet: orderIdParam là null hoặc rỗng. Chuyển hướng về orderManagement.");
+            System.out.println("OrderDetailServlet: orderIdParam is null or empty. Redirecting to orderManagement.");
             response.sendRedirect(request.getContextPath() + "/orderManagement");
             return;
         }
@@ -48,37 +54,43 @@ public class OrderDetailServlet extends HttpServlet {
         try {
             orderId = Integer.parseInt(orderIdParam);
         } catch (NumberFormatException e) {
-            System.err.println("OrderDetailServlet: Order ID không hợp lệ: " + orderIdParam + ". Chuyển hướng về orderManagement.");
+            System.err.println("OrderDetailServlet: Invalid Order ID: " + orderIdParam + ". Redirecting to orderManagement.");
             response.sendRedirect(request.getContextPath() + "/orderManagement");
             return;
         }
 
         OrderDAO orderDAO = new OrderDAO();
         Order order = orderDAO.getOrderDetailById(orderId);
-        List<OrderDetail> orderItems = orderDAO.getOrderItemsByOrderId(orderId); // Lấy danh sách sản phẩm
+        List<OrderDetail> orderItems = orderDAO.getOrderItemsByOrderId(orderId); 
 
         // ===============================================
-        // DÒNG DEBUG QUAN TRỌNG: Kiểm tra dữ liệu ở Servlet
+        // DEBUGGING LOGS: Check data in Servlet
         // ===============================================
         System.out.println("=============================================");
-        System.out.println("DEBUG: OrderDetailServlet.doGet cho Order ID: " + orderId);
-        System.out.println("DEBUG: Thông tin Order: " + (order != null ? order.toString() : "null"));
-        System.out.println("DEBUG: Kích thước danh sách OrderItems: " + orderItems.size());
+        System.out.println("DEBUG: OrderDetailServlet.doGet for Order ID: " + orderId);
+        System.out.println("DEBUG: Order Information: " + (order != null ? order.toString() : "null"));
+        System.out.println("DEBUG: Number of OrderItems: " + orderItems.size());
         if (!orderItems.isEmpty()) {
             for (OrderDetail item : orderItems) {
-                System.out.println("DEBUG:   - Item: " + item.getBouquetName() + ", Số lượng: " + item.getQuantity() + ", Giá đơn vị: " + item.getUnitPrice());
+                System.out.println("DEBUG:   - Item: " + item.getBouquetName() + ", Quantity: " + item.getQuantity() + ", Unit Price: " + item.getUnitPrice());
             }
         } else {
-             System.out.println("DEBUG: Danh sách OrderItems trống hoặc null.");
+             System.out.println("DEBUG: OrderItems list is empty or null.");
         }
         System.out.println("=============================================");
         // ===============================================
 
         if (order == null) {
-            request.setAttribute("errorMessage", "Không tìm thấy đơn hàng với ID: " + orderId);
-            System.err.println("OrderDetailServlet: Không tìm thấy Order cho ID: " + orderId);
+            request.setAttribute("errorMessage", "Order not found with ID: " + orderId);
+            System.err.println("OrderDetailServlet: Order not found for ID: " + orderId);
             request.getRequestDispatcher("/DashMin/error.jsp").forward(request, response);
             return;
+        }
+
+        // Retrieve success message if any from previous redirect
+        String successMessage = request.getParameter("successMessage");
+        if (successMessage != null && !successMessage.isEmpty()) {
+            request.setAttribute("successMessage", successMessage);
         }
 
         if ("edit".equals(action)) {
@@ -86,20 +98,20 @@ public class OrderDetailServlet extends HttpServlet {
             List<OrderStatus> statuses = orderDAO.getAllOrderStatuses();
 
             request.setAttribute("order", order);
-            request.setAttribute("orderItems", orderItems); // Truyền danh sách sản phẩm
+            request.setAttribute("orderItems", orderItems); 
             request.setAttribute("shippers", shippers);
             request.setAttribute("statuses", statuses);
             request.getRequestDispatcher("/DashMin/orderEdit.jsp").forward(request, response);
         } else {
             request.setAttribute("order", order);
-            request.setAttribute("orderItems", orderItems); // Truyền danh sách sản phẩm
+            request.setAttribute("orderItems", orderItems); 
             request.getRequestDispatcher("/DashMin/orderDetail.jsp").forward(request, response);
         }
     }
 
     /**
      * Handles the HTTP <code>POST</code> method.
-     * Xử lý yêu cầu cập nhật thông tin đơn hàng từ form chỉnh sửa.
+     * Processes requests to update order information from the editing form.
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -116,68 +128,66 @@ public class OrderDetailServlet extends HttpServlet {
         String statusIdParam = request.getParameter("statusId");
         String shipperIdParam = request.getParameter("shipperId"); 
 
-        int orderId = -1; // Khởi tạo orderId với giá trị mặc định không hợp lệ
-        int statusId = -1; // Khởi tạo statusId với giá trị mặc định không hợp lệ
+        int orderId = -1; 
+        int statusId = -1; 
         Integer shipperId = null; 
-        String errorMessage = null; // Biến để lưu thông báo lỗi
+        String errorMessage = null;
 
-        // Bước 1: Parse các tham số và kiểm tra lỗi định dạng/thiếu
+        // Step 1: Parse parameters and check for format/missing errors
         try {
             if (orderIdParam != null && !orderIdParam.isEmpty()) {
                 orderId = Integer.parseInt(orderIdParam);
             } else {
-                errorMessage = "Thiếu ID đơn hàng.";
+                errorMessage = "Missing Order ID.";
             }
 
             if (totalAmountParam == null || totalAmountParam.isEmpty()) {
-                errorMessage = "Thiếu tổng tiền."; // Có thể muốn kiểm tra định dạng số cho totalAmountParam nếu nó là số
+                errorMessage = "Missing total amount.";
             }
             
             if (statusIdParam != null && !statusIdParam.isEmpty()) {
                 statusId = Integer.parseInt(statusIdParam);
             } else {
-                errorMessage = "Thiếu trạng thái đơn hàng.";
+                errorMessage = "Missing order status.";
             }
             
             if (shipperIdParam != null && !shipperIdParam.isEmpty() && !shipperIdParam.equals("0")) { 
                 shipperId = Integer.parseInt(shipperIdParam);
             }
         } catch (NumberFormatException e) {
-            errorMessage = "Định dạng số không hợp lệ trong dữ liệu cập nhật.";
-            System.err.println("OrderDetailServlet (POST): Lỗi parse số: " + e.getMessage());
+            errorMessage = "Invalid number format in update data.";
+            System.err.println("OrderDetailServlet (POST): Number parsing error: " + e.getMessage());
         }
 
-        // Bước 2: Nếu có lỗi trong quá trình parse hoặc thiếu tham số, hiển thị lại form
+        // Step 2: If there's an error during parsing or missing parameters, re-display the form
         if (errorMessage != null) {
             request.setAttribute("errorMessage", errorMessage);
             System.err.println("OrderDetailServlet (POST): Error during initial parameter parsing/validation: " + errorMessage);
 
-            // Cố gắng tải lại dữ liệu hiện có để hiển thị lại form
             OrderDAO orderDAO = new OrderDAO();
-            if (orderId != -1) { // Chỉ tải lại nếu orderId đã được parse hợp lệ
+            if (orderId != -1) { 
                 request.setAttribute("order", orderDAO.getOrderDetailById(orderId));
                 request.setAttribute("orderItems", orderDAO.getOrderItemsByOrderId(orderId));
                 request.setAttribute("shippers", orderDAO.getAllShippers());
                 request.setAttribute("statuses", orderDAO.getAllOrderStatuses());
                 request.getRequestDispatcher("/DashMin/orderEdit.jsp").forward(request, response);
             } else {
-                // Nếu cả orderId cũng không hợp lệ, không thể hiển thị form chỉnh sửa, chuyển hướng về trang lỗi
                 request.getRequestDispatcher("/DashMin/error.jsp").forward(request, response);
             }
-            return; // Dừng xử lý tại đây
+            return; 
         }
 
-        // Bước 3: Nếu không có lỗi nào ở trên, tiến hành cập nhật đơn hàng
+        // Step 3: If no errors, proceed with order update
         OrderDAO orderDAO = new OrderDAO();
         boolean updated = orderDAO.updateOrder(orderId, totalAmountParam, statusId, shipperId);
 
         if (updated) {
-            System.out.println("OrderDetailServlet (POST): Đơn hàng ID " + orderId + " đã cập nhật thành công.");
-            response.sendRedirect(request.getContextPath() + "/orderDetail?orderId=" + orderId + "&successMessage=Đơn hàng đã được cập nhật thành công!");
+            System.out.println("OrderDetailServlet (POST): Order ID " + orderId + " updated successfully.");
+            String encodedSuccessMessage = URLEncoder.encode("Order updated successfully!", StandardCharsets.UTF_8.toString());
+            response.sendRedirect(request.getContextPath() + "/orderDetail?orderId=" + orderId + "&successMessage=" + encodedSuccessMessage);
         } else {
-            System.err.println("OrderDetailServlet (POST): Cập nhật thất bại cho đơn hàng ID " + orderId + ".");
-            request.setAttribute("errorMessage", "Cập nhật đơn hàng thất bại. Vui lòng thử lại.");
-            // Tải lại dữ liệu để hiển thị form nếu cập nhật database thất bại
+            System.err.println("OrderDetailServlet (POST): Update failed for order ID " + orderId + ".");
+            request.setAttribute("errorMessage", "Order update failed. Please try again.");
             Order order = orderDAO.getOrderDetailById(orderId);
             List<OrderDetail> orderItems = orderDAO.getOrderItemsByOrderId(orderId); 
             List<User> shippers = orderDAO.getAllShippers();
