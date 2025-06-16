@@ -294,6 +294,20 @@ public class UserDAO extends BaseDao {
         return list;
     }
 
+    public boolean isPhoneExist(String phone) {
+        // ví dụ dùng JDBC đơn giản
+        String sql = "SELECT 1 FROM Users WHERE phone = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, phone);
+            rs = ps.executeQuery();
+            return rs.next(); // nếu có kết quả thì đã tồn tại
+        } catch (SQLException e) {
+        }
+        return false;
+    }
+
     public List<UserManager> getUserByRoleId(int role_id) {
         List<UserManager> list = new ArrayList<>();
         String sql
@@ -600,7 +614,8 @@ public class UserDAO extends BaseDao {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setString(1, u.getUsername().trim());
-            ps.setString(2, u.getPassword().trim());String hashedPassword = BCrypt.hashpw(u.getPassword(), BCrypt.gensalt());
+            ps.setString(2, u.getPassword().trim());
+            String hashedPassword = BCrypt.hashpw(u.getPassword(), BCrypt.gensalt());
             ps.setString(3, hashedPassword);
             ps.setString(4, u.getEmail().trim());
             ps.setString(5, u.getPhone().trim());
@@ -681,14 +696,14 @@ public class UserDAO extends BaseDao {
         UserDAO ud = new UserDAO();
 
         User user1 = new User(
-            13, // User_ID duy nhất
-            "shipper",
-            "123",
-            "Vu Minh Tan",
-            "vuminhtan2004@gmail.com",
-            "0901234567",
-            "123 Main St, Anytown",
-            8
+                13, // User_ID duy nhất
+                "shipper",
+                "123",
+                "Vu Minh Tan",
+                "vuminhtan2004@gmail.com",
+                "0901234567",
+                "123 Main St, Anytown",
+                8
         );
         ud.insertNewUser(user1);
 

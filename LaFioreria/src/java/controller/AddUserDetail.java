@@ -97,10 +97,18 @@ public class AddUserDetail extends HttpServlet {
         UserDAO ud = new UserDAO();
 
         try {
-            // Phone validation
             if (!phone_Number.matches("^(0)\\d{9}$")) {
                 setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
                 request.setAttribute("errorPhone", "Phone number must be 10 digits and start with 0.");
+                request.setAttribute("roleNames", ud.getRoleNames());
+                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
+                return;
+            }
+
+// Kiểm tra số điện thoại đã tồn tại
+            if (ud.isPhoneExist(phone_Number)) {
+                setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
+                request.setAttribute("errorPhone", "Phone number already exists.");
                 request.setAttribute("roleNames", ud.getRoleNames());
                 request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
                 return;
@@ -132,7 +140,7 @@ public class AddUserDetail extends HttpServlet {
             request.setAttribute("passwordStrength", passwordStrength);
 
             // Full name validation
-            if (!fullName.matches("^(?=.*[a-zA-Z])[a-zA-Z\\s]{4,}$")) {
+            if (!fullName.matches("^(?=.{4,50}$)(?!.*  )[A-Za-zÀ-ỹà-ỹ\\s]+$")) {
                 setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
                 request.setAttribute("errorFullname", "Full name must be at least 4 characters and contain no digits.");
                 request.setAttribute("roleNames", ud.getRoleNames());
@@ -141,7 +149,7 @@ public class AddUserDetail extends HttpServlet {
             }
 
             // Name validation
-            if (!name_raw.matches("^[a-zA-Z\\s]+$")) {
+            if (!name_raw.matches("^(?=.{2,50}$)(?! )[a-zA-Z]+(?: [a-zA-Z]+)*$")) {
                 setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
                 request.setAttribute("errorName", "Name must not contain digits.");
                 request.setAttribute("roleNames", ud.getRoleNames());
