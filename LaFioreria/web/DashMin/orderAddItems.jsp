@@ -1,6 +1,6 @@
 <%--
-    Document   : orderDetail
-    Created on : Jun 15, 2025, 12:24:18 AM
+    Document   : orderAddItems
+    Created on : Jun 16, 2025, 05:00:00 PM
     Author     : VU MINH TAN
 --%>
 
@@ -11,7 +11,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Order Details - DASHMIN</title>
+        <title>Add Order Items - DASHMIN</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -37,6 +37,63 @@
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
+
+        <style>
+            .product-item-row {
+                display: flex;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+            .product-item-row > div {
+                margin-right: 15px;
+            }
+            .product-item-row .form-select,
+            .product-item-row .form-control {
+                width: 250px; /* Adjust width as needed */
+            }
+            .product-item-row .quantity-input {
+                width: 100px; /* Smaller width for quantity */
+            }
+        </style>
+        <script>
+            let itemCounter = 0;
+            // Function to add a new product item row to the form
+            function addProductItemRow() {
+                const container = document.getElementById('productItemsContainer');
+                const newRow = document.createElement('div');
+                newRow.classList.add('product-item-row', 'd-flex', 'align-items-center', 'mb-3', 'p-2', 'border', 'rounded');
+                newRow.innerHTML = `
+                    <div class="col-md-6">
+                        <label for="bouquetId_${itemCounter}" class="form-label visually-hidden">Bouquet:</label>
+                        <select class="form-select" id="bouquetId_${itemCounter}" name="bouquetId" required>
+                            <option value="">-- Select Bouquet --</option>
+                            <c:forEach var="bouquet" items="${allBouquets}">
+                                <option value="${bouquet.bouquetId}" data-price="${bouquet.price}">${bouquet.bouquetName} (${bouquet.price})</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="quantity_${itemCounter}" class="form-label visually-hidden">Quantity:</label>
+                        <input type="number" class="form-control quantity-input" id="quantity_${itemCounter}" name="quantity" min="1" value="1" required>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-center">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeProductItemRow(this)">Remove</button>
+                    </div>
+                `;
+                container.appendChild(newRow);
+                itemCounter++;
+            }
+
+            // Function to remove a product item row
+            function removeProductItemRow(button) {
+                button.closest('.product-item-row').remove();
+            }
+
+            // Initial row on page load
+            document.addEventListener('DOMContentLoaded', () => {
+                addProductItemRow(); // Always add one initial row for adding items
+            });
+        </script>
     </head>
     <body>
         <div class="container-fluid position-relative bg-white d-flex p-0">
@@ -101,14 +158,14 @@
                 <jsp:include page="/DashMin/navbar.jsp"/>
                 <!-- Navbar End -->
 
-                <!-- Order Detail Start -->
+                <!-- Add Order Items Form Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded p-4">
                         <div class="d-flex align-items-center justify-content-between mb-4">
-                            <h6 class="mb-0">Order Details</h6>
-                            <a href="${pageContext.request.contextPath}/orderManagement">Back to Order Management</a>
+                            <h6 class="mb-0">Add Products to Order ID: ${order.orderId}</h6>
+                            <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}">View Order Details</a>
                         </div>
-                        
+
                         <c:if test="${not empty successMessage}">
                             <div class="alert alert-success" role="alert">
                                 ${successMessage}
@@ -120,90 +177,86 @@
                             </div>
                         </c:if>
 
-                        <c:if test="${order != null}">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Order ID:</strong> ${order.orderId}</p>
-                                    <p><strong>Order Date:</strong> ${order.orderDate}</p>
-                                    <p><strong>Customer ID:</strong> ${order.customerId}</p>
-                                    <p><strong>Customer Name:</strong> ${order.customerName}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Total Amount:</strong> ${order.totalAmount}</p>
-                                    <p><strong>Status ID:</strong> ${order.statusId}</p>
-                                    <p><strong>Status:</strong> ${order.statusName}</p>
-                                    <p><strong>Shipper ID:</strong> ${order.shipperId != null ? order.shipperId : "Not Assigned"}</p>
-                                    <p><strong>Shipper Name:</strong> ${order.shipperName != null ? order.shipperName : "Not Assigned"}</p>
-                                </div>
-                            </div>
-                            
-                            <hr class="my-4">
-                            <h6 class="mb-3">Purchased Products:</h6>
-                            <c:if test="${empty orderItems}">
-                                <p>No products found in this order.</p>
-                            </c:if>
-                            <c:if test="${not empty orderItems}">
-                                <div class="table-responsive">
-                                    <table class="table text-start align-middle table-bordered table-hover mb-0">
-                                        <thead>
-                                            <tr class="text-dark">
-                                                <th scope="col">#</th>
-                                                <th scope="col">Image</th>
-                                                <th scope="col">Product Name</th>
-                                                <th scope="col">Quantity</th>
-                                                <th scope="col">Unit Price</th>
-                                                <th scope="col">Subtotal</th>
+                        <div class="mb-3">
+                            <p><strong>Order Date:</strong> ${order.orderDate}</p>
+                            <p><strong>Customer:</strong> ${order.customerName}</p>
+                            <p><strong>Current Total Amount:</strong> ${order.totalAmount}</p>
+                        </div>
+                        
+                        <hr>
+                        <h6>Current Products in Order:</h6>
+                        <c:if test="${empty currentOrderItems}">
+                            <p>No products currently in this order.</p>
+                        </c:if>
+                        <c:if test="${not empty currentOrderItems}">
+                            <div class="table-responsive mb-4">
+                                <table class="table text-start align-middle table-bordered table-hover mb-0">
+                                    <thead>
+                                        <tr class="text-dark">
+                                            <th scope="col">#</th>
+                                            <th scope="col">Image</th>
+                                            <th scope="col">Product Name</th>
+                                            <th scope="col">Quantity</th>
+                                            <th scope="col">Unit Price</th>
+                                            <th scope="col">Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <c:forEach var="item" items="${currentOrderItems}" varStatus="loop">
+                                            <tr>
+                                                <td>${loop.index + 1}</td>
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${not empty item.bouquetImage}">
+                                                            <img src="${item.bouquetImage}" 
+                                                                 alt="${item.bouquetName}" style="width: 50px; height: 50px; object-fit: cover;">
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            [Image of No image]
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </td>
+                                                <td>${item.bouquetName}</td>
+                                                <td>${item.quantity}</td>
+                                                <td>${item.unitPrice}</td>
+                                                <td>
+                                                    <fmt:parseNumber var="qty" value="${item.quantity}" integerOnly="true" />
+                                                    <fmt:parseNumber var="price" value="${item.unitPrice}" type="number" />
+                                                    <fmt:formatNumber value="${qty * price}" type="number" maxFractionDigits="2" />
+                                                </td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            <c:forEach var="item" items="${orderItems}" varStatus="loop">
-                                                <tr>
-                                                    <td>${loop.index + 1}</td>
-                                                    <td>
-                                                        <c:choose>
-                                                            <c:when test="${not empty item.bouquetImage}">
-                                                                <img src="${item.bouquetImage}" 
-                                                                     alt="${item.bouquetName}" style="width: 50px; height: 50px; object-fit: cover;">
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                [Image of No image]
-                                                            </c:otherwise>
-                                                        </c:choose>
-                                                    </td>
-                                                    <td>${item.bouquetName}</td>
-                                                    <td>${item.quantity}</td>
-                                                    <td>${item.unitPrice}</td>
-                                                    <td>
-                                                        <fmt:parseNumber var="qty" value="${item.quantity}" integerOnly="true" />
-                                                        <fmt:parseNumber var="price" value="${item.unitPrice}" type="number" />
-                                                        <fmt:formatNumber value="${qty * price}" type="number" maxFractionDigits="2" />
-                                                    </td>
-                                                </tr>
-                                            </c:forEach>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </c:if>
+                                        </c:forEach>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </c:if>
+
+                        <hr>
+                        <h6>Add New Products:</h6>
+                        <form action="${pageContext.request.contextPath}/addOrderItems" method="post">
+                            <input type="hidden" name="orderId" value="${order.orderId}">
                             
-                            <div class="mt-4 text-end">
-                                <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}&action=edit" class="btn btn-primary me-2">Edit Order</a>
-                                <a href="${pageContext.request.contextPath}/orderManagement" class="btn btn-secondary">Back</a>
+                            <div id="productItemsContainer">
+                                <%-- Dynamic product item rows will be added here by JavaScript --%>
                             </div>
 
-                        </c:if>
-                        <c:if test="${order == null}">
-                            <p>Unable to load order details.</p>
-                        </c:if>
+                            <button type="button" class="btn btn-secondary mt-3" onclick="addProductItemRow()">Add Another Product</button>
+                            
+                            <div class="d-flex justify-content-end mt-4">
+                                <button type="submit" class="btn btn-primary me-2">Save Products</button>
+                                <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}" class="btn btn-secondary">Done Adding</a>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <!-- Order Detail End -->
+                <!-- Add Order Items Form End -->
 
                 <!-- Footer Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded-top p-4">
                         <div class="row">
                             <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">Your Site Name</a>, All Rights Reserved.
+                                &copy; <a href="#">Your Site Name</a>, All Rights Reserved. 
                             </div>
                             <div class="col-12 col-sm-6 text-center text-sm-end">
                                 Designed By <a href="https://htmlcodex.com">HTML Codex</a>

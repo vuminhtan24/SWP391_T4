@@ -30,7 +30,7 @@ public class CartController extends HttpServlet {
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
         if (currentUser == null) {
             // Ch?a login, chuy?n h??ng v? trang login
-            response.sendRedirect("./login.jsp");
+            response.sendRedirect("./login");
             return;
         }
         int customerId = currentUser.getUserid();

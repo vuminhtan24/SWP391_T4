@@ -11,7 +11,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Chỉnh sửa Đơn hàng - DASHMIN</title>
+        <title>Edit Order - DASHMIN</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -74,8 +74,8 @@
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Order</a>
                             <div class="dropdown-menu bg-transparent border-0">
-                                <a href="${pageContext.request.contextPath}/orderManagement" class="dropdown-item">Quản lý Đơn hàng</a>
-                                <a href="${pageContext.request.contextPath}/orderDetail" class="dropdown-item active">Chi tiết Đơn hàng</a>
+                                <a href="${pageContext.request.contextPath}/orderManagement" class="dropdown-item">Order Management</a>
+                                <a href="${pageContext.request.contextPath}/orderDetail" class="dropdown-item active">Order Details</a>
                             </div>
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
@@ -84,10 +84,10 @@
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
-                                <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">Lỗi 404</a>
-                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Trang Trống</a>
-                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item">Xem Chi tiết Người dùng</a>
-                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item">Thêm Người dùng mới</a>
+                                <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
+                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
+                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item">View User Detail</a>
+                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item">Add new User </a>
                             </div>
                         </div>
                     </div>
@@ -105,8 +105,8 @@
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded p-4">
                         <div class="d-flex align-items-center justify-content-between mb-4">
-                            <h6 class="mb-0">Chỉnh sửa Đơn hàng ID: ${order.orderId}</h6>
-                            <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}">Quay lại Chi tiết</a>
+                            <h6 class="mb-0">Edit Order ID: ${order.orderId}</h6>
+                            <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}">Back to Details</a>
                         </div>
 
                         <c:if test="${not empty errorMessage}">
@@ -119,23 +119,23 @@
                             <input type="hidden" name="orderId" value="${order.orderId}">
 
                             <div class="mb-3">
-                                <label for="orderDate" class="form-label">Ngày Đặt hàng:</label>
+                                <label for="orderDate" class="form-label">Order Date:</label>
                                 <input type="text" class="form-control" id="orderDate" value="${order.orderDate}" readonly>
                             </div>
 
                             <div class="mb-3">
-                                <label for="customerName" class="form-label">Tên Khách hàng:</label>
+                                <label for="customerName" class="form-label">Customer Name:</label>
                                 <input type="text" class="form-control" id="customerName" value="${order.customerName}" readonly>
                             </div>
 
                             <div class="mb-3">
-                                <label for="totalAmount" class="form-label">Tổng tiền:</label>
+                                <label for="totalAmount" class="form-label">Total Amount:</label>
                                 <input type="text" class="form-control" id="totalAmount" name="totalAmount"
                                        value="${order.totalAmount}" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="statusId" class="form-label">Trạng thái:</label>
+                                <label for="statusId" class="form-label">Status:</label>
                                 <select class="form-select" id="statusId" name="statusId" required>
                                     <c:forEach var="status" items="${statuses}">
                                         <option value="${status.statusId}" ${order.statusId == status.statusId ? 'selected' : ''}>
@@ -146,9 +146,9 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="shipperId" class="form-label">Người giao hàng:</label>
+                                <label for="shipperId" class="form-label">Shipper:</label>
                                 <select class="form-select" id="shipperId" name="shipperId">
-                                    <option value="0" ${order.shipperId == null || order.shipperId == 0 ? 'selected' : ''}>-- Chọn Shipper --</option>
+                                    <option value="0" ${order.shipperId == null || order.shipperId == 0 ? 'selected' : ''}>-- Select Shipper --</option>
                                     <c:forEach var="shipper" items="${shippers}">
                                         <option value="${shipper.userid}" ${order.shipperId != null && order.shipperId == shipper.userid ? 'selected' : ''}>
                                             ${shipper.fullname} (${shipper.username})
@@ -158,8 +158,8 @@
                             </div>
 
                             <div class="d-flex justify-content-end">
-                                <button type="submit" class="btn btn-primary me-2">Lưu thay đổi</button>
-                                <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}" class="btn btn-secondary">Hủy</a>
+                                <button type="submit" class="btn btn-primary me-2">Save Changes</button>
+                                <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}" class="btn btn-secondary">Cancel</a>
                             </div>
                         </form>
                     </div>
@@ -171,10 +171,10 @@
                     <div class="bg-light rounded-top p-4">
                         <div class="row">
                             <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">Tên trang web của bạn</a>, Mọi quyền được bảo lưu. 
+                                &copy; <a href="#">Your Site Name</a>, All Rights Reserved. 
                             </div>
                             <div class="col-12 col-sm-6 text-center text-sm-end">
-                                Được thiết kế bởi <a href="https://htmlcodex.com">HTML Codex</a>
+                                Designed By <a href="https://htmlcodex.com">HTML Codex</a>
                             </div>
                         </div>
                     </div>
