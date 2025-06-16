@@ -10,18 +10,16 @@ package model;
  */
 public class FlowerType {
     int flowerId;
-    String rawName;
-    Warehouse warehouse;
+    String flowerName;   
     String image;
     boolean active;
 
     public FlowerType() {
     }
 
-    public FlowerType(int flowerId, String rawName, Warehouse warehouse, String image, boolean active) {
+    public FlowerType(int flowerId, String flowerName, String image, boolean active) {
         this.flowerId = flowerId;
-        this.rawName = rawName;
-        this.warehouse = warehouse;
+        this.flowerName = flowerName;       
         this.image = image;
         this.active = active;
     }
@@ -34,20 +32,12 @@ public class FlowerType {
         this.flowerId = flowerId;
     }
 
-    public String getRawName() {
-        return rawName;
+    public String getFlowerName() {
+        return flowerName;
     }
 
-    public void setRawName(String rawName) {
-        this.rawName = rawName;
-    }
-
-    public Warehouse getWarehouse() {
-        return warehouse;
-    }
-
-    public void setWarehouse(Warehouse warehouse) {
-        this.warehouse = warehouse;
+    public void setFlowerName(String flowerName) {
+        this.flowerName = flowerName;
     }
 
     public String getImage() {
@@ -68,7 +58,7 @@ public class FlowerType {
 
     @Override
     public String toString() {
-        return "FlowerType{" + "flowerId=" + flowerId + ", rawName=" + rawName + ", warehouse=" + warehouse + ", image=" + image + ", active=" + active + '}';
+        return "FlowerType{" + "flowerId=" + flowerId + ", FlowerName=" + flowerName + ", image=" + image + ", active=" + active + '}';
     }
     
     
