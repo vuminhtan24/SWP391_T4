@@ -8,11 +8,12 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Quản lý Đơn hàng - DASHMIN</title> <%-- Updated title --%>
+        <title>Order Management - DASHMIN</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -38,17 +39,69 @@
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
+
+        <script>
+            // Function to show a custom confirmation dialog instead of alert/confirm
+            function showCustomConfirm(message, callback) {
+                // Remove any existing modals
+                const existingModal = document.getElementById('customConfirmModal');
+                if (existingModal) {
+                    existingModal.remove();
+                }
+
+                // Create modal HTML
+                const modalHtml = `
+                    <div class="modal fade" id="customConfirmModal" tabindex="-1" aria-labelledby="customConfirmModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header bg-warning text-white">
+                                    <h5 class="modal-title" id="customConfirmModalLabel">Confirmation</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>${message}</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+                const customConfirmModal = new bootstrap.Modal(document.getElementById('customConfirmModal'));
+                customConfirmModal.show();
+
+                document.getElementById('confirmDeleteBtn').onclick = function() {
+                    customConfirmModal.hide();
+                    callback(true);
+                };
+
+                // Handle modal closing via close button or backdrop click
+                document.getElementById('customConfirmModal').addEventListener('hidden.bs.modal', function (event) {
+                    // Only call callback(false) if it hasn't been called by the confirm button
+                    if (!document.getElementById('confirmDeleteBtn').onclick) { // Check if onclick was unset
+                         callback(false);
+                    }
+                     document.getElementById('customConfirmModal').remove(); // Clean up modal
+                });
+            }
+
+            function confirmDelete(orderId) {
+                showCustomConfirm('Are you sure you want to delete order ID ' + orderId + '?', function(confirmed) {
+                    if (confirmed) {
+                        window.location.href = '${pageContext.request.contextPath}/deleteOrder?orderId=' + orderId;
+                    }
+                });
+                return false; // Prevent default link behavior
+            }
+        </script>
+
     </head>
     <body>
         <div class="container-fluid position-relative bg-white d-flex p-0">
-            <!-- Spinner Start (Optional - Uncomment if you use a loading spinner) -->
-            <%-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
-                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
-            </div> --%>
-            <!-- Spinner End -->
-
             <!-- Sidebar Start -->
             <div class="sidebar pe-4 pb-3">
                 <nav class="navbar bg-light navbar-light">
@@ -84,7 +137,7 @@
                             <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Order</a>
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/orderManagement" class="dropdown-item active">Order Management</a>
-                                <a href="${pageContext.request.contextPath}/orderDetail" class="dropdown-item">Order Detail</a>
+                                <a href="${pageContext.request.contextPath}/orderDetail" class="dropdown-item">Order Details</a>
                             </div>
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
@@ -114,21 +167,29 @@
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light text-center rounded p-4">
                         <div class="d-flex align-items-center justify-content-between mb-4">
-                            <h6 class="mb-0">Quản lý Đơn hàng</h6>
-                            <a href="${pageContext.request.contextPath}/orderManagement">Hiển thị Tất cả</a>
+                            <h6 class="mb-0">Order Management</h6>
+                            <a href="${pageContext.request.contextPath}/orderManagement">Show All</a>
                         </div>
 
-                        <%-- Form Tìm kiếm và Lọc --%>
+                        <%-- Display success/error message from deletion --%>
+                        <c:if test="${not empty param.message}">
+                            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                ${param.message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </c:if>
+
+                        <%-- Search, Filter, and Sort Form --%>
                         <div class="mb-4">
-                            <form action="${pageContext.request.contextPath}/orderManagement" method="get" class="d-flex justify-content-between align-items-center">
-                                <div class="input-group me-2" style="width: 40%;">
-                                    <input type="text" class="form-control" placeholder="Tìm kiếm theo ID, khách hàng, tổng tiền..."
+                            <form action="${pageContext.request.contextPath}/orderManagement" method="get" class="d-flex flex-wrap align-items-center">
+                                <div class="input-group me-2 mb-2" style="max-width: 300px;">
+                                    <input type="text" class="form-control" placeholder="Search by ID, customer, total amount..."
                                            name="keyword" value="${currentKeyword != null ? currentKeyword : ''}">
-                                    <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+                                    <button class="btn btn-primary" type="submit">Search</button>
                                 </div>
-                                <div class="me-2" style="width: 30%;">
-                                    <select class="form-select" name="statusId">
-                                        <option value="0" ${currentStatusId == null || currentStatusId == 0 ? 'selected' : ''}>-- Lọc theo Trạng thái --</option>
+                                <div class="me-2 mb-2" style="max-width: 200px;">
+                                    <select class="form-select" name="statusId" onchange="this.form.submit()">
+                                        <option value="0" ${currentStatusId == null || currentStatusId == 0 ? 'selected' : ''}>-- Filter by Status --</option>
                                         <c:forEach var="status" items="${statuses}">
                                             <option value="${status.statusId}" ${currentStatusId != null && currentStatusId == status.statusId ? 'selected' : ''}>
                                                 ${status.statusName}
@@ -136,7 +197,26 @@
                                         </c:forEach>
                                     </select>
                                 </div>
-                                <button class="btn btn-secondary" type="submit">Lọc</button>
+                                <div class="me-2 mb-2" style="max-width: 200px;">
+                                    <select class="form-select" name="sortField" onchange="this.form.submit()">
+                                        <option value="orderDate" ${sortField == 'orderDate' ? 'selected' : ''}>Sort by Date</option>
+                                        <option value="orderId" ${sortField == 'orderId' ? 'selected' : ''}>Sort by ID</option>
+                                        <option value="customerName" ${sortField == 'customerName' ? 'selected' : ''}>Sort by Customer</option>
+                                        <option value="totalAmount" ${sortField == 'totalAmount' ? 'selected' : ''}>Sort by Total Amount</option>
+                                        <option value="statusName" ${sortField == 'statusName' ? 'selected' : ''}>Sort by Status</option>
+                                        <option value="shipperName" ${sortField == 'shipperName' ? 'selected' : ''}>Sort by Shipper</option>
+                                    </select>
+                                </div>
+                                <div class="me-2 mb-2" style="max-width: 150px;">
+                                    <select class="form-select" name="sortOrder" onchange="this.form.submit()">
+                                        <option value="desc" ${sortOrder == 'desc' ? 'selected' : ''}>Descending</option>
+                                        <option value="asc" ${sortOrder == 'asc' ? 'selected' : ''}>Ascending</option>
+                                    </select>
+                                </div>
+                                <%-- Hidden fields to preserve keyword, statusId, and page when only sortField/sortOrder changes --%>
+                                <input type="hidden" name="keyword" value="${currentKeyword}" />
+                                <input type="hidden" name="statusId" value="${currentStatusId}" />
+                                <input type="hidden" name="page" value="${currentPage}" />
                             </form>
                         </div>
 
@@ -144,19 +224,68 @@
                             <table class="table text-start align-middle table-bordered table-hover mb-0">
                                 <thead>
                                     <tr class="text-dark">
-                                        <th scope="col">ID Đơn hàng</th>
-                                        <th scope="col">Ngày Đặt hàng</th>
-                                        <th scope="col">Khách hàng</th>
-                                        <th scope="col">Tổng tiền</th>
-                                        <th scope="col">Trạng thái</th>
-                                        <th scope="col">Người giao hàng</th>
-                                        <th scope="col">Hành động</th>
+                                        <%-- Utility function to create URL for sortable column headers --%>
+                                        <c:url var="baseSortUrl" value="/orderManagement">
+                                            <c:param name="keyword" value="${currentKeyword}" />
+                                            <c:param name="statusId" value="${currentStatusId}" />
+                                            <c:param name="page" value="${currentPage}" />
+                                        </c:url>
+
+                                        <th scope="col">
+                                            <a href="${baseSortUrl}&sortField=orderId&sortOrder=${sortField eq 'orderId' && sortOrder eq 'asc' ? 'desc' : 'asc'}">
+                                                Order ID
+                                                <c:if test="${sortField eq 'orderId'}">
+                                                    <i class="fa fa-sort-${sortOrder eq 'asc' ? 'up' : 'down'}"></i>
+                                                </c:if>
+                                            </a>
+                                        </th>
+                                        <th scope="col">
+                                            <a href="${baseSortUrl}&sortField=orderDate&sortOrder=${sortField eq 'orderDate' && sortOrder eq 'asc' ? 'desc' : 'asc'}">
+                                                Order Date
+                                                <c:if test="${sortField eq 'orderDate'}">
+                                                    <i class="fa fa-sort-${sortOrder eq 'asc' ? 'up' : 'down'}"></i>
+                                                </c:if>
+                                            </a>
+                                        </th>
+                                        <th scope="col">
+                                            <a href="${baseSortUrl}&sortField=customerName&sortOrder=${sortField eq 'customerName' && sortOrder eq 'asc' ? 'desc' : 'asc'}">
+                                                Customer
+                                                <c:if test="${sortField eq 'customerName'}">
+                                                    <i class="fa fa-sort-${sortOrder eq 'asc' ? 'up' : 'down'}"></i>
+                                                </c:if>
+                                            </a>
+                                        </th>
+                                        <th scope="col">
+                                            <a href="${baseSortUrl}&sortField=totalAmount&sortOrder=${sortField eq 'totalAmount' && sortOrder eq 'asc' ? 'desc' : 'asc'}">
+                                                Total
+                                                <c:if test="${sortField eq 'totalAmount'}">
+                                                    <i class="fa fa-sort-${sortOrder eq 'asc' ? 'up' : 'down'}"></i>
+                                                </c:if>
+                                            </a>
+                                        </th>
+                                        <th scope="col">
+                                            <a href="${baseSortUrl}&sortField=statusName&sortOrder=${sortField eq 'statusName' && sortOrder eq 'asc' ? 'desc' : 'asc'}">
+                                                Status
+                                                <c:if test="${sortField eq 'statusName'}">
+                                                    <i class="fa fa-sort-${sortOrder eq 'asc' ? 'up' : 'down'}"></i>
+                                                </c:if>
+                                            </a>
+                                        </th>
+                                        <th scope="col">
+                                            <a href="${baseSortUrl}&sortField=shipperName&sortOrder=${sortField eq 'shipperName' && sortOrder eq 'asc' ? 'desc' : 'asc'}">
+                                                Shipper
+                                                <c:if test="${sortField eq 'shipperName'}">
+                                                    <i class="fa fa-sort-${sortOrder eq 'asc' ? 'up' : 'down'}"></i>
+                                                </c:if>
+                                            </a>
+                                        </th>
+                                        <th scope="col">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <c:if test="${empty orders}">
                                         <tr>
-                                            <td colspan="7">Không tìm thấy đơn hàng nào.</td>
+                                            <td colspan="7">No orders found.</td>
                                         </tr>
                                     </c:if>
                                     <c:forEach var="order" items="${orders}">
@@ -166,18 +295,64 @@
                                             <td>${order.customerName}</td>
                                             <td>${order.totalAmount}</td>
                                             <td>${order.statusName}</td>
-                                            <td>${order.shipperName != null ? order.shipperName : "Chưa gán"}</td>
+                                            <td>${order.shipperName != null ? order.shipperName : "Not Assigned"}</td>
                                             <td>
                                                 <a class="btn btn-sm btn-primary"
-                                                   href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}">Chi tiết</a>
-                                                <a class="btn btn-sm btn-info disabled" href="#">Sửa</a>
-                                                <a class="btn btn-sm btn-danger disabled" href="#">Xóa</a>
+                                                   href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}">Details</a>
+                                                <a class="btn btn-sm btn-info"
+                                                   href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}&action=edit">Edit</a>
+                                                <%-- Updated Delete button with confirmation --%>
+                                                <a class="btn btn-sm btn-danger" href="#"
+                                                   onclick="return confirmDelete(${order.orderId});">Delete</a>
                                             </td>
                                         </tr>
                                     </c:forEach>
                                 </tbody>
                             </table>
                         </div>
+
+                        <%-- Pagination Section --%>
+                        <div class="d-flex justify-content-center mt-4">
+                            <nav>
+                                <ul class="pagination">
+                                    <c:set var="queryParams" value="" />
+                                    <c:if test="${not empty currentKeyword}">
+                                        <c:set var="queryParams" value="${queryParams}&keyword=${currentKeyword}" />
+                                    </c:if>
+                                    <c:if test="${currentStatusId != null && currentStatusId != 0}">
+                                        <c:set var="queryParams" value="${queryParams}&statusId=${currentStatusId}" />
+                                    </c:if>
+                                    <c:if test="${not empty sortField}">
+                                        <c:set var="queryParams" value="${queryParams}&sortField=${sortField}" />
+                                    </c:if>
+                                    <c:if test="${not empty sortOrder}">
+                                        <c:set var="queryParams" value="${queryParams}&sortOrder=${sortOrder}" />
+                                    </c:if>
+
+                                    <%-- Previous Button --%>
+                                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                        <a class="page-link" href="${pageContext.request.contextPath}/orderManagement?page=${currentPage - 1}${queryParams}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+
+                                    <%-- Page Numbers --%>
+                                    <c:forEach begin="1" end="${totalPages}" var="i">
+                                        <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                            <a class="page-link" href="${pageContext.request.contextPath}/orderManagement?page=${i}${queryParams}">${i}</a>
+                                        </li>
+                                    </c:forEach>
+
+                                    <%-- Next Button --%>
+                                    <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                                        <a class="page-link" href="${pageContext.request.contextPath}/orderManagement?page=${currentPage + 1}${queryParams}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+
                     </div>
                 </div>
                 <!-- Order List End -->
@@ -187,10 +362,10 @@
                     <div class="bg-light rounded-top p-4">
                         <div class="row">
                             <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">Tên trang web của bạn</a>, Mọi quyền được bảo lưu.
+                                &copy; <a href="#">Your Site Name</a>, All Rights Reserved. 
                             </div>
                             <div class="col-12 col-sm-6 text-center text-sm-end">
-                                Được thiết kế bởi <a href="https://htmlcodex.com">HTML Codex</a>
+                                Designed By <a href="https://htmlcodex.com">HTML Codex</a>
                             </div>
                         </div>
                     </div>

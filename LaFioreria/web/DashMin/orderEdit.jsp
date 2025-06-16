@@ -1,6 +1,6 @@
 <%--
-    Document   : orderDetail
-    Created on : Jun 15, 2025, 12:24:18 AM
+    Document   : orderEdit
+    Created on : Jun 16, 2025, 12:00:00 AM
     Author     : VU MINH TAN
 --%>
 
@@ -11,7 +11,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Chi tiết Đơn hàng - DASHMIN</title>
+        <title>Chỉnh sửa Đơn hàng - DASHMIN</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -43,7 +43,7 @@
             <!-- Sidebar Start -->
             <div class="sidebar pe-4 pb-3">
                 <nav class="navbar bg-light navbar-light">
-                    <a href="${pageContext.request.contextPath}/DashMin/admin" class="navbar-brand mx-4 mb-3">
+                    <a href="${pageContext.request.contextPath}/DashMin/admin.jsp" class="navbar-brand mx-4 mb-3">
                         <h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>DASHMIN</h3>
                     </a>
                     <div class="d-flex align-items-center ms-4 mb-4">
@@ -101,109 +101,77 @@
                 <jsp:include page="/DashMin/navbar.jsp"/>
                 <!-- Navbar End -->
 
-                <!-- Order Detail Start -->
+                <!-- Edit Order Form Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded p-4">
                         <div class="d-flex align-items-center justify-content-between mb-4">
-                            <h6 class="mb-0">Chi tiết Đơn hàng</h6>
-                            <a href="${pageContext.request.contextPath}/orderManagement">Quay lại Quản lý Đơn hàng</a>
+                            <h6 class="mb-0">Chỉnh sửa Đơn hàng ID: ${order.orderId}</h6>
+                            <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}">Quay lại Chi tiết</a>
                         </div>
-                        
-                        <c:if test="${not empty successMessage}">
-                            <div class="alert alert-success" role="alert">
-                                ${successMessage}
-                            </div>
-                        </c:if>
+
                         <c:if test="${not empty errorMessage}">
                             <div class="alert alert-danger" role="alert">
                                 ${errorMessage}
                             </div>
                         </c:if>
 
-                        <c:if test="${order != null}">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>ID Đơn hàng:</strong> ${order.orderId}</p>
-                                    <p><strong>Ngày Đặt hàng:</strong> ${order.orderDate}</p>
-                                    <p><strong>ID Khách hàng:</strong> ${order.customerId}</p>
-                                    <p><strong>Tên Khách hàng:</strong> ${order.customerName}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Tổng tiền:</strong> ${order.totalAmount}</p>
-                                    <p><strong>ID Trạng thái:</strong> ${order.statusId}</p>
-                                    <p><strong>Trạng thái:</strong> ${order.statusName}</p>
-                                    <p><strong>ID Người giao hàng:</strong> ${order.shipperId != null ? order.shipperId : "Chưa gán"}</p>
-                                    <p><strong>Tên Người giao hàng:</strong> ${order.shipperName != null ? order.shipperName : "Chưa gán"}</p>
-                                </div>
-                            </div>
-                            
-                            <hr class="my-4">
-                            <h6 class="mb-3">Sản phẩm đã mua:</h6>
-                            <c:if test="${empty orderItems}">
-                                <p>Không có sản phẩm nào trong đơn hàng này.</p>
-                            </c:if>
-                            <c:if test="${not empty orderItems}">
-                                <div class="table-responsive">
-                                    <table class="table text-start align-middle table-bordered table-hover mb-0">
-                                        <thead>
-                                            <tr class="text-dark">
-                                                <th scope="col">#</th>
-                                                <th scope="col">Hình ảnh</th>
-                                                <th scope="col">Tên sản phẩm</th>
-                                                <th scope="col">Số lượng</th>
-                                                <th scope="col">Giá/sản phẩm</th>
-                                                <th scope="col">Thành tiền</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <c:forEach var="item" items="${orderItems}" varStatus="loop">
-                                                <tr>
-                                                    <td>${loop.index + 1}</td>
-                                                    <td>
-                                                        <c:choose>
-                                                            <c:when test="${not empty item.bouquetImage}">
-                                                                <%-- ĐÃ SỬA: Sử dụng trực tiếp URL từ database --%>
-                                                                <img src="${item.bouquetImage}" 
-                                                                     alt="${item.bouquetName}" style="width: 50px; height: 50px; object-fit: cover;">
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                                                                            </c:otherwise>
-                                                        </c:choose>
-                                                    </td>
-                                                    <td>${item.bouquetName}</td>
-                                                    <td>${item.quantity}</td>
-                                                    <td>${item.unitPrice}</td>
-                                                    <td>
-                                                        <fmt:parseNumber var="qty" value="${item.quantity}" integerOnly="true" />
-                                                        <fmt:parseNumber var="price" value="${item.unitPrice}" type="number" />
-                                                        <fmt:formatNumber value="${qty * price}" type="number" maxFractionDigits="2" />
-                                                    </td>
-                                                </tr>
-                                            </c:forEach>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </c:if>
-                            
-                            <div class="mt-4 text-end">
-                                <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}&action=edit" class="btn btn-primary me-2">Chỉnh sửa Đơn hàng</a>
-                                <a href="${pageContext.request.contextPath}/orderManagement" class="btn btn-secondary">Quay lại</a>
+                        <form action="${pageContext.request.contextPath}/orderDetail" method="post">
+                            <input type="hidden" name="orderId" value="${order.orderId}">
+
+                            <div class="mb-3">
+                                <label for="orderDate" class="form-label">Ngày Đặt hàng:</label>
+                                <input type="text" class="form-control" id="orderDate" value="${order.orderDate}" readonly>
                             </div>
 
-                        </c:if>
-                        <c:if test="${order == null}">
-                            <p>Không thể tải chi tiết đơn hàng.</p>
-                        </c:if>
+                            <div class="mb-3">
+                                <label for="customerName" class="form-label">Tên Khách hàng:</label>
+                                <input type="text" class="form-control" id="customerName" value="${order.customerName}" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="totalAmount" class="form-label">Tổng tiền:</label>
+                                <input type="text" class="form-control" id="totalAmount" name="totalAmount"
+                                       value="${order.totalAmount}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="statusId" class="form-label">Trạng thái:</label>
+                                <select class="form-select" id="statusId" name="statusId" required>
+                                    <c:forEach var="status" items="${statuses}">
+                                        <option value="${status.statusId}" ${order.statusId == status.statusId ? 'selected' : ''}>
+                                            ${status.statusName}
+                                        </option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="shipperId" class="form-label">Người giao hàng:</label>
+                                <select class="form-select" id="shipperId" name="shipperId">
+                                    <option value="0" ${order.shipperId == null || order.shipperId == 0 ? 'selected' : ''}>-- Chọn Shipper --</option>
+                                    <c:forEach var="shipper" items="${shippers}">
+                                        <option value="${shipper.userid}" ${order.shipperId != null && order.shipperId == shipper.userid ? 'selected' : ''}>
+                                            ${shipper.fullname} (${shipper.username})
+                                        </option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary me-2">Lưu thay đổi</button>
+                                <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}" class="btn btn-secondary">Hủy</a>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <!-- Order Detail End -->
+                <!-- Edit Order Form End -->
 
                 <!-- Footer Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded-top p-4">
                         <div class="row">
                             <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">Tên trang web của bạn</a>, Mọi quyền được bảo lưu.
+                                &copy; <a href="#">Tên trang web của bạn</a>, Mọi quyền được bảo lưu. 
                             </div>
                             <div class="col-12 col-sm-6 text-center text-sm-end">
                                 Được thiết kế bởi <a href="https://htmlcodex.com">HTML Codex</a>
