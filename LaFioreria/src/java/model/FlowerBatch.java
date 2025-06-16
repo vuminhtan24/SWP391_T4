@@ -10,24 +10,26 @@ package model;
  */
 public class FlowerBatch {
     int batchId;
-    int flowerIdId;
+    int flowerId;
     int quantity;
     int unitPrice;
     String importDate;
     String expirationDate;
     int hold;
+    Warehouse warehouse;
 
     public FlowerBatch() {
     }
 
-    public FlowerBatch(int batchId, int flowerIdId, int quantity, int unitPrice, String importDate, String expirationDate, int hold) {
+    public FlowerBatch(int batchId, int flowerId, int quantity, int unitPrice, String importDate, String expirationDate, int hold, Warehouse warehouse) {
         this.batchId = batchId;
-        this.flowerIdId = flowerIdId;
+        this.flowerId = flowerId;
         this.quantity = quantity;
         this.unitPrice = unitPrice;
         this.importDate = importDate;
         this.expirationDate = expirationDate;
         this.hold = hold;
+        this.warehouse = warehouse;
     }
 
     public int getBatchId() {
@@ -38,12 +40,12 @@ public class FlowerBatch {
         this.batchId = batchId;
     }
 
-    public int getFlowerIdId() {
-        return flowerIdId;
+    public int getFlowerId() {
+        return flowerId;
     }
 
-    public void setFlowerIdId(int flowerIdId) {
-        this.flowerIdId = flowerIdId;
+    public void setFlowerId(int flowerId) {
+        this.flowerId = flowerId;
     }
 
     public int getQuantity() {
@@ -86,10 +88,17 @@ public class FlowerBatch {
         this.hold = hold;
     }
 
+    public Warehouse getWarehouse() {
+        return warehouse;
+    }
+
+    public void setWarehouse(Warehouse warehouse) {
+        this.warehouse = warehouse;
+    }
+
     @Override
     public String toString() {
-        return "FlowerBatch{" + "batchId=" + batchId + ", flowerIdId=" + flowerIdId + ", quantity=" + quantity + ", unitPrice=" + unitPrice + ", importDate=" + importDate + ", expirationDate=" + expirationDate + ", hold=" + hold + '}';
+        return "FlowerBatch{" + "batchId=" + batchId + ", flowerId=" + flowerId + ", quantity=" + quantity + ", unitPrice=" + unitPrice + ", importDate=" + importDate + ", expirationDate=" + expirationDate + ", hold=" + hold + ", warehouse=" + warehouse + '}';
     }
-    
-    
+       
 }

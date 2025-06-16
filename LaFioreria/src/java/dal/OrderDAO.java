@@ -8,9 +8,11 @@ import model.Order;
 import model.User;
 import model.OrderStatus;
 import model.OrderDetail; 
+import model.Bouquet; // Import Bouquet model
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement; 
 import java.util.ArrayList;
 import java.util.List;
 
@@ -415,7 +417,110 @@ public class OrderDAO extends BaseDao {
         }
     }
 
+    /**
+     * Adds a new order to the database.
+     *
+     * @param order The Order object containing the details for the new order.
+     * @return The generated order_id if successful, -1 otherwise.
+     */
+    public int addOrder(Order order) {
+        String sql = "INSERT INTO `order` (order_date, customer_id, total_amount, status_id, shipper_id) VALUES (?, ?, ?, ?, ?)";
+        int generatedId = -1;
+        try {
+            connection = dbc.getConnection();
+            // Use Statement.RETURN_GENERATED_KEYS to get the auto-incremented ID
+            ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, order.getOrderDate());
+            ps.setInt(2, order.getCustomerId());
+            ps.setString(3, order.getTotalAmount()); // Store as String if DB column is VARCHAR/DECIMAL
+            ps.setInt(4, order.getStatusId());
+            if (order.getShipperId() == null) {
+                ps.setNull(5, java.sql.Types.INTEGER);
+            } else {
+                ps.setInt(5, order.getShipperId());
+            }
 
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                ResultSet rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    generatedId = rs.getInt(1); // Get the auto-generated ID
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("SQL Error while adding new order: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.err.println("Error closing resources after add operation: " + e.getMessage());
+            }
+        }
+        return generatedId;
+    }
+    
+    /**
+     * Adds a new order item (bouquet) to a specific order in the database.
+     * This method is called after the main order is created.
+     *
+     * @param orderItem The OrderDetail object containing the bouquetId, quantity, and unitPrice.
+     * The orderId should already be set in this object.
+     * @return true if the order item is added successfully, false otherwise.
+     */
+    public boolean addOrderItem(OrderDetail orderItem) {
+        String sql = "INSERT INTO `order_item` (order_id, bouquet_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, orderItem.getOrderId());
+            ps.setInt(2, orderItem.getBouquetId());
+            ps.setInt(3, orderItem.getQuantity());
+            ps.setString(4, orderItem.getUnitPrice()); // Ensure unitPrice is handled as String/VARCHAR
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("SQL Error while adding order item: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.err.println("Error closing resources after adding order item: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Updates the total amount of an existing order.
+     * This can be called after adding/removing order items.
+     * @param orderId The ID of the order to update.
+     * @param newTotalAmount The new total amount as a String.
+     * @return true if the update is successful, false otherwise.
+     */
+    public boolean updateTotalAmount(int orderId, String newTotalAmount) {
+        String sql = "UPDATE `order` SET total_amount = ? WHERE order_id = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, newTotalAmount);
+            ps.setInt(2, orderId);
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("SQL Error while updating total amount for order (ID: " + orderId + "): " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.err.println("Error closing resources after updating total amount: " + e.getMessage());
+            }
+        }
+    }
+    
     /**
      * Retrieves a list of all users with the 'Shipper' role.
      *
@@ -483,14 +588,125 @@ public class OrderDAO extends BaseDao {
         }
         return statuses;
     }
+    
+    /**
+     * Retrieves a list of all users with the 'Customer' role.
+     * This is useful for assigning customers to new orders.
+     *
+     * @return List of User objects representing customers.
+     */
+    public List<User> getAllCustomers() {
+        List<User> customers = new ArrayList<>();
+        String sql = "SELECT User_ID, Username, Fullname, Email, Phone, role FROM `user` WHERE role = 2"; // Assuming role 2 is customer
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                User customer = new User();
+                customer.setUserid(rs.getInt("User_ID"));
+                customer.setUsername(rs.getString("Username"));
+                customer.setFullname(rs.getString("Fullname"));
+                customer.setEmail(rs.getString("Email"));   
+                customer.setPhone(rs.getString("Phone"));   
+                customer.setRole(rs.getInt("role"));
+                customers.add(customer);
+            }
+        } catch (SQLException e) {
+            System.err.println("SQL Error while getting customer list: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.err.println("Error closing resources: " + e.getMessage());
+            }
+        }
+        return customers;
+    }
+
+    /**
+     * Retrieves a list of all bouquets.
+     * Used for populating product selection dropdowns.
+     * @return List of Bouquet objects.
+     */
+    public List<Bouquet> getAllBouquets() {
+        List<Bouquet> bouquets = new ArrayList<>();
+        // Modified SQL query to select 'price' instead of 'current_price'
+        String sql = "SELECT bouquet_id, bouquet_name, image_url, price, Description, cid FROM `bouquet`";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Bouquet bouquet = new Bouquet();
+                bouquet.setBouquetId(rs.getInt("bouquet_id"));
+                bouquet.setBouquetName(rs.getString("bouquet_name"));
+                bouquet.setImageUrl(rs.getString("image_url"));
+                bouquet.setPrice(rs.getInt("price")); // Changed to getInt for price
+                bouquet.setDescription(rs.getString("Description")); // Added Description
+                bouquet.setCid(rs.getInt("cid")); // Added cid
+                bouquets.add(bouquet);
+            }
+        } catch (SQLException e) {
+            System.err.println("SQL Error while getting bouquet list: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.err.println("Error closing resources: " + e.getMessage());
+            }
+        }
+        return bouquets;
+    }
 
     public static void main(String[] args) {
         OrderDAO orderDAO = new OrderDAO();
 
-        // Test deleteOrder (Example: Delete order with ID 999 - change to an existing ID for real test)
-        System.out.println("\n--- Test Delete Order (ID: 3) ---");
-        // IMPORTANT: Change 3 to an actual Order ID you want to delete for testing.
-        // Make sure you have a test order that you can safely delete.
+        // Test addOrder
+        System.out.println("\n--- Test Add New Order ---");
+        Order newOrder = new Order(0, "2025-06-16", 7, "0.00", 1); 
+        int newOrderId = orderDAO.addOrder(newOrder);
+        if (newOrderId != -1) {
+            System.out.println("New order added successfully with ID: " + newOrderId);
+            // Example of adding an order item immediately after creating the order
+            // Get a sample bouquet price (assuming bouquet ID 1 exists and its price is 250000)
+            List<Bouquet> allBouquets = orderDAO.getAllBouquets();
+            String sampleUnitPrice = "0"; // Default
+            if (!allBouquets.isEmpty()) {
+                sampleUnitPrice = String.valueOf(allBouquets.get(0).getPrice()); // Use first bouquet's price
+            }
+
+            OrderDetail firstItem = new OrderDetail(0, newOrderId, 1, null, null, 2, sampleUnitPrice); // bouquet_id=1, quantity=2
+            boolean itemAdded = orderDAO.addOrderItem(firstItem);
+            if(itemAdded) {
+                System.out.println("First order item added successfully!");
+                // Calculate and update total amount for the order
+                double calculatedTotal = Double.parseDouble(sampleUnitPrice) * firstItem.getQuantity();
+                orderDAO.updateTotalAmount(newOrderId, String.format("%.2f", calculatedTotal)); 
+                System.out.println("Total amount updated for new order.");
+            } else {
+                System.out.println("Failed to add first order item.");
+            }
+
+            Order addedOrder = orderDAO.getOrderDetailById(newOrderId);
+            if (addedOrder != null) {
+                System.out.println("Details of new order: " + addedOrder);
+                List<OrderDetail> addedItems = orderDAO.getOrderItemsByOrderId(newOrderId);
+                System.out.println("Items in new order:");
+                if (!addedItems.isEmpty()) {
+                    addedItems.forEach(System.out::println);
+                } else {
+                    System.out.println("No items found for new order.");
+                }
+            }
+        } else {
+            System.out.println("Failed to add new order.");
+        }
+
+        System.out.println("\n--- Test Delete Order (ID: X) ---");
         boolean deleted = orderDAO.deleteOrder(3); 
         if (deleted) {
             System.out.println("Order ID 3 deleted successfully.");
@@ -498,18 +714,8 @@ public class OrderDAO extends BaseDao {
             System.out.println("Order ID 3 deletion failed or order not found.");
         }
 
-        // Test getOrderItemsByOrderId
-        System.out.println("\n--- Test Get Order Items for Order ID 1 ---");
-        List<OrderDetail> items = orderDAO.getOrderItemsByOrderId(1);
-        if (items.isEmpty()) {
-            System.out.println("No products found for order ID 1.");
-        } else {
-            items.forEach(System.out::println);
-        }
-
-        // Test updateOrder
         System.out.println("\n--- Test Update Order (Order ID: 1) ---");
-        boolean updated = orderDAO.updateOrder(1, "150000.00", 2, 802); 
+        boolean updated = orderDAO.updateOrder(1, "150000.00", 2, 11); 
         if (updated) {
             System.out.println("Order ID 1 updated successfully.");
             Order updatedOrder = orderDAO.getOrderDetailById(1);
@@ -520,7 +726,6 @@ public class OrderDAO extends BaseDao {
             System.out.println("Order ID 1 update failed.");
         }
 
-        // Test searchOrders with pagination (e.g., page 1, size 2)
         System.out.println("\n--- Orders (Page 1, Size 2, Sorted by Date DESC) ---");
         List<Order> paginatedOrders = orderDAO.searchOrders(null, null, 1, 2, "orderDate", "desc");
         if (paginatedOrders.isEmpty()) {
@@ -530,7 +735,6 @@ public class OrderDAO extends BaseDao {
             System.out.println("Total records: " + orderDAO.getNoOfRecords());
         }
         
-        // Original tests (kept for reference)
         System.out.println("\n--- Check order details (ID 1) ---");
         Order order1 = orderDAO.getOrderDetailById(1);
         if (order1 != null) {
@@ -556,6 +760,26 @@ public class OrderDAO extends BaseDao {
         } else {
             for (OrderStatus status : statuses) {
                 System.out.println(status);
+            }
+        }
+        
+        System.out.println("\n--- Customer List ---");
+        List<User> customers = orderDAO.getAllCustomers();
+        if (customers.isEmpty()) {
+            System.out.println("No customers found.");
+        } else {
+            for (User customer : customers) {
+                System.out.println(customer);
+            }
+        }
+
+        System.out.println("\n--- Bouquet List ---");
+        List<Bouquet> bouquets = orderDAO.getAllBouquets();
+        if (bouquets.isEmpty()) {
+            System.out.println("No bouquets found.");
+        } else {
+            for (Bouquet bouquet : bouquets) {
+                System.out.println(bouquet);
             }
         }
     }

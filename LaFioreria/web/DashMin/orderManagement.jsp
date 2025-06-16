@@ -168,7 +168,7 @@
                     <div class="bg-light text-center rounded p-4">
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <h6 class="mb-0">Order Management</h6>
-                            <a href="${pageContext.request.contextPath}/orderManagement">Show All</a>
+                            <a href="${pageContext.request.contextPath}/addOrder" class="btn btn-success">Add New Order</a>
                         </div>
 
                         <%-- Display success/error message from deletion --%>
@@ -225,7 +225,7 @@
                                 <thead>
                                     <tr class="text-dark">
                                         <%-- Utility function to create URL for sortable column headers --%>
-                                        <c:url var="baseSortUrl" value="/orderManagement">
+                                        <c:url var="baseSortUrl" value="${pageContext.request.contextPath}/orderManagement">
                                             <c:param name="keyword" value="${currentKeyword}" />
                                             <c:param name="statusId" value="${currentStatusId}" />
                                             <c:param name="page" value="${currentPage}" />
@@ -301,7 +301,6 @@
                                                    href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}">Details</a>
                                                 <a class="btn btn-sm btn-info"
                                                    href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}&action=edit">Edit</a>
-                                                <%-- Updated Delete button with confirmation --%>
                                                 <a class="btn btn-sm btn-danger" href="#"
                                                    onclick="return confirmDelete(${order.orderId});">Delete</a>
                                             </td>
