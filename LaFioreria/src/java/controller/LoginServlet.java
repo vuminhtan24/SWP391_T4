@@ -59,11 +59,17 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("currentAcc") != null) {
-            response.sendRedirect(request.getContextPath() + "/home");
+            // If already logged in, redirect based on role
+            User user = (User) session.getAttribute("currentAcc");
+            DAOAccount daoAcc = new DAOAccount();
+            String role = daoAcc.getRoleNameById(user.getRole());
+            
+            // Redirect based on role to prevent re-displaying login.jsp
+            redirectBasedOnRole(request, response, role);
             return;
         }
 
-        // Check cookies
+        // Check cookies for remember me
         Cookie[] cookies = request.getCookies();
         String savedEmail = null;
 
@@ -76,16 +82,17 @@ public class LoginServlet extends HttpServlet {
         }
 
         if (savedEmail != null) {
-            // Bạn có thể kiểm tra savedEmail trong DB và auto-login nếu hợp lệ
             User user = new DAOAccount().getAccountByEmail(savedEmail);
             if (user != null) {
                 request.getSession().setAttribute("currentAcc", user);
-                response.sendRedirect("home");
+                DAOAccount daoAcc = new DAOAccount(); // Re-instantiate DAO for role check
+                String role = daoAcc.getRoleNameById(user.getRole());
+                redirectBasedOnRole(request, response, role);
                 return;
             }
         }
 
-        // Nếu không tự động login được
+        // If not auto-logged in, forward to login page
         request.getRequestDispatcher("login.jsp").forward(request, response);
     }
 
@@ -98,33 +105,27 @@ public class LoginServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         String remember = request.getParameter("rememberMe");
 
+        // Input validation (removed redundant check for spaces)
         if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
-            request.setAttribute("messLogin", "Please enter username and password");
+            request.setAttribute("messLogin", "Please enter username and password.");
             request.getRequestDispatcher("login.jsp").forward(request, response);
             return;
         }
         if (username.contains(" ") || password.contains(" ")) {
-            request.setAttribute("messLogin", "Username and password must not contain spaces");
-            request.setAttribute("username", username);
-            request.getRequestDispatcher("login.jsp").forward(request, response);
-            return;
-        }
-        if (username.contains(" ") || password.contains(" ")) {
-            request.setAttribute("messLogin", "Username and password must not contain spaces");
-            request.setAttribute("username", username);
+            request.setAttribute("messLogin", "Username and password must not contain spaces.");
+            request.setAttribute("username", username); // Retain username
             request.getRequestDispatcher("login.jsp").forward(request, response);
             return;
         }
 
         DAOAccount daoAcc = new DAOAccount();
-        User user = daoAcc.validate(username, password);
+        User user = daoAcc.validate(username, password); // Assuming validate returns User object
 
         if (user != null) {
             HttpSession session = request.getSession();
@@ -132,35 +133,47 @@ public class LoginServlet extends HttpServlet {
 
             if ("on".equals(remember)) {
                 Cookie emailCookie = new Cookie("userEmail", username);
-
-                emailCookie.setMaxAge(60 * 60 * 24 * 7); // 7 ngày
-
+                emailCookie.setMaxAge(60 * 60 * 24 * 7); // 7 days
                 response.addCookie(emailCookie);
             }
+            
+            String role = daoAcc.getRoleNameById(user.getRole());
+            redirectBasedOnRole(request, response, role); // Call helper method for redirection
 
-            int roleId = user.getRole();
-            String role = daoAcc.getRoleNameById(roleId);
-            switch (role) {
-                case "Admin":
-                case "Sales Manager":
-                case "Seller":
-                case "Marketer":
-                case "Warehouse Staff":
-                case "Shipper":
-                    response.sendRedirect(request.getContextPath() + "/DashMin/admin");
-
-                    break;
-                case "Guest":
-                case "Customer":
-                    response.sendRedirect("/LaFioreria/home");
-                    break;
-                default:
-                    response.sendRedirect("/ZeShopper/LoginServlet");
-                    break;
-            }
         } else {
-            request.setAttribute("messLogin", "Invalid gmail or password");
+            request.setAttribute("messLogin", "Invalid username or password.");
             request.getRequestDispatcher("login.jsp").forward(request, response);
+        }
+    }
+
+    /**
+     * Helper method to redirect user based on their role.
+     * @param request servlet request
+     * @param response servlet response
+     * @param role The role name of the logged-in user.
+     * @throws IOException if an I/O error occurs
+     */
+    private void redirectBasedOnRole(HttpServletRequest request, HttpServletResponse response, String role) throws IOException {
+        switch (role) {
+            case "Admin":
+            case "Sales Manager":
+            case "Seller":
+            case "Marketer":
+            case "Warehouse Staff":
+                response.sendRedirect(request.getContextPath() + "/DashMin/admin");
+                break;
+            case "Shipper": // FIX: Separate case for Shipper
+                response.sendRedirect(request.getContextPath() + "/shipperDashboard"); // Redirect to new Shipper page
+                break;
+            case "Guest":
+            case "Customer":
+                response.sendRedirect(request.getContextPath() + "/home"); // Assuming /home is your public homepage
+                break;
+            default:
+                // Fallback for unknown roles or errors, redirect to login again
+                // It's good practice to have a clearer error or a general user dashboard
+                response.sendRedirect(request.getContextPath() + "/ZeShipper/LoginServlet?error=unknownRole");
+                break;
         }
     }
 
