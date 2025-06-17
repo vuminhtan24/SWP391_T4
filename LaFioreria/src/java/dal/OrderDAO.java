@@ -527,16 +527,17 @@ public class OrderDAO extends BaseDao {
      */
     public List<Order> getOrdersByShipperIdAndStatuses(int shipperId, List<Integer> statusIds) {
         List<Order> orders = new ArrayList<>();
-        
+
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, ");
-        sql.append("o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name ");
+        sql.append("SELECT o.order_id, o.order_date, o.customer_id, u.Username AS customer_name, "); // Đã sửa thành Username
+        sql.append("u.Phone AS customer_phone, ");
+        sql.append("o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Username AS shipper_name "); // Đã sửa thành Username
         sql.append("FROM `order` o ");
         sql.append("JOIN `user` u ON o.customer_id = u.User_ID ");
         sql.append("JOIN `order_status` os ON o.status_id = os.order_status_id ");
         sql.append("LEFT JOIN `user` s ON o.shipper_id = s.User_ID ");
         sql.append("WHERE o.shipper_id = ? "); // Primary filter for shipper ID
-        
+
         // Dynamically add placeholders for status IDs if provided
         if (statusIds != null && !statusIds.isEmpty()) {
             sql.append("AND o.status_id IN (");
@@ -548,7 +549,7 @@ public class OrderDAO extends BaseDao {
             }
             sql.append(") ");
         }
-        sql.append("ORDER BY o.order_date DESC"); // Order by date descending
+        sql.append("ORDER BY o.order_date DESC;"); // Order by date descending, thêm dấu chấm phẩy
 
         // --- DEBUG LOG START ---
         System.out.println("DEBUG (OrderDAO): Executing SQL Query: " + sql.toString());
@@ -561,7 +562,7 @@ public class OrderDAO extends BaseDao {
                 System.err.println("ERROR (OrderDAO): Database connection is NULL.");
                 return orders; // Return empty list if no connection
             }
-            
+
             ps = connection.prepareStatement(sql.toString());
             int paramIndex = 1;
             ps.setInt(paramIndex++, shipperId); // Set the shipperId parameter first
@@ -572,20 +573,25 @@ public class OrderDAO extends BaseDao {
                     ps.setInt(paramIndex++, statusId);
                 }
             }
-            
+
             rs = ps.executeQuery();
 
             while (rs.next()) {
+                // Đọc shipper_id và shipper_name an toàn với nullable
+                Integer retrievedShipperId = (Integer) rs.getObject("shipper_id");
+                String retrievedShipperName = rs.getString("shipper_name");
+
                 orders.add(new Order(
                         rs.getInt("order_id"),
                         rs.getString("order_date") != null ? rs.getString("order_date").trim() : null,
                         rs.getInt("customer_id"),
                         rs.getString("customer_name"),
-                        rs.getString("total_amount") != null ? rs.getString("total_amount").trim() : null,
+                        rs.getString("customer_phone"), // Đã thêm customer_phone
+                        rs.getString("total_amount"), // Đã sửa thành getDouble
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
-                        rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
-                        rs.getString("shipper_name")
+                        retrievedShipperId, // Sử dụng biến đã được xử lý nullable
+                        retrievedShipperName
                 ));
             }
             // --- DEBUG LOG START ---
@@ -595,11 +601,11 @@ public class OrderDAO extends BaseDao {
             System.err.println("ERROR (OrderDAO): SQL Error while getting orders for shipper (ID: " + shipperId + "): " + e.getMessage());
             e.printStackTrace(); // Print full stack trace for detailed debugging
         } finally {
-            try {
+                        try {
                 this.closeResources();
             } catch (Exception e) {
-                System.err.println("ERROR (OrderDAO): Error closing resources: " + e.getMessage());
-            }
+                System.err.println("Error closing resources: " + e.getMessage());
+            } 
         }
         return orders;
     }

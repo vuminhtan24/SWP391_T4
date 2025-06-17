@@ -45,7 +45,7 @@
             <!-- Sidebar Start -->
             <div class="sidebar pe-4 pb-3">
                 <nav class="navbar bg-light navbar-light">
-                    <a href="${pageContext.request.contextPath}/DashMin/admin.jsp" class="navbar-brand mx-4 mb-3">
+                    <a href="${pageContext.request.contextPath}/shipperDashboard" class="navbar-brand mx-4 mb-3">
                         <h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>DASHMIN</h3>
                     </a>
                     <div class="d-flex align-items-center ms-4 mb-4">
@@ -113,6 +113,7 @@
                                         <th scope="col">Order ID</th>
                                         <th scope="col">Order Date</th>
                                         <th scope="col">Customer Name</th>
+                                        <th scope="col">Customer Phone</th>
                                         <th scope="col">Total Amount</th>
                                         <th scope="col">Status</th>
                                         <th scope="col">Actions</th>
@@ -129,8 +130,24 @@
                                             <td>${order.orderId}</td>
                                             <td>${order.orderDate}</td>
                                             <td>${order.customerName}</td>
+                                            <td>${order.customerPhone}</td>
                                             <td>${order.totalAmount}</td>
-                                            <td>${order.statusName}</td>
+                                            <td>
+                                                <form action="${pageContext.request.contextPath}/shipperDashboard" method="post" class="d-flex align-items-center">
+                                                    <input type="hidden" name="action" value="updateStatus"/>
+                                                    <input type="hidden" name="orderId" value="${order.orderId}" />
+                                                    <select class="form-select form-select-sm me-2" name="newStatusId" required>
+                                                        <c:forEach var="status" items="${statuses}">
+                                                            <option value="${status.statusId}" ${order.statusId == status.statusId ? 'selected' : ''}>
+                                                                ${status.statusName}
+                                                            </option>
+                                                        </c:forEach>
+                                                    </select>
+
+                                                    <button type="submit" class="btn btn-sm btn-success">Update</button>
+                                                </form>
+                                            </td>
+
                                             <td>
                                                 <a class="btn btn-sm btn-primary"
                                                    href="${pageContext.request.contextPath}/shipperDashboard?action=viewDetail&orderId=${order.orderId}">Details</a>

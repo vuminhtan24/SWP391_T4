@@ -18,7 +18,7 @@ public class LogoutServlet extends HttpServlet {
         if (session != null) {
             session.invalidate(); // Xoá toàn bộ session
         }
-        response.sendRedirect(request.getContextPath() + "/ZeShopper/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet");
     }
 
     @Override
