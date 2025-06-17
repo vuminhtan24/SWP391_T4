@@ -87,7 +87,6 @@
                                 </div>
                                 <div class="col-md-6">
                                     <p><strong>Total Amount:</strong> ${order.totalAmount}</p>
-                                    <p><strong>Status ID:</strong> ${order.statusId}</p>
                                     <p><strong>Status:</strong> ${order.statusName}</p>
                                     <p><strong>Shipper ID:</strong> ${order.shipperId != null ? order.shipperId : "Not Assigned"}</p>
                                     <p><strong>Shipper Name:</strong> ${order.shipperName != null ? order.shipperName : "Not Assigned"}</p>
@@ -142,21 +141,7 @@
                                 </div>
                             </c:if>
                             
-                            <div class="mt-4 text-end">
-                                <%-- Form để cập nhật trạng thái đơn hàng --%>
-                                <form action="${pageContext.request.contextPath}/shipperUpdateOrderStatus" method="post" class="d-inline-flex align-items-center">
-                                    <input type="hidden" name="orderId" value="${order.orderId}">
-                                    <label for="newStatusId" class="form-label me-2 mb-0">Update Status:</label>
-                                    <select class="form-select w-auto me-2" id="newStatusId" name="newStatusId">
-                                        <c:forEach var="status" items="${orderStatuses}"> <%-- orderStatuses cần được truyền từ Servlet --%>
-                                            <option value="${status.statusId}" 
-                                                <c:if test="${status.statusId == order.statusId}">selected</c:if>>
-                                                ${status.statusName}
-                                            </option>
-                                        </c:forEach>
-                                    </select>
-                                    <button type="submit" class="btn btn-primary">Update Order Status</button>
-                                </form>
+                            <div class="mt-4 text-end">                                
                                 <a href="${pageContext.request.contextPath}/shipperDashboard" class="btn btn-secondary ms-2">Back</a>
                             </div>
 

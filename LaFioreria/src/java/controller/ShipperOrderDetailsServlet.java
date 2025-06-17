@@ -6,15 +6,13 @@ import model.OrderDetail;
 import model.OrderStatus;
 import java.io.IOException;
 import java.util.List;
-// Thay thế javax.servlet bằng jakarta.servlet
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import model.User; // Import User model để kiểm tra session shipper
-
+import model.User; 
 @WebServlet(name = "ShipperOrderDetailsServlet", urlPatterns = {"/DashMin/shipperOrderDetails"})
 public class ShipperOrderDetailsServlet extends HttpServlet {
 
