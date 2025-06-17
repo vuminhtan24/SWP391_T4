@@ -11,8 +11,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import dal.RawFlowerDAO;
-import model.RawFlower;
+import dal.FlowerTypeDAO;
+import model.FlowerType;
 
 /**
  *
@@ -59,7 +59,39 @@ public class HideRawFlowerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            String flowerIdParam = request.getParameter("flower_id");
+            if (flowerIdParam == null || flowerIdParam.trim().isEmpty()) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Product ID is missing or empty.");
+                return;
+            }
+
+            int flower_id = Integer.parseInt(flowerIdParam);
+            if (flower_id <= 0) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Product ID must be a positive integer.");
+                return;
+            }
+
+            FlowerTypeDAO ft = new FlowerTypeDAO();
+            FlowerType item = ft.getFlowerTypeById(flower_id);
+            if (item == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found or already deleted with ID: " + flower_id);
+                return;
+            }
+
+            // Thực hiện xóa mềm
+            ft.deleteFlowerType(flower_id);
+            
+            // Lưu thông báo thành công vào session
+            request.getSession().setAttribute("message", "Product hidden successfully!");
+
+            // Chuyển hướng về trang danh sách sản phẩm
+            response.sendRedirect("DashMin/rawflower2");
+        } catch (NumberFormatException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid product ID format: " + e.getMessage());
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred: " + e.getMessage());
+        }
     }
 
     /**
@@ -73,39 +105,7 @@ public class HideRawFlowerServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            String rawIdParam = request.getParameter("id");
-            if (rawIdParam == null || rawIdParam.trim().isEmpty()) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Product ID is missing or empty.");
-                return;
-            }
-
-            int raw_id = Integer.parseInt(rawIdParam);
-            if (raw_id <= 0) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Product ID must be a positive integer.");
-                return;
-            }
-
-            RawFlowerDAO rf = new RawFlowerDAO();
-            RawFlower item = rf.getRawFlowerById(raw_id);
-            if (item == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found or already deleted with ID: " + raw_id);
-                return;
-            }
-
-            // Thực hiện xóa mềm
-            rf.hideRawFlower(raw_id);
-            
-            // Lưu thông báo thành công vào session
-            request.getSession().setAttribute("message", "Product hidden successfully!");
-
-            // Chuyển hướng về trang danh sách sản phẩm
-            response.sendRedirect("DashMin/rawflower2");
-        } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid product ID format: " + e.getMessage());
-        } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred: " + e.getMessage());
-        }
+        
     }
 
     /**

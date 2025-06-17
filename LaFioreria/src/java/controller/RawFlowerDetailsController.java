@@ -4,14 +4,14 @@
  */
 package controller;
 
-import dal.RawFlowerDAO;
+import dal.FlowerTypeDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import model.RawFlower;
+import model.FlowerType;
 
 /**
  * Servlet để hiển thị chi tiết thông tin nguyên liệu (Raw Flower) dựa trên ID.
@@ -32,66 +32,66 @@ public class RawFlowerDetailsController extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try {
-            // Lấy tham số raw_id từ request
-            String rawIdStr = request.getParameter("raw_id");
-            if (rawIdStr == null || rawIdStr.trim().isEmpty()) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Mã nguyên liệu không được cung cấp.");
+            // Get flower_id parameter from request
+            String flowerIdStr = request.getParameter("flower_id");
+            if (flowerIdStr == null || flowerIdStr.trim().isEmpty()) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Flower type ID not provided.");
                 return;
             }
 
-            // Chuyển đổi raw_id thành số nguyên
-            int rawId;
+            // Convert flower_id to integer
+            int flowerId;
             try {
-                rawId = Integer.parseInt(rawIdStr);
+                flowerId = Integer.parseInt(flowerIdStr);
             } catch (NumberFormatException e) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Mã nguyên liệu không hợp lệ.");
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid flower type ID.");
                 return;
             }
 
-            // Khởi tạo DAO và lấy chi tiết nguyên liệu
-            RawFlowerDAO rf = new RawFlowerDAO();
-            RawFlower rawFlower = rf.getRawFlowerById(rawId);
+            // Initialize DAO and get flower type details
+            FlowerTypeDAO ftDAO = new FlowerTypeDAO();
+            FlowerType flowerType = ftDAO.getFlowerTypeById(flowerId);
 
-            // Kiểm tra nguyên liệu có tồn tại không
-            if (rawFlower == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy nguyên liệu với mã " + rawId + ".");
+            // Check if flower type exists
+            if (flowerType == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Flower type with ID " + flowerId + " not found.");
                 return;
             }
 
-            // Đặt thuộc tính cho JSP
-            request.setAttribute("item", rawFlower);
+            // Set attribute for JSP
+            request.setAttribute("item", flowerType);
 
-            // Chuyển tiếp đến JSP hiển thị chi tiết
+            // Forward to JSP for displaying details
             request.getRequestDispatcher("DashMin/rawflowerdetails.jsp").forward(request, response);
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
-                    "Đã xảy ra lỗi khi lấy chi tiết nguyên liệu: " + e.getMessage());
+                    "An error occurred while retrieving flower type details: " + e.getMessage());
         }
     }
 
     /**
-     * Xử lý HTTP <code>POST</code>. Hiện tại không hỗ trợ cập nhật chi tiết nguyên liệu.
+     * Handles HTTP <code>POST</code>. Currently does not support updating flower type details.
      *
      * @param request  servlet request
      * @param response servlet response
-     * @throws ServletException nếu xảy ra lỗi liên quan đến servlet
-     * @throws IOException      nếu xảy ra lỗi I/O
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, 
-                "Phương thức POST không được hỗ trợ cho chi tiết nguyên liệu.");
+                "POST method is not supported for flower type details.");
     }
 
     /**
-     * Trả về mô tả ngắn của servlet.
+     * Returns a short description of the servlet.
      *
-     * @return Chuỗi chứa mô tả servlet
+     * @return a String containing servlet description
      */
     @Override
     public String getServletInfo() {
-        return "Servlet để hiển thị chi tiết thông tin nguyên liệu dựa trên ID.";
+        return "Servlet to display detailed information of a flower type based on ID.";
     }
 }

@@ -162,9 +162,9 @@
             .thumbnail-img {
                 width: 60px;
                 height: 60px;
-                object-fit: cover; /* Cắt ảnh để lấp đầy khung, giữ tỷ lệ */
+                object-fit: cover;
                 display: block;
-                margin: 0 auto; /* Căn giữa ảnh trong ô */
+                margin: 0 auto;
             }
         </style>
     </head>
@@ -211,7 +211,7 @@
                         <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
                         <a href="${pageContext.request.contextPath}/orderManagement" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Order</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>RawFlower</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>FlowerType</a>
                         <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
                         <div class="nav-item dropdown">
@@ -320,48 +320,22 @@
                 </nav>
                 <!-- Navbar End -->
 
-                <!-- Raw Flower Management Start -->
+                <!-- Flower Type Management Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded h-100 p-4 fixed-container">
-                        <!-- Header with title and Add Bouquet button -->
+                        <!-- Header with title and Add Flower Type button -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0">Raw Flower List</h6>
-                            <a href="${pageContext.request.contextPath}/addRawFlower" class="btn btn-primary">Add New Product</a>
+                            <h6 class="mb-0">Flower Type List</h6>
+                            <a href="${pageContext.request.contextPath}/addRawFlower" class="btn btn-primary">Add New Flower Type</a>
                         </div>
                         <form action="${pageContext.request.contextPath}/DashMin/rawflower2" method="get"
-                              style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; width:100%;">
-                            <!-- Phần sort ở bên trái -->
-                            <div style="display:flex; align-items:center;">
-                                <label for="sortField" style="margin-right:0.5rem; white-space:nowrap;">
-                                    Sắp xếp theo:
-                                </label>
-                                <select name="sortField"
-                                        id="sortField"
-                                        onchange="this.form.submit()"
-                                        style="
-                                        width:auto;
-                                        min-width:max-content;
-                                        padding:0.25rem 0.5rem;
-                                        border:1px solid #ccc;
-                                        border-radius:0.5rem;
-                                        background-color:#fff;
-                                        ">
-                                    <option value="">-- Mặc định --</option>
-                                    <option value="unit_price_asc" ${param.sortField == 'unit_price_asc' ? 'selected' : ''}>Giá bán tăng dần</option>
-                                    <option value="unit_price_desc" ${param.sortField == 'unit_price_desc' ? 'selected' : ''}>Giá bán giảm dần</option>
-                                    <option value="import_price_asc" ${param.sortField == 'import_price_asc' ? 'selected' : ''}>Giá mua tăng dần</option>
-                                    <option value="import_price_desc" ${param.sortField == 'import_price_desc' ? 'selected' : ''}>Giá mua giảm dần</option>
-                                    <option value="quantity_asc" ${param.sortField == 'quantity_asc' ? 'selected' : ''}>Số lượng tăng dần</option>
-                                    <option value="quantity_desc" ${param.sortField == 'quantity_desc' ? 'selected' : ''}>Số lượng giảm dần</option>
-                                </select>
-                            </div>
-
-                            <!-- Phần search ở bên phải -->
+                              style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:1rem; width:100%;">
+                            <!-- Search form -->
                             <div style="display:flex; align-items:center;">
                                 <input type="text"
-                                       name="rawFlowerName"
-                                       placeholder="Tìm kiếm sản phẩm"
-                                       value="${param.rawFlowerName}"
+                                       name="flowerName"
+                                       placeholder="Tìm kiếm loại hoa"
+                                       value="${param.flowerName}"
                                        style="
                                        width:200px;
                                        padding:0.25rem 0.5rem;
@@ -369,7 +343,6 @@
                                        border-radius:0.5rem;
                                        margin-right:0.5rem;
                                        " />
-
                                 <button type="submit"
                                         style="
                                         padding:0.25rem 0.75rem;
@@ -389,42 +362,34 @@
                                 <tr>
                                     <th scope="col">ID</th>
                                     <th scope="col">Image</th>
-                                    <th scope="col">Raw Flower Name</th>
-                                    <th scope="col">Unit Price</th>
-                                    <th scope="col">Quantity</th>
-                                    <th scope="col">Expiration Date</th>
-                                    <th scope="col">Import Price</th>
-                                    <th scope="col">Warehouse</th>
+                                    <th scope="col">Flower Name</th>
+                                    <th scope="col">Active</th>
                                     <th colspan="2">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <c:forEach var="rawFlower" items="${sessionScope.listRF}" varStatus="status">
+                                <c:forEach var="flowerType" items="${sessionScope.listFT}" varStatus="status">
                                     <tr>
-                                        <td>${rawFlower.rawId}</td>
+                                        <td>${flowerType.flowerId}</td>
                                         <td>
-                                            <img src="${rawFlower.imageUrl}" alt="Raw Flower Image" class="thumbnail-img" />
+                                            <img src="${flowerType.image}" alt="Flower Type Image" class="thumbnail-img" />
                                         </td>
                                         <td>
-                                            <a href="${pageContext.request.contextPath}/rawFlowerDetails?raw_id=${rawFlower.rawId}" class="change-color-qvm">
-                                                ${rawFlower.rawName}
+                                            <a href="${pageContext.request.contextPath}/rawFlowerDetails?flower_id=${flowerType.flowerId}" class="change-color-qvm">
+                                                ${flowerType.flowerName}
                                             </a>
                                         </td>
-                                        <td>${rawFlower.unitPrice} VND</td>
-                                        <td>${rawFlower.availableQuantity}</td>
-                                        <td>${rawFlower.expirationDate}</td>
-                                        <td>${rawFlower.importPrice} VND</td>
-                                        <td>${rawFlower.warehouse.name}</td>
+                                        <td>${flowerType.active ? 'Yes' : 'No'}</td>
                                         <td>
                                             <button type="button"
                                                     class="btn btn-delete"
                                                     onclick="if (confirm('Do you want to delete?'))
-                                                                location.href = '${pageContext.request.contextPath}/deleteRawFlower?raw_id=${rawFlower.rawId}';">
-                                                Delete
+                                                                location.href = '${pageContext.request.contextPath}/hideRawFlower?flower_id=${flowerType.flowerId}';">
+                                                Hide
                                             </button>
                                             <button type="button"
                                                     class="btn btn-edit"
-                                                    onclick="location.href = '${pageContext.request.contextPath}/update_flower?raw_id=${rawFlower.rawId}';">
+                                                    onclick="location.href = '${pageContext.request.contextPath}/update_flower?flower_id=${flowerType.flowerId}';">
                                                 Edit
                                             </button>
                                         </td>
@@ -439,19 +404,17 @@
                                     <!-- Previous -->
                                     <c:url var="prevUrl" value="/DashMin/rawflower2">
                                         <c:param name="page" value="${currentPage - 1}" />
-                                        <c:param name="rawFlowerName" value="${param.rawFlowerName}" />
-                                        <c:param name="sortField" value="${param.sortField}" />
+                                        <c:param name="flowerName" value="${param.flowerName}" />
                                     </c:url>
                                     <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
                                         <a class="page-link" href="${prevUrl}">Previous</a>
                                     </li>
 
-                                    <!-- Các trang -->
+                                    <!-- Pages -->
                                     <c:forEach var="i" begin="1" end="${totalPages}">
                                         <c:url var="pageUrl" value="/DashMin/rawflower2">
                                             <c:param name="page" value="${i}" />
-                                            <c:param name="rawFlowerName" value="${param.rawFlowerName}" />
-                                            <c:param name="sortField" value="${param.sortField}" />
+                                            <c:param name="flowerName" value="${param.flowerName}" />
                                         </c:url>
                                         <li class="page-item ${i == currentPage ? 'active' : ''}">
                                             <a class="page-link" href="${pageUrl}">${i}</a>
@@ -461,8 +424,7 @@
                                     <!-- Next -->
                                     <c:url var="nextUrl" value="/DashMin/rawflower2">
                                         <c:param name="page" value="${currentPage + 1}" />
-                                        <c:param name="rawFlowerName" value="${param.rawFlowerName}" />
-                                        <c:param name="sortField" value="${param.sortField}" />
+                                        <c:param name="flowerName" value="${param.flowerName}" />
                                     </c:url>
                                     <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
                                         <a class="page-link" href="${nextUrl}">Next</a>
@@ -472,7 +434,7 @@
                         </c:if>
                     </div>
                 </div>
-                <!-- Raw Flower Management End -->
+                <!-- Flower Type Management End -->
 
                 <!-- Footer Start -->
                 <div class="container-fluid pt-4 px-4">
