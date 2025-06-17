@@ -11,6 +11,22 @@
     .table td, .table th {
         vertical-align: middle;
     }
+    /* Căn giữa bảng */
+    .table-responsive {
+        display: flex;
+        justify-content: center;
+    }
+    .table {
+        width: 100%;
+        max-width: 1200px; /* Điều chỉnh chiều rộng tối đa theo ý muốn */
+        margin: 0 auto; /* Căn giữa bảng */
+    }
+    /* Màu nền cho th */
+    .table th {
+        background-color: #e9ecef !important;
+        color: #212529 !important;
+        font-weight: 700 !important;
+    }
 </style>
 <div class="table-responsive mb-3">
     <table class="table table-bordered align-middle">
@@ -46,7 +62,7 @@
                             <td>${batch.expirationDate}</td>
                             <td>${batch.quantity}</td>
                             <td>${batch.hold}</td>
-                            <td>${batch.warehouse != null ? batch.warehouse.name : 'N/A'}</td>
+                            <td>${batch.warehouse.name}</td>
                         </tr>
                     </c:forEach>
                     <c:if test="${empty flowerBatches}">

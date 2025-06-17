@@ -179,6 +179,9 @@
             .btn-delete:hover {
                 background-color: #c0392b;
             }
+            h5.mb-3.text-secondary {
+                text-align: center;
+            }
         </style>
     </head>
     <body>
@@ -285,10 +288,10 @@
                                         </div>
                                     </div>
                                 </form>
-                                <!-- Flower Batches Table -->
-                                <h5 class="mb-3 text-secondary">Danh sách Lô Hoa</h5>
+                               <!-- Flower Batches Table -->
+                               <h5 class="mb-3 text-secondary">Batch List By Flower</h5>
                                 <c:if test="${not empty item.flowerId}">
-                                    <jsp:include page="/batch?flower_id=${item.flowerId}"/>
+                                    <%@ include file="flowerbatch.jsp" %>
                                 </c:if>
                                 <c:if test="${empty item.flowerId}">
                                     <div class="text-center text-danger">ID loại hoa không hợp lệ.</div>

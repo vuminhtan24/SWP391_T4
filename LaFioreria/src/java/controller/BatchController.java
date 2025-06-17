@@ -32,6 +32,9 @@ public class BatchController extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try {
+            // Log để debug
+            System.out.println("BatchController: Processing request for flower_id");
+
             // Lấy tham số flower_id từ request
             String flowerIdStr = request.getParameter("flower_id");
             if (flowerIdStr == null || flowerIdStr.trim().isEmpty()) {
@@ -44,8 +47,11 @@ public class BatchController extends HttpServlet {
             int flowerId;
             try {
                 flowerId = Integer.parseInt(flowerIdStr);
+                if (flowerId <= 0) {
+                    throw new NumberFormatException("ID loại hoa phải là số dương.");
+                }
             } catch (NumberFormatException e) {
-                request.setAttribute("error", "ID loại hoa không hợp lệ.");
+                request.setAttribute("error", "ID loại hoa không hợp lệ: " + e.getMessage());
                 request.getRequestDispatcher("DashMin/flowerbatch.jsp").forward(request, response);
                 return;
             }
@@ -60,6 +66,8 @@ public class BatchController extends HttpServlet {
             // Chuyển tiếp đến JSP fragment
             request.getRequestDispatcher("DashMin/flowerbatch.jsp").forward(request, response);
         } catch (Exception e) {
+            // Log lỗi chi tiết
+            e.printStackTrace();
             request.setAttribute("error", "Đã xảy ra lỗi khi lấy danh sách lô hoa: " + e.getMessage());
             request.getRequestDispatcher("DashMin/flowerbatch.jsp").forward(request, response);
         }
