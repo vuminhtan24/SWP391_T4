@@ -140,9 +140,18 @@ public class AddUserDetail extends HttpServlet {
             request.setAttribute("passwordStrength", passwordStrength);
 
             // Full name validation
-            if (!fullName.matches("^(?=.{4,50}$)(?!.*  )[A-Za-zÀ-ỹà-ỹ\\s]+$")) {
+// Check Full Name
+            if (fullName == null || fullName.trim().isEmpty()) {
                 setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
-                request.setAttribute("errorFullname", "Full name must be at least 4 characters and contain no digits.");
+                request.setAttribute("errorFullname", "Full name is required.");
+                request.setAttribute("roleNames", ud.getRoleNames());
+                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
+                return;
+            }
+
+            if (!fullName.matches("^(?!\\s)(?!.*\\s{2,})(?=.{4,50}$)[A-Za-zÀ-ỹà-ỹ\\s]+(?<!\\s)$")) {
+                setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
+                request.setAttribute("errorFullname", "Full name must be 4-50 characters, only letters, no digits, no double spaces.");
                 request.setAttribute("roleNames", ud.getRoleNames());
                 request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
                 return;
