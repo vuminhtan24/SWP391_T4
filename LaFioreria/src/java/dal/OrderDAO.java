@@ -1,18 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dal;
 
 import model.Order;
 import model.User;
 import model.OrderStatus;
-import model.OrderDetail; 
+import model.OrderDetail;
 import model.Bouquet; // Import Bouquet model
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement; 
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,19 +87,19 @@ public class OrderDAO extends BaseDao {
                 orderByColumnName = "o.order_date";
                 break;
             case "customerName":
-                orderByColumnName = "u.Fullname"; 
+                orderByColumnName = "u.Fullname";
                 break;
             case "totalAmount":
                 orderByColumnName = "o.total_amount";
                 break;
             case "statusName":
-                orderByColumnName = "os.status_name"; 
+                orderByColumnName = "os.status_name";
                 break;
             case "shipperName":
-                orderByColumnName = "s.Fullname"; 
+                orderByColumnName = "s.Fullname";
                 break;
             default:
-                orderByColumnName = "o.order_date"; 
+                orderByColumnName = "o.order_date";
         }
 
         if ("desc".equalsIgnoreCase(sortOrder)) {
@@ -113,7 +109,7 @@ public class OrderDAO extends BaseDao {
         }
         
         if (!orderByColumnName.equals("o.order_id")) {
-             dataSql.append(", o.order_id DESC"); 
+             dataSql.append(", o.order_id DESC");
         }
         
         if (pageIndex > 0 && pageSize > 0) {
@@ -129,7 +125,7 @@ public class OrderDAO extends BaseDao {
             }
             ResultSet countRs = countPs.executeQuery();
             if (countRs.next()) {
-                this.noOfRecords = countRs.getInt(1); 
+                this.noOfRecords = countRs.getInt(1);
             }
             countRs.close();
             countPs.close();
@@ -231,7 +227,7 @@ public class OrderDAO extends BaseDao {
         List<OrderDetail> orderItems = new ArrayList<>();
         String sql = "SELECT oi.order_item_id, oi.order_id, oi.bouquet_id, " +
                      "b.bouquet_name, b.image_url, oi.quantity, oi.unit_price " +
-                     "FROM `order_item` oi " + 
+                     "FROM `order_item` oi " +
                      "JOIN `bouquet` b ON oi.bouquet_id = b.bouquet_id " +
                      "WHERE oi.order_id = ?";
         try {
@@ -241,13 +237,13 @@ public class OrderDAO extends BaseDao {
             rs = ps.executeQuery();
             while (rs.next()) {
                 OrderDetail item = new OrderDetail(
-                    rs.getInt("order_item_id"), 
+                    rs.getInt("order_item_id"),
                     rs.getInt("order_id"),
                     rs.getInt("bouquet_id"),
                     rs.getString("bouquet_name"),
-                    rs.getString("image_url"), 
+                    rs.getString("image_url"),
                     rs.getInt("quantity"),
-                    rs.getString("unit_price") 
+                    rs.getString("unit_price")
                 );
                 orderItems.add(item);
             }
@@ -520,6 +516,93 @@ public class OrderDAO extends BaseDao {
             }
         }
     }
+
+    /**
+     * Retrieves a list of orders assigned to a specific shipper and optionally filtered by statuses.
+     * This method is specifically for the shipper's dashboard to view their assigned orders.
+     *
+     * @param shipperId The User_ID of the shipper.
+     * @param statusIds A list of order status IDs to filter by. If null or empty, no status filter is applied.
+     * @return List of Order objects.
+     */
+    public List<Order> getOrdersByShipperIdAndStatuses(int shipperId, List<Integer> statusIds) {
+        List<Order> orders = new ArrayList<>();
+        
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, ");
+        sql.append("o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name ");
+        sql.append("FROM `order` o ");
+        sql.append("JOIN `user` u ON o.customer_id = u.User_ID ");
+        sql.append("JOIN `order_status` os ON o.status_id = os.order_status_id ");
+        sql.append("LEFT JOIN `user` s ON o.shipper_id = s.User_ID ");
+        sql.append("WHERE o.shipper_id = ? "); // Primary filter for shipper ID
+        
+        // Dynamically add placeholders for status IDs if provided
+        if (statusIds != null && !statusIds.isEmpty()) {
+            sql.append("AND o.status_id IN (");
+            for (int i = 0; i < statusIds.size(); i++) {
+                sql.append("?");
+                if (i < statusIds.size() - 1) {
+                    sql.append(", ");
+                }
+            }
+            sql.append(") ");
+        }
+        sql.append("ORDER BY o.order_date DESC"); // Order by date descending
+
+        // --- DEBUG LOG START ---
+        System.out.println("DEBUG (OrderDAO): Executing SQL Query: " + sql.toString());
+        System.out.println("DEBUG (OrderDAO): Parameters -> shipperId: " + shipperId + ", statusIds: " + statusIds);
+        // --- DEBUG LOG END ---
+
+        try {
+            connection = dbc.getConnection();
+            if (connection == null) {
+                System.err.println("ERROR (OrderDAO): Database connection is NULL.");
+                return orders; // Return empty list if no connection
+            }
+            
+            ps = connection.prepareStatement(sql.toString());
+            int paramIndex = 1;
+            ps.setInt(paramIndex++, shipperId); // Set the shipperId parameter first
+
+            // Set dynamic statusId parameters
+            if (statusIds != null && !statusIds.isEmpty()) {
+                for (Integer statusId : statusIds) {
+                    ps.setInt(paramIndex++, statusId);
+                }
+            }
+            
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                orders.add(new Order(
+                        rs.getInt("order_id"),
+                        rs.getString("order_date") != null ? rs.getString("order_date").trim() : null,
+                        rs.getInt("customer_id"),
+                        rs.getString("customer_name"),
+                        rs.getString("total_amount") != null ? rs.getString("total_amount").trim() : null,
+                        rs.getInt("status_id"),
+                        rs.getString("status_name"),
+                        rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
+                        rs.getString("shipper_name")
+                ));
+            }
+            // --- DEBUG LOG START ---
+            System.out.println("DEBUG (OrderDAO): Successfully retrieved " + orders.size() + " orders for shipper " + shipperId);
+            // --- DEBUG LOG END ---
+        } catch (SQLException e) {
+            System.err.println("ERROR (OrderDAO): SQL Error while getting orders for shipper (ID: " + shipperId + "): " + e.getMessage());
+            e.printStackTrace(); // Print full stack trace for detailed debugging
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.err.println("ERROR (OrderDAO): Error closing resources: " + e.getMessage());
+            }
+        }
+        return orders;
+    }
     
     /**
      * Retrieves a list of all users with the 'Shipper' role.
@@ -539,8 +622,8 @@ public class OrderDAO extends BaseDao {
                 shipper.setUserid(rs.getInt("User_ID"));
                 shipper.setUsername(rs.getString("Username"));
                 shipper.setFullname(rs.getString("Fullname"));
-                shipper.setEmail(rs.getString("Email"));   
-                shipper.setPhone(rs.getString("Phone"));   
+                shipper.setEmail(rs.getString("Email"));    
+                shipper.setPhone(rs.getString("Phone"));    
                 shipper.setRole(rs.getInt("role"));
                 shippers.add(shipper);
             }
@@ -608,8 +691,8 @@ public class OrderDAO extends BaseDao {
                 customer.setUserid(rs.getInt("User_ID"));
                 customer.setUsername(rs.getString("Username"));
                 customer.setFullname(rs.getString("Fullname"));
-                customer.setEmail(rs.getString("Email"));   
-                customer.setPhone(rs.getString("Phone"));   
+                customer.setEmail(rs.getString("Email"));    
+                customer.setPhone(rs.getString("Phone"));    
                 customer.setRole(rs.getInt("role"));
                 customers.add(customer);
             }
@@ -664,123 +747,13 @@ public class OrderDAO extends BaseDao {
 
     public static void main(String[] args) {
         OrderDAO orderDAO = new OrderDAO();
-
-        // Test addOrder
-        System.out.println("\n--- Test Add New Order ---");
-        Order newOrder = new Order(0, "2025-06-16", 7, "0.00", 1); 
-        int newOrderId = orderDAO.addOrder(newOrder);
-        if (newOrderId != -1) {
-            System.out.println("New order added successfully with ID: " + newOrderId);
-            // Example of adding an order item immediately after creating the order
-            // Get a sample bouquet price (assuming bouquet ID 1 exists and its price is 250000)
-            List<Bouquet> allBouquets = orderDAO.getAllBouquets();
-            String sampleUnitPrice = "0"; // Default
-            if (!allBouquets.isEmpty()) {
-                sampleUnitPrice = String.valueOf(allBouquets.get(0).getPrice()); // Use first bouquet's price
-            }
-
-            OrderDetail firstItem = new OrderDetail(0, newOrderId, 1, null, null, 2, sampleUnitPrice); // bouquet_id=1, quantity=2
-            boolean itemAdded = orderDAO.addOrderItem(firstItem);
-            if(itemAdded) {
-                System.out.println("First order item added successfully!");
-                // Calculate and update total amount for the order
-                double calculatedTotal = Double.parseDouble(sampleUnitPrice) * firstItem.getQuantity();
-                orderDAO.updateTotalAmount(newOrderId, String.format("%.2f", calculatedTotal)); 
-                System.out.println("Total amount updated for new order.");
-            } else {
-                System.out.println("Failed to add first order item.");
-            }
-
-            Order addedOrder = orderDAO.getOrderDetailById(newOrderId);
-            if (addedOrder != null) {
-                System.out.println("Details of new order: " + addedOrder);
-                List<OrderDetail> addedItems = orderDAO.getOrderItemsByOrderId(newOrderId);
-                System.out.println("Items in new order:");
-                if (!addedItems.isEmpty()) {
-                    addedItems.forEach(System.out::println);
-                } else {
-                    System.out.println("No items found for new order.");
-                }
-            }
-        } else {
-            System.out.println("Failed to add new order.");
-        }
-
-        System.out.println("\n--- Test Delete Order (ID: X) ---");
-        boolean deleted = orderDAO.deleteOrder(3); 
-        if (deleted) {
-            System.out.println("Order ID 3 deleted successfully.");
-        } else {
-            System.out.println("Order ID 3 deletion failed or order not found.");
-        }
-
-        System.out.println("\n--- Test Update Order (Order ID: 1) ---");
-        boolean updated = orderDAO.updateOrder(1, "150000.00", 2, 11); 
-        if (updated) {
-            System.out.println("Order ID 1 updated successfully.");
-            Order updatedOrder = orderDAO.getOrderDetailById(1);
-            if (updatedOrder != null) {
-                System.out.println("Order information after update: " + updatedOrder);
-            }
-        } else {
-            System.out.println("Order ID 1 update failed.");
-        }
-
-        System.out.println("\n--- Orders (Page 1, Size 2, Sorted by Date DESC) ---");
-        List<Order> paginatedOrders = orderDAO.searchOrders(null, null, 1, 2, "orderDate", "desc");
-        if (paginatedOrders.isEmpty()) {
-            System.out.println("No orders found for pagination test.");
-        } else {
-            paginatedOrders.forEach(System.out::println);
-            System.out.println("Total records: " + orderDAO.getNoOfRecords());
-        }
-        
-        System.out.println("\n--- Check order details (ID 1) ---");
-        Order order1 = orderDAO.getOrderDetailById(1);
-        if (order1 != null) {
-            System.out.println(order1);
-        } else {
-            System.out.println("Order ID 1 not found.");
-        }
-
-        System.out.println("\n--- Shipper List ---");
-        List<User> shippers = orderDAO.getAllShippers();
-        if (shippers.isEmpty()) {
-            System.out.println("No shippers found.");
-        } else {
-            for (User shipper : shippers) {
-                System.out.println(shipper);
-            }
-        }
-
-        System.out.println("\n--- Order Status List ---");
-        List<OrderStatus> statuses = orderDAO.getAllOrderStatuses();
-        if (statuses.isEmpty()) {
-            System.out.println("No order statuses found.");
-        } else {
-            for (OrderStatus status : statuses) {
-                System.out.println(status);
-            }
-        }
-        
-        System.out.println("\n--- Customer List ---");
-        List<User> customers = orderDAO.getAllCustomers();
-        if (customers.isEmpty()) {
-            System.out.println("No customers found.");
-        } else {
-            for (User customer : customers) {
-                System.out.println(customer);
-            }
-        }
-
-        System.out.println("\n--- Bouquet List ---");
-        List<Bouquet> bouquets = orderDAO.getAllBouquets();
-        if (bouquets.isEmpty()) {
-            System.out.println("No bouquets found.");
-        } else {
-            for (Bouquet bouquet : bouquets) {
-                System.out.println(bouquet);
-            }
-        }
+        // Example usage for testing getOrdersByShipperIdAndStatuses
+        // int testShipperId = 123; // Replace with a known shipper ID from your DB
+        // List<Integer> testStatusIds = Arrays.asList(3, 4); // Shipping and Delivered
+        // List<Order> testOrders = orderDAO.getOrdersByShipperIdAndStatuses(testShipperId, testStatusIds);
+        // System.out.println("Orders for test shipper: " + testOrders.size());
+        // for (Order order : testOrders) {
+        //     System.out.println("Test Order: ID=" + order.getOrderId() + ", Customer=" + order.getCustomerName() + ", Status=" + order.getStatusName());
+        // }
     }
 }

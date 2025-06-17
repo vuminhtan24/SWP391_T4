@@ -225,7 +225,7 @@
                                 <thead>
                                     <tr class="text-dark">
                                         <%-- Utility function to create URL for sortable column headers --%>
-                                        <c:url var="baseSortUrl" value="${pageContext.request.contextPath}/orderManagement">
+                                        <c:url var="baseSortUrl" value="/orderManagement">
                                             <c:param name="keyword" value="${currentKeyword}" />
                                             <c:param name="statusId" value="${currentStatusId}" />
                                             <c:param name="page" value="${currentPage}" />
