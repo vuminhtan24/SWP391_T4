@@ -168,7 +168,7 @@
                     <div class="bg-light text-center rounded p-4">
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <h6 class="mb-0">Order Management</h6>
-                            <a href="${pageContext.request.contextPath}/orderManagement">Show All</a>
+                            <a href="${pageContext.request.contextPath}/addOrder" class="btn btn-success">Add New Order</a>
                         </div>
 
                         <%-- Display success/error message from deletion --%>
@@ -301,7 +301,6 @@
                                                    href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}">Details</a>
                                                 <a class="btn btn-sm btn-info"
                                                    href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}&action=edit">Edit</a>
-                                                <%-- Updated Delete button with confirmation --%>
                                                 <a class="btn btn-sm btn-danger" href="#"
                                                    onclick="return confirmDelete(${order.orderId});">Delete</a>
                                             </td>

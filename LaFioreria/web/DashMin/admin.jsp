@@ -41,12 +41,14 @@
     </head>
 
     <body>
-        <%
-    if (session == null || session.getAttribute("currentAcc") == null) {
-        response.sendRedirect(request.getContextPath()+ "/ZeShopper/login.jsp");
+        <%@ page import="model.User" %>
+<%
+    User acc = (User) session.getAttribute("currentAcc");
+    if (acc == null || acc.getRole() != 1) {
+        response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet");
         return;
     }
-        %>
+%>
 
 
         <div class="container-fluid position-relative bg-white d-flex p-0">
