@@ -425,7 +425,7 @@ public class OrderDAO extends BaseDao {
      */
     public int addOrder(Order order) {
         // Updated SQL to include customer_phone and customer_address
-        String sql = "INSERT INTO `order` (order_date, customer_id, total_amount, status_id, shipper_id, customer_phone, customer_address) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO `order` (order_date, customer_id, total_amount, status_id, shipper_id) VALUES (?, ?, ?, ?, ?)";
         int generatedId = -1;
         try {
             connection = dbc.getConnection();
@@ -440,9 +440,6 @@ public class OrderDAO extends BaseDao {
             } else {
                 ps.setInt(5, order.getShipperId());
             }
-            // Set customer phone and address
-            ps.setString(6, order.getCustomerPhone());
-            ps.setString(7, order.getCustomerAddress());
 
 
             int rowsAffected = ps.executeUpdate();

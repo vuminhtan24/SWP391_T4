@@ -1,4 +1,4 @@
-<%--
+<%-- 
     Document   : orderAdd
     Created on : Jun 16, 2025, 03:00:00 PM
     Author     : VU MINH TAN
@@ -127,22 +127,26 @@
                                 <select class="form-select" id="customerId" name="customerId" required>
                                     <option value="0">-- Select Customer --</option>
                                     <c:forEach var="customer" items="${customers}">
-                                        <option value="${customer.userid}" ${selectedCustomerId == customer.userid ? 'selected' : ''}>
+                                        <option value="${customer.userid}" 
+                                            data-phone="${customer.phone}" 
+                                            data-address="${customer.address}"
+                                            ${selectedCustomerId == customer.userid ? 'selected' : ''}>
                                             ${customer.fullname} (${customer.username})
                                         </option>
                                     </c:forEach>
                                 </select>
                             </div>
+
                             <div class="mb-3">
                                 <label for="customerPhone" class="form-label">Customer Phone:</label>
                                 <input type="text" class="form-control" id="customerPhone" name="customerPhone"
-                                       value="${not empty submittedCustomerPhone ? submittedCustomerPhone : ''}" required>
+                                       value="${not empty submittedCustomerPhone ? submittedCustomerPhone : ''}" readonly="">
                             </div>
 
                             <div class="mb-3">
                                 <label for="customerAddress" class="form-label">Customer Address:</label>
                                 <input type="text" class="form-control" id="customerAddress" name="customerAddress"
-                                       value="${not empty submittedCustomerAddress ? submittedCustomerAddress : ''}" required>
+                                       value="${not empty submittedCustomerAddress ? submittedCustomerAddress : ''}" readonly="">
                             </div>
 
                             <%-- Total Amount is removed from here as it will be calculated from order items --%>
@@ -177,7 +181,7 @@
                                     </c:forEach>
                                 </select>
                             </div>
-
+                            
                             <div class="alert alert-info">
                                 Note: After creating the main order, you will be redirected to a new page to add products (bouquets) to this order.
                             </div>
@@ -225,5 +229,38 @@
 
         <!-- Template Javascript -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+
+        <script>
+            // Lấy reference đến các trường input và select
+            const customerSelect = document.getElementById('customerId');
+            const customerPhoneInput = document.getElementById('customerPhone');
+            const customerAddressInput = document.getElementById('customerAddress');
+
+            // Hàm để điền thông tin số điện thoại và địa chỉ
+            function populateCustomerDetails() {
+                const selectedOption = customerSelect.options[customerSelect.selectedIndex];
+                // Lấy data-phone và data-address từ option đã chọn
+                const phone = selectedOption.getAttribute('data-phone');
+                const address = selectedOption.getAttribute('data-address');
+
+                if (selectedOption.value !== "0") { // Nếu không phải là "-- Select Customer --"
+                    customerPhoneInput.value = phone || ''; // Gán giá trị hoặc chuỗi rỗng nếu null
+                    customerAddressInput.value = address || '';
+                } else {
+                    // Nếu chọn "-- Select Customer --", xóa nội dung các trường
+                    customerPhoneInput.value = '';
+                    customerAddressInput.value = '';
+                }
+            }
+
+            // Gắn sự kiện 'change' vào dropdown khách hàng
+            customerSelect.addEventListener('change', populateCustomerDetails);
+
+            // Gọi hàm khi trang tải xong để điền thông tin nếu có khách hàng đã được chọn sẵn
+            // (ví dụ: sau khi submit form bị lỗi validation và dữ liệu được giữ lại)
+            document.addEventListener('DOMContentLoaded', function() {
+                populateCustomerDetails();
+            });
+        </script>
     </body>
 </html>
