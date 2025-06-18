@@ -179,8 +179,27 @@
             .btn-delete:hover {
                 background-color: #c0392b;
             }
+            /* Căn giữa h5 */
             h5.mb-3.text-secondary {
                 text-align: center;
+            }
+            /* Căn giữa nút Add Batch */
+            .add-batch-container {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 20px; /* Khoảng cách dưới nút */
+            }
+            .btn-primary {
+                padding: 8px 20px;
+                font-size: 16px;
+                font-weight: 500;
+                background-color: #007bff; /* Xanh dương */
+                border-color: #007bff;
+                transition: background-color 0.3s ease;
+            }
+            .btn-primary:hover {
+                background-color: #0056b3;
+                border-color: #0056b3;
             }
         </style>
     </head>
@@ -289,7 +308,13 @@
                                     </div>
                                 </form>
                                <!-- Flower Batches Table -->
-                               <h5 class="mb-3 text-secondary">Batch List By Flower</h5>
+                               <h5 class="mb-3 text-secondary">Batch List of ${item.flowerName}</h5>
+                               <div class="add-batch-container">
+                                   <button type="button" class="btn btn-primary" 
+                                           onclick="location.href='${pageContext.request.contextPath}/add_batch?flower_id=${item.flowerId}'">
+                                       + Add Batch
+                                   </button>
+                               </div>
                                 <c:if test="${not empty item.flowerId}">
                                     <%@ include file="flowerbatch.jsp" %>
                                 </c:if>
