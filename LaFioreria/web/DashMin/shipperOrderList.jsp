@@ -114,6 +114,7 @@
                                         <th scope="col">Order Date</th>
                                         <th scope="col">Customer Name</th>
                                         <th scope="col">Customer Phone</th>
+                                        <th scope="col">Customer Address</th>
                                         <th scope="col">Total Amount</th>
                                         <th scope="col">Status</th>
                                         <th scope="col">Actions</th>
@@ -131,6 +132,7 @@
                                             <td>${order.orderDate}</td>
                                             <td>${order.customerName}</td>
                                             <td>${order.customerPhone}</td>
+                                            <td>${order.customerAddress}</td>
                                             <td>${order.totalAmount}</td>
                                             <td>
                                                 <form action="${pageContext.request.contextPath}/shipperDashboard" method="post" class="d-flex align-items-center">

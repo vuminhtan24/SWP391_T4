@@ -161,7 +161,7 @@
                         <div class="login-form"><!--login form-->
                             <h2>Login to your account</h2>
                             <form action="LoginServlet" method="post">
-                                User name: <input type="text" placeholder="Username" name="username" maxlength="45"/>
+                                User name: <input type="text" value="${requestScope.username}" placeholder="Username" name="username" maxlength="45"/>
                                 Password: <input type="password" placeholder="Password" name="password" maxlength="45"/>
                                 <span>
                                     <input type="checkbox" class="checkbox" name="rememberMe"> 
@@ -187,7 +187,7 @@
                                 Full name: <input type="text" placeholder="Fullname" value="${fullname}" name="fullname"required maxlength="45"/>
                                 User name: <input type="text" placeholder="Username" value="${username}" name="username"required maxlength="45"/>
                                 Phone: <input type="phone" placeholder="Phone" value="${phone}" name="phone"required maxlength="45"/>
-                                Address: <input type="text" placeholder="Address" value="${address}" name="address"required maxlength="45"/>
+                                Address: <input type="text" placeholder="Address" value="${address}" name="address"required />
                                 Password: <input type="password" placeholder="Password" name="password"required maxlength="45"/>
                                 Confirm Password: <input type="password" placeholder="Confirm Password" name="confirmPassword"required maxlength="45"/>
                                 <h3 class="text-danger text-center">${messRegister}</h3>

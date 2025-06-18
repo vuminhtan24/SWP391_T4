@@ -157,7 +157,7 @@
                     <div class="col-sm-4 col-sm-offset-1">
                         <div class="login-form">
                             <h2>Verify OTP</h2>
-                            <form action="${pageContext.request.contextPath}/verifyOTP" method="post">
+                            <form action="${pageContext.request.contextPath}/ZeShopper/verifyOTP" method="post">
                                 <input type="text" name="otp" placeholder="Enter OTP Code" required />
                                 <c:if test="${not empty mess}">
                                     <div class="alert alert-danger" style="margin-top:10px;">${mess}</div>

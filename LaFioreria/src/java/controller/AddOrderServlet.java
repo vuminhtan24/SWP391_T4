@@ -69,6 +69,7 @@ public class AddOrderServlet extends HttpServlet {
 
         String orderDate = request.getParameter("orderDate");
         String customerIdParam = request.getParameter("customerId");
+       
         // totalAmount will be "0.00" initially, updated later when items are added
         String totalAmountParam = "0.00"; // FIX: Set totalAmountParam directly here, don't get from request
         String statusIdParam = request.getParameter("statusId");
@@ -123,7 +124,7 @@ public class AddOrderServlet extends HttpServlet {
 
         OrderDAO orderDAO = new OrderDAO();
         // Create order with initial total amount as "0.00"
-        Order newOrder = new Order(0, orderDate, customerId, null,null, totalAmountParam, statusId, null, shipperId, null);
+        Order newOrder = new Order(0, orderDate, customerId, null, null,null, totalAmountParam, statusId, null, shipperId, null);
 
         int newOrderId = orderDAO.addOrder(newOrder);
 

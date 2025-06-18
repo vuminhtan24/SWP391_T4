@@ -148,7 +148,7 @@ public class Register extends HttpServlet {
             return;
         }
 
-        response.sendRedirect("verifyOTP.jsp");
+        response.sendRedirect(request.getContextPath()+"/ZeShopper/verifyOTP");
 //        User acc = new User(username, password, fullname, email, phone, address, 7);
 //        boolean isCreate = daoAcc.createAccount(acc);
 //        if (!isCreate) {
