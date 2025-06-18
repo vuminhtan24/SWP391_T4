@@ -133,6 +133,17 @@
                                     </c:forEach>
                                 </select>
                             </div>
+                            <div class="mb-3">
+                                <label for="customerPhone" class="form-label">Customer Phone:</label>
+                                <input type="text" class="form-control" id="customerPhone" name="customerPhone"
+                                       value="${not empty submittedCustomerPhone ? submittedCustomerPhone : ''}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="customerAddress" class="form-label">Customer Address:</label>
+                                <input type="text" class="form-control" id="customerAddress" name="customerAddress"
+                                       value="${not empty submittedCustomerAddress ? submittedCustomerAddress : ''}" required>
+                            </div>
 
                             <%-- Total Amount is removed from here as it will be calculated from order items --%>
                             <%--
@@ -166,7 +177,7 @@
                                     </c:forEach>
                                 </select>
                             </div>
-                            
+
                             <div class="alert alert-info">
                                 Note: After creating the main order, you will be redirected to a new page to add products (bouquets) to this order.
                             </div>

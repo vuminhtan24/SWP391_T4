@@ -161,7 +161,7 @@
                         <div class="login-form"><!--login form-->
                             <h2>Login to your account</h2>
                             <form action="LoginServlet" method="post">
-                                User name: <input type="text" placeholder="Username" name="username" maxlength="45"/>
+                                User name: <input type="text" value="${requestScope.username}" placeholder="Username" name="username" maxlength="45"/>
                                 Password: <input type="password" placeholder="Password" name="password" maxlength="45"/>
                                 <span>
                                     <input type="checkbox" class="checkbox" name="rememberMe"> 

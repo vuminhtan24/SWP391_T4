@@ -14,6 +14,7 @@ public class Order {
     private int customerId;
     private String customerName;
     private String customerPhone;
+    private String customerAddress;
     private String totalAmount;
     private int statusId;
     private String statusName;   
@@ -25,13 +26,14 @@ public class Order {
     }
 
     public Order(int orderId, String orderDate, int customerId, String customerName,
-                 String customerPhone,String totalAmount, int statusId, String statusName,
+                 String customerPhone,String customerAddress,String totalAmount, int statusId, String statusName,
                  Integer shipperId, String shipperName) {
         this.orderId = orderId;
         this.orderDate = orderDate;
         this.customerId = customerId;
         this.customerName = customerName;
         this.customerPhone = customerPhone;
+        this.customerAddress = customerAddress;
         this.totalAmount = totalAmount;
         this.statusId = statusId;
         this.statusName = statusName;
@@ -61,7 +63,6 @@ public class Order {
     }
 
 
-    // Getters and Setters for existing fields
     public int getOrderId() {
         return orderId;
     }
@@ -98,6 +99,15 @@ public class Order {
         this.customerPhone = customerPhone;
     }
 
+    public String getCustomerAddress() {
+        return customerAddress;
+    }
+
+    public void setCustomerAddress(String customerAddress) {
+        this.customerAddress = customerAddress;
+    }
+    
+
     public void setTotalAmount(String totalAmount) {
         this.totalAmount = totalAmount;
     }
@@ -110,7 +120,6 @@ public class Order {
         this.statusId = statusId;
     }
 
-    // Getters and Setters for new fields
     public String getCustomerName() {
         return customerName;
     }
