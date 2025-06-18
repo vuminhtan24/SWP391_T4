@@ -4,22 +4,25 @@
  */
 package controller;
 
+import com.google.gson.Gson;
+import dal.SalesDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import dal.FlowerTypeDAO;
-import model.FlowerType;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
- * @author Admin
+ * @author LAPTOP
  */
-@WebServlet(name = "HideRawFlowerServlet", urlPatterns = {"/hideRawFlower"})
-public class HideRawFlowerServlet extends HttpServlet {
+@WebServlet(name = "RevenueAllTimeServlet", urlPatterns = {"/revenuealltimeservlet"})
+public class RevenueAllTimeServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -38,10 +41,10 @@ public class HideRawFlowerServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet HideRawFlowerServlet</title>");
+            out.println("<title>Servlet RevenueAllTimeServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet HideRawFlowerServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet RevenueAllTimeServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -59,39 +62,29 @@ public class HideRawFlowerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            String flowerIdParam = request.getParameter("flower_id");
-            if (flowerIdParam == null || flowerIdParam.trim().isEmpty()) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Product ID is missing or empty.");
-                return;
-            }
+        String from = request.getParameter("from");
+        String to = request.getParameter("to");
 
-            int flower_id = Integer.parseInt(flowerIdParam);
-            if (flower_id <= 0) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Product ID must be a positive integer.");
-                return;
-            }
+        SalesDAO dao = new SalesDAO();
+        Map<String, Double> data;
 
-            FlowerTypeDAO ft = new FlowerTypeDAO();
-            FlowerType item = ft.getFlowerTypeById(flower_id);
-            if (item == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found or already deleted with ID: " + flower_id);
-                return;
-            }
-
-            // Thực hiện xóa mềm
-            ft.deleteFlowerType(flower_id);
-            
-            // Lưu thông báo thành công vào session
-            request.getSession().setAttribute("message", "Product hidden successfully!");
-
-            // Chuyển hướng về trang danh sách sản phẩm
-            response.sendRedirect("DashMin/rawflower2");
-        } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid product ID format: " + e.getMessage());
-        } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred: " + e.getMessage());
+        if (from != null && to != null && !from.isEmpty() && !to.isEmpty()) {
+            data = dao.getRevenueGroupedBetweenDates(from, to);  // viết hàm này bên dưới
+        } else {
+            data = dao.getRevenueGroupedAllTime();  // toàn bộ lịch sử nếu không lọc
         }
+
+        // Tách key/value cho biểu đồ
+        List<String> labels = new ArrayList<>(data.keySet());
+        List<Double> values = new ArrayList<>(data.values());
+
+        Gson gson = new Gson();
+        request.setAttribute("labelsJson", gson.toJson(labels));
+        request.setAttribute("valuesJson", gson.toJson(values));
+        request.setAttribute("fromDate", from);
+        request.setAttribute("toDate", to);
+
+        request.getRequestDispatcher("TestWeb/revenueAllTime.jsp").forward(request, response);
     }
 
     /**
@@ -105,7 +98,7 @@ public class HideRawFlowerServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+        processRequest(request, response);
     }
 
     /**

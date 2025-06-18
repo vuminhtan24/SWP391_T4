@@ -202,87 +202,36 @@
                     <div class="col-xl-8 col-lg-10">
                         <div class="card shadow-sm">
                             <div class="card-header bg-primary text-white">
-                                <h4 class="mb-0">Add New Raw Flower</h4>
+                                <h4 class="mb-0">Add New Flower Type</h4>
                             </div>
                             <div class="card-body">
                                 <form action="${pageContext.request.contextPath}/addRawFlower" method="post">
                                     <div class="row g-3">
-                                        <!-- Raw Flower Name -->
+                                        <!-- Flower Type Name -->
                                         <div class="col-md-6">
-                                            <label for="rawName" class="form-label">Raw Flower Name</label>
-                                            <input type="text" id="rawName" name="rawName" class="form-control"
-                                                   value="${requestScope.rawName}" placeholder="Enter flower name" required/>
-                                            <c:if test="${not empty requestScope.rawNameError}">
-                                                <small class="text-danger">${requestScope.rawNameError}</small>
+                                            <label for="flowerName" class="form-label">Flower Type Name</label>
+                                            <input type="text" id="flowerName" name="flowerName" class="form-control"
+                                                   value="${requestScope.flowerName}" placeholder="Enter flower type name" required/>
+                                            <c:if test="${not empty requestScope.flowerNameError}">
+                                                <small class="text-danger">${requestScope.flowerNameError}</small>
                                             </c:if>
                                         </div>
                                         <!-- Image URL -->
                                         <div class="col-md-6">
-                                            <label for="imageUrl" class="form-label">Image URL</label>
-                                            <input type="url" id="imageUrl" name="imageUrl" class="form-control"
-                                                   value="${requestScope.imageUrl}" placeholder="https://example.com/image.jpg"
+                                            <label for="image" class="form-label">Image URL</label>
+                                            <input type="url" id="image" name="image" class="form-control"
+                                                   value="${requestScope.image}" placeholder="https://example.com/image.jpg"
                                                    pattern="https?://.+\.(jpg|jpeg|JPG|JPEG)$"
                                                    title="URL must end with .jpg or .jpeg" required/>
-                                            <c:if test="${not empty requestScope.imageUrlError}">
-                                                <small class="text-danger">${requestScope.imageUrlError}</small>
-                                            </c:if>
-                                        </div>
-                                        <!-- Unit Price -->
-                                        <div class="col-md-6">
-                                            <label for="unitPrice" class="form-label">Unit Price (VND)</label>
-                                            <input type="number" id="unitPrice" name="unitPrice" class="form-control"
-                                                   value="${requestScope.unitPrice}" placeholder="Enter unit price" min="1" required/>
-                                            <c:if test="${not empty requestScope.unitPriceError}">
-                                                <small class="text-danger">${requestScope.unitPriceError}</small>
-                                            </c:if>
-                                        </div>
-                                        <!-- Import Price -->
-                                        <div class="col-md-6">
-                                            <label for="importPrice" class="form-label">Import Price (VND)</label>
-                                            <input type="number" id="importPrice" name="importPrice" class="form-control"
-                                                   value="${requestScope.importPrice}" placeholder="Enter import price" min="1" required/>
-                                            <c:if test="${not empty requestScope.importPriceError}">
-                                                <small class="text-danger">${requestScope.importPriceError}</small>
-                                            </c:if>
-                                        </div>
-                                        <!-- Quantity -->
-                                        <div class="col-md-6">
-                                            <label for="rawQuantity" class="form-label">Quantity</label>
-                                            <input type="number" id="rawQuantity" name="rawQuantity" class="form-control"
-                                                   value="${requestScope.rawQuantity}" placeholder="Enter quantity" min="0" required/>
-                                            <c:if test="${not empty requestScope.rawQuantityError}">
-                                                <small class="text-danger">${requestScope.rawQuantityError}</small>
-                                            </c:if>
-                                        </div>
-                                        <!-- Expiration Date -->
-                                        <div class="col-md-6">
-                                            <label for="expirationDate" class="form-label">Expiration Date</label>
-                                            <input type="date" id="expirationDate" name="expirationDate" class="form-control"
-                                                   value="${requestScope.expirationDate}" required/>
-                                            <c:if test="${not empty requestScope.expirationDateError}">
-                                                <small class="text-danger">${requestScope.expirationDateError}</small>
-                                            </c:if>
-                                        </div>
-                                        <!-- Warehouse -->
-                                        <div class="col-md-6">
-                                            <label for="warehouseId" class="form-label">Warehouse</label>
-                                            <select id="warehouseId" name="warehouseId" class="form-select" required>
-                                                <option value="">Select warehouse</option>
-                                                <c:forEach var="w" items="${sessionScope.listW}">
-                                                    <option value="${w.warehouseId}" ${requestScope.warehouseId == w.warehouseId ? 'selected' : ''}>
-                                                        ${w.name}
-                                                    </option>
-                                                </c:forEach>
-                                            </select>
-                                            <c:if test="${not empty requestScope.warehouseIdError}">
-                                                <small class="text-danger">${requestScope.warehouseIdError}</small>
+                                            <c:if test="${not empty requestScope.imageError}">
+                                                <small class="text-danger">${requestScope.imageError}</small>
                                             </c:if>
                                         </div>
                                     </div>
 
                                     <!-- Submit -->
                                     <div class="mt-4 text-end">
-                                        <button type="submit" class="btn btn-success px-4">Add Raw Flower</button>
+                                        <button type="submit" class="btn btn-success px-4">Add Flower</button>
                                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="btn btn-secondary px-4">Cancel</a>
                                     </div>
                                 </form>
@@ -299,26 +248,11 @@
                                 <c:if test="${not empty requestScope.error}">
                                     ${requestScope.error}<br>
                                 </c:if>
-                                <c:if test="${not empty requestScope.rawNameError}">
-                                    ${requestScope.rawNameError}<br>
+                                <c:if test="${not empty requestScope.flowerNameError}">
+                                    ${requestScope.flowerNameError}<br>
                                 </c:if>
-                                <c:if test="${not empty requestScope.unitPriceError}">
-                                    ${requestScope.unitPriceError}<br>
-                                </c:if>
-                                <c:if test="${not empty requestScope.importPriceError}">
-                                    ${requestScope.importPriceError}<br>
-                                </c:if>
-                                <c:if test="${not empty requestScope.imageUrlError}">
-                                    ${requestScope.imageUrlError}<br>
-                                </c:if>
-                                <c:if test="${not empty requestScope.rawQuantityError}">
-                                    ${requestScope.rawQuantityError}<br>
-                                </c:if>
-                                <c:if test="${not empty requestScope.expirationDateError}">
-                                    ${requestScope.expirationDateError}<br>
-                                </c:if>
-                                <c:if test="${not empty requestScope.warehouseIdError}">
-                                    ${requestScope.warehouseIdError}<br>
+                                <c:if test="${not empty requestScope.imageError}">
+                                    ${requestScope.imageError}<br>
                                 </c:if>
                             </div>
                         </div>

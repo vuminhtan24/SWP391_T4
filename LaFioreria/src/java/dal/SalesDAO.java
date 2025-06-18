@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import model.Category;
 import model.SalesRecord;
+import model.StatResult;
 
 /**
  *
@@ -154,6 +156,27 @@ public class SalesDAO extends BaseDao {
         return map;
     }
 
+    public Map<String, Double> getRevenueGroupedBetweenDates(String from, String to) {
+        Map<String, Double> map = new LinkedHashMap<>();
+        String sql = "SELECT o.order_date, SUM(oi.quantity * oi.unit_price) AS daily_revenue "
+                + "FROM `order` o JOIN order_item oi ON o.order_id = oi.order_id "
+                + "WHERE o.order_date BETWEEN ? AND ? "
+                + "GROUP BY o.order_date ORDER BY o.order_date";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, from);
+            ps.setString(2, to);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                map.put(rs.getString("order_date"), rs.getDouble("daily_revenue"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
     public Map<String, Double> getRevenueGroupedThisMonth() {
         Map<String, Double> map = new LinkedHashMap<>();
         String sql = "SELECT o.order_date, SUM(oi.quantity * oi.unit_price) AS daily_revenue "
@@ -187,7 +210,6 @@ public class SalesDAO extends BaseDao {
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
-            rs = ps.executeQuery();
             ps.setInt(1, categoryId);
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -197,4 +219,92 @@ public class SalesDAO extends BaseDao {
         }
         return map;
     }
+
+    public List<Category> getAllCategories() {
+        List<Category> list = new ArrayList<>();
+        String sql = "SELECT category_id, category_name FROM category";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Category c = new Category();
+                c.setCategoryId(rs.getInt("category_id"));
+                c.setCategoryName(rs.getString("category_name"));
+                list.add(c);
+            }
+        } catch (SQLException e) {
+        }
+        return list;
+    }
+
+    public List<StatResult> getMonthlyStats(int year) {
+        List<StatResult> list = new ArrayList<>();
+        String sql = "SELECT MONTH(o.order_date) AS month, "
+                + "COUNT(DISTINCT o.order_id) AS total_orders, "
+                + "SUM(oi.quantity * oi.unit_price) AS total_revenue "
+                + "FROM `order` o JOIN order_item oi ON o.order_id = oi.order_id "
+                + "WHERE YEAR(o.order_date) = ? "
+                + "GROUP BY MONTH(o.order_date) ORDER BY MONTH(o.order_date)";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, year);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                String label = "Tháng " + rs.getInt("month");
+                double revenue = rs.getDouble("total_revenue");
+                int orders = rs.getInt("total_orders");
+                list.add(new StatResult(label, revenue, orders));
+            }
+        } catch (SQLException e) {
+        }
+        return list;
+    }
+
+    public List<StatResult> getYearlyStats() {
+        List<StatResult> list = new ArrayList<>();
+        String sql = "SELECT YEAR(o.order_date) AS year, "
+                + "COUNT(DISTINCT o.order_id) AS total_orders, "
+                + "SUM(oi.quantity * oi.unit_price) AS total_revenue "
+                + "FROM `order` o JOIN order_item oi ON o.order_id = oi.order_id "
+                + "GROUP BY YEAR(o.order_date) ORDER BY year";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                String label = "Năm " + rs.getInt("year");
+                double revenue = rs.getDouble("total_revenue");
+                int orders = rs.getInt("total_orders");
+                list.add(new StatResult(label, revenue, orders));
+            }
+        } catch (SQLException e) {
+        }
+        return list;
+    }
+
+    public List<StatResult> getWeekdayStats() {
+        List<StatResult> list = new ArrayList<>();
+        String sql = "SELECT DAYNAME(o.order_date) AS weekday, "
+                + "COUNT(DISTINCT o.order_id) AS total_orders, "
+                + "SUM(oi.quantity * oi.unit_price) AS total_revenue "
+                + "FROM `order` o JOIN order_item oi ON o.order_id = oi.order_id "
+                + "GROUP BY weekday "
+                + "ORDER BY FIELD(weekday, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                String label = rs.getString("weekday");
+                double revenue = rs.getDouble("total_revenue");
+                int orders = rs.getInt("total_orders");
+                list.add(new StatResult(label, revenue, orders));
+            }
+        } catch (SQLException e) {
+        }
+        return list;
+    }
+
 }

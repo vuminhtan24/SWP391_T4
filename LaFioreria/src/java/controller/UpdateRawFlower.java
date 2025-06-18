@@ -8,11 +8,9 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import dal.RawFlowerDAO;
-import dal.WarehouseDAO;
-import java.sql.Date;
+import dal.FlowerTypeDAO;
+import model.FlowerType;
 import java.util.List;
-import model.Warehouse;
 import util.Validate;
 
 /**
@@ -25,12 +23,14 @@ public class UpdateRawFlower extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        RawFlowerDAO rf = new RawFlowerDAO();
-        WarehouseDAO wdao = new WarehouseDAO();
-        int raw_id = Integer.parseInt(request.getParameter("raw_id"));
-        request.setAttribute("item", rf.getRawFlowerById(raw_id));
-        List<Warehouse> warehouses = wdao.getAllWarehouse();
-        request.getSession().setAttribute("listW", warehouses);
+        FlowerTypeDAO ftDAO = new FlowerTypeDAO();
+        int flowerId = Integer.parseInt(request.getParameter("flower_id"));
+        FlowerType flowerType = ftDAO.getFlowerTypeById(flowerId);
+        if (flowerType == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy loại hoa với ID " + flowerId);
+            return;
+        }
+        request.setAttribute("item", flowerType);
         request.getRequestDispatcher("DashMin/updaterawflower.jsp").forward(request, response);
     }
 
@@ -40,89 +40,59 @@ public class UpdateRawFlower extends HttpServlet {
         HttpSession session = request.getSession();
         try {
             // Lấy tham số từ form
-            String rawIdStr = request.getParameter("raw_id");
-            String rawName = request.getParameter("raw_name");
-            String rawQuantityStr = request.getParameter("raw_quantity");
-            String unitPriceStr = request.getParameter("unit_price");
-            String expirationDate = request.getParameter("expiration_date");
-            String importPriceStr = request.getParameter("import_price");
-            String warehouseIdStr = request.getParameter("warehouse_id");
-            String holdStr = request.getParameter("hold");
-            String imageUrl = request.getParameter("image_url");
-
-            // Khởi tạo WarehouseDAO
-            WarehouseDAO wh = new WarehouseDAO();
+            String flowerIdStr = request.getParameter("flower_id");
+            String flowerName = request.getParameter("flower_name");
+            String image = request.getParameter("image");
 
             // Validate các field
-            String rawNameError = Validate.validateLength(rawName, "Raw Flower Name", 1, 45);
-            String unitPriceError = Validate.validateNumberWithRange(unitPriceStr, "Unit Price", 1, Integer.MAX_VALUE);
-            String importPriceError = Validate.validateNumberWithRange(importPriceStr, "Import Price", 1, Integer.MAX_VALUE);
-            String imageUrlError = Validate.validateImageUrl(imageUrl);
-            String warehouseIdError = Validate.validateWarehouseId(warehouseIdStr, wh);
+            String flowerNameError = Validate.validateLength(flowerName, "Tên loại hoa", 1, 45);
+            String imageError = Validate.validateImageUrl(image);
 
             // Nếu có lỗi, giữ dữ liệu và hiển thị popup
-            if (rawNameError != null || unitPriceError != null || importPriceError != null || 
-                imageUrlError != null || warehouseIdError != null) {
-                request.setAttribute("rawId", rawIdStr);
-                request.setAttribute("rawName", rawName);
-                request.setAttribute("rawQuantity", rawQuantityStr);
-                request.setAttribute("unitPrice", unitPriceStr);
-                request.setAttribute("expirationDate", expirationDate);
-                request.setAttribute("importPrice", importPriceStr);
-                request.setAttribute("warehouseId", warehouseIdStr);
-                request.setAttribute("hold", holdStr);
-                request.setAttribute("imageUrl", imageUrl);
-                request.setAttribute("rawNameError", rawNameError);
-                request.setAttribute("unitPriceError", unitPriceError);
-                request.setAttribute("importPriceError", importPriceError);
-                request.setAttribute("imageUrlError", imageUrlError);
-                request.setAttribute("warehouseIdError", warehouseIdError);
+            if (flowerNameError != null || imageError != null) {
+                request.setAttribute("flowerId", flowerIdStr);
+                request.setAttribute("flowerName", flowerName);
+                request.setAttribute("image", image);
+                request.setAttribute("flowerNameError", flowerNameError);
+                request.setAttribute("imageError", imageError);
                 request.setAttribute("showErrorPopup", true);
 
-                RawFlowerDAO rf = new RawFlowerDAO();
-                request.setAttribute("item", rf.getRawFlowerById(Integer.parseInt(rawIdStr)));
+                FlowerTypeDAO ftDAO = new FlowerTypeDAO();
+                request.setAttribute("item", ftDAO.getFlowerTypeById(Integer.parseInt(flowerIdStr)));
                 request.getRequestDispatcher("DashMin/updaterawflower.jsp").forward(request, response);
                 return;
             }
 
             // Xóa các lỗi và dữ liệu trong session nếu validate thành công
-            session.removeAttribute("rawNameError");
-            session.removeAttribute("unitPriceError");
-            session.removeAttribute("importPriceError");
+            session.removeAttribute("flowerNameError");
             session.removeAttribute("imageUrlError");
-            session.removeAttribute("warehouseIdError");
-            session.removeAttribute("rawId");
-            session.removeAttribute("rawName");
-            session.removeAttribute("rawQuantity");
-            session.removeAttribute("unitPrice");
-            session.removeAttribute("expirationDate");
-            session.removeAttribute("importPrice");
-            session.removeAttribute("warehouseId");
-            session.removeAttribute("hold");
-            session.removeAttribute("imageUrl");
+            session.removeAttribute("flowerId");
+            session.removeAttribute("flowerName");
+            session.removeAttribute("image");
 
             // Chuyển đổi dữ liệu
-            int rawId = Integer.parseInt(rawIdStr);
-            int rawQuantity = Integer.parseInt(rawQuantityStr);
-            int unitPrice = Integer.parseInt(unitPriceStr);
-            Date expirationDateParsed = expirationDate != null && !expirationDate.isEmpty() ? Date.valueOf(expirationDate) : null;
-            int importPrice = Integer.parseInt(importPriceStr);
-            int warehouseId = Integer.parseInt(warehouseIdStr);
-            int hold = Integer.parseInt(holdStr);
+            int flowerId = Integer.parseInt(flowerIdStr);
 
-            // Cập nhật nguyên liệu
-            RawFlowerDAO rf = new RawFlowerDAO();
-            rf.updateRawFlower4(rawId, rawName, rawQuantity, unitPrice, expirationDateParsed, warehouseId, imageUrl, hold, importPrice);
+            // Lấy thông tin hiện tại của FlowerType để giữ giá trị active
+            FlowerTypeDAO ftDAO = new FlowerTypeDAO();
+            FlowerType currentFlowerType = ftDAO.getFlowerTypeById(flowerId);
+            if (currentFlowerType == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy loại hoa với ID " + flowerId);
+                return;
+            }
+
+            // Cập nhật loại hoa, giữ nguyên active
+            ftDAO.updateFlowerType(flowerId, flowerName, image, true);
 
             // Thông báo thành công và chuyển hướng
-            session.setAttribute("message", "Raw flower updated successfully!");
+            session.setAttribute("message", "Cập nhật loại hoa thành công!");
             response.sendRedirect("DashMin/rawflower2");
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "An error occurred while updating the raw flower: " + e.getMessage());
+            request.setAttribute("error", "Đã xảy ra lỗi khi cập nhật loại hoa: " + e.getMessage());
             request.setAttribute("showErrorPopup", true);
-            RawFlowerDAO rf = new RawFlowerDAO();
-            request.setAttribute("item", rf.getRawFlowerById(Integer.parseInt(request.getParameter("raw_id"))));
+            FlowerTypeDAO ftDAO = new FlowerTypeDAO();
+            request.setAttribute("item", ftDAO.getFlowerTypeById(Integer.parseInt(request.getParameter("flower_id"))));
             request.getRequestDispatcher("DashMin/updaterawflower.jsp").forward(request, response);
         }
     }
