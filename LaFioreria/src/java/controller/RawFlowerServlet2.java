@@ -1,5 +1,6 @@
 package controller;
 
+import dal.FlowerTypeDAO;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -10,126 +11,59 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import dal.RawFlowerDAO;
-import model.RawFlower;
-import dal.WarehouseDAO;
-import model.Warehouse;
+import dal.FlowerTypeDAO;
+import model.FlowerType;
 
 @WebServlet(name = "RawFlowerServlet2", urlPatterns = {"/DashMin/rawflower2"})
 public class RawFlowerServlet2 extends HttpServlet {
 
-    private static final int RECORDS_PER_PAGE = 6; // Số bản ghi trên mỗi trang
+    private static final int RECORDS_PER_PAGE = 6; // Number of records per page
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            // Lấy danh sách kho
-            WarehouseDAO wh = new WarehouseDAO();
-            List<Warehouse> listWarehouse = wh.getAllWarehouse();
-            System.out.println("Số kho: " + listWarehouse.size());
-
-            // Lấy tham số phân trang, sắp xếp và tìm kiếm
+            // Get pagination parameter
             String pageParam = request.getParameter("page");
             int currentPage = (pageParam != null && !pageParam.isEmpty()) ? Integer.parseInt(pageParam) : 1;
-            String sortField = request.getParameter("sortField");
-            String rawFlowerName = request.getParameter("rawFlowerName");
+            String flowerName = request.getParameter("flowerName");
 
-            // Ánh xạ sortField thành sortBy và sortOrder
-            String sortBy = null;
-            String sortOrder = null;
-            if (sortField != null && !sortField.isEmpty()) {
-                switch (sortField) {
-                    case "unit_price_asc":
-                        sortBy = "unit_price";
-                        sortOrder = "asc";
-                        break;
-                    case "unit_price_desc":
-                        sortBy = "unit_price";
-                        sortOrder = "desc";
-                        break;
-                    case "import_price_asc":
-                        sortBy = "import_price";
-                        sortOrder = "asc";
-                        break;
-                    case "import_price_desc":
-                        sortBy = "import_price";
-                        sortOrder = "desc";
-                        break;
-                    case "quantity_asc":
-                        sortBy = "quantity";
-                        sortOrder = "asc";
-                        break;
-                    case "quantity_desc":
-                        sortBy = "quantity";
-                        sortOrder = "desc";
-                        break;
-                }
-            }
-            System.out.println("Tham số: page=" + currentPage + ", sortField=" + sortField + ", sortBy=" + sortBy + ", sortOrder=" + sortOrder + ", rawFlowerName=" + rawFlowerName);
+            // Get flower type list
+            FlowerTypeDAO ftDAO = new FlowerTypeDAO();
+            List<FlowerType> listFT;
 
-            // Kiểm tra tham số sắp xếp hợp lệ
-            boolean validSort = sortBy != null && sortOrder != null &&
-                    sortBy.matches("^(unit_price|import_price|quantity)$") &&
-                    sortOrder.matches("^(asc|desc)$");
-
-            // Lấy danh sách nguyên liệu hoa
-            RawFlowerDAO rf = new RawFlowerDAO();
-            List<RawFlower> listRF;
-
-            // Thực hiện tìm kiếm hoặc lấy tất cả bản ghi
-            if (rawFlowerName != null && !rawFlowerName.trim().isEmpty()) {
-                listRF = rf.searchRawFlowerByKeyword(rawFlowerName.trim());
+            // Perform search or get all records
+            if (flowerName != null && !flowerName.trim().isEmpty()) {
+                listFT = ftDAO.searchRawFlowerByKeyword(flowerName.trim());
             } else {
-                listRF = rf.getRawFlower();
+                listFT = ftDAO.getAllFlowerTypes();
             }
-            System.out.println("Số bản ghi trước sắp xếp: " + listRF.size());
+            System.out.println("Number of records: " + listFT.size());
 
-            // Áp dụng sắp xếp trong bộ nhớ nếu hợp lệ
-            if (validSort) {
-                Comparator<RawFlower> comparator = switch (sortBy) {
-                    case "unit_price" -> Comparator.comparingInt(RawFlower::getUnitPrice);
-                    case "import_price" -> Comparator.comparingInt(RawFlower::getImportPrice);
-                    case "quantity" -> Comparator.comparingInt(RawFlower::getRawQuantity);
-                    default -> null;
-                };
-                if (comparator != null) {
-                    if ("desc".equalsIgnoreCase(sortOrder)) {
-                        comparator = comparator.reversed();
-                    }
-                    listRF.sort(comparator);
-                    System.out.println("Đã sắp xếp theo " + sortBy + " " + sortOrder);
-                }
-            } else {
-                System.out.println("Không áp dụng sắp xếp (giữ nguyên danh sách từ DAO)");
-            }
-
-            // Phân trang
-            int totalRecords = listRF.size();
+            // Pagination
+            int totalRecords = listFT.size();
             int totalPages = (int) Math.ceil((double) totalRecords / RECORDS_PER_PAGE);
             currentPage = Math.max(1, Math.min(currentPage, totalPages));
             int startIndex = (currentPage - 1) * RECORDS_PER_PAGE;
             int endIndex = Math.min(startIndex + RECORDS_PER_PAGE, totalRecords);
-            List<RawFlower> pagedListRF = totalRecords > 0 ? listRF.subList(startIndex, endIndex) : new ArrayList<>();
-            System.out.println("Trang " + currentPage + ": từ chỉ số " + startIndex + " đến " + endIndex);
+            List<FlowerType> pagedListFT = totalRecords > 0 ? listFT.subList(startIndex, endIndex) : new ArrayList<>();
+            System.out.println("Page " + currentPage + ": from index " + startIndex + " to " + endIndex);
 
-            // Lưu dữ liệu vào phiên và request
+            // Store data in session and request
             HttpSession session = request.getSession();
-            session.setAttribute("listW", listWarehouse);
-            session.setAttribute("listRF", pagedListRF);
-            session.setAttribute("sortField", sortField);
-            session.setAttribute("rawFlowerName", rawFlowerName);
+            session.setAttribute("listFT", pagedListFT);
+            session.setAttribute("flowerName", flowerName);
             request.setAttribute("currentPage", currentPage);
             request.setAttribute("totalPages", totalPages);
 
-            // Chuyển tiếp đến JSP
+            // Forward to JSP
             request.getRequestDispatcher("/DashMin/rawflower.jsp").forward(request, response);
         } catch (NumberFormatException e) {
-            request.getSession().setAttribute("message", "Định dạng số trang không hợp lệ.");
+            request.getSession().setAttribute("message", "Invalid page number format.");
             response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
         } catch (Exception e) {
             e.printStackTrace();
-            request.getSession().setAttribute("message", "Đã xảy ra lỗi: " + e.getMessage());
+            request.getSession().setAttribute("message", "An error occurred: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
         }
     }
@@ -137,22 +71,20 @@ public class RawFlowerServlet2 extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Xử lý sắp xếp hoặc tìm kiếm từ form
-        String sortField = request.getParameter("sortField");
-        String rawFlowerName = request.getParameter("rawFlowerName");
-        System.out.println("POST: sortField=" + sortField + ", rawFlowerName=" + rawFlowerName);
+        // Handle search from form
+        String flowerName = request.getParameter("flowerName");
+        System.out.println("POST: flowerName=" + flowerName);
 
-        // Lưu tham số vào phiên
+        // Store parameter in session
         HttpSession session = request.getSession();
-        session.setAttribute("sortField", sortField);
-        session.setAttribute("rawFlowerName", rawFlowerName);
+        session.setAttribute("flowerName", flowerName);
 
-        // Chuyển hướng để reset về trang 1
+        // Redirect to reset to page 1
         response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2?page=1");
     }
 
     @Override
     public String getServletInfo() {
-        return "Servlet quản lý danh sách nguyên liệu hoa, sắp xếp, tìm kiếm và phân trang";
+        return "Servlet for managing flower type list, search, and pagination";
     }
 }

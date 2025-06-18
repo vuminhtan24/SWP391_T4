@@ -13,6 +13,7 @@ public class Order {
     private String orderDate;
     private int customerId;
     private String customerName;
+    private String customerPhone;
     private String totalAmount;
     private int statusId;
     private String statusName;   
@@ -24,7 +25,21 @@ public class Order {
     }
 
     public Order(int orderId, String orderDate, int customerId, String customerName,
-                 String totalAmount, int statusId, String statusName,
+                 String customerPhone,String totalAmount, int statusId, String statusName,
+                 Integer shipperId, String shipperName) {
+        this.orderId = orderId;
+        this.orderDate = orderDate;
+        this.customerId = customerId;
+        this.customerName = customerName;
+        this.customerPhone = customerPhone;
+        this.totalAmount = totalAmount;
+        this.statusId = statusId;
+        this.statusName = statusName;
+        this.shipperId = shipperId;
+        this.shipperName = shipperName;
+    }
+        public Order(int orderId, String orderDate, int customerId, String customerName,
+                String totalAmount, int statusId, String statusName,
                  Integer shipperId, String shipperName) {
         this.orderId = orderId;
         this.orderDate = orderDate;
@@ -73,6 +88,14 @@ public class Order {
 
     public String getTotalAmount() {
         return totalAmount;
+    }
+
+    public String getCustomerPhone() {
+        return customerPhone;
+    }
+
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
     }
 
     public void setTotalAmount(String totalAmount) {

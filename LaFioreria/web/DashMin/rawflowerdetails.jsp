@@ -4,7 +4,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Update Raw Flower - DASHMIN</title>
+        <title>Flower Type Details - DASHMIN</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <!-- Favicon -->
         <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
@@ -23,7 +23,7 @@
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
         <style>
-            /* Tổng thể khu vực Update Raw Flower */
+            /* Overall styling for Flower Type Details */
             .container-fluid.pt-4.px-4 .content {
                 padding: 30px;
                 background-color: #f8f9fa;
@@ -33,7 +33,7 @@
                 margin: 0 auto;
             }
 
-            /* Tiêu đề Product Details */
+            /* Title styling */
             .container-fluid.pt-4.px-4 .content h1.h2 {
                 font-size: 32px;
                 color: #007bff;
@@ -44,7 +44,7 @@
                 padding-bottom: 10px;
             }
 
-            /* Hình ảnh sản phẩm */
+            /* Product image */
             .container-fluid.pt-4.px-4 .content .img-fluid.img-thumbnail {
                 width: 360px;
                 height: 360px;
@@ -54,7 +54,7 @@
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
 
-            /* Form nhập liệu */
+            /* Form labels */
             .container-fluid.pt-4.px-4 .content .form-label {
                 font-weight: 500;
                 color: #333;
@@ -62,8 +62,8 @@
                 font-size: 18px;
             }
 
-            .container-fluid.pt-4.px-4 .content .form-control,
-            .container-fluid.pt-4.px-4 .content .form-select {
+            /* Form inputs */
+            .container-fluid.pt-4.px-4 .content .form-control {
                 border-radius: 5px;
                 border: 1px solid #ced4da;
                 padding: 8px 12px;
@@ -71,13 +71,12 @@
                 transition: border-color 0.3s ease;
             }
 
-            .container-fluid.pt-4.px-4 .content .form-control:focus,
-            .container-fluid.pt-4.px-4 .content .form-select:focus {
+            .container-fluid.pt-4.px-4 .content .form-control:focus {
                 border-color: #007bff;
                 box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
             }
 
-            /* Căn chỉnh các trường nhập liệu */
+            /* Form row alignment */
             .container-fluid.pt-4.px-4 .content .row.g-3.align-items-center {
                 margin-bottom: 15px;
             }
@@ -87,7 +86,7 @@
                 padding: 0 10px;
             }
 
-            /* Nút bấm Update và Reset */
+            /* Buttons */
             .container-fluid.pt-4.px-4 .content .btn-primary {
                 background-color: #007bff;
                 border-color: #007bff;
@@ -116,14 +115,14 @@
                 border-color: #5a6268;
             }
 
-            /* Khoảng cách giữa các nút */
+            /* Button spacing */
             .container-fluid.pt-4.px-4 .content .mt-3 {
                 display: flex;
                 gap: 10px;
                 justify-content: center;
             }
 
-            /* Thông báo lỗi */
+            /* Error messages */
             .error {
                 display: block;
                 color: #dc3545;
@@ -142,6 +141,7 @@
                 border-radius: 5px;
                 border: 1px solid #f5c6cb;
             }
+
             .btn {
                 padding: 8px 14px;
                 border: none;
@@ -152,15 +152,35 @@
                 margin-right: 5px;
                 transition: background-color 0.2s ease;
             }
+
             .btn-edit {
-                background-color: #3498db; /* Xanh dương */
+                background-color: #3498db;
             }
 
             .btn-edit:hover {
                 background-color: #2980b9;
             }
+
             .btn-back {
-                background-color: #c3c3c3; /* Xám */
+                background-color: #c3c3c3;
+            }
+
+            .btn-back:hover {
+                background-color: #a9a9a9;
+            }
+
+            .btn-danger {
+                font-size: 20px;
+            }
+            .btn-delete {
+                background-color: #e74c3c;
+            }
+
+            .btn-delete:hover {
+                background-color: #c0392b;
+            }
+            h5.mb-3.text-secondary {
+                text-align: center;
             }
         </style>
     </head>
@@ -206,7 +226,7 @@
                         <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
                         <a href="${pageContext.request.contextPath}/orderManagement" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Order</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>RawFlower</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>FlowerType</a>
                         <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
                         <div class="nav-item dropdown">
@@ -215,7 +235,7 @@
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
                                 <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
                                 <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item">View User Detail</a>
-                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item">Add new User </a>
+                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item">Add new User</a>
                             </div>
                         </div>
                     </div>
@@ -225,16 +245,16 @@
 
             <!-- Content Start -->
             <div class="content">
-                <jsp:include page="/DashMin/navbar.jsp"/> <!-- nav bar -->
+                <jsp:include page="/DashMin/navbar.jsp"/> <!-- Navbar -->
 
-                <!-- Update Raw Flower -->
+                <!-- Flower Type Details -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="row bg-light rounded align-items-center justify-content-center mx-0">
                         <div>
                             <div class="content">
-                                <h1 class="h2">Raw Flower Details</h1>
+                                <h1 class="h2">Flower Type Details</h1>
 
-                                <!-- Hiển thị thông báo lỗi chung -->
+                                <!-- Display error message -->
                                 <c:if test="${not empty sessionScope.error}">
                                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                         ${sessionScope.error}
@@ -244,85 +264,60 @@
                                 </c:if>
 
                                 <form action="${pageContext.request.contextPath}/rawFlowerDetails" method="get">
-                                    <input type="hidden" name="raw_id" value="${item.rawId}">
+                                    <input type="hidden" name="flower_id" value="${item.flowerId}">
                                     <div class="row mb-3">
                                         <div class="col-md-4">
-                                            <img class="img-fluid img-thumbnail" src="${item.imageUrl}" alt="${item.rawName}">
+                                            <img class="img-fluid img-thumbnail" src="${item.image}" alt="${item.flowerName}">
                                         </div>
                                         <div class="col-md-8">
                                             <div class="mb-3">
-                                                <label for="raw_name" class="form-label">Name</label>
-                                                <input type="text" id="raw_name" name="raw_name" class="form-control" 
-                                                       value="${item.rawName}" readonly>
+                                                <label for="flower_name" class="form-label">Name</label>
+                                                <input type="text" id="flower_name" name="flower_name" class="form-control" 
+                                                       value="${item.flowerName}" readonly>
                                             </div>
-                                            <div class="row g-3 align-items-center">
-                                                <div class="col-md-6">
-                                                    <label for="raw_quantity_display" class="form-label">Quantity</label>
-                                                    <input type="number" id="raw_quantity_display" class="form-control" 
-                                                           value="${item.rawQuantity}" readonly>
-                                                    <input type="hidden" name="raw_quantity" value="${item.rawQuantity}">
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label for="hold_display" class="form-label">Hold Quantity</label>
-                                                    <input type="number" id="hold_display" class="form-control" 
-                                                           value="${item.hold}" readonly>
-                                                    <input type="hidden" name="hold" value="${item.hold}">
-                                                </div>
-                                            </div>
-                                            <div class="row g-3 align-items-center">
-                                                <div class="col-md-6">
-                                                    <label for="import_price" class="form-label">Import Price (VND)</label>
-                                                    <input type="text" id="import_price" name="import_price" class="form-control" 
-                                                           value="${item.importPrice}" readonly>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label for="unit_price" class="form-label">Unit Price (VND)</label>
-                                                    <input type="text" id="unit_price" name="unit_price" class="form-control" 
-                                                           value="${item.unitPrice}" readonly>
-                                                </div>
-                                            </div>
-                                            <div class="row g-3 align-items-center">
-                                                <div class="col-md-6">
-                                                    <label for="warehouse_id" class="form-label">Warehouse</label>
-                                                    <input type="text" id="warehouse_id" name="warehouse_id" class="form-control" 
-                                                           value="${item.warehouse.name}" readonly>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label for="expiration_date_display" class="form-label">Expiration Date</label>
-                                                    <input type="date" id="expiration_date_display" class="form-control" 
-                                                           value="${item.expirationDate}" readonly>
-                                                    <input type="hidden" name="expiration_date" value="${item.expirationDate}">
-                                                </div>
+                                            <div class="mb-3">
+                                                <label for="active" class="form-label">Active</label>
+                                                <input type="text" id="active" name="active" class="form-control" 
+                                                       value="${item.active ? 'Yes' : 'No'}" readonly>
                                             </div>
                                             <div class="mb-3">
                                                 <label for="image_url" class="form-label">Image URL</label>
                                                 <input type="text" id="image_url" name="image_url" class="form-control" 
-                                                       value="${item.imageUrl}" readonly>
-                                            </div>                                            
+                                                       value="${item.image}" readonly>
+                                            </div>
                                         </div>
                                     </div>
                                 </form>
+                               <!-- Flower Batches Table -->
+                               <h5 class="mb-3 text-secondary">Batch List By Flower</h5>
+                                <c:if test="${not empty item.flowerId}">
+                                    <%@ include file="flowerbatch.jsp" %>
+                                </c:if>
+                                <c:if test="${empty item.flowerId}">
+                                    <div class="text-center text-danger">ID loại hoa không hợp lệ.</div>
+                                </c:if>    
                                 <div class="mt-3">
-                                    <form action="${pageContext.request.contextPath}/hideRawFlower" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn ẩn nguyên liệu này không?');">
-                                        <input type="hidden" name="id" value="${item.rawId}"/>
-                                        <button type="submit" class="btn btn-danger btn-sm">Hide</button>
-                                    </form>
                                     <button type="button"
-                                            class="btn btn-edit"
-                                            onclick="location.href = '${pageContext.request.contextPath}/update_flower?raw_id=${item.rawId}';">
-                                        Edit
+                                            class="btn btn-delete"
+                                            onclick="if (confirm('Do you want to delete?'))
+                                                                location.href = '${pageContext.request.contextPath}/hideRawFlower?flower_id=${item.flowerId}';">
+                                        Hide
                                     </button>
                                     <button type="button"
-                                            class="btn btn-back"
+                                            class="btn btn-edit"
+                                            onclick="location.href = '${pageContext.request.contextPath}/update_flower?flower_id=${item.flowerId}';">
+                                        Edit
+                                    </button>
+                                    <button type="button" class="btn btn-back" 
                                             onclick="location.href = '${pageContext.request.contextPath}/DashMin/rawflower2';">
                                         Back
-                                    </button>    
-                                </div>            
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- Update Raw Flower End -->
+                <!-- Flower Type Details End -->
 
                 <!-- Footer Start -->
                 <div class="container-fluid pt-4 px-4">
@@ -345,16 +340,16 @@
             <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
         </div>
 
-        <!-- JavaScript Libraries -->   
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- JavaScript Libraries -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
         <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>     
+        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
         <!-- Template Main Script -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
     </body>

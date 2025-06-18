@@ -123,7 +123,7 @@ public class AddOrderServlet extends HttpServlet {
 
         OrderDAO orderDAO = new OrderDAO();
         // Create order with initial total amount as "0.00"
-        Order newOrder = new Order(0, orderDate, customerId, null, totalAmountParam, statusId, null, shipperId, null);
+        Order newOrder = new Order(0, orderDate, customerId, null,null, totalAmountParam, statusId, null, shipperId, null);
 
         int newOrderId = orderDAO.addOrder(newOrder);
 

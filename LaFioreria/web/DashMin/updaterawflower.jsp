@@ -285,22 +285,13 @@
                                 <!-- Popup lỗi -->
                                 <div id="errorPopup" class="error-popup">
                                     <button type="button" class="btn-close" onclick="closePopup()">×</button>
-                                    <div class="error-header">Validation Errors</div>
+                                    <div class="error-header">Error Authentication</div>
                                     <div class="error-body">
-                                        <c:if test="${not empty rawNameError}">
-                                            <p><strong>Raw Flower Name:</strong> ${rawNameError}</p>
-                                        </c:if>
-                                        <c:if test="${not empty unitPriceError}">
-                                            <p><strong>Unit Price:</strong> ${unitPriceError}</p>
-                                        </c:if>
-                                        <c:if test="${not empty importPriceError}">
-                                            <p><strong>Import Price:</strong> ${importPriceError}</p>
+                                        <c:if test="${not empty flowerNameError}">
+                                            <p><strong>Flower Name:</strong> ${flowerNameError}</p>
                                         </c:if>
                                         <c:if test="${not empty imageUrlError}">
-                                            <p><strong>Image URL:</strong> ${imageUrlError}</p>
-                                        </c:if>
-                                        <c:if test="${not empty warehouseIdError}">
-                                            <p><strong>Warehouse:</strong> ${warehouseIdError}</p>
+                                            <p><strong>Image URL:</strong> ${imageError}</p>
                                         </c:if>
                                         <c:if test="${not empty error}">
                                             <p><strong>Error:</strong> ${error}</p>
@@ -309,67 +300,24 @@
                                 </div>
 
                                 <form action="${pageContext.request.contextPath}/update_flower" method="post">
-                                    <input type="hidden" name="raw_id" value="${rawId != null ? rawId : item.rawId}">
+                                    <input type="hidden" name="flower_id" value="${flowerId != null ? flowerId : item.flowerId}">
                                     <div class="row mb-3">
                                         <div class="col-md-4">
-                                            <img class="img-fluid img-thumbnail" src="${imageUrl != null ? imageUrl : item.imageUrl}" alt="${rawName != null ? rawName : item.rawName}">
+                                            <img class="img-fluid img-thumbnail" src="${image != null ? image : item.image}" alt="${flowerName != null ? flowerName : item.flowerName}">
                                         </div>
                                         <div class="col-md-8">
                                             <div class="mb-3">
-                                                <label for="raw_name" class="form-label">Name</label>
-                                                <input type="text" id="raw_name" name="raw_name" class="form-control" 
-                                                       value="${rawName != null ? rawName : item.rawName}" placeholder="Enter raw flower name">
-                                            </div>
-                                            <div class="row g-3 align-items-center">
-                                                <div class="col-md-4">
-                                                    <label for="raw_quantity_display" class="form-label">Quantity</label>
-                                                    <input type="number" id="raw_quantity_display" class="form-control" 
-                                                           value="${rawQuantity != null ? rawQuantity : item.rawQuantity}" readonly>
-                                                    <input type="hidden" name="raw_quantity" value="${rawQuantity != null ? rawQuantity : item.rawQuantity}">
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <label for="unit_price" class="form-label">Unit Price (VND)</label>
-                                                    <input type="text" id="unit_price" name="unit_price" class="form-control" 
-                                                           value="${unitPrice != null ? unitPrice : item.unitPrice}" placeholder="Enter unit price">
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <label for="import_price" class="form-label">Import Price (VND)</label>
-                                                    <input type="text" id="import_price" name="import_price" class="form-control" 
-                                                           value="${importPrice != null ? importPrice : item.importPrice}" placeholder="Enter import price">
-                                                </div>
-                                            </div>
-                                            <div class="row g-3 align-items-center">
-                                                <div class="col-md-6">
-                                                    <label for="warehouse_id" class="form-label">Warehouse</label>
-                                                    <select id="warehouse_id" name="warehouse_id" class="form-select">
-                                                        <c:forEach items="${sessionScope.listW}" var="w">
-                                                            <option value="${w.warehouseId}" 
-                                                                    ${warehouseId != null ? (warehouseId == w.warehouseId ? 'selected' : '') : (item.warehouse.warehouseId == w.warehouseId ? 'selected' : '')}>
-                                                                ${w.name}
-                                                            </option>
-                                                        </c:forEach>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label for="expiration_date_display" class="form-label">Expiration Date</label>
-                                                    <input type="date" id="expiration_date_display" class="form-control" 
-                                                           value="${expirationDate != null ? expirationDate : item.expirationDate}" readonly>
-                                                    <input type="hidden" name="expiration_date" value="${expirationDate != null ? expirationDate : item.expirationDate}">
-                                                </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="hold_display" class="form-label">Hold Quantity</label>
-                                                <input type="number" id="hold_display" class="form-control" 
-                                                       value="${hold != null ? hold : item.hold}" readonly>
-                                                <input type="hidden" name="hold" value="${hold != null ? hold : item.hold}">
+                                                <label for="flower_name" class="form-label">Flower Name</label>
+                                                <input type="text" id="flower_name" name="flower_name" class="form-control" 
+                                                       value="${flowerName != null ? flowerName : item.flowerName}" placeholder="Nhập tên loại hoa">
                                             </div>
                                             <div class="mb-3">
                                                 <label for="image_url" class="form-label">Image URL</label>
-                                                <input type="text" id="image_url" name="image_url" class="form-control" 
-                                                       value="${imageUrl != null ? imageUrl : item.imageUrl}" placeholder="Enter image URL">
+                                                <input type="text" id="image" name="image" class="form-control" 
+                                                       value="${image != null ? image : item.image}" placeholder="Nhập URL hình ảnh">
                                             </div>
                                             <div class="mt-3">
-                                                <button type="submit" class="btn btn-primary">Update</button>
+                                                <button type="submit" class="btn btn-primary">Edit</button>
                                                 <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="btn btn-secondary">Cancel</a>
                                             </div>
                                         </div>

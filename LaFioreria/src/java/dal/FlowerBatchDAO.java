@@ -163,4 +163,38 @@ public class FlowerBatchDAO extends BaseDao{
         }
     }
 
+    // Lấy danh sách lô hoa theo flower_id
+    public List<FlowerBatch> getFlowerBatchesByFlowerId(int flowerId) {
+        List<FlowerBatch> list = new ArrayList<>();
+        String sql = "SELECT * FROM la_fioreria.flower_batch WHERE flower_id = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, flowerId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                FlowerBatch fb = new FlowerBatch();
+                WarehouseDAO wdao = new WarehouseDAO();
+                fb.setBatchId(rs.getInt("batch_id"));
+                fb.setFlowerId(rs.getInt("flower_id"));
+                fb.setUnitPrice(rs.getInt("unit_price"));
+                fb.setImportDate(rs.getString("import_date"));
+                fb.setExpirationDate(rs.getString("expiration_date"));
+                fb.setQuantity(rs.getInt("quantity"));
+                fb.setHold(rs.getInt("hold"));
+                fb.setWarehouse(wdao.getWarehouseById(rs.getInt("warehouse_id")));
+                list.add(fb);
+            }
+        } catch (SQLException e) {
+            System.err.println("FlowerBatchDAO: SQLException in getFlowerBatchesByFlowerId - " + e.getMessage());
+            throw new RuntimeException("Failed to retrieve flower batches by flower ID", e);
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return list;
+    }
 }

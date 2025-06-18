@@ -139,5 +139,38 @@ public class FlowerTypeDAO extends BaseDao {
             }
         }
     }
+    
+    public List<FlowerType> searchRawFlowerByKeyword(String keyword) {
+        List<FlowerType> list = new ArrayList<>();
+        String sql = "SELECT * FROM la_fioreria.raw_flower WHERE raw_name LIKE ?";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, "%" + keyword.trim() + "%");
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                FlowerType ft = new FlowerType();
+
+                ft.setFlowerId(rs.getInt("flower_id"));
+                ft.setFlowerName(rs.getString("flower_name").trim());
+                ft.setImage(rs.getString("image").trim());
+                ft.setActive(rs.getBoolean("active"));
+
+                list.add(ft);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+
+        return list;
+    }
 
 }
