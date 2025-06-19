@@ -393,8 +393,8 @@ public class BouquetDAO extends BaseDao {
         }
         return allImages;
     }
-    
-        public void deleteBouquetImage(int id) {
+
+    public void deleteBouquetImage(int id) {
         String sql = "DELETE FROM la_fioreria.bouquet_images WHERE Bouquet_ID = ?;";
         try {
             connection = dbc.getConnection();
@@ -433,8 +433,8 @@ public class BouquetDAO extends BaseDao {
         }
 
     }
-    
-        public void insertBouquetImage(BouquetImage img) {
+
+    public void insertBouquetImage(BouquetImage img) {
         String sql = """
         INSERT INTO la_fioreria.bouquet_images 
           (Bouquet_ID, image_url)
@@ -455,6 +455,27 @@ public class BouquetDAO extends BaseDao {
             } catch (Exception e) {
             }
         }
+    }
+
+    public boolean isFlowerInBouquet(int flowerId) {
+        String sql = "SELECT COUNT(*) FROM bouquet_raw WHERE raw_id = ?"; // Giả định bảng trung gian
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, flowerId);
+            ps.executeUpdate();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("BouquetDAO: Error in isFlowerInBouquet - " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return false;
     }
 
     public static void main(String[] args) {
