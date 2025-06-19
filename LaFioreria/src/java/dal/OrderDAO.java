@@ -732,7 +732,7 @@ public class OrderDAO extends BaseDao {
                 Bouquet bouquet = new Bouquet();
                 bouquet.setBouquetId(rs.getInt("bouquet_id"));
                 bouquet.setBouquetName(rs.getString("bouquet_name"));
-                bouquet.setImageUrl(rs.getString("image_url"));
+//                bouquet.setImageUrl(rs.getString("image_url"));
                 bouquet.setPrice(rs.getInt("price")); // Changed to getInt for price
                 bouquet.setDescription(rs.getString("Description")); // Added Description
                 bouquet.setCid(rs.getInt("cid")); // Added cid

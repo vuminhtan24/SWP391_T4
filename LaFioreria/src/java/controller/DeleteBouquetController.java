@@ -68,6 +68,7 @@ public class DeleteBouquetController extends HttpServlet {
         int bouquetID = Integer.parseInt(id);
         
         new BouquetDAO().deleteBouquetRaw(bouquetID);
+        new BouquetDAO().deleteBouquetImage(bouquetID);
         new BouquetDAO().deleteBouquet(bouquetID);
         
         response.sendRedirect(request.getContextPath() + "/viewBouquet");

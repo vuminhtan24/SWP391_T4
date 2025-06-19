@@ -13,18 +13,16 @@ public class Bouquet {
     int bouquetId;
     String bouquetName;
     String Description;
-    String imageUrl;
     int cid;
     int price;
 
     public Bouquet() {
     }
 
-    public Bouquet(int bouquetId, String bouquetName, String Description, String imageUrl, int cid, int price) {
+    public Bouquet(int bouquetId, String bouquetName, String Description, int cid, int price) {
         this.bouquetId = bouquetId;
         this.bouquetName = bouquetName;
         this.Description = Description;
-        this.imageUrl = imageUrl;
         this.cid      = cid;
         this.price    = price;
     }
@@ -53,14 +51,6 @@ public class Bouquet {
         this.Description = Description;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
     public int getCid() {
         return cid;
     }
@@ -79,7 +69,7 @@ public class Bouquet {
 
     @Override
     public String toString() {
-        return "Bouquet{" + "bouquetId=" + bouquetId + ", bouquetName=" + bouquetName + ", Description=" + Description + ", imageUrl=" + imageUrl + ", cid=" + cid + ", price=" + price + '}';
+        return "Bouquet{" + "bouquetId=" + bouquetId + ", bouquetName=" + bouquetName + ", Description=" + Description + ", cid=" + cid + ", price=" + price + '}';
     }
 
 }
