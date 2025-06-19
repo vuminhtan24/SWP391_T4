@@ -84,12 +84,14 @@
                                     <p><strong>Order Date:</strong> ${order.orderDate}</p>
                                     <p><strong>Customer ID:</strong> ${order.customerId}</p>
                                     <p><strong>Customer Name:</strong> ${order.customerName}</p>
+                                    <p><strong>Customer Phone</strong> ${order.customerPhone}</p>
                                 </div>
                                 <div class="col-md-6">
                                     <p><strong>Total Amount:</strong> ${order.totalAmount}</p>
                                     <p><strong>Status:</strong> ${order.statusName}</p>
                                     <p><strong>Shipper ID:</strong> ${order.shipperId != null ? order.shipperId : "Not Assigned"}</p>
                                     <p><strong>Shipper Name:</strong> ${order.shipperName != null ? order.shipperName : "Not Assigned"}</p>
+                                    <p><strong>Customer Address</strong> ${order.customerAddress}</p>
                                 </div>
                             </div>
                             
