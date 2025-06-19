@@ -69,7 +69,7 @@ CREATE TABLE `bouquet` (
   UNIQUE KEY `Bouquet_ID_UNIQUE` (`Bouquet_ID`),
   KEY `cid_idx` (`cid`),
   CONSTRAINT `bouquet_cid` FOREIGN KEY (`cid`) REFERENCES `category` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -78,7 +78,7 @@ CREATE TABLE `bouquet` (
 
 LOCK TABLES `bouquet` WRITE;
 /*!40000 ALTER TABLE `bouquet` DISABLE KEYS */;
-INSERT INTO `bouquet` VALUES (1,'Romantic Rose','A bouquet of fresh roses',1,250000),(2,'Spring Delight','Colorful tulips and lilies',2,328000),(3,'Sunny Love','Sunflowers and roses for a cheerful gift',5,110000),(4,'Rose Radiance','A vibrant bouquet of fresh red roses symbolizing love and passion.',1,500000),(5,'Lily Light','Elegant lilies arranged to brighten up any occasion.',2,130000),(6,'Sunflower Smile','Cheerful sunflowers to bring joy and energy.',3,120000),(7,'Tulip Treasure','An exotic bouquet of multicolored tulips.',4,500000),(8,'Orchid Elegance','Luxurious white orchids in an elegant arrangement.',5,1200000),(9,'Sun Dreams','A cheerful bouquet featuring sunflowers and baby\'s breath.',1,345000),(10,'Peony Passion','Romantic peonies paired with soft accents.',2,700000),(11,'Carnation Bliss','Elegant mix of carnations and daisies.',2,720000),(12,'Hydrangea Harmony','Soothing tones with hydrangeas and baby\'s breath.',3,450000),(31,'Quang Vũ','gfdhg',1,80000);
+INSERT INTO `bouquet` VALUES (1,'Romantic Rose','A bouquet of fresh roses',1,250000),(2,'Spring Delight','Colorful tulips and lilies',2,328000),(3,'Sunny Love','Sunflowers and roses for a cheerful gift',5,110000),(4,'Rose Radiance','A vibrant bouquet of fresh red roses symbolizing love and passion.',1,500000),(5,'Lily Light','Elegant lilies arranged to brighten up any occasion.',2,130000),(6,'Sunflower Smile','Cheerful sunflowers to bring joy and energy.',3,120000),(7,'Tulip Treasure','An exotic bouquet of multicolored tulips.',4,500000),(8,'Orchid Elegance','Luxurious white orchids in an elegant arrangement.',5,1200000),(9,'Sun Dreams','A cheerful bouquet featuring sunflowers and baby\'s breath.',1,345000),(10,'Peony Passion','Romantic peonies paired with soft accents.',2,700000),(11,'Carnation Bliss','Elegant mix of carnations and daisies.',2,720000),(12,'Hydrangea Harmony','Soothing tones with hydrangeas and baby\'s breath.',3,450000);
 /*!40000 ALTER TABLE `bouquet` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -103,7 +103,7 @@ CREATE TABLE `bouquet_images` (
 
 LOCK TABLES `bouquet_images` WRITE;
 /*!40000 ALTER TABLE `bouquet_images` DISABLE KEYS */;
-INSERT INTO `bouquet_images` VALUES (1,'1750317025273_gio-hoa-tuoi-dep-big-love-8103.jpg'),(2,'1750258296159_gk6kebe1ojjyxdgv0ok3.jpg'),(3,'1750258347762_fb150004_2_cheerful_sunflowers_bouquet_2_2_res.jpg'),(4,'1750258391571_image_fd2696a5-aa10-47d1-bf2c-2c33a7e65989.jpg'),(5,'1750258420386_thefloristmarket-scentales-28573-30243_1080x1080.jpg'),(6,'1750258456097_IMG_6004-scaled.jpg'),(7,'1750258487007_bohoa15.jpg'),(8,'1750258587648_bo-hoa-lan-trang-2.jpg'),(9,'1750316204090_Sunny-Baby-sunflower-bouquet-selangor.png'),(10,'1750316286853_lasting-love-peony-fafulflorist-896234.jpg'),(11,'1750316332512_DP09260.jpg'),(12,'1750316360972_whisper-blue-hydrangea-baby-breath-flower-bouquet-01.jpg'),(31,'1750254284438_sanji.jpg');
+INSERT INTO `bouquet_images` VALUES (1,'1750317025273_gio-hoa-tuoi-dep-big-love-8103.jpg'),(2,'1750258296159_gk6kebe1ojjyxdgv0ok3.jpg'),(3,'1750258347762_fb150004_2_cheerful_sunflowers_bouquet_2_2_res.jpg'),(4,'1750258391571_image_fd2696a5-aa10-47d1-bf2c-2c33a7e65989.jpg'),(5,'1750258420386_thefloristmarket-scentales-28573-30243_1080x1080.jpg'),(6,'1750258456097_IMG_6004-scaled.jpg'),(7,'1750258487007_bohoa15.jpg'),(8,'1750258587648_bo-hoa-lan-trang-2.jpg'),(9,'1750316204090_Sunny-Baby-sunflower-bouquet-selangor.png'),(10,'1750316286853_lasting-love-peony-fafulflorist-896234.jpg'),(11,'1750316332512_DP09260.jpg'),(12,'1750316360972_whisper-blue-hydrangea-baby-breath-flower-bouquet-01.jpg');
 /*!40000 ALTER TABLE `bouquet_images` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -131,7 +131,7 @@ CREATE TABLE `bouquet_raw` (
 
 LOCK TABLES `bouquet_raw` WRITE;
 /*!40000 ALTER TABLE `bouquet_raw` DISABLE KEYS */;
-INSERT INTO `bouquet_raw` VALUES (1,1,10),(2,1,1),(2,2,5),(2,3,3),(3,1,2),(3,5,4),(4,1,20),(5,1,1),(5,3,5),(6,1,1),(6,5,8),(7,1,1),(7,2,10),(8,1,1),(8,4,15),(9,1,1),(9,5,3),(9,10,10),(10,1,1),(10,7,7),(11,1,1),(11,6,12),(11,8,10),(12,1,1),(12,9,3),(12,10,10),(31,4,1);
+INSERT INTO `bouquet_raw` VALUES (1,1,10),(2,2,5),(2,3,3),(3,1,2),(3,5,4),(4,1,20),(5,3,5),(6,5,8),(7,2,10),(8,4,15),(9,5,3),(9,10,10),(10,7,7),(11,6,12),(11,8,10),(12,9,3),(12,10,10);
 /*!40000 ALTER TABLE `bouquet_raw` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -153,7 +153,7 @@ CREATE TABLE `cartdetails` (
   KEY `bouquet_id_idx` (`bouquet_id`),
   CONSTRAINT `cart_bouquet_id` FOREIGN KEY (`bouquet_id`) REFERENCES `bouquet` (`Bouquet_ID`),
   CONSTRAINT `cart_customer_id` FOREIGN KEY (`customer_id`) REFERENCES `user` (`User_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -162,7 +162,7 @@ CREATE TABLE `cartdetails` (
 
 LOCK TABLES `cartdetails` WRITE;
 /*!40000 ALTER TABLE `cartdetails` DISABLE KEYS */;
-INSERT INTO `cartdetails` VALUES (1,7,1,2),(2,7,3,1),(3,8,2,4),(4,8,1,1),(10,1,1,1);
+INSERT INTO `cartdetails` VALUES (1,7,1,2),(2,7,3,1),(3,8,2,4),(4,8,1,1);
 /*!40000 ALTER TABLE `cartdetails` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -631,7 +631,7 @@ CREATE TABLE `user` (
   `Fullname` varchar(45) DEFAULT NULL,
   `Email` varchar(45) DEFAULT NULL,
   `Phone` varchar(10) DEFAULT NULL,
-  `Address` varchar(45) DEFAULT NULL,
+  `Address` varchar(255) DEFAULT NULL,
   `Role` int NOT NULL,
   `status` varchar(10) DEFAULT 'active',
   PRIMARY KEY (`User_ID`),
@@ -680,14 +680,6 @@ LOCK TABLES `warehouse` WRITE;
 INSERT INTO `warehouse` VALUES (1,'Main Warehouse','111 Warehouse St',5),(2,'Backup Warehouse','222 Storage Rd',5);
 /*!40000 ALTER TABLE `warehouse` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Dumping events for database 'la_fioreria'
---
-
---
--- Dumping routines for database 'la_fioreria'
---
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -698,4 +690,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-19 20:31:01
+-- Dump completed on 2025-06-19 20:48:53
