@@ -13,8 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data Access Object (DAO) for Order related operations.
- * Handles database interactions for Order, User (Shipper), and OrderStatus entities.
+ * Data Access Object (DAO) for Order related operations. Handles database
+ * interactions for Order, User (Shipper), and OrderStatus entities.
+ *
  * @author VU MINH TAN
  */
 public class OrderDAO extends BaseDao {
@@ -30,19 +31,21 @@ public class OrderDAO extends BaseDao {
     }
 
     /**
-     * Searches and filters orders by keyword and status, supporting pagination and dynamic sorting.
+     * Searches and filters orders by keyword and status, supporting pagination
+     * and dynamic sorting.
      *
      * @param keyword Search keyword.
      * @param statusId Order status ID.
      * @param pageIndex Current page number (starts from 1).
      * @param pageSize Number of records per page.
-     * @param sortField Column name to sort by (e.g., "orderDate", "totalAmount", "customerName").
+     * @param sortField Column name to sort by (e.g., "orderDate",
+     * "totalAmount", "customerName").
      * @param sortOrder Sort order ("asc" for ascending, "desc" for descending).
      * @return List of orders matching the criteria and pagination.
      */
     public List<Order> searchOrders(String keyword, Integer statusId, int pageIndex, int pageSize, String sortField, String sortOrder) {
         List<Order> listOrders = new ArrayList<>();
-        
+
         StringBuilder countSql = new StringBuilder();
         countSql.append("SELECT COUNT(o.order_id) FROM `order` o ");
         countSql.append("JOIN `user` u ON o.customer_id = u.User_ID ");
@@ -107,11 +110,11 @@ public class OrderDAO extends BaseDao {
         } else {
             dataSql.append(" ORDER BY ").append(orderByColumnName).append(" ASC");
         }
-        
+
         if (!orderByColumnName.equals("o.order_id")) {
-             dataSql.append(", o.order_id DESC");
+            dataSql.append(", o.order_id DESC");
         }
-        
+
         if (pageIndex > 0 && pageSize > 0) {
             dataSql.append(" LIMIT ? OFFSET ?");
         }
@@ -174,17 +177,18 @@ public class OrderDAO extends BaseDao {
      * Retrieves details of a specific order by ID.
      *
      * @param orderId ID of the order to retrieve details for.
-     * @return Order object containing detailed information, or null if not found.
+     * @return Order object containing detailed information, or null if not
+     * found.
      */
     public Order getOrderDetailById(int orderId) {
         Order order = null;
-        String sql = "SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, u.Phone AS customer_phone, u.Address AS customer_address, " +
-                     "o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name " +
-                     "FROM `order` o " +
-                     "JOIN `user` u ON o.customer_id = u.User_ID " +
-                     "JOIN `order_status` os ON o.status_id = os.order_status_id " +
-                     "LEFT JOIN `user` s ON o.shipper_id = s.User_ID " +
-                     "WHERE o.order_id = ?";
+        String sql = "SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, u.Phone AS customer_phone, u.Address AS customer_address, "
+                + "o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name "
+                + "FROM `order` o "
+                + "JOIN `user` u ON o.customer_id = u.User_ID "
+                + "JOIN `order_status` os ON o.status_id = os.order_status_id "
+                + "LEFT JOIN `user` s ON o.shipper_id = s.User_ID "
+                + "WHERE o.order_id = ?";
 
         try {
             connection = dbc.getConnection();
@@ -221,19 +225,20 @@ public class OrderDAO extends BaseDao {
     }
 
     /**
-     * Retrieves a list of items (products) in a specific order.
-     * This method joins the `order_item` table with the `bouquet` table to get detailed product information.
+     * Retrieves a list of items (products) in a specific order. This method
+     * joins the `order_item` table with the `bouquet` table to get detailed
+     * product information.
      *
      * @param orderId ID of the order.
      * @return List of OrderDetail objects.
      */
     public List<OrderDetail> getOrderItemsByOrderId(int orderId) {
         List<OrderDetail> orderItems = new ArrayList<>();
-        String sql = "SELECT oi.order_item_id, oi.order_id, oi.bouquet_id, " +
-                     "b.bouquet_name, b.image_url, oi.quantity, oi.unit_price " +
-                     "FROM `order_item` oi " +
-                     "JOIN `bouquet` b ON oi.bouquet_id = b.bouquet_id " +
-                     "WHERE oi.order_id = ?";
+        String sql = "SELECT oi.order_item_id, oi.order_id, oi.bouquet_id, "
+                + "b.bouquet_name, b.image_url, oi.quantity, oi.unit_price "
+                + "FROM `order_item` oi "
+                + "JOIN `bouquet` b ON oi.bouquet_id = b.bouquet_id "
+                + "WHERE oi.order_id = ?";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -241,13 +246,13 @@ public class OrderDAO extends BaseDao {
             rs = ps.executeQuery();
             while (rs.next()) {
                 OrderDetail item = new OrderDetail(
-                    rs.getInt("order_item_id"),
-                    rs.getInt("order_id"),
-                    rs.getInt("bouquet_id"),
-                    rs.getString("bouquet_name"),
-                    rs.getString("image_url"),
-                    rs.getInt("quantity"),
-                    rs.getString("unit_price")
+                        rs.getInt("order_item_id"),
+                        rs.getInt("order_id"),
+                        rs.getInt("bouquet_id"),
+                        rs.getString("bouquet_name"),
+                        rs.getString("image_url"),
+                        rs.getInt("quantity"),
+                        rs.getString("unit_price")
                 );
                 orderItems.add(item);
             }
@@ -306,7 +311,8 @@ public class OrderDAO extends BaseDao {
      *
      * @param orderId ID of the order to update.
      * @param newStatusId New status ID.
-     * @return true if update is successful (rows affected > 0), false otherwise.
+     * @return true if update is successful (rows affected > 0), false
+     * otherwise.
      */
     public boolean updateOrderStatus(int orderId, int newStatusId) {
         String sql = "UPDATE `order` SET status_id = ? WHERE order_id = ?";
@@ -334,7 +340,8 @@ public class OrderDAO extends BaseDao {
      * Assigns or unassigns a shipper to an order.
      *
      * @param orderId ID of the order.
-     * @param shipperId ID of the shipper to assign. If null, the order will not have a shipper assigned.
+     * @param shipperId ID of the shipper to assign. If null, the order will not
+     * have a shipper assigned.
      * @return true if update is successful, false otherwise.
      */
     public boolean assignShipper(int orderId, Integer shipperId) {
@@ -364,9 +371,9 @@ public class OrderDAO extends BaseDao {
     }
 
     /**
-     * Deletes an order and its associated order items.
-     * This method explicitly deletes from `order_item` first, then from `order`
-     * to handle cases where ON DELETE CASCADE is not configured.
+     * Deletes an order and its associated order items. This method explicitly
+     * deletes from `order_item` first, then from `order` to handle cases where
+     * ON DELETE CASCADE is not configured.
      *
      * @param orderId ID of the order to delete.
      * @return true if deletion is successful, false otherwise.
@@ -405,8 +412,12 @@ public class OrderDAO extends BaseDao {
             return false;
         } finally {
             try {
-                if (psOrderItem != null) psOrderItem.close();
-                if (psOrder != null) psOrder.close();
+                if (psOrderItem != null) {
+                    psOrderItem.close();
+                }
+                if (psOrder != null) {
+                    psOrder.close();
+                }
                 if (connection != null && !connection.getAutoCommit()) {
                     connection.setAutoCommit(true); // Reset auto-commit
                 }
@@ -441,7 +452,6 @@ public class OrderDAO extends BaseDao {
                 ps.setInt(5, order.getShipperId());
             }
 
-
             int rowsAffected = ps.executeUpdate();
             if (rowsAffected > 0) {
                 ResultSet rs = ps.getGeneratedKeys();
@@ -461,13 +471,14 @@ public class OrderDAO extends BaseDao {
         }
         return generatedId;
     }
-    
+
     /**
-     * Adds a new order item (bouquet) to a specific order in the database.
-     * This method is called after the main order is created.
+     * Adds a new order item (bouquet) to a specific order in the database. This
+     * method is called after the main order is created.
      *
-     * @param orderItem The OrderDetail object containing the bouquetId, quantity, and unitPrice.
-     * The orderId should already be set in this object.
+     * @param orderItem The OrderDetail object containing the bouquetId,
+     * quantity, and unitPrice. The orderId should already be set in this
+     * object.
      * @return true if the order item is added successfully, false otherwise.
      */
     public boolean addOrderItem(OrderDetail orderItem) {
@@ -495,8 +506,9 @@ public class OrderDAO extends BaseDao {
     }
 
     /**
-     * Updates the total amount of an existing order.
-     * This can be called after adding/removing order items.
+     * Updates the total amount of an existing order. This can be called after
+     * adding/removing order items.
+     *
      * @param orderId The ID of the order to update.
      * @param newTotalAmount The new total amount as a String.
      * @return true if the update is successful, false otherwise.
@@ -524,20 +536,22 @@ public class OrderDAO extends BaseDao {
     }
 
     /**
-     * Retrieves a list of orders assigned to a specific shipper and optionally filtered by statuses.
-     * This method is specifically for the shipper's dashboard to view their assigned orders.
+     * Retrieves a list of orders assigned to a specific shipper and optionally
+     * filtered by statuses. This method is specifically for the shipper's
+     * dashboard to view their assigned orders.
      *
      * @param shipperId The User_ID of the shipper.
-     * @param statusIds A list of order status IDs to filter by. If null or empty, no status filter is applied.
+     * @param statusIds A list of order status IDs to filter by. If null or
+     * empty, no status filter is applied.
      * @return List of Order objects.
      */
     public List<Order> getOrdersByShipperIdAndStatuses(int shipperId, List<Integer> statusIds) {
         List<Order> orders = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, "); 
+        sql.append("SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, ");
         sql.append("u.Phone AS customer_phone, u.Address AS customer_address, "); // ADDED: Select customer address
-        sql.append("o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name "); 
+        sql.append("o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name ");
         sql.append("FROM `order` o ");
         sql.append("JOIN `user` u ON o.customer_id = u.User_ID ");
         sql.append("JOIN `order_status` os ON o.status_id = os.order_status_id ");
@@ -594,10 +608,10 @@ public class OrderDAO extends BaseDao {
                         rs.getString("customer_name"),
                         rs.getString("customer_phone"), // Read customer phone
                         rs.getString("customer_address"), // ADDED: Read customer address
-                        rs.getString("total_amount"), 
+                        rs.getString("total_amount"),
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
-                        retrievedShipperId, 
+                        retrievedShipperId,
                         retrievedShipperName
                 ));
             }
@@ -612,11 +626,11 @@ public class OrderDAO extends BaseDao {
                 this.closeResources();
             } catch (Exception e) {
                 System.err.println("Error closing resources: " + e.getMessage());
-            } 
+            }
         }
         return orders;
     }
-    
+
     /**
      * Retrieves a list of all users with the 'Shipper' role.
      *
@@ -624,7 +638,7 @@ public class OrderDAO extends BaseDao {
      */
     public List<User> getAllShippers() {
         List<User> shippers = new ArrayList<>();
-        String sql = "SELECT User_ID, Username, Fullname, Email, Phone, role FROM `user` WHERE role = 8"; 
+        String sql = "SELECT User_ID, Username, Fullname, Email, Phone, role FROM `user` WHERE role = 8";
 
         try {
             connection = dbc.getConnection();
@@ -635,8 +649,8 @@ public class OrderDAO extends BaseDao {
                 shipper.setUserid(rs.getInt("User_ID"));
                 shipper.setUsername(rs.getString("Username"));
                 shipper.setFullname(rs.getString("Fullname"));
-                shipper.setEmail(rs.getString("Email"));    
-                shipper.setPhone(rs.getString("Phone"));    
+                shipper.setEmail(rs.getString("Email"));
+                shipper.setPhone(rs.getString("Phone"));
                 shipper.setRole(rs.getInt("role"));
                 shippers.add(shipper);
             }
@@ -684,10 +698,10 @@ public class OrderDAO extends BaseDao {
         }
         return statuses;
     }
-    
+
     /**
-     * Retrieves a list of all users with the 'Customer' role.
-     * This is useful for assigning customers to new orders.
+     * Retrieves a list of all users with the 'Customer' role. This is useful
+     * for assigning customers to new orders.
      *
      * @return List of User objects representing customers.
      */
@@ -704,8 +718,8 @@ public class OrderDAO extends BaseDao {
                 customer.setUserid(rs.getInt("User_ID"));
                 customer.setUsername(rs.getString("Username"));
                 customer.setFullname(rs.getString("Fullname"));
-                customer.setEmail(rs.getString("Email"));    
-                customer.setPhone(rs.getString("Phone"));    
+                customer.setEmail(rs.getString("Email"));
+                customer.setPhone(rs.getString("Phone"));
                 customer.setAddress(rs.getString("Address")); // Set Address
                 customer.setRole(rs.getInt("role"));
                 customers.add(customer);
@@ -724,8 +738,9 @@ public class OrderDAO extends BaseDao {
     }
 
     /**
-     * Retrieves a list of all bouquets.
-     * Used for populating product selection dropdowns.
+     * Retrieves a list of all bouquets. Used for populating product selection
+     * dropdowns.
+     *
      * @return List of Bouquet objects.
      */
     public List<Bouquet> getAllBouquets() {
@@ -759,12 +774,75 @@ public class OrderDAO extends BaseDao {
         return bouquets;
     }
 
+    public boolean markDelivered(int orderId, String deliveryProofPath) {
+    boolean updated = false;
+    String sql = "UPDATE `order` SET status_id = ?, delivery_proof = ? WHERE order_id = ?";
+    
+    try {
+        connection = dbc.getConnection();
+        ps = connection.prepareStatement(sql);
+        ps.setInt(1, 4); // Giả sử 4 là status "Đã giao hàng"
+        ps.setString(2, deliveryProofPath);
+        ps.setInt(3, orderId);
+        
+        int rowsAffected = ps.executeUpdate();
+        updated = (rowsAffected > 0);
+        
+    } catch (SQLException e) {
+        System.err.println("SQL Error while updating delivery status: " + e.getMessage());
+        e.printStackTrace();
+    } finally {
+        try {
+            this.closeResources();
+        } catch (Exception e) {
+            System.err.println("Error closing resources: " + e.getMessage());
+        }
+    }
+    
+    return updated;
+}
+
+
+    public boolean rejectOrder(int orderId, String reason) {
+    boolean updated = false;
+    String sql = "UPDATE `order` SET status_id = ?, reject_reason = ? WHERE order_id = ?";
+
+    try {
+        connection = dbc.getConnection();
+        ps = connection.prepareStatement(sql);
+        ps.setInt(1, 5); // Giả sử 5 là mã trạng thái 'Từ chối giao hàng'
+        ps.setString(2, reason);
+        ps.setInt(3, orderId);
+
+        int rowsAffected = ps.executeUpdate();
+        updated = (rowsAffected > 0);
+
+    } catch (SQLException e) {
+        System.err.println("SQL Error while rejecting order: " + e.getMessage());
+        e.printStackTrace();
+    } finally {
+        try {
+            this.closeResources();
+        } catch (Exception e) {
+            System.err.println("Error closing resources: " + e.getMessage());
+        }
+    }
+
+    return updated;
+}
+
+
     public static void main(String[] args) {
         OrderDAO orderDAO = new OrderDAO();
-        // Example usage for testing getOrdersByShipperIdAndStatuses
-        // int testShipperId = 123; // Replace with a known shipper ID from your DB
-        // List<Integer> testStatusIds = Arrays.asList(3, 4); // Shipping and Delivered
-        // List<Order> testOrders = orderDAO.getOrdersByShipperIdAndStatuses(testShipperId, testStatusIds);
-        // System.out.println("Order
+        int testOrderId = 5; // Thay bằng order_id bạn muốn test
+        String testImagePath = "uploads/test_delivery_proof.jpg";
+
+        boolean result = orderDAO.markDelivered(testOrderId, testImagePath);
+
+        if (result) {
+            System.out.println("✅ Cập nhật trạng thái giao hàng thành công.");
+        } else {
+            System.out.println("❌ Cập nhật thất bại.");
+        }
     }
 }
