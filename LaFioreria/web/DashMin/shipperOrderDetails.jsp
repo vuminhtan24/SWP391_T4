@@ -65,7 +65,7 @@
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <h6 class="mb-0">Order Details</h6>
                         </div>
-                        
+
                         <c:if test="${not empty successMessage}">
                             <div class="alert alert-success" role="alert">
                                 ${successMessage}
@@ -94,7 +94,7 @@
                                     <p><strong>Customer Address</strong> ${order.customerAddress}</p>
                                 </div>
                             </div>
-                            
+
                             <hr class="my-4">
                             <h6 class="mb-3">Purchased Products:</h6>
                             <c:if test="${empty orderItems}">
@@ -142,10 +142,16 @@
                                     </table>
                                 </div>
                             </c:if>
-                            
-                            <div class="mt-4 text-end">                                
-                                <a href="${pageContext.request.contextPath}/shipperDashboard" class="btn btn-secondary ms-2">Back</a>
+                            <div class="mt-4 text-end">
+                                    <!-- Nút xác nhận giao hàng -->
+                                    <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#confirmDeliveryModal">Confirm Delivery</button>
+                                    
+                                    <!-- Nút từ chối giao hàng -->
+                                    <button class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#rejectDeliveryModal">Reject Delivery</button>
+
+                                    <a href="${pageContext.request.contextPath}/shipperDashboard" class="btn btn-secondary ms-2">Back</a>
                             </div>
+
 
                         </c:if>
                         <c:if test="${order == null}">
@@ -165,9 +171,58 @@
                         </div>
                     </div>
                 </div>
-                </div>
+            </div>
             <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
         </div>
+        <!-- Modal Giao hàng thành công -->
+        <div class="modal fade" id="confirmDeliveryModal" tabindex="-1" aria-labelledby="confirmDeliveryModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                    <div class="modal-content">
+                          <form action="${pageContext.request.contextPath}/ConfirmDeliveryServlet" method="post" enctype="multipart/form-data">
+                                <div class="modal-header">
+                                      <h5 class="modal-title" id="confirmDeliveryModalLabel">Confirm Delivery</h5>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                <div class="modal-body">
+                                      <input type="hidden" name="orderId" value="${order.orderId}" />
+                                      <div class="mb-3">
+                                            <label for="deliveryProof" class="form-label">Delivery Proof</label>
+                                            <input class="form-control" type="file" id="deliveryProof" name="deliveryProof" accept="image/*" required />
+                                          </div>
+                                    </div>
+                                <div class="modal-footer">
+                                      <button type="submit" class="btn btn-success">Confirm</button>
+                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    </div>
+                              </form>
+                        </div>
+                  </div>
+        </div>
+        <!-- Modal Từ chối giao hàng -->
+        <div class="modal fade" id="rejectDeliveryModal" tabindex="-1" aria-labelledby="rejectDeliveryModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                    <div class="modal-content">
+                          <form action="${pageContext.request.contextPath}/RejectDeliveryServlet" method="post">
+                                <div class="modal-header">
+                                      <h5 class="modal-title" id="rejectDeliveryModalLabel">Từ chối giao hàng</h5>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                <div class="modal-body">
+                                      <input type="hidden" name="orderId" value="${order.orderId}" />
+                                      <div class="mb-3">
+                                            <label for="rejectReason" class="form-label">Lý do từ chối</label>
+                                            <textarea class="form-control" id="rejectReason" name="rejectReason" rows="3" required></textarea>
+                                          </div>
+                                    </div>
+                                <div class="modal-footer">
+                                      <button type="submit" class="btn btn-danger">Gửi lý do</button>
+                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                    </div>
+                              </form>
+                        </div>
+                  </div>
+        </div>
+
 
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>

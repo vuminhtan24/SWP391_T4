@@ -41,6 +41,14 @@
         <servlet-name>ShipperOrderDetailsServlet</servlet-name>
         <servlet-class>controller.ShipperOrderDetailsServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>RejectDeliveryServlet</servlet-name>
+        <servlet-class>controller.RejectDeliveryServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ConfirmDeliveryServlet</servlet-name>
+        <servlet-class>controller.ConfirmDeliveryServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/LoginServlet</url-pattern>
@@ -201,23 +209,19 @@
         <servlet-name>default</servlet-name>
         <url-pattern>/upload/*</url-pattern>
     </servlet-mapping>
-
     <!-- Cho phép container phục vụ tài nguyên tĩnh của DashMin -->
     <servlet-mapping>
         <servlet-name>default</servlet-name>
         <url-pattern>/DashMin/css/*</url-pattern>
     </servlet-mapping>
-
     <servlet-mapping>
         <servlet-name>default</servlet-name>
         <url-pattern>/DashMin/js/*</url-pattern>
     </servlet-mapping>
-
     <servlet-mapping>
         <servlet-name>default</servlet-name>
         <url-pattern>/DashMin/img/*</url-pattern>
     </servlet-mapping>
-
     <servlet-mapping>
         <servlet-name>default</servlet-name>
         <url-pattern>/DashMin/scss/*</url-pattern>
@@ -241,6 +245,14 @@
     <servlet-mapping>
         <servlet-name>default</servlet-name>
         <url-pattern>/ZeShopper/fonts/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RejectDeliveryServlet</servlet-name>
+        <url-pattern>/RejectDeliveryServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ConfirmDeliveryServlet</servlet-name>
+        <url-pattern>/ConfirmDeliveryServlet</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>home</welcome-file>

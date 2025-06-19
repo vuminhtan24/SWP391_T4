@@ -44,6 +44,7 @@ public class ShipperOrderManagement extends HttpServlet {
             List<Integer> statusFilter = new ArrayList<>();
             statusFilter.add(3); // Shipping (Giả sử)
             statusFilter.add(4); // Delivered (Giả sử)
+            statusFilter.add(5); // Delivered (Giả sử)
 
             List<Order> orders = orderDAO.getOrdersByShipperIdAndStatuses(shipperId, statusFilter);
             request.setAttribute("orders", orders);

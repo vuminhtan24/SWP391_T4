@@ -25,7 +25,7 @@ public class ShipperOrderDetailsServlet extends HttpServlet {
 
         // Kiểm tra xem người dùng có đăng nhập và có phải là Shipper hay không (role = 8)
         if (loggedInUser == null || loggedInUser.getRole() != 8) { // Assuming role 8 is Shipper
-            response.sendRedirect("login"); // Chuyển hướng về trang đăng nhập nếu không phải shipper
+             response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet?error=unauthorized");
             return;
         }
 
