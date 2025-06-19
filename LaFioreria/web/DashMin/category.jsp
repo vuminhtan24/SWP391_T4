@@ -166,7 +166,6 @@
                         </div>
                     </div>
                 </nav>
-                </nav>
             </div>
             <!-- Sidebar End -->
 
@@ -200,47 +199,17 @@
                                     </div>
                                 </a>
                                 <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item">
-                                    <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                        <div class="ms-2">
-                                            <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                            <small>15 minutes ago</small>
-                                        </div>
-                                    </div>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item">
-                                    <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                        <div class="ms-2">
-                                            <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                            <small>15 minutes ago</small>
-                                        </div>
-                                    </div>
-                                </a>
-                                <hr class="dropdown-divider">
                                 <a href="#" class="dropdown-item text-center">See all message</a>
                             </div>
                         </div>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                                 <i class="fa fa-bell me-lg-2"></i>
-                                <span class="d-none d-lg-inline-flex">Notificatin</span>
+                                <span class="d-none d-lg-inline-flex">Notification</span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                                 <a href="#" class="dropdown-item">
                                     <h6 class="fw-normal mb-0">Profile updated</h6>
-                                    <small>15 minutes ago</small>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item">
-                                    <h6 class="fw-normal mb-0">New user added</h6>
-                                    <small>15 minutes ago</small>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item">
-                                    <h6 class="fw-normal mb-0">Password changed</h6>
                                     <small>15 minutes ago</small>
                                 </a>
                                 <hr class="dropdown-divider">
@@ -264,7 +233,7 @@
 
                 <!-- Search Form -->
                 <form action="category" method="get" class="search-form">
-                    <input type="text" name="categoryName" placeholder="Search categories" value="${param.categoryName}" />
+                    <input type="text" name="categoryName" placeholder="Search categories" value="${fn:escapeXml(param.categoryName)}" />
                     <button type="submit">Search</button>
                 </form>
 
@@ -277,7 +246,12 @@
                                 ${sessionScope.message}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
-                            <c:remove var="message" scope="session"/> <!-- Xóa thông báo sau khi hiển thị -->
+                            <c:remove var="message" scope="session"/>
+                        </c:if>
+
+                        <!-- Thông báo khi không tìm thấy -->
+                        <c:if test="${empty listCategory}">
+                            <div class="alert alert-info">No categories found.</div>
                         </c:if>
 
                         <!-- Header with title and Add Category button -->
@@ -288,8 +262,22 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th scope="col">STT</th>
-                                    <th scope="col">Category Name</th>
+                                    <th scope="col">
+                                        <a href="?page=${currentPage}&sortField=categoryId&sortDir=${sortField eq 'categoryId' and sortDir eq 'asc' ? 'desc' : 'asc'}&categoryName=${fn:escapeXml(param.categoryName)}">
+                                            ID
+                                            <c:if test="${sortField eq 'categoryId'}">
+                                                <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
+                                            </c:if>
+                                        </a>
+                                    </th>
+                                    <th scope="col">
+                                        <a href="?page=${currentPage}&sortField=categoryName&sortDir=${sortField eq 'categoryName' and sortDir eq 'asc' ? 'desc' : 'asc'}&categoryName=${fn:escapeXml(param.categoryName)}">
+                                            Category Name
+                                            <c:if test="${sortField eq 'categoryName'}">
+                                                <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
+                                            </c:if>
+                                        </a>
+                                    </th>
                                     <th scope="col">Description</th>
                                     <th colspan="2">Action</th>
                                 </tr>
@@ -300,15 +288,15 @@
                                         <td>${category.categoryId}</td>
                                         <td>
                                             <a href="${pageContext.request.contextPath}/categoryDetails?id=${category.categoryId}" class="category-link">
-                                                ${category.categoryName}
+                                                ${fn:escapeXml(category.categoryName)}
                                             </a>
                                         </td>
-                                        <td>${category.description}</td>
+                                        <td>${fn:escapeXml(category.description)}</td>
                                         <td>
                                             <button type="button"
                                                     class="btn btn-delete"
                                                     onclick="if (confirm('Do you want to delete this category?'))
-                                                location.href = '${pageContext.request.contextPath}/deleteCategory?id=${category.categoryId}';">
+                                                                location.href = '${pageContext.request.contextPath}/deleteCategory?id=${category.categoryId}';">
                                                 Delete
                                             </button>
                                         </td>    
@@ -329,43 +317,58 @@
                                 <ul class="pagination">
                                     <!-- Previous -->
                                     <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a class="page-link" href="?page=${currentPage - 1}${param.categoryName != null ? '&categoryName=' + param.categoryName : ''}">Previous</a>
+                                        <a class="page-link"
+                                           href="?page=${currentPage - 1}&sortField=${sortField}&sortDir=${sortDir}&categoryName=${fn:escapeXml(param.categoryName)}">
+                                            Previous
+                                        </a>
                                     </li>
 
                                     <!-- First Page -->
                                     <li class="page-item ${currentPage == 1 ? 'active' : ''}">
-                                        <a class="page-link" href="?page=1${param.categoryName != null ? '&categoryName=' + param.categoryName : ''}">1</a>
+                                        <a class="page-link"
+                                           href="?page=1&sortField=${sortField}&sortDir=${sortDir}&categoryName=${fn:escapeXml(param.categoryName)}">
+                                            1
+                                        </a>
                                     </li>
 
-                                    <!-- Ellipsis before current page range -->
+                                    <!-- Ellipsis -->
                                     <c:if test="${currentPage > 3}">
                                         <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                        </c:if>
+                                    </c:if>
 
-                                    <!-- Page range around current -->
+                                    <!-- Page range (currentPage -1, currentPage, currentPage +1) -->
                                     <c:forEach var="i" begin="${currentPage - 1}" end="${currentPage + 1}">
                                         <c:if test="${i > 1 && i < totalPages}">
                                             <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                                <a class="page-link" href="?page=${i}${param.categoryName != null ? '&categoryName=' + param.categoryName : ''}">${i}</a>
+                                                <a class="page-link"
+                                                   href="?page=${i}&sortField=${sortField}&sortDir=${sortDir}&categoryName=${fn:escapeXml(param.categoryName)}">
+                                                    ${i}
+                                                </a>
                                             </li>
                                         </c:if>
                                     </c:forEach>
 
-                                    <!-- Ellipsis after current page range -->
+                                    <!-- Ellipsis -->
                                     <c:if test="${currentPage < totalPages - 2}">
                                         <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                        </c:if>
+                                    </c:if>
 
                                     <!-- Last Page -->
                                     <c:if test="${totalPages > 1}">
                                         <li class="page-item ${currentPage == totalPages ? 'active' : ''}">
-                                            <a class="page-link" href="?page=${totalPages}${param.categoryName != null ? '&categoryName=' + param.categoryName : ''}">${totalPages}</a>
+                                            <a class="page-link"
+                                               href="?page=${totalPages}&sortField=${sortField}&sortDir=${sortDir}&categoryName=${fn:escapeXml(param.categoryName)}">
+                                                ${totalPages}
+                                            </a>
                                         </li>
                                     </c:if>
 
                                     <!-- Next -->
                                     <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                        <a class="page-link" href="?page=${currentPage + 1}${param.categoryName != null ? '&categoryName=' + param.categoryName : ''}">Next</a>
+                                        <a class="page-link"
+                                           href="?page=${currentPage + 1}&sortField=${sortField}&sortDir=${sortDir}&categoryName=${fn:escapeXml(param.categoryName)}">
+                                            Next
+                                        </a>
                                     </li>
                                 </ul>
                             </nav>
