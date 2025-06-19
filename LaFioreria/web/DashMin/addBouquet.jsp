@@ -121,7 +121,7 @@
                                     <h4 class="mb-0">Create New Bouquet</h4>
                                 </div>
                                 <div class="card-body">
-                                    <form action="addBouquet" method="post">
+                                    <form action="${pageContext.request.contextPath}/addBouquet" method="post" enctype="multipart/form-data">
                                         <div class="row g-3">
                                             <!-- Bouquet Name -->
                                             <div class="col-md-6">
@@ -141,18 +141,19 @@
 
                                             <!-- Image URL -->
                                             <div class="col-md-6">
-                                                <label for="imageUrl" class="form-label">Image URL</label>
+                                                <label for="imageFiles" class="form-label">Upload Images</label>
                                                 <input 
-                                                    type="url" 
-                                                    id="imageUrl" 
-                                                    name="imageUrl" 
+                                                    type="file" 
+                                                    id="imageFiles" 
+                                                    name="imageFiles" 
                                                     class="form-control" 
-                                                    placeholder="https://example.com/image.jpg" 
+                                                    accept=".jpg,.jpeg, .png" 
+                                                    multiple
                                                     required
-                                                    pattern="https?://.+\.(jpg|jpeg|JPG|JPEG)$" 
-                                                    title="URL phải kết thúc bằng .jpg hoặc .jpeg"
-                                                    value="${fn:escapeXml(param.imageUrl)}"
                                                     />
+                                                <small class="form-text text-muted">
+                                                    Bạn có thể chọn nhiều ảnh (.jpg, .jpeg, .png) cùng lúc.
+                                                </small>
                                             </div>
 
                                             <!-- Description -->

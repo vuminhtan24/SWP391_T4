@@ -399,7 +399,11 @@
                                         <div class="product-image-wrapper">
                                             <div class="single-products">
                                                 <div class="productinfo text-center">
-                                                    <img src="${lb.getImageUrl()}" alt="" />
+                                                    <c:forEach items="${images}" var="img">
+                                                        <c:if test="${lb.getBouquetId() == img.getbouquetId()}">
+                                                    <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" alt="" />
+                                                        </c:if>
+                                                    </c:forEach>
                                                     <h2>
                                                         <a href="${pageContext.request.contextPath}/productDetail?id=${lb.getBouquetId()}">
                                                             ${lb.getBouquetName()}

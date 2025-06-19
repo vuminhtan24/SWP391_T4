@@ -5,7 +5,7 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.List,model.Bouquet, model.Category, model.RawFlower" %>
+<%@page import="java.util.List,model.Bouquet, model.Category, model.RawFlower, model.BouquetImage" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
@@ -292,12 +292,17 @@
 
 
                             <!-- Cột ảnh -->
-                            <div class="flex-shrink-0">
-                                <img
-                                    src="${bouquetDetail.getImageUrl()}"
-                                    alt="Bouquet Image" 
-                                    class="img-fluid bouquet-img"
-                                    style="width: 550px; height: 600px; object-fit: cover; border-radius: 12px;">
+                            <div class="d-flex flex-wrap gap-3">
+                                <c:forEach var="imageUrl" items="${images}">
+                                    <div class="flex-shrink-0 text-center">
+                                        <img
+                                            src="${pageContext.request.contextPath}/upload/BouquetIMG/${imageUrl.getImage_url()}"
+                                            alt="Bouquet Image"
+                                            class="img-fluid bouquet-img mb-2"
+                                            style="width: 550px; height: 600px; object-fit: cover; border-radius: 12px;">
+
+                                    </div>
+                                </c:forEach>
                             </div>
 
                             <!-- Cột phải: Nội dung -->
@@ -308,23 +313,10 @@
                                         ${bouquetDetail.getBouquetName()}   
                                     </h1>
 
-                                    <!-- Thông tin cơ bản -->
+                                    <!-- Thông tin cơ bản -->                                                                      
                                     <div class="mb-3">
                                         <label class="form-label fw-semibold">Category:</label>
                                         <h6>${cateName}</h6>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="imageUrl" class="form-label fw-semibold">Image URL:</label>                                                                                   
-                                        <input 
-                                            type="url" 
-                                            id="imageUrl" 
-                                            name="imageUrl" 
-                                            class="form-control" 
-                                            value="${bouquetDetail.getImageUrl()}" 
-                                            readonly
-                                            pattern="https?://.+\.(jpg|jpeg|JPG|JPEG)$" 
-                                            title="URL phải kết thúc bằng .jpg hoặc .jpeg" 
-                                            />
                                     </div>
 
                                     <div class="mb-4">
@@ -396,7 +388,7 @@
                                         <button type="button"
                                                 class="btn btn-delete"
                                                 onclick="if (confirm('Do you want to delete?'))
-                                                        location.href = '${pageContext.request.contextPath}/deleteBouquet?id=${bouquetDetail.getBouquetId()}';">
+                                                            location.href = '${pageContext.request.contextPath}/deleteBouquet?id=${bouquetDetail.getBouquetId()}';">
                                             Delete
                                         </button>
 

@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import model.Bouquet;
+import model.BouquetImage;
 import model.Category;
 
 /**
@@ -71,6 +72,7 @@ public class ProductController extends HttpServlet {
 
         listCategoryBQ = cdao.getBouquetCategory();
         request.setAttribute("cateBouquetHome", listCategoryBQ);
+        List<BouquetImage> images = bdao.getAllBouquetImage();
 
         String name = request.getParameter("bouquetName");
         String cateIDstr = request.getParameter("categoryId");
@@ -143,6 +145,7 @@ public class ProductController extends HttpServlet {
         List<Bouquet> bouquetPage = listBouquet.subList(start, end);
 
         // Đặt thuộc tính để truyền qua JSP
+        request.setAttribute("images", images);
         request.setAttribute("listBouquet", bouquetPage);
         request.setAttribute("currentPage", currentPage);
         request.setAttribute("totalPages", totalPages);

@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import model.Bouquet;
+import model.BouquetImage;
 import model.Category;
 
 /**
@@ -65,7 +66,7 @@ public class BouquetController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        
         String pageParam = request.getParameter("page");
         int currentPage = 1;
 
@@ -80,6 +81,7 @@ public class BouquetController extends HttpServlet {
         int itemsPerPage = 6;
         List<Bouquet> listBouquet = new ArrayList<>();
         List<Category> listCategoryBQ = new ArrayList<>();
+        List<BouquetImage> listImage = new ArrayList<>();
 
         BouquetDAO bdao = new BouquetDAO();
         CategoryDAO cdao = new CategoryDAO();
@@ -88,6 +90,7 @@ public class BouquetController extends HttpServlet {
         String name = request.getParameter("bouquetName");
         String sort = request.getParameter("sortField");
         String cateIDstr = request.getParameter("categoryS");
+        listImage = bdao.getAllBouquetImage();
         Integer cateID = null;
         if (cateIDstr != null && !cateIDstr.trim().isEmpty()) {
             try {
@@ -129,8 +132,10 @@ public class BouquetController extends HttpServlet {
         if (start < totalItems) {
             paginatedList = listBouquet.subList(start, end);
         }
+        
 
 // Gửi đến JSP
+        request.setAttribute("listImage", listImage);
         request.setAttribute("bouquetName", name);
         request.setAttribute("sortField", sort);
         request.setAttribute("listBouquet", paginatedList);

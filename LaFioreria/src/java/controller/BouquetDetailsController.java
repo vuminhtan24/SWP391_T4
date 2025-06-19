@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import model.Bouquet;
+import model.BouquetImage;
 import model.BouquetRaw;
 import model.Category;
 import model.RawFlower;
@@ -77,11 +78,13 @@ public class BouquetDetailsController extends HttpServlet {
         String cateName = cdao.getCategoryNameByBouquet(id);
         List<RawFlower> allFlowers = rfdao.getRawFlower();
         List<BouquetRaw> bqRaws = bqdao.getFlowerByBouquetID(id);
+        List<BouquetImage> images = bqdao.getBouquetImage(id);
 
         request.setAttribute("bouquetDetail", detailsBQ);
         request.setAttribute("cateName", cateName);
         request.setAttribute("allFlowers", allFlowers);
         request.setAttribute("cateList", cdao.getBouquetCategory());
+        request.setAttribute("images", images);
         request.setAttribute("flowerInBQ", bqRaws);
         request.getRequestDispatcher("./DashMin/bouquetDetails.jsp").forward(request, response);
     }

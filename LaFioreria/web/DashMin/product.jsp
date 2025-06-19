@@ -304,7 +304,11 @@
                                     <tr>
                                         <td>${(currentPage - 1) * 6 + status.index + 1}</td>
                                         <td>
-                                            <img src="${bouquet.getImageUrl()}" alt="Bouquet Image" style="height: 60px; width: auto;" />
+                                            <c:forEach var="img" items="${listImage}">
+                                                <c:if test="${bouquet.getBouquetId() == img.getbouquetId()}">
+                                                    <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" alt="alt" style="width: 70px; height: 70px;"/>
+                                                </c:if>
+                                            </c:forEach>
                                         </td>
                                         <td>
                                             <a href="${pageContext.request.contextPath}/bouquetDetails?id=${bouquet.getBouquetId()}" class="change-color-qvm">

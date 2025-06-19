@@ -428,7 +428,7 @@
                                     <div class="product-image-wrapper">
                                         <div class="single-products">
                                             <div class="productinfo text-center">
-                                                <img src="${lb.getImageUrl()}" alt="" />
+                                                <img src="#" alt="" />
                                                 <h2><a href="${pageContext.request.contextPath}/productDetail?id=${lb.getBouquetId()}">${lb.getBouquetName()}</a></h2>
                                                 <p>Price: ${lb.getPrice()}</p>
                                                 <button 
@@ -436,7 +436,7 @@
                                                     onclick="openPopup(
                                                                     '${lb.getBouquetId()}',
                                                                     '${lb.getBouquetName()}',
-                                                                    '${lb.getImageUrl()}',
+                                                                    '#',
                                                                     '${lb.getPrice()}'
                                                                     )">
                                                     <i class="fa fa-shopping-cart"></i> Add to cart
