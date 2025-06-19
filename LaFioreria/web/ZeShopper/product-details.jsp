@@ -177,7 +177,7 @@
                         <div class="product-details"><!--product-details-->
                             <div class="col-sm-5">
                                 <div class="view-product">
-                                    <img src="${bouquetDetail.getImageUrl()}" alt="" />                                   
+                                    <img src="#" alt="" />                                   
                                 </div>
                                 <div id="similar-product" class="carousel slide" data-ride="carousel">
 
@@ -245,7 +245,7 @@
                                                 <div class="product-image-wrapper">
                                                     <div class="single-products">
                                                         <div class="productinfo text-center">
-                                                            <img src="${bouquetDetail.getImageUrl()}" alt="${bouquetDetail.bouquetName}" class="img-responsive" />
+                                                            <img src="#" alt="${bouquetDetail.bouquetName}" class="img-responsive" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -320,7 +320,7 @@
                                                     <div class="product-card">
                                                         <!-- Image container -->
                                                         <div class="product-card__image">
-                                                            <img src="${lb.getImageUrl()}"
+                                                            <img src="#"
                                                                  alt="${lb.getBouquetName()}" />
                                                         </div>
 

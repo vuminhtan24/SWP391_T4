@@ -126,7 +126,7 @@
                         <a href="${pageContext.request.contextPath}/orderManagement" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Order</a>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
                         <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
-                        <a href="${pageContext.request.contextPath}" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>La Fioreria</a>
+                        <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
@@ -148,7 +148,7 @@
 
                 <a href="${pageContext.request.contextPath}/viewBouquet" style="margin: 15px">Back to Bouquet List</a>
                 <!-- Blank Start -->
-                <form action="editBouquet" method="post">
+                <form action="editBouquet" method="post" enctype="multipart/form-data">
                     <div class="background-qvm" style="background-color: #f3f6f9; margin-top: 20px; margin-left: 20px; margin-right: 20px; border-radius: 5px;">
                         <div class="container-fluid py-5 px-4">
                             <div class="d-flex flex-wrap align-items-start gap-5" style="gap: 100px;">
@@ -156,11 +156,35 @@
 
                                 <!-- Cột ảnh -->
                                 <div class="flex-shrink-0">
-                                    <img
-                                        src="${bouquetDetail.getImageUrl()}"
-                                        alt="Bouquet Image" 
-                                        class="img-fluid bouquet-img"
-                                        style="width: 550px; height: 600px; object-fit: cover; border-radius: 12px;">
+                                    <c:forEach var="imageFiles" items="${images}">
+                                        <div class="flex-shrink-0 text-center">
+                                            <img
+                                                src="${pageContext.request.contextPath}/upload/BouquetIMG/${imageFiles.getImage_url()}"
+                                                alt="Bouquet Image"
+                                                class="img-fluid bouquet-img mb-2"
+                                                style="width: 550px; height: 600px; object-fit: cover; border-radius: 12px;">
+
+                                            <!-- Input để hiển thị URL ảnh (readonly) -->
+                                            <input type="text" 
+                                                   class="form-control mb-2" 
+                                                   value="${pageContext.request.contextPath}/upload/BouquetIMG/${imageFiles.getImage_url()}" 
+                                                   readonly />
+                                        </div>
+                                    </c:forEach>
+                                    <label for="imageFiles" class="form-label">Upload Images</label>
+                                    <input 
+                                        type="file" 
+                                        id="imageFiles" 
+                                        name="imageFiles" 
+                                        class="form-control" 
+                                        accept=".jpg,.jpeg, .png" 
+                                        multiple
+                                        required
+                                        />
+                                    <small class="form-text text-muted">
+                                        Bạn có thể chọn nhiều ảnh (.jpg, .jpeg, .png) cùng lúc.
+                                    </small>
+                                    <h6 style="color: red">${error}</h6>
                                 </div>
 
                                 <!-- Cột phải: Nội dung -->
@@ -183,20 +207,6 @@
                                                     </option>
                                                 </c:forEach>   
                                             </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="imageUrl" class="form-label fw-semibold">Image URL:</label>                                                                                   
-                                            <input 
-                                                type="url" 
-                                                id="imageUrl" 
-                                                name="imageUrl" 
-                                                class="form-control" 
-                                                value="${bouquetDetail.getImageUrl()}" 
-                                                required
-                                                pattern="https?://.+\.(jpg|jpeg|JPG|JPEG)$" 
-                                                title="URL phải kết thúc bằng .jpg hoặc .jpeg" 
-                                                />
-                                        </div>
 
                                         <div class="mb-4">
                                             <label class="form-label fw-semibold">Description:</label>

@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import model.Bouquet;
+import model.BouquetImage;
 import model.BouquetRaw;
 
 /**
@@ -31,10 +32,9 @@ public class BouquetDAO extends BaseDao {
                 int bouquet_id = rs.getInt("Bouquet_ID");
                 String bouquet_name = rs.getString("bouquet_name").trim();
                 String description = rs.getString("description").trim();
-                String imgurl = rs.getString("image_url");
                 int cid = rs.getInt("cid");
                 int price = rs.getInt("price");
-                Bouquet newBouquet = new Bouquet(bouquet_id, bouquet_name, description, imgurl, cid, price);
+                Bouquet newBouquet = new Bouquet(bouquet_id, bouquet_name, description, cid, price);
                 listBouquet.add(newBouquet);
             }
         } catch (SQLException e) {
@@ -83,10 +83,9 @@ public class BouquetDAO extends BaseDao {
                 int bouquet_id = rs.getInt("Bouquet_ID");
                 String bouquet_name = rs.getString("bouquet_name").trim();
                 String description = rs.getString("description").trim();
-                String imgurl = rs.getString("image_url");
                 int cid = rs.getInt("cid");
                 int price = rs.getInt("price");
-                Bouquet searchBouquet = new Bouquet(bouquet_id, bouquet_name, description, imgurl, cid, price);
+                Bouquet searchBouquet = new Bouquet(bouquet_id, bouquet_name, description, cid, price);
                 searchListBQ.add(searchBouquet);
             }
         } catch (SQLException e) {
@@ -107,8 +106,8 @@ public class BouquetDAO extends BaseDao {
     public int insertBouquet(Bouquet bouquet) {
         String sql = """
         INSERT INTO la_fioreria.bouquet
-          (bouquet_name, description, image_url, cid, price)
-        VALUES (?, ?, ?, ?, ?)
+          (bouquet_name, description, cid, price)
+        VALUES (?, ?, ?, ?)
         """;
         // Chỉ định rõ cột PK cần lấy
         String[] genCols = {"bouquet_id"};
@@ -122,9 +121,8 @@ public class BouquetDAO extends BaseDao {
             // 3. Set tham số
             ps.setString(1, bouquet.getBouquetName());
             ps.setString(2, bouquet.getDescription());
-            ps.setString(3, bouquet.getImageUrl());
-            ps.setInt(4, bouquet.getCid());
-            ps.setInt(5, bouquet.getPrice());
+            ps.setInt(3, bouquet.getCid());
+            ps.setInt(4, bouquet.getPrice());
 
             // 4. Thực thi
             int affected = ps.executeUpdate();
@@ -217,7 +215,7 @@ public class BouquetDAO extends BaseDao {
     public void updateBouquet(Bouquet bouquet) {
         String sql = """
         UPDATE la_fioreria.bouquet
-        SET bouquet_name = ?, description = ?, image_url = ?, cid = ?, price = ?
+        SET bouquet_name = ?, description = ?, cid = ?, price = ?
         WHERE Bouquet_ID = ?;
         """;
         try {
@@ -225,7 +223,6 @@ public class BouquetDAO extends BaseDao {
             ps = connection.prepareStatement(sql);
             ps.setString(1, bouquet.getBouquetName());
             ps.setString(2, bouquet.getDescription());
-            ps.setString(3, bouquet.getImageUrl());
             ps.setInt(4, bouquet.getCid());
             ps.setInt(5, bouquet.getPrice());
             ps.setInt(6, bouquet.getBouquetId());
@@ -273,10 +270,9 @@ public class BouquetDAO extends BaseDao {
             if (rs.next()) {
                 String bouquetName = rs.getString("bouquet_name").trim();
                 String description = rs.getString("description").trim();
-                String imageUrl = rs.getString("image_url").trim();
                 int cid = rs.getInt("cid");
                 int price = rs.getInt("price");
-                return new Bouquet(id, bouquetName, description, imageUrl, cid, price);
+                return new Bouquet(id, bouquetName, description, cid, price);
             }
         } catch (SQLException e) {
             System.out.println(e);
@@ -331,9 +327,8 @@ public class BouquetDAO extends BaseDao {
                 int bouquetId = rs.getInt("bouquet_id");
                 String bouquetName = rs.getString("bouquet_name").trim();
                 String description = rs.getString("description").trim();
-                String imageUrl = rs.getString("image_url").trim();
                 int price = rs.getInt("price");
-                return new Bouquet(bouquetId, bouquetName, description, imageUrl, cid, price);
+                return new Bouquet(bouquetId, bouquetName, description, cid, price);
             }
         } catch (SQLException e) {
             System.out.println(e);
@@ -346,14 +341,131 @@ public class BouquetDAO extends BaseDao {
         return null;
     }
 
+    public List<BouquetImage> getBouquetImage(int bouquetID) {
+        List<BouquetImage> images = new ArrayList<>();
+        String sql = "SELECT bi.Bouquet_ID, bi.image_url FROM bouquet b\n"
+                + "JOIN bouquet_images bi ON bi.Bouquet_ID = b.Bouquet_ID\n"
+                + "WHERE b.Bouquet_ID = ?;";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, bouquetID);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                String imgURL = rs.getString("image_url").trim();
+                BouquetImage img = new BouquetImage(bouquetID, imgURL);
+                images.add(img);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return images;
+    }
+
+    public List<BouquetImage> getAllBouquetImage() {
+        List<BouquetImage> allImages = new ArrayList<>();
+        String sql = "SELECT bi.Bouquet_ID, bi.image_url FROM bouquet b\n"
+                + "JOIN bouquet_images bi ON bi.Bouquet_ID = b.Bouquet_ID\n";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int bouquetID = rs.getInt("Bouquet_ID");
+                String imgURL = rs.getString("image_url").trim();
+                BouquetImage img = new BouquetImage(bouquetID, imgURL);
+                allImages.add(img);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return allImages;
+    }
+    
+        public void deleteBouquetImage(int id) {
+        String sql = "DELETE FROM la_fioreria.bouquet_images WHERE Bouquet_ID = ?;";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    public void updateBouquetImage(BouquetImage image) {
+        String sql = """
+        UPDATE la_fioreria.bouquet_images
+                SET image_url = ?
+                WHERE Bouquet_ID = ?;
+        """;
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, image.getImage_url());
+            ps.setInt(2, image.getbouquetId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+
+    }
+    
+        public void insertBouquetImage(BouquetImage img) {
+        String sql = """
+        INSERT INTO la_fioreria.bouquet_images 
+          (Bouquet_ID, image_url)
+        VALUES (?, ?)
+        """;
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, img.getbouquetId());
+            ps.setString(2, img.getImage_url());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+    }
+
     public static void main(String[] args) {
         BouquetDAO dao = new BouquetDAO();
-        List<Bouquet> list = dao.searchBouquet("rose", null, null, null);
         Bouquet b = new Bouquet();
         BouquetRaw q = new BouquetRaw();
         b = dao.getBouquetByID(3);
         List<BouquetRaw> r = dao.getFlowerByBouquetID(3);
-        System.out.println(list);
+//        BouquetImage big = dao.getBouquetImage(1);
+        List<BouquetImage> big = dao.getBouquetImage(1);
+        System.out.println(big);
 
     }
 

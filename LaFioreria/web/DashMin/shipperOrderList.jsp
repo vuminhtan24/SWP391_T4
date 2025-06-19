@@ -39,6 +39,12 @@
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
+        <style>
+        .word-wrap-td {
+            white-space: normal;
+            word-wrap: break-word;
+        }
+    </style>
     </head>
     <body>
         <div class="container-fluid position-relative bg-white d-flex p-0">
@@ -132,7 +138,7 @@
                                             <td>${order.orderDate}</td>
                                             <td>${order.customerName}</td>
                                             <td>${order.customerPhone}</td>
-                                            <td>${order.customerAddress}</td>
+                                            <td class="word-wrap-td">${order.customerAddress}</td>
                                             <td>${order.totalAmount}</td>
                                             <td>
                                                 <form action="${pageContext.request.contextPath}/shipperDashboard" method="post" class="d-flex align-items-center">
