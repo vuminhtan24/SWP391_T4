@@ -115,21 +115,20 @@ public class FlowerBatchDAO extends BaseDao{
     }
 
     // Cập nhật lô hoa
-    public void updateFlowerBatch(int batchId, int flowerId, int unitPrice, String importDate, String expirationDate,
+    public void updateFlowerBatch(int batchId, int unitPrice, String importDate, String expirationDate,
                                  int quantity, int hold, int warehouseId) {
-        String sql = "UPDATE la_fioreria.flower_batch SET flower_id = ?, unit_price = ?, import_date = ?, " +
+        String sql = "UPDATE la_fioreria.flower_batch SET unit_price = ?, import_date = ?, " +
                      "expiration_date = ?, quantity = ?, hold = ?, warehouse_id = ? WHERE batch_id = ?";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
-            ps.setInt(1, flowerId);
-            ps.setInt(2, unitPrice);
-            ps.setString(3, importDate);
-            ps.setString(4, expirationDate);
-            ps.setInt(5, quantity);
-            ps.setInt(6, hold);
-            ps.setInt(7, warehouseId);
-            ps.setInt(8, batchId);
+            ps.setInt(1, unitPrice);
+            ps.setString(2, importDate);
+            ps.setString(3, expirationDate);
+            ps.setInt(4, quantity);
+            ps.setInt(5, hold);
+            ps.setInt(6, warehouseId);
+            ps.setInt(7, batchId);
             ps.executeUpdate();
         } catch (SQLException e) {
             System.err.println("FlowerBatchDAO: SQLException in updateFlowerBatch - " + e.getMessage());

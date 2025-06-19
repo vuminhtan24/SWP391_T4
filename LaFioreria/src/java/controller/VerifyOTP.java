@@ -20,10 +20,10 @@ import model.User;
  *
  * @author VU MINH TAN
  */
-@WebServlet("/verifyOTP")
+@WebServlet("/ZeShopper/verifyOTP")
 public class VerifyOTP extends HttpServlet {
-   
-    /** 
+
+    /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
      * @param response servlet response
@@ -33,22 +33,13 @@ public class VerifyOTP extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet VerifyOTP</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet VerifyOTP at " + request.getContextPath () + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    } 
+        // Phần này dành cho việc hiển thị ban đầu của biểu mẫu OTP
+        // Bạn nên chuyển tiếp đến JSP ở đây, chứ không phải in HTML thô
+        request.getRequestDispatcher("./verifyOTP.jsp").forward(request, response);
+    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
+    /**
      * Handles the HTTP <code>GET</code> method.
      * @param request servlet request
      * @param response servlet response
@@ -58,10 +49,10 @@ public class VerifyOTP extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
-    } 
+        processRequest(request, response); // Bây giờ sẽ chuyển tiếp đến verifyOTP.jsp
+    }
 
-    /** 
+    /**
      * Handles the HTTP <code>POST</code> method.
      * @param request servlet request
      * @param response servlet response
@@ -70,7 +61,7 @@ public class VerifyOTP extends HttpServlet {
      */
     @Override
      protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+         throws ServletException, IOException {
 
         HttpSession session = request.getSession();
         String enteredOtp = request.getParameter("otp");
@@ -80,15 +71,25 @@ public class VerifyOTP extends HttpServlet {
 
         if (sessionOtp == null || tempUser == null) {
             request.setAttribute("error", "Session expired or invalid!");
-            request.getRequestDispatcher("verifyOTP.jsp").forward(request, response);
+            request.getRequestDispatcher("/ZeShopper/verifyOTP.jsp").forward(request, response);
             return;
         }
 
-        if (!enteredOtp.equals(sessionOtp.toString())) {
-            request.setAttribute("error", "Incorrect OTP! Please try again.");
-            request.getRequestDispatcher("verifyOTP.jsp").forward(request, response);
+        // Tốt hơn là so sánh Integer với String bằng cách chuyển Integer sang String trước
+        // Hoặc tốt hơn nữa, phân tích enteredOtp thành một số nguyên nếu bạn mong đợi OTP là số.
+        try {
+            int enteredOtpInt = Integer.parseInt(enteredOtp);
+            if (enteredOtpInt != sessionOtp) {
+                request.setAttribute("error", "Incorrect OTP! Please try again.");
+                request.getRequestDispatcher("/ZeShopper/verifyOTP.jsp").forward(request, response);
+                return;
+            }
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "Invalid OTP format! Please enter a number.");
+            request.getRequestDispatcher("/ZeShopper/verifyOTP.jsp").forward(request, response);
             return;
         }
+
 
         DAOAccount dao = new DAOAccount();
         boolean success = dao.createAccount(tempUser);
@@ -100,11 +101,11 @@ public class VerifyOTP extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/home");
         } else {
             request.setAttribute("error", "Registration failed! Please try again.");
-            request.getRequestDispatcher("verifyOTP.jsp").forward(request, response);
+            request.getRequestDispatcher("/ZeShopper/verifyOTP.jsp").forward(request, response);
         }
     }
 
-    /** 
+    /**
      * Returns a short description of the servlet.
      * @return a String containing servlet description
      */

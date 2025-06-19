@@ -114,6 +114,7 @@ public class LoginServlet extends HttpServlet {
         // Input validation (removed redundant check for spaces)
         if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
             request.setAttribute("messLogin", "Please enter username and password.");
+            request.setAttribute("username", username);
             request.getRequestDispatcher("login.jsp").forward(request, response);
             return;
         }
@@ -141,6 +142,7 @@ public class LoginServlet extends HttpServlet {
             redirectBasedOnRole(request, response, role); // Call helper method for redirection
 
         } else {
+            request.setAttribute("username", username);
             request.setAttribute("messLogin", "Invalid username or password.");
             request.getRequestDispatcher("login.jsp").forward(request, response);
         }
@@ -172,7 +174,7 @@ public class LoginServlet extends HttpServlet {
             default:
                 // Fallback for unknown roles or errors, redirect to login again
                 // It's good practice to have a clearer error or a general user dashboard
-                response.sendRedirect(request.getContextPath() + "/ZeShipper/LoginServlet?error=unknownRole");
+                response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet?error=unknownRole");
                 break;
         }
     }

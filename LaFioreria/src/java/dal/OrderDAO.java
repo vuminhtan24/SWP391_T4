@@ -148,6 +148,8 @@ public class OrderDAO extends BaseDao {
                         rs.getString("order_date") != null ? rs.getString("order_date").trim() : null,
                         rs.getInt("customer_id"),
                         rs.getString("customer_name"),
+                        null, // Customer Phone not available in this query, setting to null
+                        null, // Customer Address not available in this query, setting to null
                         rs.getString("total_amount") != null ? rs.getString("total_amount").trim() : null,
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
@@ -176,7 +178,7 @@ public class OrderDAO extends BaseDao {
      */
     public Order getOrderDetailById(int orderId) {
         Order order = null;
-        String sql = "SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, " +
+        String sql = "SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, u.Phone AS customer_phone, u.Address AS customer_address, " +
                      "o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name " +
                      "FROM `order` o " +
                      "JOIN `user` u ON o.customer_id = u.User_ID " +
@@ -196,6 +198,8 @@ public class OrderDAO extends BaseDao {
                         rs.getString("order_date") != null ? rs.getString("order_date").trim() : null,
                         rs.getInt("customer_id"),
                         rs.getString("customer_name"),
+                        rs.getString("customer_phone"), // Read customer phone
+                        rs.getString("customer_address"), // Read customer address
                         rs.getString("total_amount") != null ? rs.getString("total_amount").trim() : null,
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
@@ -420,6 +424,7 @@ public class OrderDAO extends BaseDao {
      * @return The generated order_id if successful, -1 otherwise.
      */
     public int addOrder(Order order) {
+        // Updated SQL to include customer_phone and customer_address
         String sql = "INSERT INTO `order` (order_date, customer_id, total_amount, status_id, shipper_id) VALUES (?, ?, ?, ?, ?)";
         int generatedId = -1;
         try {
@@ -435,6 +440,7 @@ public class OrderDAO extends BaseDao {
             } else {
                 ps.setInt(5, order.getShipperId());
             }
+
 
             int rowsAffected = ps.executeUpdate();
             if (rowsAffected > 0) {
@@ -529,9 +535,9 @@ public class OrderDAO extends BaseDao {
         List<Order> orders = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT o.order_id, o.order_date, o.customer_id, u.Username AS customer_name, "); // Đã sửa thành Username
-        sql.append("u.Phone AS customer_phone, ");
-        sql.append("o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Username AS shipper_name "); // Đã sửa thành Username
+        sql.append("SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, "); 
+        sql.append("u.Phone AS customer_phone, u.Address AS customer_address, "); // ADDED: Select customer address
+        sql.append("o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name "); 
         sql.append("FROM `order` o ");
         sql.append("JOIN `user` u ON o.customer_id = u.User_ID ");
         sql.append("JOIN `order_status` os ON o.status_id = os.order_status_id ");
@@ -586,11 +592,12 @@ public class OrderDAO extends BaseDao {
                         rs.getString("order_date") != null ? rs.getString("order_date").trim() : null,
                         rs.getInt("customer_id"),
                         rs.getString("customer_name"),
-                        rs.getString("customer_phone"), // Đã thêm customer_phone
-                        rs.getString("total_amount"), // Đã sửa thành getDouble
+                        rs.getString("customer_phone"), // Read customer phone
+                        rs.getString("customer_address"), // ADDED: Read customer address
+                        rs.getString("total_amount"), 
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
-                        retrievedShipperId, // Sử dụng biến đã được xử lý nullable
+                        retrievedShipperId, 
                         retrievedShipperName
                 ));
             }
@@ -601,7 +608,7 @@ public class OrderDAO extends BaseDao {
             System.err.println("ERROR (OrderDAO): SQL Error while getting orders for shipper (ID: " + shipperId + "): " + e.getMessage());
             e.printStackTrace(); // Print full stack trace for detailed debugging
         } finally {
-                        try {
+            try {
                 this.closeResources();
             } catch (Exception e) {
                 System.err.println("Error closing resources: " + e.getMessage());
@@ -686,7 +693,7 @@ public class OrderDAO extends BaseDao {
      */
     public List<User> getAllCustomers() {
         List<User> customers = new ArrayList<>();
-        String sql = "SELECT User_ID, Username, Fullname, Email, Phone, role FROM `user` WHERE role = 2"; // Assuming role 2 is customer
+        String sql = "SELECT User_ID, Username, Fullname, Email, Phone, Address, role FROM `user` WHERE role = 7"; // Added Address
 
         try {
             connection = dbc.getConnection();
@@ -699,6 +706,7 @@ public class OrderDAO extends BaseDao {
                 customer.setFullname(rs.getString("Fullname"));
                 customer.setEmail(rs.getString("Email"));    
                 customer.setPhone(rs.getString("Phone"));    
+                customer.setAddress(rs.getString("Address")); // Set Address
                 customer.setRole(rs.getInt("role"));
                 customers.add(customer);
             }
@@ -757,9 +765,6 @@ public class OrderDAO extends BaseDao {
         // int testShipperId = 123; // Replace with a known shipper ID from your DB
         // List<Integer> testStatusIds = Arrays.asList(3, 4); // Shipping and Delivered
         // List<Order> testOrders = orderDAO.getOrdersByShipperIdAndStatuses(testShipperId, testStatusIds);
-        // System.out.println("Orders for test shipper: " + testOrders.size());
-        // for (Order order : testOrders) {
-        //     System.out.println("Test Order: ID=" + order.getOrderId() + ", Customer=" + order.getCustomerName() + ", Status=" + order.getStatusName());
-        // }
+        // System.out.println("Order
     }
 }
