@@ -49,12 +49,18 @@ public class BouquetDAO extends BaseDao {
         return listBouquet;
     }
 
-    public List<Bouquet> searchBouquet(String name, Integer minPrice, Integer maxPrice, Integer categoryID) {
+    public List<Bouquet> searchBouquet(String name, Integer minPrice, Integer maxPrice, Integer categoryID, Integer rawId) {
         List<Bouquet> searchListBQ = new ArrayList<>();
         List<Object> params = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT * FROM la_fioreria.bouquet b "
-                + "Join la_fioreria.category c ON b.cid = c.category_id "
-                + "Where 1=1 ");
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT DISTINCT b.* FROM la_fioreria.bouquet b "
+                + "JOIN la_fioreria.category c ON b.cid = c.category_id "
+                + "LEFT JOIN la_fioreria.bouquet_raw br ON b.Bouquet_ID = br.bouquet_id "
+                + "LEFT JOIN la_fioreria.raw_flower r ON br.raw_id = r.raw_id "
+                + "WHERE 1=1 "
+        );
+
         if (name != null && !name.trim().isEmpty()) {
             sql.append("AND b.bouquet_name LIKE ? ");
             params.add("%" + name + "%");
@@ -68,8 +74,12 @@ public class BouquetDAO extends BaseDao {
             params.add(maxPrice);
         }
         if (categoryID != null) {
-            sql.append("AND b.cid = ?");
+            sql.append("AND b.cid = ? ");
             params.add(categoryID);
+        }
+        if(rawId != null){
+            sql.append("AND br.raw_id = ?");
+            params.add(rawId);
         }
 
         try {
@@ -85,8 +95,7 @@ public class BouquetDAO extends BaseDao {
                 String description = rs.getString("description").trim();
                 int cid = rs.getInt("cid");
                 int price = rs.getInt("price");
-                Bouquet searchBouquet = new Bouquet(bouquet_id, bouquet_name, description, cid, price);
-                searchListBQ.add(searchBouquet);
+                searchListBQ.add(new Bouquet(bouquet_id, bouquet_name, description, cid, price));
             }
         } catch (SQLException e) {
             System.out.println(e);
@@ -98,6 +107,32 @@ public class BouquetDAO extends BaseDao {
         }
 
         return searchListBQ;
+    }
+    
+    public List<BouquetRaw> getBouquetRaw(){
+        List<BouquetRaw> list = new ArrayList<>();
+        String sql = "SELECT * From la_fioreria.bouquet_raw";
+        
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                int id = rs.getInt("bouquet_id");
+                int rawId = rs.getInt("raw_id");
+                int quantity = rs.getInt("quantity");
+            BouquetRaw raw = new BouquetRaw(id, rawId, quantity);
+            list.add(raw);
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return list;
     }
 
     /**
@@ -223,9 +258,9 @@ public class BouquetDAO extends BaseDao {
             ps = connection.prepareStatement(sql);
             ps.setString(1, bouquet.getBouquetName());
             ps.setString(2, bouquet.getDescription());
-            ps.setInt(4, bouquet.getCid());
-            ps.setInt(5, bouquet.getPrice());
-            ps.setInt(6, bouquet.getBouquetId());
+            ps.setInt(3, bouquet.getCid());
+            ps.setInt(4, bouquet.getPrice());
+            ps.setInt(5, bouquet.getBouquetId());
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e);

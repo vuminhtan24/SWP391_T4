@@ -77,7 +77,7 @@ public class ProductDetailController extends HttpServlet {
         String cateName = cdao.getCategoryNameByBouquet(id);
         List<RawFlower> allFlowers = rfdao.getRawFlower();
         List<BouquetRaw> bqRaws = bqdao.getFlowerByBouquetID(id);
-        List<Bouquet> sameCate = bqdao.searchBouquet(null, null, null, detailsBQ.getCid());
+        List<Bouquet> sameCate = bqdao.searchBouquet(null, null, null, detailsBQ.getCid(), null);
         String cateDes = cdao.getCategoryDesByBouquet(id);
         
         for (int i = sameCate.size() - 1; i >= 0; i--) {
