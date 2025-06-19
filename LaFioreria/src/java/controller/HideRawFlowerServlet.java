@@ -46,7 +46,7 @@ public class HideRawFlowerServlet extends HttpServlet {
 
               // Kiểm tra xem loại hoa có trong giỏ hoa không
               BouquetDAO bouquetDAO = new BouquetDAO(); // Giả định có DAO cho bouquet
-              if (!bouquetDAO.isFlowerInBouquet(flowerId)) {
+              if (bouquetDAO.isFlowerInBouquet(flowerId)) {
                   session.setAttribute("error", "Cannot deactivate flower type. It is used in one or more bouquets. Please remove it from all bouquets first.");
                   response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
                   return;

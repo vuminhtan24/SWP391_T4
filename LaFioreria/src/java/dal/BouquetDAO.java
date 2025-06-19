@@ -496,10 +496,10 @@ public class BouquetDAO extends BaseDao {
         String sql = "SELECT COUNT(*) FROM bouquet_raw WHERE raw_id = ?"; // Giả định bảng trung gian
         try {
             connection = dbc.getConnection();
-            ps = connection.prepareStatement(sql);
+            ps = connection.prepareStatement(sql); 
             ps.setInt(1, flowerId);
-            ps.executeUpdate();
-            if (rs.next()) {
+            rs = ps.executeQuery();
+            while (rs.next()) {
                 return rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
