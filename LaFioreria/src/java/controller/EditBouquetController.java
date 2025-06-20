@@ -226,7 +226,7 @@ public class EditBouquetController extends HttpServlet {
             int totalValue = (int) Math.round(Double.parseDouble(totalValueStr));
             dao.updateBouquet(new Bouquet(id, bqName, bqDescription, cateID, totalValue));
 
-            response.sendRedirect(request.getContextPath() + "/viewBouquet");
+            response.sendRedirect(request.getContextPath() + "/bouquetDetails?id=" +id);
 
         } catch (IllegalStateException ise) {
             log("Upload failed: file vượt quá kích thước cho phép", ise);

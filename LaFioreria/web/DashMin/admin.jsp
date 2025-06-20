@@ -42,13 +42,13 @@
 
     <body>
         <%@ page import="model.User" %>
-<%
-    User acc = (User) session.getAttribute("currentAcc");
-    if (acc == null || acc.getRole() != 1) {
-        response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet");
-        return;
-    }
-%>
+        <%
+            User acc = (User) session.getAttribute("currentAcc");
+            if (acc == null || acc.getRole() != 1) {
+                response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet");
+                return;
+            }
+        %>
 
 
         <div class="container-fluid position-relative bg-white d-flex p-0">
@@ -126,8 +126,8 @@
                             <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
                                 <i class="fa fa-chart-line fa-3x text-primary"></i>
                                 <div class="ms-3">
-                                    <p class="mb-2">Today Sale</p>
-                                    <h6 class="mb-0">$1234</h6>
+                                    <p class="mb-2">Today's orders</p>
+                                    <h6 class="mb-0"><%= request.getAttribute("todayOrders") %></h6>
                                 </div>
                             </div>
                         </div>
@@ -135,8 +135,8 @@
                             <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
                                 <i class="fa fa-chart-bar fa-3x text-primary"></i>
                                 <div class="ms-3">
-                                    <p class="mb-2">Total Sale</p>
-                                    <h6 class="mb-0">$1234</h6>
+                                    <p class="mb-2">Total Revenue</p>
+                                    <h6 class="mb-0">$<%= request.getAttribute("totalRevenue") %></h6>
                                 </div>
                             </div>
                         </div>
@@ -145,7 +145,7 @@
                                 <i class="fa fa-chart-area fa-3x text-primary"></i>
                                 <div class="ms-3">
                                     <p class="mb-2">Today Revenue</p>
-                                    <h6 class="mb-0">$1234</h6>
+                                    <h6 class="mb-0"><%= request.getAttribute("todayOrders") %></h6>
                                 </div>
                             </div>
                         </div>
@@ -153,8 +153,8 @@
                             <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
                                 <i class="fa fa-chart-pie fa-3x text-primary"></i>
                                 <div class="ms-3">
-                                    <p class="mb-2">Total Revenue</p>
-                                    <h6 class="mb-0">$1234</h6>
+                                    <p class="mb-2">this Month Revenue</p>
+                                    <h6 class="mb-0"><%= String.format("%,.0f", request.getAttribute("thisMonthRevenue")) %> VND</h6>
                                 </div>
                             </div>
                         </div>
@@ -393,6 +393,8 @@
         <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
         <!-- Template Javascript -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
         <script src="js/main.js"></script>
     </body>
 </html>
