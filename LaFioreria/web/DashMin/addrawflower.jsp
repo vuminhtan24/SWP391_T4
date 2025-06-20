@@ -74,6 +74,10 @@
         .error-popup .btn-close:hover {
             color: #c0392b;
         }
+        #imagePreview img {
+            max-width: 200px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -117,7 +121,7 @@
                     <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link"><i class="fa fa-table me-2"></i>User</a>
                     <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Bouquet</a>
                     <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
-                        <a href="${pageContext.request.contextPath}/orderManagement" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Order</a>
+                    <a href="${pageContext.request.contextPath}/orderManagement" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Order</a>
                     <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>RawFlower</a>
                     <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
                     <div class="nav-item dropdown">
@@ -205,27 +209,27 @@
                                 <h4 class="mb-0">Add New Flower Type</h4>
                             </div>
                             <div class="card-body">
-                                <form action="${pageContext.request.contextPath}/addRawFlower" method="post">
+                                <form action="${pageContext.request.contextPath}/addRawFlower" method="post" enctype="multipart/form-data">
                                     <div class="row g-3">
                                         <!-- Flower Type Name -->
                                         <div class="col-md-6">
                                             <label for="flowerName" class="form-label">Flower Type Name</label>
                                             <input type="text" id="flowerName" name="flowerName" class="form-control"
-                                                   value="${requestScope.flowerName}" placeholder="Enter flower type name" required/>
+                                                   value="${fn:escapeXml(requestScope.flowerName)}" placeholder="Enter flower type name" required/>
                                             <c:if test="${not empty requestScope.flowerNameError}">
-                                                <small class="text-danger">${requestScope.flowerNameError}</small>
+                                                <small class="text-danger">${fn:escapeXml(requestScope.flowerNameError)}</small>
                                             </c:if>
                                         </div>
-                                        <!-- Image URL -->
+                                        <!-- Image File Upload -->
                                         <div class="col-md-6">
-                                            <label for="image" class="form-label">Image URL</label>
-                                            <input type="url" id="image" name="image" class="form-control"
-                                                   value="${requestScope.image}" placeholder="https://example.com/image.jpg"
-                                                   pattern="https?://.+\.(jpg|jpeg|JPG|JPEG)$"
-                                                   title="URL must end with .jpg or .jpeg" required/>
+                                            <label for="imageFile" class="form-label">Upload Image</label>
+                                            <input type="file" id="imageFile" name="imageFile" class="form-control"
+                                                   accept=".jpg,.jpeg,.png" required/>
+                                            <small class="form-text text-muted">Only .jpg, .jpeg, or .png files allowed (max 10MB).</small>
                                             <c:if test="${not empty requestScope.imageError}">
-                                                <small class="text-danger">${requestScope.imageError}</small>
+                                                <small class="text-danger">${fn:escapeXml(requestScope.imageError)}</small>
                                             </c:if>
+                                            <div id="imagePreview"></div>
                                         </div>
                                     </div>
 
@@ -246,13 +250,13 @@
                             <div class="error-header">Error</div>
                             <div class="error-body">
                                 <c:if test="${not empty requestScope.error}">
-                                    ${requestScope.error}<br>
+                                    ${fn:escapeXml(requestScope.error)}<br>
                                 </c:if>
                                 <c:if test="${not empty requestScope.flowerNameError}">
-                                    ${requestScope.flowerNameError}<br>
+                                    ${fn:escapeXml(requestScope.flowerNameError)}<br>
                                 </c:if>
                                 <c:if test="${not empty requestScope.imageError}">
-                                    ${requestScope.imageError}<br>
+                                    ${fn:escapeXml(requestScope.imageError)}<br>
                                 </c:if>
                             </div>
                         </div>
@@ -294,5 +298,29 @@
 
         <!-- Template Javascript -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+
+        <!-- Image Preview Script -->
+        <script>
+            document.getElementById('imageFile').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                const preview = document.getElementById('imagePreview');
+                preview.innerHTML = ''; // Xóa preview cũ
+                if (file) {
+                    if (file.size > 10 * 1024 * 1024) { // 10MB
+                        alert('File size exceeds 10MB limit.');
+                        e.target.value = ''; // Xóa file chọn
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.maxWidth = '200px';
+                        preview.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        </script>
     </body>
 </html>

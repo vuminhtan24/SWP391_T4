@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import dal.FlowerTypeDAO;
 import model.FlowerType;
 
 @WebServlet(name = "RawFlowerServlet2", urlPatterns = {"/DashMin/rawflower2"})
@@ -25,20 +24,50 @@ public class RawFlowerServlet2 extends HttpServlet {
         try {
             // Get pagination parameter
             String pageParam = request.getParameter("page");
-            int currentPage = (pageParam != null && !pageParam.isEmpty()) ? Integer.parseInt(pageParam) : 1;
+            int currentPage = (pageParam != null && pageParam.matches("\\d+")) ? Integer.parseInt(pageParam) : 1;
+            if (currentPage <= 0) {
+                currentPage = 1;
+            }
+
+            // Get sort parameters
+            String sortField = request.getParameter("sortField");
+            String sortDir = request.getParameter("sortDir");
+            if (!"flowerName".equals(sortField)) {
+                sortField = "flowerId";
+            }
+            if (!"desc".equalsIgnoreCase(sortDir)) {
+                sortDir = "asc";
+            }
+
+            // Get filter parameters
             String flowerName = request.getParameter("flowerName");
+            String activeFilter = request.getParameter("activeFilter");
+            if (flowerName != null) {
+                flowerName = flowerName.trim();
+            } else {
+                flowerName = "";
+            }
 
             // Get flower type list
             FlowerTypeDAO ftDAO = new FlowerTypeDAO();
             List<FlowerType> listFT;
-
-            // Perform search or get all records
-            if (flowerName != null && !flowerName.trim().isEmpty()) {
-                listFT = ftDAO.searchRawFlowerByKeyword(flowerName.trim());
+            if (!flowerName.isEmpty() || activeFilter != null) {
+                listFT = ftDAO.searchRawFlowerByKeyword(flowerName);
+                if (activeFilter != null && !activeFilter.isEmpty()) {
+                    listFT.removeIf(ft -> ft.isActive() != Boolean.parseBoolean(activeFilter));
+                }
             } else {
                 listFT = ftDAO.getAllFlowerTypes();
             }
-            System.out.println("Number of records: " + listFT.size());
+
+            // Sorting
+            Comparator<FlowerType> cmp = "flowerName".equals(sortField)
+                    ? Comparator.comparing(FlowerType::getFlowerName, String.CASE_INSENSITIVE_ORDER)
+                    : Comparator.comparingInt(FlowerType::getFlowerId);
+            if ("desc".equalsIgnoreCase(sortDir)) {
+                cmp = cmp.reversed();
+            }
+            listFT.sort(cmp);
 
             // Pagination
             int totalRecords = listFT.size();
@@ -47,7 +76,6 @@ public class RawFlowerServlet2 extends HttpServlet {
             int startIndex = (currentPage - 1) * RECORDS_PER_PAGE;
             int endIndex = Math.min(startIndex + RECORDS_PER_PAGE, totalRecords);
             List<FlowerType> pagedListFT = totalRecords > 0 ? listFT.subList(startIndex, endIndex) : new ArrayList<>();
-            System.out.println("Page " + currentPage + ": from index " + startIndex + " to " + endIndex);
 
             // Store data in session and request
             HttpSession session = request.getSession();
@@ -55,15 +83,17 @@ public class RawFlowerServlet2 extends HttpServlet {
             session.setAttribute("flowerName", flowerName);
             request.setAttribute("currentPage", currentPage);
             request.setAttribute("totalPages", totalPages);
+            request.setAttribute("sortField", sortField);
+            request.setAttribute("sortDir", sortDir);
 
             // Forward to JSP
             request.getRequestDispatcher("/DashMin/rawflower.jsp").forward(request, response);
         } catch (NumberFormatException e) {
-            request.getSession().setAttribute("message", "Invalid page number format.");
+            request.getSession().setAttribute("error", "Invalid page number format.");
             response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
         } catch (Exception e) {
             e.printStackTrace();
-            request.getSession().setAttribute("message", "An error occurred: " + e.getMessage());
+            request.getSession().setAttribute("error", "An error occurred: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
         }
     }
@@ -73,11 +103,17 @@ public class RawFlowerServlet2 extends HttpServlet {
             throws ServletException, IOException {
         // Handle search from form
         String flowerName = request.getParameter("flowerName");
-        System.out.println("POST: flowerName=" + flowerName);
+        String activeFilter = request.getParameter("activeFilter");
+        if (flowerName != null) {
+            flowerName = flowerName.trim();
+        } else {
+            flowerName = "";
+        }
 
-        // Store parameter in session
+        // Store parameters in session
         HttpSession session = request.getSession();
         session.setAttribute("flowerName", flowerName);
+        session.setAttribute("activeFilter", activeFilter);
 
         // Redirect to reset to page 1
         response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2?page=1");
@@ -85,6 +121,6 @@ public class RawFlowerServlet2 extends HttpServlet {
 
     @Override
     public String getServletInfo() {
-        return "Servlet for managing flower type list, search, and pagination";
+        return "Servlet for managing flower type list, search, sorting, and pagination with active filter";
     }
 }
