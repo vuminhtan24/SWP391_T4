@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import model.Category;
+import java.util.Comparator;
 
 /**
  *
@@ -61,58 +62,67 @@ public class CategoryServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         try {
-            // Lấy tham số trang hiện tại
+            /* ===== 1. Lấy – validate – gán mặc định ===== */
             String pageParam = request.getParameter("page");
-            int currentPage = 1;
-            if (pageParam != null && !pageParam.trim().isEmpty()) {
-                try {
-                    currentPage = Integer.parseInt(pageParam);
-                    if (currentPage <= 0) {
-                        currentPage = 1;
-                    }
-                } catch (NumberFormatException e) {
-                    currentPage = 1;
-                    System.out.println("Invalid page parameter: " + pageParam);
-                }
+            int currentPage = (pageParam != null && pageParam.matches("\\d+"))
+                    ? Integer.parseInt(pageParam) : 1;
+            if (currentPage <= 0) {
+                currentPage = 1;
             }
 
-            // Số lượng mục trên mỗi trang
+            String sortField = request.getParameter("sortField");        // >>> sort
+            String sortDir = request.getParameter("sortDir");          // >>> sort
+            if (!"categoryName".equals(sortField)) {
+                sortField = "categoryId";
+            }
+            if (!"desc".equalsIgnoreCase(sortDir)) {
+                sortDir = "asc";
+            }
+
+            /* ===== 2. Lấy dữ liệu ===== */
             int itemsPerPage = 6;
-            int start = (currentPage - 1) * itemsPerPage;
-
             CategoryDAO cdao = new CategoryDAO();
-            List<Category> listCategory = new ArrayList<>();
 
-            // Lấy tham số tìm kiếm theo tên danh mục
+            // tìm kiếm theo tên (nếu có)
             String categoryName = request.getParameter("categoryName");
+            List<Category> listCategory = (categoryName != null && !categoryName.trim().isEmpty())
+                    ? cdao.searchCategory(categoryName)
+                    : cdao.getAll();
 
-            // Tìm kiếm hoặc lấy toàn bộ danh mục với phân trang
-            if (categoryName != null && !categoryName.trim().isEmpty()) {
-                listCategory = cdao.searchCategory(categoryName);
-            } else {
-                listCategory = cdao.getAll();
+            /* ===== 3. Sắp xếp trong Java – 4 dòng là xong ===== */     // >>> sort
+            Comparator<Category> cmp = "categoryName".equals(sortField)
+                    ? Comparator.comparing(Category::getCategoryName, String.CASE_INSENSITIVE_ORDER)
+                    : Comparator.comparingInt(Category::getCategoryId);
+
+            if ("desc".equalsIgnoreCase(sortDir)) {
+                cmp = cmp.reversed();
             }
+            listCategory.sort(cmp);
 
-            // Phân trang thủ công
+            /* ===== 4. Phân trang (như cũ) ===== */
             int totalItems = listCategory.size();
             int totalPages = (int) Math.ceil((double) totalItems / itemsPerPage);
+            int start = (currentPage - 1) * itemsPerPage;
             int end = Math.min(start + itemsPerPage, totalItems);
-            List<Category> paginatedList = new ArrayList<>();
-            if (start < totalItems) {
-                paginatedList = listCategory.subList(start, end);
-            }
+            List<Category> paginatedList = (start < totalItems)
+                    ? listCategory.subList(start, end)
+                    : new ArrayList<>();
 
-            // Gửi dữ liệu đến JSP
+            /* ===== 5. Gửi sang JSP ===== */
             request.setAttribute("listCategory", paginatedList);
             request.setAttribute("currentPage", currentPage);
             request.setAttribute("totalPages", totalPages);
+            request.setAttribute("sortField", sortField);             // >>> sort
+            request.setAttribute("sortDir", sortDir);               // >>> sort
             request.setAttribute("totalItems", totalItems);
             request.getRequestDispatcher("./DashMin/category.jsp").forward(request, response);
+
         } catch (Exception e) {
-            System.out.println("Error in CategoryServlet: " + e.getMessage());
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred while processing the request.");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "An error occurred while processing the request.");
         }
     }
 

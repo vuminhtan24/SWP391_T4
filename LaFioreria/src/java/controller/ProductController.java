@@ -117,7 +117,7 @@ public class ProductController extends HttpServlet {
             String searchName = hasName ? name.trim() : null;
             Integer searchCate = hasCate ? cateID : null;
 
-            listBouquet = bdao.searchBouquet(searchName, minFilter, maxFilter, searchCate);
+            listBouquet = bdao.searchBouquet(searchName, minFilter, maxFilter, searchCate, null);
         } else {
             listBouquet = bdao.getAll();
         }

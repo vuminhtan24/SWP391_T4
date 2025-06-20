@@ -123,6 +123,28 @@
                 /* Nếu nội dung vượt thì scroll */
                 overflow: auto;
             }
+
+            th.sortable {
+                cursor: pointer;
+            }
+            th.sortable.asc::after  {
+                content: " ▲";
+            }
+            th.sortable.desc::after {
+                content: " ▼";
+            }
+
+            /* Chiều cao cố định 800px (thay 800px bằng giá trị bạn muốn) */
+            .fixed-height-container {
+                height: 760px;
+                /* nếu muốn nội dung vượt vẫn scroll được: */
+                overflow-y: auto;
+            }
+            /* Hoặc chỉ đảm bảo không thấp hơn 800px: */
+            .min-height-container {
+                min-height: 800px;
+            }
+
         </style>
 
     </head>
@@ -197,9 +219,9 @@
                 <!-- HTML -->
 
                 <!-- Table Start -->
-                <div class="container-fluid pt-4 px-4">
+                <div class="container-fluid pt-4 px-4 fixed-height-container">
 
-                    <div class="bg-light rounded h-100 p-4 fixed-container">
+                    <div class="bg-light rounded h-100 p-4 d-flex flex-column">
                         <!-- Header with title and Add Bouquet button -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0">Bouquet List</h6>
@@ -207,30 +229,8 @@
                         </div>
                         <form action="viewBouquet" method="get"
                               style="display:flex; justify-content:flex-start; align-items:center; margin-bottom:1rem; width:100%;">
-                            <!-- Phần sort ở bên trái -->
+                            <!-- Phần filter category ở bên trái -->
                             <div style="display:flex; align-items:center;">
-                                <label for="sortField" style="margin-right:0.5rem; white-space:nowrap;">
-                                    Sắp xếp theo:
-                                </label>
-                                <select name="sortField"
-                                        id="sortField"
-                                        onchange="this.form.submit()"
-                                        style="
-                                        width:auto;
-                                        min-width:max-content;
-                                        padding:0.25rem 0.5rem;
-                                        border:1px solid #ccc;
-                                        border-radius:0.5rem;
-                                        background-color:#fff;
-                                        ">
-                                    <option value="">-- Mặc định --</option>
-                                    <option value="sPriceBQasc" ${param.sortField == 'sPriceBQasc' ? 'selected' : ''}>Giá tăng dần</option>
-                                    <option value="sPriceBQdesc" ${param.sortField == 'sPriceBQdesc' ? 'selected' : ''}>Giá giảm dần</option>
-                                </select>
-                            </div>
-
-                            <!-- Category: cách sort 50px -->
-                            <div style="display:flex; align-items:center; margin-left:50px;">
                                 <label for="categoryS" style="margin-right:0.5rem; white-space:nowrap;">
                                     Category:
                                 </label>
@@ -258,6 +258,42 @@
                                     </c:forEach>
                                 </select>
                             </div>
+                            <!-- Phần filter theo Raw Flower cách 50px -->    
+                            <div style="display:flex; align-items:center;">
+                                <label for="flowerS"
+                                       style="margin-right:0.5rem; white-space:nowrap; margin-left:50px">
+                                    Flower:
+                                </label>
+                                <select name="flowerS"
+                                        id="flowerS"
+                                        onchange="this.form.submit()"
+                                        style="
+                                        width:auto;
+                                        min-width:max-content;
+                                        padding:0.25rem 0.5rem;
+                                        border:1px solid #ccc;
+                                        border-radius:0.5rem;
+                                        background-color:#fff;
+                                        ">
+                                    <!-- Option mặc định -->
+                                    <option value=""
+                                            <c:if test="${empty param.flowerS}">
+                                                selected="selected"
+                                            </c:if>>
+                                        -- Mặc định --
+                                    </option>
+
+                                    <!-- Duyệt listFlower và hiển thị -->
+                                    <c:forEach var="flower" items="${listFlower}">
+                                        <option value="${flower.getRawId()}"
+                                                <c:if test="${param.flowerS eq flower.getRawId()}">
+                                                    selected="selected"
+                                                </c:if>>
+                                            ${flower.getRawName()}
+                                        </option>
+                                    </c:forEach>
+                                </select>
+                            </div>           
 
                             <!-- Phần search ở bên phải -->
                             <div style="display:flex; align-items:center; margin-left:auto;">
@@ -287,105 +323,117 @@
                         </form>
 
 
-
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">STT</th>
-                                    <th scope="col">Image</th>
-                                    <th scope="col">Bouquet Name</th>
-                                    <th scope="col">Category</th>
-                                    <th scope="col">Price</th>
-                                    <th colspan="2">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach var="bouquet" items="${listBouquet}" varStatus="status">
+                        <div class="table-responsive flex-grow-1 mb-3" style="overflow-y:auto;">
+                            <table class="table" id="bouquetTable">
+                                <thead>
                                     <tr>
-                                        <td>${(currentPage - 1) * 6 + status.index + 1}</td>
-                                        <td>
-                                            <c:forEach var="img" items="${listImage}">
-                                                <c:if test="${bouquet.getBouquetId() == img.getbouquetId()}">
-                                                    <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" alt="alt" style="width: 70px; height: 70px;"/>
-                                                </c:if>
-                                            </c:forEach>
-                                        </td>
-                                        <td>
-                                            <a href="${pageContext.request.contextPath}/bouquetDetails?id=${bouquet.getBouquetId()}" class="change-color-qvm">
-                                                ${bouquet.getBouquetName()}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <c:set var="matched" value="false"/>
-                                            <c:forEach var="cate" items="${cateBouquetHome}">
-                                                <c:if test="${cate.getCategoryId() == bouquet.getCid()}">
-                                                    ${cate.getCategoryName()}
-                                                    <c:set var="matched" value="true"/>
-                                                </c:if>
-                                            </c:forEach>
-                                            <c:if test="${!matched}">Unknown</c:if>
-                                            </td>
-
-                                            <td>${bouquet.getPrice()} VND</td>
-                                        <td>
-                                            <button type="button"
-                                                    class="btn btn-delete"
-                                                    onclick="if (confirm('Do you want to delete?'))
-                                                                location.href = '${pageContext.request.contextPath}/deleteBouquet?id=${bouquet.getBouquetId()}';">
-                                                Delete
-                                            </button>
-
-
-                                            <button type="button"
-                                                    class="btn btn-edit"
-                                                    onclick="location.href = '${pageContext.request.contextPath}/editBouquet?id=${bouquet.getBouquetId()}';">
-                                                Edit
-                                            </button>
-                                        </td>  
-
+                                        <th scope="col">STT</th>
+                                        <th scope="col">Image</th>
+                                        <th scope="col" class="sortable" data-type="string">Bouquet Name</th>
+                                        <th scope="col" class="sortable" data-type="string">Category</th>
+                                        <th scope="col" class="sortable" data-type="number">Price</th>
+                                        <th colspan="2">Action</th>
                                     </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="bouquet" items="${listBouquet}" varStatus="status">
+                                        <tr>
+                                            <td>${(currentPage - 1) * 6 + status.index + 1}</td>
+                                            <td>
+                                                <c:forEach var="img" items="${listImage}">
+                                                    <c:if test="${bouquet.getBouquetId() == img.getbouquetId()}">
+                                                        <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" alt="alt" style="width: 60px; height: 60px;"/>
+                                                    </c:if>
+                                                </c:forEach>
+                                            </td>
+                                            <td>
+                                                <a href="${pageContext.request.contextPath}/bouquetDetails?id=${bouquet.getBouquetId()}" class="change-color-qvm">
+                                                    ${bouquet.getBouquetName()}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <c:set var="matched" value="false"/>
+                                                <c:forEach var="cate" items="${cateBouquetHome}">
+                                                    <c:if test="${cate.getCategoryId() == bouquet.getCid()}">
+                                                        ${cate.getCategoryName()}
+                                                        <c:set var="matched" value="true"/>
+                                                    </c:if>
+                                                </c:forEach>
+                                                <c:if test="${!matched}">Unknown</c:if>
+                                                </td>
+
+                                                <td>${bouquet.getPrice()} VND</td>
+                                            <td>
+                                                <button type="button"
+                                                        class="btn btn-delete"
+                                                        onclick="if (confirm('Do you want to delete?'))
+                                                                    location.href = '${pageContext.request.contextPath}/deleteBouquet?id=${bouquet.getBouquetId()}';">
+                                                    Delete
+                                                </button>
+
+
+                                                <button type="button"
+                                                        class="btn btn-edit"
+                                                        onclick="location.href = '${pageContext.request.contextPath}/editBouquet?id=${bouquet.getBouquetId()}';">
+                                                    Edit
+                                                </button>
+                                            </td>  
+
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </div>    
 
                         <c:if test="${totalPages > 1}">
-                            <nav>
-                                <ul class="pagination">
+                            <div class="mt-auto">
+                                <nav>
+                                    <ul class="pagination">
 
-                                    <!-- Previous -->
-                                    <c:url var="prevUrl" value="viewBouquet">
-                                        <c:param name="page" value="${currentPage - 1}" />
-                                        <c:param name="bouquetName" value="${bouquetName}" />
-                                        <c:param name="sortField" value="${sortField}" />
-                                    </c:url>
-                                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a class="page-link" href="${prevUrl}">Previous</a>
-                                    </li>
-
-                                    <!-- Các trang -->
-                                    <c:forEach var="i" begin="1" end="${totalPages}">
-                                        <c:url var="pageUrl" value="viewBouquet">
-                                            <c:param name="page" value="${i}" />
-                                            <c:param name="bouquetName" value="${bouquetName}" />
-                                            <c:param name="sortField" value="${sortField}" />
+                                        <!-- Previous -->
+                                        <c:url var="prevUrl" value="viewBouquet">
+                                            <c:param name="page"         value="${currentPage - 1}" />
+                                            <c:param name="bouquetName"  value="${bouquetName}" />
+                                            <c:param name="categoryS"    value="${param.categoryS}" />
+                                            <c:if test="${not empty param.flowerS}">
+                                                <c:param name="flowerS"    value="${param.flowerS}" />
+                                            </c:if>
                                         </c:url>
-                                        <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                            <a class="page-link" href="${pageUrl}">${i}</a>
+                                        <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                            <a class="page-link" href="${prevUrl}">Previous</a>
                                         </li>
-                                    </c:forEach>
 
-                                    <!-- Next -->
-                                    <c:url var="nextUrl" value="viewBouquet">
-                                        <c:param name="page" value="${currentPage + 1}" />
-                                        <c:param name="bouquetName" value="${bouquetName}" />
-                                        <c:param name="sortField" value="${sortField}" />
-                                    </c:url>
-                                    <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                        <a class="page-link" href="${nextUrl}">Next</a>
-                                    </li>
+                                        <!-- Các trang -->
+                                        <c:forEach var="i" begin="1" end="${totalPages}">
+                                            <c:url var="pageUrl" value="viewBouquet">
+                                                <c:param name="page"        value="${i}" />
+                                                <c:param name="bouquetName" value="${bouquetName}" />
+                                                <c:param name="categoryS"   value="${param.categoryS}" />
+                                                <c:if test="${not empty param.flowerS}">
+                                                    <c:param name="flowerS"   value="${param.flowerS}" />
+                                                </c:if>
+                                            </c:url>
+                                            <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                                <a class="page-link" href="${pageUrl}">${i}</a>
+                                            </li>
+                                        </c:forEach>
 
-                                </ul>
-                            </nav>
+                                        <!-- Next -->
+                                        <c:url var="nextUrl" value="viewBouquet">
+                                            <c:param name="page"        value="${i}" />
+                                            <c:param name="bouquetName" value="${bouquetName}" />
+                                            <c:param name="categoryS"   value="${param.categoryS}" />
+                                            <c:if test="${not empty param.flowerS}">
+                                                <c:param name="flowerS"   value="${param.flowerS}" />
+                                            </c:if>
+                                        </c:url>
+                                        <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                                            <a class="page-link" href="${nextUrl}">Next</a>
+                                        </li>
+
+                                    </ul>
+                                </nav>
+                            </div>        
                         </c:if>
 
 
@@ -432,5 +480,55 @@
         <!-- Template Javascript -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
     </body>
+    <script>
+                                                            (function () {
+                                                                const table = document.getElementById('bouquetTable');
+                                                                const ths = table.querySelectorAll('th.sortable');
+                                                                let sortCol = -1, sortDir = 1; // 1 = asc, -1 = desc
+
+                                                                ths.forEach((th, idx) => {
+                                                                    th.addEventListener('click', () => {
+                                                                        // Xác định index cột thực tế trong row.cells
+                                                                        const colIndex = Array.from(th.parentNode.children).indexOf(th);
+
+                                                                        // Toggle direction nếu click lại cùng cột
+                                                                        if (sortCol === colIndex)
+                                                                            sortDir = -sortDir;
+                                                                        else {
+                                                                            // reset các dấu ▲▼
+                                                                            ths.forEach(h => h.classList.remove('asc', 'desc'));
+                                                                            sortCol = colIndex;
+                                                                            sortDir = 1;
+                                                                        }
+                                                                        th.classList.add(sortDir > 0 ? 'asc' : 'desc');
+
+                                                                        const tbody = table.tBodies[0];
+                                                                        // Lấy tất cả <tr> thành array
+                                                                        const rows = Array.from(tbody.rows);
+
+                                                                        // Xác định type (string/number)
+                                                                        const type = th.getAttribute('data-type');
+
+                                                                        rows.sort((a, b) => {
+                                                                            let va = a.cells[colIndex].textContent.trim();
+                                                                            let vb = b.cells[colIndex].textContent.trim();
+
+                                                                            if (type === 'number') {
+                                                                                va = parseFloat(va.replace(/[^\d.-]/g, '')) || 0;
+                                                                                vb = parseFloat(vb.replace(/[^\d.-]/g, '')) || 0;
+                                                                            } else {
+                                                                                va = va.toLowerCase();
+                                                                                vb = vb.toLowerCase();
+                                                                            }
+                                                                            return (va > vb ? 1 : va < vb ? -1 : 0) * sortDir;
+                                                                        });
+
+                                                                        // Đưa các row đã sort vào lại tbody
+                                                                        rows.forEach(r => tbody.appendChild(r));
+                                                                    });
+                                                                });
+                                                            })();
+    </script>
+
 </html>
 

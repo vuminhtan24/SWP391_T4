@@ -1,5 +1,5 @@
 <%-- 
-    Document   : rawflower
+    Document   : rawflower2
     Created on : Jun 12, 2025, 9:36:24 PM
     Author     : Admin
 --%>
@@ -258,26 +258,6 @@
                                     </div>
                                 </a>
                                 <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item">
-                                    <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                        <div class="ms-2">
-                                            <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                            <small>15 minutes ago</small>
-                                        </div>
-                                    </div>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item">
-                                    <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                        <div class="ms-2">
-                                            <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                            <small>15 minutes ago</small>
-                                        </div>
-                                    </div>
-                                </a>
-                                <hr class="dropdown-divider">
                                 <a href="#" class="dropdown-item text-center">See all message</a>
                             </div>
                         </div>
@@ -289,16 +269,6 @@
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                                 <a href="#" class="dropdown-item">
                                     <h6 class="fw-normal mb-0">Profile updated</h6>
-                                    <small>15 minutes ago</small>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item">
-                                    <h6 class="fw-normal mb-0">New user added</h6>
-                                    <small>15 minutes ago</small>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item">
-                                    <h6 class="fw-normal mb-0">Password changed</h6>
                                     <small>15 minutes ago</small>
                                 </a>
                                 <hr class="dropdown-divider">
@@ -328,14 +298,13 @@
                             <h6 class="mb-0">Flower Type List</h6>
                             <a href="${pageContext.request.contextPath}/addRawFlower" class="btn btn-primary">Add New Flower Type</a>
                         </div>
-                        <form action="${pageContext.request.contextPath}/DashMin/rawflower2" method="get"
-                              style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:1rem; width:100%;">
+                        <form action="${pageContext.request.contextPath}/DashMin/rawflower2" method="get" class="search-form">
                             <!-- Search form -->
                             <div style="display:flex; align-items:center;">
                                 <input type="text"
                                        name="flowerName"
                                        placeholder="Tìm kiếm loại hoa"
-                                       value="${param.flowerName}"
+                                       value="${fn:escapeXml(sessionScope.flowerName)}"
                                        style="
                                        width:200px;
                                        padding:0.25rem 0.5rem;
@@ -372,11 +341,14 @@
                                     <tr>
                                         <td>${flowerType.flowerId}</td>
                                         <td>
-                                            <img src="${flowerType.image}" alt="Flower Type Image" class="thumbnail-img" />
+                                            <img src="${pageContext.request.contextPath}/upload/FlowerIMG/${fn:escapeXml(flowerType.image)}" 
+                                                 alt="${fn:escapeXml(flowerType.flowerName)}" 
+                                                 class="thumbnail-img"
+                                                 onerror="this.src='${pageContext.request.contextPath}/DashMin/img/no-image.jpg'" />
                                         </td>
                                         <td>
                                             <a href="${pageContext.request.contextPath}/rawFlowerDetails?flower_id=${flowerType.flowerId}" class="change-color-qvm">
-                                                ${flowerType.flowerName}
+                                                ${fn:escapeXml(flowerType.flowerName)}
                                             </a>
                                         </td>
                                         <td>${flowerType.active ? 'Yes' : 'No'}</td>
@@ -404,7 +376,9 @@
                                     <!-- Previous -->
                                     <c:url var="prevUrl" value="/DashMin/rawflower2">
                                         <c:param name="page" value="${currentPage - 1}" />
-                                        <c:param name="flowerName" value="${param.flowerName}" />
+                                        <c:if test="${not empty sessionScope.flowerName}">
+                                            <c:param name="flowerName" value="${sessionScope.flowerName}" />
+                                        </c:if>
                                     </c:url>
                                     <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
                                         <a class="page-link" href="${prevUrl}">Previous</a>
@@ -414,7 +388,9 @@
                                     <c:forEach var="i" begin="1" end="${totalPages}">
                                         <c:url var="pageUrl" value="/DashMin/rawflower2">
                                             <c:param name="page" value="${i}" />
-                                            <c:param name="flowerName" value="${param.flowerName}" />
+                                            <c:if test="${not empty sessionScope.flowerName}">
+                                                <c:param name="flowerName" value="${sessionScope.flowerName}" />
+                                            </c:if>
                                         </c:url>
                                         <li class="page-item ${i == currentPage ? 'active' : ''}">
                                             <a class="page-link" href="${pageUrl}">${i}</a>
@@ -424,7 +400,9 @@
                                     <!-- Next -->
                                     <c:url var="nextUrl" value="/DashMin/rawflower2">
                                         <c:param name="page" value="${currentPage + 1}" />
-                                        <c:param name="flowerName" value="${param.flowerName}" />
+                                        <c:if test="${not empty sessionScope.flowerName}">
+                                            <c:param name="flowerName" value="${sessionScope.flowerName}" />
+                                        </c:if>
                                     </c:url>
                                     <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
                                         <a class="page-link" href="${nextUrl}">Next</a>
@@ -434,6 +412,14 @@
                         </c:if>
                     </div>
                 </div>
+                <c:if test="${not empty sessionScope.message}">
+                    <div class="alert alert-success">${fn:escapeXml(sessionScope.message)}</div>
+                    <c:remove var="message" scope="session"/>
+                </c:if>
+                <c:if test="${not empty sessionScope.error}">
+                    <div class="alert alert-danger">${fn:escapeXml(sessionScope.error)}</div>
+                    <c:remove var="error" scope="session"/>
+                </c:if>                       
                 <!-- Flower Type Management End -->
 
                 <!-- Footer Start -->

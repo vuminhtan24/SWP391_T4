@@ -1,6 +1,8 @@
+CREATE DATABASE  IF NOT EXISTS `la_fioreria` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `la_fioreria`;
 -- MySQL dump 10.13  Distrib 8.0.42, for Win64 (x86_64)
 --
--- Host: localhost    Database: la_fioreria
+-- Host: 127.0.0.1    Database: la_fioreria
 -- ------------------------------------------------------
 -- Server version	9.3.0
 
@@ -61,7 +63,6 @@ CREATE TABLE `bouquet` (
   `Bouquet_ID` int NOT NULL AUTO_INCREMENT,
   `bouquet_name` varchar(45) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
-  `image_url` varchar(255) DEFAULT NULL,
   `cid` int NOT NULL,
   `price` int DEFAULT NULL,
   PRIMARY KEY (`Bouquet_ID`),
@@ -77,8 +78,33 @@ CREATE TABLE `bouquet` (
 
 LOCK TABLES `bouquet` WRITE;
 /*!40000 ALTER TABLE `bouquet` DISABLE KEYS */;
-INSERT INTO `bouquet` VALUES (1,'Romantic Rose','A bouquet of fresh roses','https://www.clareflorist.co.uk/images/product/obsession-36-red-roseslg.jpg',1,250000),(2,'Spring Delight','Colorful tulips and lilies','https://res.cloudinary.com/dizexseir/image/upload/v1638189470/ProImages/gk6kebe1ojjyxdgv0ok3.jpg',2,328000),(3,'Sunny Love','Sunflowers and roses for a cheerful gift','https://giftflowers.com.hk/media/catalog/product/cache/81b20432be5bed9a616e6ab3bf908e57/f/b/fb150004_2_cheerful_sunflowers_bouquet_2_2_res.jpg',5,110000),(4,'Rose Radiance','A vibrant bouquet of fresh red roses symbolizing love and passion.','https://summerswintersg.com/cdn/shop/products/image_fd2696a5-aa10-47d1-bf2c-2c33a7e65989.jpg?v=1706926878&width=713',1,500000),(5,'Lily Light','Elegant lilies arranged to brighten up any occasion.','https://cdn.thefloristmarket.com/cdn/images/vendoritem/thefloristmarket-scentales-28573-30243_1080x1080.jpg',2,130000),(6,'Sunflower Smile','Cheerful sunflowers to bring joy and energy.','https://hoathangtu.com/wp-content/uploads/2022/11/IMG_6004-scaled.jpg',3,120000),(7,'Tulip Treasure','An exotic bouquet of multicolored tulips.','https://hoatuoimymy.com/wp-content/uploads/2024/09/bohoa15.jpg',4,500000),(8,'Orchid Elegance','Luxurious white orchids in an elegant arrangement.','https://flowersight.com/wp-content/uploads/2024/10/bo-hoa-lan-trang-2.jpg',5,1200000),(9,'Sun Dreams','A cheerful bouquet featuring sunflowers and baby\'s breath.','https://hobbyfloristkl.com/wp-content/uploads/2021/01/Sunny-Baby-sunflower-bouquet-selangor.png',1,345000),(10,'Peony Passion','Romantic peonies paired with soft accents.','https://fafulflorist.com/cdn/shop/files/lasting-love-peony-fafulflorist-896234.jpg?v=1716431923',2,700000),(11,'Carnation Bliss','Elegant mix of carnations and daisies.','https://www.dpsainiflorist.com/wp-content/uploads/2022/07/DP09260.jpg',2,720000),(12,'Hydrangea Harmony','Soothing tones with hydrangeas and baby\'s breath.','https://thebloombox.sg/cdn/shop/files/whisper-blue-hydrangea-baby-breath-flower-bouquet-01.jpg?v=1728608783',3,450000);
+INSERT INTO `bouquet` VALUES (1,'Romantic Rose','A bouquet of fresh roses',1,250000),(2,'Spring Delight','Colorful tulips and lilies',2,328000),(3,'Sunny Love','Sunflowers and roses for a cheerful gift',5,110000),(4,'Rose Radiance','A vibrant bouquet of fresh red roses symbolizing love and passion.',1,500000),(5,'Lily Light','Elegant lilies arranged to brighten up any occasion.',2,130000),(6,'Sunflower Smile','Cheerful sunflowers to bring joy and energy.',3,120000),(7,'Tulip Treasure','An exotic bouquet of multicolored tulips.',4,500000),(8,'Orchid Elegance','Luxurious white orchids in an elegant arrangement.',5,1200000),(9,'Sun Dreams','A cheerful bouquet featuring sunflowers and baby\'s breath.',1,345000),(10,'Peony Passion','Romantic peonies paired with soft accents.',2,700000),(11,'Carnation Bliss','Elegant mix of carnations and daisies.',2,720000),(12,'Hydrangea Harmony','Soothing tones with hydrangeas and baby\'s breath.',3,450000);
 /*!40000 ALTER TABLE `bouquet` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `bouquet_images`
+--
+
+DROP TABLE IF EXISTS `bouquet_images`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `bouquet_images` (
+  `Bouquet_ID` int NOT NULL,
+  `image_url` varchar(255) NOT NULL,
+  PRIMARY KEY (`Bouquet_ID`,`image_url`),
+  CONSTRAINT `bid` FOREIGN KEY (`Bouquet_ID`) REFERENCES `bouquet` (`Bouquet_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bouquet_images`
+--
+
+LOCK TABLES `bouquet_images` WRITE;
+/*!40000 ALTER TABLE `bouquet_images` DISABLE KEYS */;
+INSERT INTO `bouquet_images` VALUES (1,'1750317025273_gio-hoa-tuoi-dep-big-love-8103.jpg'),(2,'1750258296159_gk6kebe1ojjyxdgv0ok3.jpg'),(3,'1750258347762_fb150004_2_cheerful_sunflowers_bouquet_2_2_res.jpg'),(4,'1750258391571_image_fd2696a5-aa10-47d1-bf2c-2c33a7e65989.jpg'),(5,'1750258420386_thefloristmarket-scentales-28573-30243_1080x1080.jpg'),(6,'1750258456097_IMG_6004-scaled.jpg'),(7,'1750258487007_bohoa15.jpg'),(8,'1750258587648_bo-hoa-lan-trang-2.jpg'),(9,'1750316204090_Sunny-Baby-sunflower-bouquet-selangor.png'),(10,'1750316286853_lasting-love-peony-fafulflorist-896234.jpg'),(11,'1750316332512_DP09260.jpg'),(12,'1750316360972_whisper-blue-hydrangea-baby-breath-flower-bouquet-01.jpg');
+/*!40000 ALTER TABLE `bouquet_images` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -127,7 +153,7 @@ CREATE TABLE `cartdetails` (
   KEY `bouquet_id_idx` (`bouquet_id`),
   CONSTRAINT `cart_bouquet_id` FOREIGN KEY (`bouquet_id`) REFERENCES `bouquet` (`Bouquet_ID`),
   CONSTRAINT `cart_customer_id` FOREIGN KEY (`customer_id`) REFERENCES `user` (`User_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -296,8 +322,6 @@ CREATE TABLE `order` (
   `total_amount` varchar(45) DEFAULT NULL,
   `status_id` int DEFAULT NULL,
   `shipper_id` int DEFAULT NULL,
-  `delivery_proof` varchar(255) DEFAULT NULL,
-  `reject_reason` text,
   PRIMARY KEY (`order_id`),
   UNIQUE KEY `idnew_table_UNIQUE` (`order_id`),
   KEY `customer_id_idx` (`customer_id`),
@@ -306,7 +330,7 @@ CREATE TABLE `order` (
   CONSTRAINT `customer_id` FOREIGN KEY (`customer_id`) REFERENCES `user` (`User_ID`),
   CONSTRAINT `fk_shipper_user` FOREIGN KEY (`shipper_id`) REFERENCES `user` (`User_ID`),
   CONSTRAINT `status_id` FOREIGN KEY (`status_id`) REFERENCES `order_status` (`order_status_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -315,7 +339,7 @@ CREATE TABLE `order` (
 
 LOCK TABLES `order` WRITE;
 /*!40000 ALTER TABLE `order` DISABLE KEYS */;
-INSERT INTO `order` VALUES (1,'2025-08-10',7,'250000',1,11,NULL,NULL),(2,'2025-08-11',8,'110000',1,11,NULL,NULL),(4,'2025-06-16',12,'1208000',5,11,'/uploads/fb57b7fa-536b-40a8-be55-d48bcfa38a72.png','hỏng'),(5,'2025-06-19',7,'690000.00',4,11,'uploads/test_delivery_proof.jpg',NULL),(6,'2025-06-19',13,'345000.00',4,11,'/uploads/fb57b7fa-536b-40a8-be55-d48bcfa38a72.png',NULL);
+INSERT INTO `order` VALUES (1,'2025-08-10',7,'250000',1,11),(2,'2025-08-11',8,'110000',1,11),(4,'2025-06-16',12,'1208000',1,NULL);
 /*!40000 ALTER TABLE `order` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -338,7 +362,7 @@ CREATE TABLE `order_item` (
   KEY `bouquet_id_idx` (`bouquet_id`),
   CONSTRAINT `bouquet_id` FOREIGN KEY (`bouquet_id`) REFERENCES `bouquet` (`Bouquet_ID`),
   CONSTRAINT `order_id` FOREIGN KEY (`order_id`) REFERENCES `order` (`order_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -347,7 +371,7 @@ CREATE TABLE `order_item` (
 
 LOCK TABLES `order_item` WRITE;
 /*!40000 ALTER TABLE `order_item` DISABLE KEYS */;
-INSERT INTO `order_item` VALUES (1,1,1,1,250000),(2,2,3,1,110000),(4,4,1,1,250000),(5,4,5,1,130000),(6,4,4,1,500000),(7,4,2,1,328000),(8,5,9,1,345000),(9,5,9,1,345000),(10,6,9,1,345000);
+INSERT INTO `order_item` VALUES (1,1,1,1,250000),(2,2,3,1,110000),(4,4,1,1,250000),(5,4,5,1,130000),(6,4,4,1,500000),(7,4,2,1,328000);
 /*!40000 ALTER TABLE `order_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -615,7 +639,7 @@ CREATE TABLE `user` (
   UNIQUE KEY `Username_UNIQUE` (`Username`),
   KEY `Role_idx` (`Role`),
   CONSTRAINT `Role` FOREIGN KEY (`Role`) REFERENCES `role` (`Role_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -624,7 +648,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'admin01','$2a$10$Z6PeNnylaCP5O3tblM0SvejkMXoayRhCCTMj13s39DhrLumlhexG.','Alice Admin','alice@flower.com','0901111001','123 Admin Street',1,'active'),(2,'manager01','$2a$10$Ppw/3o3ugj2Mz4k6jRJnh.9EU3c.yQCMG49dIkccKRkeqnUO.xY9G','Bob Manager','bob@flower.com','0901111002','456 Manager Lane',2,'active'),(3,'seller01','$2a$10$tSuwcCCzTEyZ/5u9yet1TOOmKRzG8CyazFR2bZ6JesroUVcSckaS.','Carol Seller','carol@flower.com','0901111003','789 Seller Road',3,'active'),(4,'marketer01','$2a$10$1Te9hDvbo5e5UokNI/g4E.4r731nGFVe8r1DgVMCXKo4ZcxyHeJSa','David Marketer','david@flower.com','0901111004','101 Marketing Blvd',4,'active'),(5,'warehouse01','$2a$10$nITsu.VVg9mfWQj0K3YcZeM.GJIhGb9cvJ8xGsxeqaiWh9.bQ/V2m','Eva Warehouse','eva@flower.com','0901111005','202 Warehouse Ave',5,'active'),(6,'guest01','$2a$10$YrA1Uo2/.DzVfTJWtQvQv.Inx2adbtNz7Ffp6bCKIcoz4RKEaFVQO','Frank Guest','frank@flower.com','0901111006','No Address',6,'active'),(7,'cust01','$2a$10$iEeGuer0SeMaS9cyxyU7KOVE/icEWxtdgrERVc5HCn2Eo12eS6hwC','Grace Customer','grace@flower.com','0901111007','303 Customer Place',7,'active'),(8,'cust02','$2a$10$160t4egnUs0ior5RQoqIHufioc8RC3bzcezPyiayyrtcVCFyfnica','Helen Buyer','helen@flower.com','0901111008','404 Rose Street',7,'active'),(11,'shipper','$2a$10$ECPr17gXBybS4nWf1Nw7x.cq9a00AM/JW2l/8OmMH.l3M7y.jIOYW','Tan VU','vuminhtan2004@gmail.com','0977679888','123 Admin Street',8,'active'),(12,'taness','$2a$10$MBn3oAJGzoPq4tbl5feDMOtfE54jlz36xdtWZw31XJJhKhYcrBiae','tan vu','tanvmhe186791@fpt.edu.vn','0919994398','ca',7,'active'),(13,'tanvm','$2a$10$lr/QL9Shla0ntB5ovkKCFumYbZD.mdYbbqQ6y3hUomTzyl6Gv1vEm','tan vu','tranthuydung9317@gmail.com','0919994398','12345678900123456789012 3456789012345 67890123456789 01345678901234 567890123456 78901345674 9801234658 7021168546 84',7,'active');
+INSERT INTO `user` VALUES (1,'admin01','$2a$10$Z6PeNnylaCP5O3tblM0SvejkMXoayRhCCTMj13s39DhrLumlhexG.','Alice Admin','alice@flower.com','0901111001','123 Admin Street',1,'active'),(2,'manager01','$2a$10$Ppw/3o3ugj2Mz4k6jRJnh.9EU3c.yQCMG49dIkccKRkeqnUO.xY9G','Bob Manager','bob@flower.com','0901111002','456 Manager Lane',2,'active'),(3,'seller01','$2a$10$tSuwcCCzTEyZ/5u9yet1TOOmKRzG8CyazFR2bZ6JesroUVcSckaS.','Carol Seller','carol@flower.com','0901111003','789 Seller Road',3,'active'),(4,'marketer01','$2a$10$1Te9hDvbo5e5UokNI/g4E.4r731nGFVe8r1DgVMCXKo4ZcxyHeJSa','David Marketer','david@flower.com','0901111004','101 Marketing Blvd',4,'active'),(5,'warehouse01','$2a$10$nITsu.VVg9mfWQj0K3YcZeM.GJIhGb9cvJ8xGsxeqaiWh9.bQ/V2m','Eva Warehouse','eva@flower.com','0901111005','202 Warehouse Ave',5,'active'),(6,'guest01','$2a$10$YrA1Uo2/.DzVfTJWtQvQv.Inx2adbtNz7Ffp6bCKIcoz4RKEaFVQO','Frank Guest','frank@flower.com','0901111006','No Address',6,'active'),(7,'cust01','$2a$10$iEeGuer0SeMaS9cyxyU7KOVE/icEWxtdgrERVc5HCn2Eo12eS6hwC','Grace Customer','grace@flower.com','0901111007','303 Customer Place',7,'active'),(8,'cust02','$2a$10$160t4egnUs0ior5RQoqIHufioc8RC3bzcezPyiayyrtcVCFyfnica','Helen Buyer','helen@flower.com','0901111008','404 Rose Street',7,'active'),(11,'shipper','$2a$10$ECPr17gXBybS4nWf1Nw7x.cq9a00AM/JW2l/8OmMH.l3M7y.jIOYW','Tan VU','vuminhtan2004@gmail.com','0977679888','123 Admin Street',8,'active'),(12,'taness','$2a$10$MBn3oAJGzoPq4tbl5feDMOtfE54jlz36xdtWZw31XJJhKhYcrBiae','tan vu','tanvmhe186791@fpt.edu.vn','0919994398','ca',7,'active');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -656,10 +680,6 @@ LOCK TABLES `warehouse` WRITE;
 INSERT INTO `warehouse` VALUES (1,'Main Warehouse','111 Warehouse St',5),(2,'Backup Warehouse','222 Storage Rd',5);
 /*!40000 ALTER TABLE `warehouse` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Dumping routines for database 'la_fioreria'
---
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -670,4 +690,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-19 17:55:01
+-- Dump completed on 2025-06-19 20:48:53

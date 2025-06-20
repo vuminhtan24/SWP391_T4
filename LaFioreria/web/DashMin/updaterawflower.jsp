@@ -6,6 +6,7 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -208,6 +209,11 @@
             .btn-edit:hover {
                 background-color: #2980b9;
             }
+
+            #imagePreview img {
+                max-width: 200px;
+                margin-top: 10px;
+            }
         </style>
     </head>
     <body>
@@ -254,9 +260,7 @@
                         <a href="${pageContext.request.contextPath}/orderManagement" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Order</a>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>RawFlower</a>
                         <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
-
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
-
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
@@ -288,33 +292,51 @@
                                     <div class="error-header">Error Authentication</div>
                                     <div class="error-body">
                                         <c:if test="${not empty flowerNameError}">
-                                            <p><strong>Flower Name:</strong> ${flowerNameError}</p>
+                                            <p><strong>Flower Name:</strong> ${fn:escapeXml(flowerNameError)}</p>
                                         </c:if>
-                                        <c:if test="${not empty imageUrlError}">
-                                            <p><strong>Image URL:</strong> ${imageError}</p>
+                                        <c:if test="${not empty imageError}">
+                                            <p><strong>Image File:</strong> ${fn:escapeXml(imageError)}</p>
                                         </c:if>
                                         <c:if test="${not empty error}">
-                                            <p><strong>Error:</strong> ${error}</p>
+                                            <p><strong>Error:</strong> ${fn:escapeXml(error)}</p>
                                         </c:if>
                                     </div>
                                 </div>
 
-                                <form action="${pageContext.request.contextPath}/update_flower" method="post">
+                                <form action="${pageContext.request.contextPath}/update_flower" method="post" enctype="multipart/form-data">
                                     <input type="hidden" name="flower_id" value="${flowerId != null ? flowerId : item.flowerId}">
+                                    <input type="hidden" name="current_image" value="${fn:escapeXml(item.image)}">
                                     <div class="row mb-3">
                                         <div class="col-md-4">
-                                            <img class="img-fluid img-thumbnail" src="${image != null ? image : item.image}" alt="${flowerName != null ? flowerName : item.flowerName}">
+                                            <img class="img-fluid img-thumbnail" 
+                                                 src="${pageContext.request.contextPath}/upload/FlowerIMG/${fn:escapeXml(item.image)}" 
+                                                 alt="${fn:escapeXml(flowerName != null ? flowerName : item.flowerName)}"
+                                                 onerror="this.src='${pageContext.request.contextPath}/DashMin/img/no-image.jpg'">
                                         </div>
                                         <div class="col-md-8">
                                             <div class="mb-3">
                                                 <label for="flower_name" class="form-label">Flower Name</label>
                                                 <input type="text" id="flower_name" name="flower_name" class="form-control" 
-                                                       value="${flowerName != null ? flowerName : item.flowerName}" placeholder="Nhập tên loại hoa">
+                                                       value="${fn:escapeXml(item.flowerName)}" 
+                                                       placeholder="Nhập tên loại hoa" required>
+                                                <c:if test="${not empty flowerNameError}">
+                                                    <small class="text-danger">${fn:escapeXml(flowerNameError)}</small>
+                                                </c:if>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="image_url" class="form-label">Image URL</label>
-                                                <input type="text" id="image" name="image" class="form-control" 
-                                                       value="${image != null ? image : item.image}" placeholder="Nhập URL hình ảnh">
+                                                <label for="current_image" class="form-label">Current Image File</label>
+                                                <input type="text" id="current_image" class="form-control" 
+                                                       value="${pageContext.request.contextPath}/upload/FlowerIMG/${fn:escapeXml(item.image)}" readonly>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="imageFile" class="form-label">Upload New Image (Optional)</label>
+                                                <input type="file" id="imageFile" name="imageFile" class="form-control" 
+                                                       accept=".jpg,.jpeg,.png">
+                                                <small class="form-text text-muted">Only .jpg, .jpeg, or .png files allowed (max 10MB).</small>
+                                                <c:if test="${not empty imageError}">
+                                                    <small class="text-danger">${fn:escapeXml(imageError)}</small>
+                                                </c:if>
+                                                <div id="imagePreview"></div>
                                             </div>
                                             <div class="mt-3">
                                                 <button type="submit" class="btn btn-primary">Edit</button>
@@ -371,6 +393,28 @@
                     var errorPopup = document.getElementById('errorPopup');
                     errorPopup.style.display = 'block';
                 }
+
+                // Image preview
+                document.getElementById('imageFile').addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    const preview = document.getElementById('imagePreview');
+                    preview.innerHTML = ''; // Xóa preview cũ
+                    if (file) {
+                        if (file.size > 10 * 1024 * 1024) { // 10MB
+                            alert('File size exceeds 10MB limit.');
+                            e.target.value = ''; // Xóa file chọn
+                            return;
+                        }
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.maxWidth = '200px';
+                            preview.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
             });
 
             function closePopup() {
