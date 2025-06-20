@@ -1,5 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -286,7 +287,10 @@
                                     <input type="hidden" name="flower_id" value="${item.flowerId}">
                                     <div class="row mb-3">
                                         <div class="col-md-4">
-                                            <img class="img-fluid img-thumbnail" src="${item.image}" alt="${item.flowerName}">
+                                            <img class="img-fluid img-thumbnail" 
+                                                 src="${pageContext.request.contextPath}/upload/FlowerIMG/${fn:escapeXml(item.image)}" 
+                                                 alt="${fn:escapeXml(item.flowerName)}"
+                                                 onerror="this.src='${pageContext.request.contextPath}/DashMin/img/no-image.jpg'">
                                         </div>
                                         <div class="col-md-8">
                                             <div class="mb-3">
