@@ -234,10 +234,12 @@ public class OrderDAO extends BaseDao {
      */
     public List<OrderDetail> getOrderItemsByOrderId(int orderId) {
         List<OrderDetail> orderItems = new ArrayList<>();
+        // Modified SQL to join with bouquet_images to get image_url
         String sql = "SELECT oi.order_item_id, oi.order_id, oi.bouquet_id, "
-                + "b.bouquet_name, b.image_url, oi.quantity, oi.unit_price "
+                + "b.bouquet_name, bi.image_url, oi.quantity, oi.unit_price " // Changed from b.image_url to bi.image_url
                 + "FROM `order_item` oi "
                 + "JOIN `bouquet` b ON oi.bouquet_id = b.bouquet_id "
+                + "LEFT JOIN `bouquet_images` bi ON b.Bouquet_ID = bi.Bouquet_ID " // Added LEFT JOIN for bouquet_images
                 + "WHERE oi.order_id = ?";
         try {
             connection = dbc.getConnection();
@@ -250,7 +252,7 @@ public class OrderDAO extends BaseDao {
                         rs.getInt("order_id"),
                         rs.getInt("bouquet_id"),
                         rs.getString("bouquet_name"),
-                        rs.getString("image_url"),
+                        rs.getString("image_url"), // Map the image_url from bouquet_images
                         rs.getInt("quantity"),
                         rs.getString("unit_price")
                 );
@@ -746,17 +748,20 @@ public class OrderDAO extends BaseDao {
     public List<Bouquet> getAllBouquets() {
         List<Bouquet> bouquets = new ArrayList<>();
         // Modified SQL query to select 'price' instead of 'current_price'
+        // Using LEFT JOIN to ensure all bouquets are returned even if they don't have an image in bouquet_images
+        // Adding MIN(bi.image_url) to resolve "only_full_group_by" issue and get one image_url per bouquet
         String sql = "SELECT\n"
                 + "    b.Bouquet_ID,\n"
                 + "    b.Bouquet_Name,\n"
-                + "    bi.image_url,\n"
+                + "    MIN(bi.image_url) AS image_url,\n" // Using MIN() to aggregate image_url
                 + "    b.Price,\n"
                 + "    b.Description,\n"
                 + "    b.CID\n"
                 + "FROM\n"
                 + "    bouquet AS b\n"
-                + "JOIN\n"
-                + "    bouquet_images AS bi ON b.Bouquet_ID = bi.Bouquet_ID;";
+                + "LEFT JOIN\n"
+                + "    bouquet_images AS bi ON b.Bouquet_ID = bi.Bouquet_ID\n"
+                + "GROUP BY b.Bouquet_ID, b.Bouquet_Name, b.Price, b.Description, b.CID;"; // Include all non-aggregated columns in GROUP BY
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -765,10 +770,9 @@ public class OrderDAO extends BaseDao {
                 Bouquet bouquet = new Bouquet();
                 bouquet.setBouquetId(rs.getInt("bouquet_id"));
                 bouquet.setBouquetName(rs.getString("bouquet_name"));
-//                bouquet.setImageUrl(rs.getString("image_url"));
-                bouquet.setPrice(rs.getInt("price")); // Changed to getInt for price
-                bouquet.setDescription(rs.getString("Description")); // Added Description
-                bouquet.setCid(rs.getInt("cid")); // Added cid
+                bouquet.setPrice(rs.getInt("price"));
+                bouquet.setDescription(rs.getString("Description"));
+                bouquet.setCid(rs.getInt("cid"));
                 bouquets.add(bouquet);
             }
         } catch (SQLException e) {
