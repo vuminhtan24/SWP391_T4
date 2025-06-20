@@ -3,7 +3,6 @@ package controller;
 import dal.FlowerTypeDAO;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,7 +10,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import dal.FlowerTypeDAO;
 import model.FlowerType;
 
 @WebServlet(name = "RawFlowerServlet2", urlPatterns = {"/DashMin/rawflower2"})
@@ -26,14 +24,23 @@ public class RawFlowerServlet2 extends HttpServlet {
             // Get pagination parameter
             String pageParam = request.getParameter("page");
             int currentPage = (pageParam != null && !pageParam.isEmpty()) ? Integer.parseInt(pageParam) : 1;
+
+            // Get flowerName from request or session
             String flowerName = request.getParameter("flowerName");
+            HttpSession session = request.getSession();
+            if (flowerName == null) {
+                flowerName = (String) session.getAttribute("flowerName");
+            }
+            if (flowerName == null) {
+                flowerName = "";
+            }
 
             // Get flower type list
             FlowerTypeDAO ftDAO = new FlowerTypeDAO();
             List<FlowerType> listFT;
 
             // Perform search or get all records
-            if (flowerName != null && !flowerName.trim().isEmpty()) {
+            if (!flowerName.trim().isEmpty()) {
                 listFT = ftDAO.searchRawFlowerByKeyword(flowerName.trim());
             } else {
                 listFT = ftDAO.getAllFlowerTypes();
@@ -50,7 +57,6 @@ public class RawFlowerServlet2 extends HttpServlet {
             System.out.println("Page " + currentPage + ": from index " + startIndex + " to " + endIndex);
 
             // Store data in session and request
-            HttpSession session = request.getSession();
             session.setAttribute("listFT", pagedListFT);
             session.setAttribute("flowerName", flowerName);
             request.setAttribute("currentPage", currentPage);
@@ -77,7 +83,7 @@ public class RawFlowerServlet2 extends HttpServlet {
 
         // Store parameter in session
         HttpSession session = request.getSession();
-        session.setAttribute("flowerName", flowerName);
+        session.setAttribute("flowerName", flowerName != null ? flowerName : "");
 
         // Redirect to reset to page 1
         response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2?page=1");

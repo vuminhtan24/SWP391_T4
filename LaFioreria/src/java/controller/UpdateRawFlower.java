@@ -1,23 +1,29 @@
 package controller;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 import dal.FlowerTypeDAO;
 import model.FlowerType;
-import java.util.List;
 import util.Validate;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
-/**
- *
- * @author Admin
- */
 @WebServlet(name = "UpdateRawFlower", urlPatterns = {"/update_flower"})
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024, // 1MB lưu tạm vào disk nếu vượt
+        maxFileSize = 10 * 1024 * 1024, // Giới hạn 10MB mỗi file
+        maxRequestSize = 50 * 1024 * 1024 // Giới hạn 50MB tổng request
+)
 public class UpdateRawFlower extends HttpServlet {
 
     @Override
@@ -38,21 +44,39 @@ public class UpdateRawFlower extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
+        String imageFileName = null;
+        String uploadPath = null;
+        String fullDiskPath = null;
+        String rootPath = null;
+
         try {
             // Lấy tham số từ form
             String flowerIdStr = request.getParameter("flower_id");
             String flowerName = request.getParameter("flower_name");
-            String image = request.getParameter("image");
+            Part filePart = request.getPart("imageFile");
+            String currentImage = request.getParameter("current_image");
 
             // Validate các field
             String flowerNameError = Validate.validateLength(flowerName, "Tên loại hoa", 1, 45);
-            String imageError = Validate.validateImageUrl(image);
+            String imageError = null;
+
+            // Validate file ảnh nếu có upload
+            if (filePart != null && filePart.getSize() > 0) {
+                String contentType = filePart.getContentType();
+                if (!contentType.startsWith("image/")) {
+                    imageError = "File phải là ảnh (jpg, jpeg, png).";
+                } else {
+                    String submittedFileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+                    if (!submittedFileName.matches(".*\\.(jpg|jpeg|png|JPG|JPEG|PNG)$")) {
+                        imageError = "Ảnh phải có định dạng .jpg, .jpeg hoặc .png.";
+                    }
+                }
+            }
 
             // Nếu có lỗi, giữ dữ liệu và hiển thị popup
             if (flowerNameError != null || imageError != null) {
                 request.setAttribute("flowerId", flowerIdStr);
                 request.setAttribute("flowerName", flowerName);
-                request.setAttribute("image", image);
                 request.setAttribute("flowerNameError", flowerNameError);
                 request.setAttribute("imageError", imageError);
                 request.setAttribute("showErrorPopup", true);
@@ -65,10 +89,9 @@ public class UpdateRawFlower extends HttpServlet {
 
             // Xóa các lỗi và dữ liệu trong session nếu validate thành công
             session.removeAttribute("flowerNameError");
-            session.removeAttribute("imageUrlError");
+            session.removeAttribute("imageError");
             session.removeAttribute("flowerId");
             session.removeAttribute("flowerName");
-            session.removeAttribute("image");
 
             // Chuyển đổi dữ liệu
             int flowerId = Integer.parseInt(flowerIdStr);
@@ -81,13 +104,51 @@ public class UpdateRawFlower extends HttpServlet {
                 return;
             }
 
-            // Cập nhật loại hoa, giữ nguyên active
-            ftDAO.updateFlowerType(flowerId, flowerName, image, true);
+            // Xử lý file ảnh nếu có upload
+            String imageToUpdate = currentImage; // Giữ ảnh hiện tại nếu không upload ảnh mới
+            if (filePart != null && filePart.getSize() > 0) {
+                // Lưu file ảnh mới
+                uploadPath = request.getServletContext().getRealPath("/upload/FlowerIMG");
+                File uploadDir = new File(uploadPath);
+                if (!uploadDir.exists() && !uploadDir.mkdirs()) {
+                    throw new ServletException("Không thể tạo thư mục upload: " + uploadPath);
+                }
+
+                String originalName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+                imageFileName = System.currentTimeMillis() + "_" + originalName;
+                fullDiskPath = uploadPath + File.separator + imageFileName;
+                filePart.write(fullDiskPath);
+
+                // Copy từ build folder → folder dự án (root của webapp)
+                rootPath = fullDiskPath.replace("\\build", "");
+                Path source = Paths.get(fullDiskPath);
+                Path target = Paths.get(rootPath);
+                Files.createDirectories(target.getParent());
+                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+
+                imageToUpdate = imageFileName; // Cập nhật tên file mới
+
+                // Xóa file ảnh cũ nếu có
+                if (currentImage != null && !currentImage.isEmpty()) {
+                    Files.deleteIfExists(Paths.get(uploadPath + File.separator + currentImage));
+                    Files.deleteIfExists(Paths.get(rootPath.replace(imageFileName, currentImage)));
+                }
+            }
+
+            // Cập nhật loại hoa
+            ftDAO.updateFlowerType(flowerId, flowerName, imageToUpdate, currentFlowerType.isActive());
 
             // Thông báo thành công và chuyển hướng
             session.setAttribute("message", "Cập nhật loại hoa thành công!");
             response.sendRedirect("DashMin/rawflower2");
         } catch (Exception e) {
+            // Xóa file đã upload nếu có lỗi
+            if (imageFileName != null && uploadPath != null) {
+                Files.deleteIfExists(Paths.get(uploadPath + File.separator + imageFileName));
+                if (rootPath != null) {
+                    Files.deleteIfExists(Paths.get(rootPath));
+                }
+            }
             e.printStackTrace();
             request.setAttribute("error", "Đã xảy ra lỗi khi cập nhật loại hoa: " + e.getMessage());
             request.setAttribute("showErrorPopup", true);
