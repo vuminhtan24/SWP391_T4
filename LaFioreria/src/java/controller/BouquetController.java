@@ -6,6 +6,7 @@ package controller;
 
 import dal.BouquetDAO;
 import dal.CategoryDAO;
+import dal.RawFlowerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -19,7 +20,9 @@ import java.util.Comparator;
 import java.util.List;
 import model.Bouquet;
 import model.BouquetImage;
+import model.BouquetRaw;
 import model.Category;
+import model.RawFlower;
 
 /**
  *
@@ -66,7 +69,7 @@ public class BouquetController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String pageParam = request.getParameter("page");
         int currentPage = 1;
 
@@ -82,15 +85,31 @@ public class BouquetController extends HttpServlet {
         List<Bouquet> listBouquet = new ArrayList<>();
         List<Category> listCategoryBQ = new ArrayList<>();
         List<BouquetImage> listImage = new ArrayList<>();
+        List<RawFlower> listFlower = new ArrayList<>();
+        List<BouquetRaw> listBQraw = new ArrayList<>();
 
         BouquetDAO bdao = new BouquetDAO();
         CategoryDAO cdao = new CategoryDAO();
+        RawFlowerDAO fdao = new RawFlowerDAO();
 
+        listBQraw = bdao.getBouquetRaw();
+        listFlower = fdao.getAll();
         listCategoryBQ = cdao.getBouquetCategory();
         String name = request.getParameter("bouquetName");
         String sort = request.getParameter("sortField");
         String cateIDstr = request.getParameter("categoryS");
+        String flowerID = request.getParameter("flowerS");
         listImage = bdao.getAllBouquetImage();
+        
+        Integer rawID = null;
+        if (flowerID != null && !flowerID.trim().isEmpty()) {
+            try {
+                rawID = Integer.parseInt(flowerID);
+            } catch (NumberFormatException e) {
+                rawID = null;
+            }
+        }
+        
         Integer cateID = null;
         if (cateIDstr != null && !cateIDstr.trim().isEmpty()) {
             try {
@@ -99,26 +118,16 @@ public class BouquetController extends HttpServlet {
                 cateID = null;
             }
         }
-        
+
         boolean hasName = (name != null && !name.trim().isEmpty());
         boolean hasCate = (cateID != null && cateID > 0);
-        
+        boolean hasFlower = (rawID != null && rawID > 0);
+
         // Lấy list gốc (với hoặc không có filter tìm kiếm)
-        if (hasName || hasCate) {
-            listBouquet = bdao.searchBouquet(name, null, null, cateID);
+        if (hasName || hasCate || hasFlower) {
+            listBouquet = bdao.searchBouquet(name, null, null, cateID, rawID);
         } else {
             listBouquet = bdao.getAll();
-        }
-// Sau đó mới sort
-        if (sort != null) {
-            switch (sort) {
-                case "sPriceBQasc":
-                    Collections.sort(listBouquet, Comparator.comparingDouble(Bouquet::getPrice));
-                    break;
-                case "sPriceBQdesc":
-                    Collections.sort(listBouquet, Comparator.comparingDouble(Bouquet::getPrice).reversed());
-                    break;
-            }
         }
 
         int totalItems = listBouquet.size();
@@ -132,9 +141,10 @@ public class BouquetController extends HttpServlet {
         if (start < totalItems) {
             paginatedList = listBouquet.subList(start, end);
         }
-        
 
 // Gửi đến JSP
+        request.setAttribute("listBQraw", listBQraw);
+        request.setAttribute("listFlower", listFlower);
         request.setAttribute("listImage", listImage);
         request.setAttribute("bouquetName", name);
         request.setAttribute("sortField", sort);

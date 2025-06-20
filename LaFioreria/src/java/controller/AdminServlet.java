@@ -4,7 +4,9 @@
  */
 package controller;
 
+import com.google.gson.Gson;
 import dal.DAOContact;
+import dal.SalesDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,8 +14,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.Year;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import model.Contact;
+import model.SalesRecord;
+import model.StatResult;
 
 /**
  *
@@ -31,7 +38,6 @@ public class AdminServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -61,11 +67,93 @@ public class AdminServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        DAOContact dao = new DAOContact();
-        List<Contact> contactList = dao.getAllContacts();
+        DAOContact Dao = new DAOContact();
+        List<Contact> contactList = Dao.getAllContacts();
 
         request.setAttribute("messages", contactList);
+
+        SalesDAO dao = new SalesDAO();
+        Gson gson = new Gson();
+
+        // ✅ 3. Tổng doanh thu toàn thời gian
+        double totalRevenue = dao.getTotalRevenue();
+        request.setAttribute("totalRevenue", totalRevenue);
+// Lấy khoảng năm người dùng chọn
+        String fromParam = request.getParameter("fromYear");
+        String toParam = request.getParameter("toYear");
+
+        int currentYear = Year.now().getValue();
+        int fromYear = (fromParam != null && !fromParam.isEmpty()) ? Integer.parseInt(fromParam) : currentYear - 5;
+        int toYear = (toParam != null && !toParam.isEmpty()) ? Integer.parseInt(toParam) : currentYear;
+
+// --- Tháng: luôn dùng năm toYear làm mặc định (hoặc năm hiện tại)
+        List<StatResult> monthStats = dao.getMonthlyStats(toYear);
+        request.setAttribute("monthYear", toYear);
+        request.setAttribute("monthLabels", gson.toJson(getLabels(monthStats)));
+        request.setAttribute("monthRevenues", gson.toJson(getRevenues(monthStats)));
+        request.setAttribute("monthOrders", gson.toJson(getOrders(monthStats)));
+
+// --- Năm: lọc từ getYearlyStats() theo fromYear và toYear
+        List<StatResult> allYears = dao.getYearlyStats();
+        List<StatResult> filteredYears = new ArrayList<>();
+        for (StatResult stat : allYears) {
+            String label = stat.getLabel(); // "Năm 2023"
+            int year = Integer.parseInt(label.replace("Năm ", "").trim());
+            if (year >= fromYear && year <= toYear) {
+                filteredYears.add(stat);
+            }
+        }
+        request.setAttribute("yearLabels", gson.toJson(getLabels(filteredYears)));
+        request.setAttribute("yearRevenues", gson.toJson(getRevenues(filteredYears)));
+        request.setAttribute("yearOrders", gson.toJson(getOrders(filteredYears)));
+
+// --- Thứ trong tuần (không cần lọc)
+        List<StatResult> weekdayStats = dao.getWeekdayStats();
+        request.setAttribute("weekdayLabels", gson.toJson(getLabels(weekdayStats)));
+        request.setAttribute("weekdayRevenues", gson.toJson(getRevenues(weekdayStats)));
+        request.setAttribute("weekdayOrders", gson.toJson(getOrders(weekdayStats)));
+
+        List<SalesRecord> detailedSales = dao.getSalesReportThisMonth();
+        request.setAttribute("salesList", detailedSales);
+
+        Map<String, Double> revenueByDate = dao.getRevenueByDateThisMonth();
+        request.setAttribute("dailyLabels", gson.toJson(new ArrayList<>(revenueByDate.keySet())));
+        request.setAttribute("dailyValues", gson.toJson(new ArrayList<>(revenueByDate.values())));
+
+        int todayOrders = dao.getTodayOrderCount();
+        double thisMonthRevenue = dao.getThisMonthRevenue();
+
+        request.setAttribute("todayOrders", todayOrders);
+        request.setAttribute("thisMonthRevenue", thisMonthRevenue);
+
+        Map<String, Double> thisMonth = dao.getRevenueGroupedThisMonth();
+        request.setAttribute("thisMonthLabels", gson.toJson(new ArrayList<>(thisMonth.keySet())));
+        request.setAttribute("thisMonthValues", gson.toJson(new ArrayList<>(thisMonth.values())));
         request.getRequestDispatcher("/DashMin/admin.jsp").forward(request, response);
+    }
+
+    private List<String> getLabels(List<StatResult> list) {
+        List<String> labels = new ArrayList<>();
+        for (StatResult s : list) {
+            labels.add(s.getLabel());
+        }
+        return labels;
+    }
+
+    private List<Double> getRevenues(List<StatResult> list) {
+        List<Double> data = new ArrayList<>();
+        for (StatResult s : list) {
+            data.add(s.getRevenue());
+        }
+        return data;
+    }
+
+    private List<Integer> getOrders(List<StatResult> list) {
+        List<Integer> data = new ArrayList<>();
+        for (StatResult s : list) {
+            data.add(s.getOrderCount());
+        }
+        return data;
     }
 
     /**

@@ -4,15 +4,15 @@
  */
 package controller;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import dal.FlowerTypeDAO;
-import model.FlowerType;
+  import jakarta.servlet.ServletException;
+  import jakarta.servlet.annotation.WebServlet;
+  import jakarta.servlet.http.HttpServlet;
+  import jakarta.servlet.http.HttpServletRequest;
+  import jakarta.servlet.http.HttpServletResponse;
+  import jakarta.servlet.http.HttpSession;
+  import java.io.IOException;
+  import dal.FlowerTypeDAO;
+  import dal.BouquetDAO;
 
 /**
  *
@@ -20,32 +20,6 @@ import model.FlowerType;
  */
 @WebServlet(name = "HideRawFlowerServlet", urlPatterns = {"/hideRawFlower"})
 public class HideRawFlowerServlet extends HttpServlet {
-
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet HideRawFlowerServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet HideRawFlowerServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -57,42 +31,42 @@ public class HideRawFlowerServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            String flowerIdParam = request.getParameter("flower_id");
-            if (flowerIdParam == null || flowerIdParam.trim().isEmpty()) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Product ID is missing or empty.");
-                return;
-            }
+      protected void doGet(HttpServletRequest request, HttpServletResponse response)
+              throws ServletException, IOException {
+          HttpSession session = request.getSession();
+          try {
+              String flowerIdStr = request.getParameter("flower_id");
+              if (flowerIdStr == null || flowerIdStr.trim().isEmpty()) {
+                  session.setAttribute("error", "Flower ID is required.");
+                  response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
+                  return;
+              }
 
-            int flower_id = Integer.parseInt(flowerIdParam);
-            if (flower_id <= 0) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Product ID must be a positive integer.");
-                return;
-            }
+              int flowerId = Integer.parseInt(flowerIdStr);
 
-            FlowerTypeDAO ft = new FlowerTypeDAO();
-            FlowerType item = ft.getFlowerTypeById(flower_id);
-            if (item == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found or already deleted with ID: " + flower_id);
-                return;
-            }
+              // Kiểm tra xem loại hoa có trong giỏ hoa không
+              BouquetDAO bouquetDAO = new BouquetDAO(); // Giả định có DAO cho bouquet
+              if (bouquetDAO.isFlowerInBouquet(flowerId)) {
+                  session.setAttribute("error", "Cannot deactivate flower type. It is used in one or more bouquets. Please remove it from all bouquets first.");
+                  response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
+                  return;
+              }
 
-            // Thực hiện xóa mềm
-            ft.deleteFlowerType(flower_id);
-            
-            // Lưu thông báo thành công vào session
-            request.getSession().setAttribute("message", "Product hidden successfully!");
+              // Nếu không, thực hiện xóa mềm (active = 0)
+              FlowerTypeDAO ftDAO = new FlowerTypeDAO();
+              ftDAO.deleteFlowerType(flowerId); // Sử dụng phương thức xóa mềm
 
-            // Chuyển hướng về trang danh sách sản phẩm
-            response.sendRedirect("DashMin/rawflower2");
-        } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid product ID format: " + e.getMessage());
-        } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred: " + e.getMessage());
-        }
-    }
+              session.setAttribute("message", "Flower type deactivated successfully!");
+              response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
+          } catch (NumberFormatException e) {
+              session.setAttribute("error", "Invalid Flower ID.");
+              response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
+          } catch (Exception e) {
+              e.printStackTrace();
+              session.setAttribute("error", "An error occurred while deactivating the flower type: " + e.getMessage());
+              response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
+          }
+      }
 
     /**
      * Handles the HTTP <code>POST</code> method.

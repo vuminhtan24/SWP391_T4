@@ -177,10 +177,12 @@
                                         id="imageFiles" 
                                         name="imageFiles" 
                                         class="form-control" 
-                                        accept=".jpg,.jpeg, .png" 
+                                        accept=".jpg,.jpeg,.png" 
                                         multiple
+                                    <c:if test="${empty images}">
                                         required
-                                        />
+                                    </c:if>/>
+                                    
                                     <small class="form-text text-muted">
                                         Bạn có thể chọn nhiều ảnh (.jpg, .jpeg, .png) cùng lúc.
                                     </small>
@@ -208,290 +210,290 @@
                                                 </c:forEach>   
                                             </select>
 
-                                        <div class="mb-4">
-                                            <label class="form-label fw-semibold">Description:</label>
-                                            <textarea name="bqDescription" class="form-control" rows="4" required>${bouquetDetail.getDescription()}</textarea>
-                                        </div>
+                                            <div class="mb-4">
+                                                <label class="form-label fw-semibold">Description:</label>
+                                                <textarea name="bqDescription" class="form-control" rows="4" required>${bouquetDetail.getDescription()}</textarea>
+                                            </div>
 
-                                        <!-- Flower Table -->
-                                        <h5 class="mb-3 text-secondary">Flowers in Bouquet</h5>
+                                            <!-- Flower Table -->
+                                            <h5 class="mb-3 text-secondary">Flowers in Bouquet</h5>
 
-                                        <div class="table-responsive mb-3">
-                                            <table id="flowerTable" class="table table-bordered align-middle">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th>Flower</th>
-                                                        <th>Price per Stem</th>
-                                                        <th>Quantity</th>
-                                                        <th></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <!-- Chỉ duy nhất FOR-EACH, không có row mặc định -->
-                                                    <c:forEach var="br" items="${flowerInBQ}">
+                                            <div class="table-responsive mb-3">
+                                                <table id="flowerTable" class="table table-bordered align-middle">
+                                                    <thead class="table-light">
                                                         <tr>
-                                                            <td>
-                                                                <select name="flowerIds" class="form-select form-select-sm flower-select">
-                                                                    <c:forEach var="f" items="${allFlowers}">
-                                                                        <option
-                                                                            value="${f.getRawId()}"
-                                                                            data-price="${f.getUnitPrice()}"
-                                                                            <c:if test="${f.getRawId() eq br.getRaw_id()}">selected</c:if>
-                                                                            >${f.getRawName()}</option>
-                                                                    </c:forEach>
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                <span class="form-text price-text">0.00 VND</span>
-                                                                <input type="hidden" class="price-input" name="prices[]" value="0" />
-                                                            </td>
-                                                            <td>
-                                                                <input
-                                                                    type="number"
-                                                                    name="quantities"
-                                                                    value="${br.getQuantity()}"
-                                                                    min="1"
-                                                                    step="1"
-                                                                    required
-                                                                    class="form-control form-control-sm quantity-input"
-                                                                    />
-                                                            </td>
-                                                            <td>
-                                                                <button type="button" class="btn btn-sm btn-outline-danger remove-btn">
-                                                                    &times;
-                                                                </button>
+                                                            <th>Flower</th>
+                                                            <th>Price per Stem</th>
+                                                            <th>Quantity</th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <!-- Chỉ duy nhất FOR-EACH, không có row mặc định -->
+                                                        <c:forEach var="br" items="${flowerInBQ}">
+                                                            <tr>
+                                                                <td>
+                                                                    <select name="flowerIds" class="form-select form-select-sm flower-select">
+                                                                        <c:forEach var="f" items="${allFlowers}">
+                                                                            <option
+                                                                                value="${f.getRawId()}"
+                                                                                data-price="${f.getUnitPrice()}"
+                                                                                <c:if test="${f.getRawId() eq br.getRaw_id()}">selected</c:if>
+                                                                                >${f.getRawName()}</option>
+                                                                        </c:forEach>
+                                                                    </select>
+                                                                </td>
+                                                                <td>
+                                                                    <span class="form-text price-text">0.00 VND</span>
+                                                                    <input type="hidden" class="price-input" name="prices[]" value="0" />
+                                                                </td>
+                                                                <td>
+                                                                    <input
+                                                                        type="number"
+                                                                        name="quantities"
+                                                                        value="${br.getQuantity()}"
+                                                                        min="1"
+                                                                        step="1"
+                                                                        required
+                                                                        class="form-control form-control-sm quantity-input"
+                                                                        />
+                                                                </td>
+                                                                <td>
+                                                                    <button type="button" class="btn btn-sm btn-outline-danger remove-btn">
+                                                                        &times;
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        </c:forEach>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td colspan="4" class="text-start fw-bold text-primary">
+                                                                Total Value:
+                                                                <span id="totalValueDisplay">0.00 VND</span>
+                                                                <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
                                                             </td>
                                                         </tr>
-                                                    </c:forEach>
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr>
-                                                        <td colspan="4" class="text-start fw-bold text-primary">
-                                                            Total Value:
-                                                            <span id="totalValueDisplay">0.00 VND</span>
-                                                            <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
-                                                        </td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <button type="button" id="addFlowerBtn" class="btn btn-sm btn-outline-primary mb-4">
-                                                + Add New Flower
-                                            </button>
-                                            <button type="submit" class="btn btn-success px-4">Save Bouquet</button>
-                                        </div>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <button type="button" id="addFlowerBtn" class="btn btn-sm btn-outline-primary mb-4">
+                                                    + Add New Flower
+                                                </button>
+                                                <button type="submit" class="btn btn-success px-4">Save Bouquet</button>
+                                            </div>
 
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            </form>
+                            <!-- TEMPLATE để clone (ẩn) -->
+                            <table style="display:none;">
+                                <tbody>
+                                    <tr id="flowerRowTemplate">
+                                        <td>
+                                            <select name="flowerIds" class="form-select form-select-sm flower-select">
+                                                <c:forEach var="f" items="${allFlowers}">
+                                                    <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">
+                                                        ${f.getRawName()}
+                                                    </option>
+                                                </c:forEach>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <span class="form-text price-text">$0.00</span>
+                                            <input type="hidden" class="price-input" name="prices[]" value="0" />
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="number"
+                                                name="quantities"
+                                                value="1"
+                                                min="1"
+                                                step="1"
+                                                required
+                                                class="form-control form-control-sm quantity-input"
+                                                />
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-danger remove-btn">
+                                                &times;
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Blank End -->
+                        </div>
+
+                        <!-- Footer Start -->
+                        <div class="container-fluid pt-4 px-4">
+                            <div class="bg-light rounded-top p-4">
+                                <div class="row">
+                                    <div class="col-12 col-sm-6 text-center text-sm-start">
+                                        &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
+                                    </div>
+                                    <div class="col-12 col-sm-6 text-center text-sm-end">
+                                        <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+                                        Designed By <a href="https://htmlcodex.com">HTML Codex</a>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
-                </form>
-                <!-- TEMPLATE để clone (ẩn) -->
-                <table style="display:none;">
-                    <tbody>
-                        <tr id="flowerRowTemplate">
-                            <td>
-                                <select name="flowerIds" class="form-select form-select-sm flower-select">
-                                    <c:forEach var="f" items="${allFlowers}">
-                                        <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">
-                                            ${f.getRawName()}
-                                        </option>
-                                    </c:forEach>
-                                </select>
-                            </td>
-                            <td>
-                                <span class="form-text price-text">$0.00</span>
-                                <input type="hidden" class="price-input" name="prices[]" value="0" />
-                            </td>
-                            <td>
-                                <input
-                                    type="number"
-                                    name="quantities"
-                                    value="1"
-                                    min="1"
-                                    step="1"
-                                    required
-                                    class="form-control form-control-sm quantity-input"
-                                    />
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-sm btn-outline-danger remove-btn">
-                                    &times;
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <!-- Blank End -->
-            </div>
-
-            <!-- Footer Start -->
-            <div class="container-fluid pt-4 px-4">
-                <div class="bg-light rounded-top p-4">
-                    <div class="row">
-                        <div class="col-12 col-sm-6 text-center text-sm-start">
-                            &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
-                        </div>
-                        <div class="col-12 col-sm-6 text-center text-sm-end">
-                            <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-                            Designed By <a href="https://htmlcodex.com">HTML Codex</a>
-                        </div>
+                        <!-- Footer End -->
                     </div>
-                </div>
+                    <!-- Content End -->
+
+
+                    <!-- Back to Top -->
+                    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
             </div>
-            <!-- Footer End -->
-        </div>
-        <!-- Content End -->
 
+            <!-- JavaScript Libraries -->
+            <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
+            <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
+            <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
+            <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
+            <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
+            <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
+            <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
-        <!-- Back to Top -->
-        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
-    </div>
+            <!-- Template Javascript -->
+            <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
 
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
-    <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
-    <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
-    <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
-    <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
-    <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
-    <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
-
-    <!-- Template Javascript -->
-    <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            function formatCurrency(val) {
-                return parseFloat(val).toFixed(2) + ' VND';
-            }
-
-            function getSelectedFlowerIdsMap() {
-                const map = new Map();
-                document.querySelectorAll('.flower-select').forEach((sel, index) => {
-                    const value = sel.value;
-                    if (value) {
-                        if (!map.has(value))
-                            map.set(value, []);
-                        map.get(value).push(index); // record where it’s selected
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    function formatCurrency(val) {
+                        return parseFloat(val).toFixed(2) + ' VND';
                     }
-                });
-                return map;
-            }
 
-            function updateFlowerOptions() {
-                const selectedMap = getSelectedFlowerIdsMap();
+                    function getSelectedFlowerIdsMap() {
+                        const map = new Map();
+                        document.querySelectorAll('.flower-select').forEach((sel, index) => {
+                            const value = sel.value;
+                            if (value) {
+                                if (!map.has(value))
+                                    map.set(value, []);
+                                map.get(value).push(index); // record where it’s selected
+                            }
+                        });
+                        return map;
+                    }
 
-                document.querySelectorAll('.flower-select').forEach((select, selectIndex) => {
-                    const currentValue = select.value;
+                    function updateFlowerOptions() {
+                        const selectedMap = getSelectedFlowerIdsMap();
 
-                    Array.from(select.options).forEach(opt => {
-                        const val = opt.value;
-                        if (!val)
+                        document.querySelectorAll('.flower-select').forEach((select, selectIndex) => {
+                            const currentValue = select.value;
+
+                            Array.from(select.options).forEach(opt => {
+                                const val = opt.value;
+                                if (!val)
+                                    return;
+
+                                const isTakenElsewhere =
+                                        selectedMap.has(val) &&
+                                        !(selectedMap.get(val).includes(selectIndex));
+
+                                opt.disabled = isTakenElsewhere;
+                                opt.classList.toggle('already-selected', isTakenElsewhere);
+                            });
+                        });
+                    }
+
+                    function updateRowPrice(row) {
+                        const sel = row.querySelector('.flower-select');
+                        const priceInput = row.querySelector('.price-input');
+                        const priceText = row.querySelector('.price-text');
+
+                        if (!sel.value) {
+                            priceInput.value = 0;
+                            priceText.textContent = formatCurrency(0);
                             return;
+                        }
 
-                        const isTakenElsewhere =
-                                selectedMap.has(val) &&
-                                !(selectedMap.get(val).includes(selectIndex));
+                        const unitPrice = sel.selectedOptions[0].dataset.price;
+                        priceInput.value = unitPrice;
+                        priceText.textContent = formatCurrency(unitPrice);
+                    }
 
-                        opt.disabled = isTakenElsewhere;
-                        opt.classList.toggle('already-selected', isTakenElsewhere);
+                    function updateTotalValue() {
+                        let total = 0;
+                        document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
+                            const price = parseFloat(row.querySelector('.price-input').value) || 0;
+                            const qty = parseInt(row.querySelector('.quantity-input').value, 10) || 0;
+                            total += price * qty;
+                        });
+                        document.getElementById('totalValueDisplay').textContent = formatCurrency(total);
+                        document.getElementById('totalValueInput').value = total;
+                    }
+
+                    function bindRowEvents(row) {
+                        const sel = row.querySelector('.flower-select');
+                        const qtyInput = row.querySelector('.quantity-input');
+                        const removeBtn = row.querySelector('.remove-btn');
+
+                        sel.addEventListener('change', () => {
+                            updateRowPrice(row);
+                            updateFlowerOptions();
+                            updateTotalValue();
+                        });
+
+                        qtyInput.addEventListener('input', () => {
+                            updateTotalValue();
+                        });
+
+                        removeBtn.addEventListener('click', () => {
+                            row.remove();
+                            updateFlowerOptions();
+                            updateTotalValue();
+                        });
+                    }
+
+                    // Initialize existing rows
+                    document.querySelectorAll('#flowerTable tbody tr').forEach(r => {
+                        bindRowEvents(r);
+                        updateRowPrice(r);
+                    });
+                    updateFlowerOptions();
+                    updateTotalValue();
+
+                    // Add new row
+                    document.getElementById('addFlowerBtn').addEventListener('click', () => {
+                        const tpl = document.getElementById('flowerRowTemplate');
+                        const newRow = tpl.cloneNode(true);
+                        newRow.removeAttribute('id');
+                        newRow.style.display = '';
+
+                        const sel = newRow.querySelector('.flower-select');
+
+                        // Reset selected index
+                        sel.selectedIndex = -1;
+
+                        // Add placeholder
+                        const placeholder = document.createElement('option');
+                        placeholder.value = '';
+                        placeholder.text = '-- Select flower --';
+                        placeholder.disabled = true;
+                        placeholder.selected = true;
+                        sel.insertBefore(placeholder, sel.firstChild);
+
+                        bindRowEvents(newRow);
+                        updateRowPrice(newRow);
+                        document.querySelector('#flowerTable tbody').appendChild(newRow);
+
+                        updateFlowerOptions();
+                        updateTotalValue();
                     });
                 });
-            }
+            </script>
 
-            function updateRowPrice(row) {
-                const sel = row.querySelector('.flower-select');
-                const priceInput = row.querySelector('.price-input');
-                const priceText = row.querySelector('.price-text');
-
-                if (!sel.value) {
-                    priceInput.value = 0;
-                    priceText.textContent = formatCurrency(0);
-                    return;
-                }
-
-                const unitPrice = sel.selectedOptions[0].dataset.price;
-                priceInput.value = unitPrice;
-                priceText.textContent = formatCurrency(unitPrice);
-            }
-
-            function updateTotalValue() {
-                let total = 0;
-                document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
-                    const price = parseFloat(row.querySelector('.price-input').value) || 0;
-                    const qty = parseInt(row.querySelector('.quantity-input').value, 10) || 0;
-                    total += price * qty;
-                });
-                document.getElementById('totalValueDisplay').textContent = formatCurrency(total);
-                document.getElementById('totalValueInput').value = total;
-            }
-
-            function bindRowEvents(row) {
-                const sel = row.querySelector('.flower-select');
-                const qtyInput = row.querySelector('.quantity-input');
-                const removeBtn = row.querySelector('.remove-btn');
-
-                sel.addEventListener('change', () => {
-                    updateRowPrice(row);
-                    updateFlowerOptions();
-                    updateTotalValue();
-                });
-
-                qtyInput.addEventListener('input', () => {
-                    updateTotalValue();
-                });
-
-                removeBtn.addEventListener('click', () => {
-                    row.remove();
-                    updateFlowerOptions();
-                    updateTotalValue();
-                });
-            }
-
-            // Initialize existing rows
-            document.querySelectorAll('#flowerTable tbody tr').forEach(r => {
-                bindRowEvents(r);
-                updateRowPrice(r);
-            });
-            updateFlowerOptions();
-            updateTotalValue();
-
-            // Add new row
-            document.getElementById('addFlowerBtn').addEventListener('click', () => {
-                const tpl = document.getElementById('flowerRowTemplate');
-                const newRow = tpl.cloneNode(true);
-                newRow.removeAttribute('id');
-                newRow.style.display = '';
-
-                const sel = newRow.querySelector('.flower-select');
-
-                // Reset selected index
-                sel.selectedIndex = -1;
-
-                // Add placeholder
-                const placeholder = document.createElement('option');
-                placeholder.value = '';
-                placeholder.text = '-- Select flower --';
-                placeholder.disabled = true;
-                placeholder.selected = true;
-                sel.insertBefore(placeholder, sel.firstChild);
-
-                bindRowEvents(newRow);
-                updateRowPrice(newRow);
-                document.querySelector('#flowerTable tbody').appendChild(newRow);
-
-                updateFlowerOptions();
-                updateTotalValue();
-            });
-        });
-    </script>
-
-</body>
+    </body>
 </html>
