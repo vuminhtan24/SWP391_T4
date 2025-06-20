@@ -6,6 +6,7 @@ package controller;
 
 import dal.BouquetDAO;
 import dal.CategoryDAO;
+import dal.RawFlowerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -18,6 +19,7 @@ import java.util.List;
 import model.Bouquet;
 import model.BouquetImage;
 import model.Category;
+import model.RawFlower;
 
 /**
  *
@@ -66,10 +68,14 @@ public class ProductController extends HttpServlet {
             throws ServletException, IOException {
         List<Bouquet> listBouquet = new ArrayList<>();
         List<Category> listCategoryBQ = new ArrayList<>();
+        List<RawFlower> listFlower = new ArrayList<>();
 
         BouquetDAO bdao = new BouquetDAO();
         CategoryDAO cdao = new CategoryDAO();
-
+        RawFlowerDAO fdao = new RawFlowerDAO();
+        
+        listFlower = fdao.getAll();
+        request.setAttribute("listFlowerHome", listFlower);
         listCategoryBQ = cdao.getBouquetCategory();
         request.setAttribute("cateBouquetHome", listCategoryBQ);
         List<BouquetImage> images = bdao.getAllBouquetImage();
