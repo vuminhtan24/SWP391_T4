@@ -91,6 +91,14 @@
                 transition: background-color 0.2s ease;
             }
 
+            .btn-secondary {
+                background-color: #6c757d;
+            }
+
+            .btn-secondary:hover {
+                background-color: #5a6268;
+            }
+
             .btn-delete {
                 background-color: #e74c3c;
             }
@@ -108,13 +116,15 @@
             }
 
             .fixed-container {
-                width: 1400px;
+/*                width: 1400px;
                 height: 720px;
                 min-width: 1400px;
                 max-width: 1400px;
                 min-height: 720px;
                 max-height: 720px;
-                overflow: auto;
+                overflow: auto; */
+                display: flex;
+                flex-direction: column;
             }
 
             /* Popup lỗi */
@@ -164,7 +174,30 @@
                 height: 60px;
                 object-fit: cover;
                 display: block;
-                margin: 0 auto;
+                margin: 0 auto 0 2px; /* Dịch sang trái 10px */
+                vertical-align: middle;
+            }
+
+            th:nth-child(2), /* Cột Image trong thead */
+            td:nth-child(2) { /* Cột Image trong tbody */
+                text-align: left; /* Căn trái nội dung cột */
+                padding: 8px;
+                vertical-align: middle;
+            }
+            .fixed-container {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .table {
+                width: 100%;
+                table-layout: auto;
+            }
+
+            @media (max-width: 1400px) {
+                .fixed-container {
+                    padding: 0 10px; /* Thêm padding để tránh tràn trên màn hình nhỏ */
+                }
             }
         </style>
     </head>
@@ -264,7 +297,7 @@
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                                 <i class="fa fa-bell me-lg-2"></i>
-                                <span class="d-none d-lg-inline-flex">Notificatin</span>
+                                <span class="d-none d-lg-inline-flex">Notification</span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                                 <a href="#" class="dropdown-item">
@@ -301,37 +334,42 @@
                         <form action="${pageContext.request.contextPath}/DashMin/rawflower2" method="get" class="search-form">
                             <!-- Search form -->
                             <div style="display:flex; align-items:center;">
-                                <input type="text"
-                                       name="flowerName"
-                                       placeholder="Tìm kiếm loại hoa"
-                                       value="${fn:escapeXml(sessionScope.flowerName)}"
-                                       style="
-                                       width:200px;
-                                       padding:0.25rem 0.5rem;
-                                       border:1px solid #ccc;
-                                       border-radius:0.5rem;
-                                       margin-right:0.5rem;
-                                       " />
-                                <button type="submit"
-                                        style="
-                                        padding:0.25rem 0.75rem;
-                                        border:none;
-                                        border-radius:0.5rem;
-                                        background-color:#007bff;
-                                        color:#fff;
-                                        cursor:pointer;
-                                        ">
-                                    Search
-                                </button>
+                                <select name="activeFilter" style="padding:0.25rem 0.5rem; border:1px solid #ccc; border-radius:0.5rem; margin-right:0.5rem;">
+                                    <option value="" ${empty param.activeFilter ? 'selected' : ''}>All</option>
+                                    <option value="true" ${param.activeFilter == 'true' ? 'selected' : ''}>Yes</option>
+                                    <option value="false" ${param.activeFilter == 'false' ? 'selected' : ''}>No</option>
+                                </select>
+                                <input type="text" name="flowerName" placeholder="Tìm kiếm loại hoa" value="${fn:escapeXml(param.flowerName)}" style="width:200px; padding:0.25rem 0.5rem; border:1px solid #ccc; border-radius:0.5rem; margin-right:0.5rem;" />
+                                <button type="submit" style="padding:0.25rem 0.75rem; border:none; border-radius:0.5rem; background-color:#007bff; color:#fff; cursor:pointer;">Search</button>
+                                <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="btn btn-secondary" style="margin-left: 8px;">Clear</a>
                             </div>
                         </form>
+
+                        <!-- Thông báo khi không tìm thấy -->
+                        <c:if test="${empty sessionScope.listFT}">
+                            <div class="alert alert-info mt-3">No flower types found.</div>
+                        </c:if>
 
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th scope="col">ID</th>
+                                    <th scope="col">
+                                        <a href="?page=${currentPage}&sortField=flowerId&sortDir=${sortField eq 'flowerId' and sortDir eq 'asc' ? 'desc' : 'asc'}&flowerName=${fn:escapeXml(param.flowerName)}&activeFilter=${fn:escapeXml(param.activeFilter)}">
+                                            ID
+                                            <c:if test="${sortField eq 'flowerId'}">
+                                                <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
+                                            </c:if>
+                                        </a>
+                                    </th>
                                     <th scope="col">Image</th>
-                                    <th scope="col">Flower Name</th>
+                                    <th scope="col">
+                                        <a href="?page=${currentPage}&sortField=flowerName&sortDir=${sortField eq 'flowerName' and sortDir eq 'asc' ? 'desc' : 'asc'}&flowerName=${fn:escapeXml(param.flowerName)}&activeFilter=${fn:escapeXml(param.activeFilter)}">
+                                            Flower Name
+                                            <c:if test="${sortField eq 'flowerName'}">
+                                                <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
+                                            </c:if>
+                                        </a>
+                                    </th>
                                     <th scope="col">Active</th>
                                     <th colspan="2">Action</th>
                                 </tr>
@@ -374,38 +412,59 @@
                             <nav>
                                 <ul class="pagination">
                                     <!-- Previous -->
-                                    <c:url var="prevUrl" value="/DashMin/rawflower2">
-                                        <c:param name="page" value="${currentPage - 1}" />
-                                        <c:if test="${not empty sessionScope.flowerName}">
-                                            <c:param name="flowerName" value="${sessionScope.flowerName}" />
-                                        </c:if>
-                                    </c:url>
                                     <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a class="page-link" href="${prevUrl}">Previous</a>
+                                        <a class="page-link"
+                                           href="?page=${currentPage - 1}&sortField=${sortField}&sortDir=${sortDir}&flowerName=${fn:escapeXml(param.flowerName)}&activeFilter=${fn:escapeXml(param.activeFilter)}">
+                                            Previous
+                                        </a>
                                     </li>
 
-                                    <!-- Pages -->
-                                    <c:forEach var="i" begin="1" end="${totalPages}">
-                                        <c:url var="pageUrl" value="/DashMin/rawflower2">
-                                            <c:param name="page" value="${i}" />
-                                            <c:if test="${not empty sessionScope.flowerName}">
-                                                <c:param name="flowerName" value="${sessionScope.flowerName}" />
-                                            </c:if>
-                                        </c:url>
-                                        <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                            <a class="page-link" href="${pageUrl}">${i}</a>
-                                        </li>
+                                    <!-- First Page -->
+                                    <li class="page-item ${currentPage == 1 ? 'active' : ''}">
+                                        <a class="page-link"
+                                           href="?page=1&sortField=${sortField}&sortDir=${sortDir}&flowerName=${fn:escapeXml(param.flowerName)}&activeFilter=${fn:escapeXml(param.activeFilter)}">
+                                            1
+                                        </a>
+                                    </li>
+
+                                    <!-- Ellipsis -->
+                                    <c:if test="${currentPage > 3}">
+                                        <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+                                    </c:if>
+
+                                    <!-- Page range (currentPage -1, currentPage, currentPage +1) -->
+                                    <c:forEach var="i" begin="${currentPage - 1}" end="${currentPage + 1}">
+                                        <c:if test="${i > 1 && i < totalPages}">
+                                            <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                                <a class="page-link"
+                                                   href="?page=${i}&sortField=${sortField}&sortDir=${sortDir}&flowerName=${fn:escapeXml(param.flowerName)}&activeFilter=${fn:escapeXml(param.activeFilter)}">
+                                                    ${i}
+                                                </a>
+                                            </li>
+                                        </c:if>
                                     </c:forEach>
 
+                                    <!-- Ellipsis -->
+                                    <c:if test="${currentPage < totalPages - 2}">
+                                        <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+                                    </c:if>
+
+                                    <!-- Last Page -->
+                                    <c:if test="${totalPages > 1}">
+                                        <li class="page-item ${currentPage == totalPages ? 'active' : ''}">
+                                            <a class="page-link"
+                                               href="?page=${totalPages}&sortField=${sortField}&sortDir=${sortDir}&flowerName=${fn:escapeXml(param.flowerName)}&activeFilter=${fn:escapeXml(param.activeFilter)}">
+                                                ${totalPages}
+                                            </a>
+                                        </li>
+                                    </c:if>
+
                                     <!-- Next -->
-                                    <c:url var="nextUrl" value="/DashMin/rawflower2">
-                                        <c:param name="page" value="${currentPage + 1}" />
-                                        <c:if test="${not empty sessionScope.flowerName}">
-                                            <c:param name="flowerName" value="${sessionScope.flowerName}" />
-                                        </c:if>
-                                    </c:url>
                                     <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                        <a class="page-link" href="${nextUrl}">Next</a>
+                                        <a class="page-link"
+                                           href="?page=${currentPage + 1}&sortField=${sortField}&sortDir=${sortDir}&flowerName=${fn:escapeXml(param.flowerName)}&activeFilter=${fn:escapeXml(param.activeFilter)}">
+                                            Next
+                                        </a>
                                     </li>
                                 </ul>
                             </nav>
