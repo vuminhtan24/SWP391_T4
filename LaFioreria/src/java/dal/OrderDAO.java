@@ -746,7 +746,17 @@ public class OrderDAO extends BaseDao {
     public List<Bouquet> getAllBouquets() {
         List<Bouquet> bouquets = new ArrayList<>();
         // Modified SQL query to select 'price' instead of 'current_price'
-        String sql = "SELECT bouquet_id, bouquet_name, image_url, price, Description, cid FROM `bouquet`";
+        String sql = "SELECT\n"
+                + "    b.Bouquet_ID,\n"
+                + "    b.Bouquet_Name,\n"
+                + "    bi.image_url,\n"
+                + "    b.Price,\n"
+                + "    b.Description,\n"
+                + "    b.CID\n"
+                + "FROM\n"
+                + "    bouquet AS b\n"
+                + "JOIN\n"
+                + "    bouquet_images AS bi ON b.Bouquet_ID = bi.Bouquet_ID;";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -775,74 +785,63 @@ public class OrderDAO extends BaseDao {
     }
 
     public boolean markDelivered(int orderId, String deliveryProofPath) {
-    boolean updated = false;
-    String sql = "UPDATE `order` SET status_id = ?, delivery_proof = ? WHERE order_id = ?";
-    
-    try {
-        connection = dbc.getConnection();
-        ps = connection.prepareStatement(sql);
-        ps.setInt(1, 4); // Giả sử 4 là status "Đã giao hàng"
-        ps.setString(2, deliveryProofPath);
-        ps.setInt(3, orderId);
-        
-        int rowsAffected = ps.executeUpdate();
-        updated = (rowsAffected > 0);
-        
-    } catch (SQLException e) {
-        System.err.println("SQL Error while updating delivery status: " + e.getMessage());
-        e.printStackTrace();
-    } finally {
-        try {
-            this.closeResources();
-        } catch (Exception e) {
-            System.err.println("Error closing resources: " + e.getMessage());
-        }
-    }
-    
-    return updated;
-}
+        boolean updated = false;
+        String sql = "UPDATE `order` SET status_id = ?, delivery_proof = ? WHERE order_id = ?";
 
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, 4); // Giả sử 4 là status "Đã giao hàng"
+            ps.setString(2, deliveryProofPath);
+            ps.setInt(3, orderId);
+
+            int rowsAffected = ps.executeUpdate();
+            updated = (rowsAffected > 0);
+
+        } catch (SQLException e) {
+            System.err.println("SQL Error while updating delivery status: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.err.println("Error closing resources: " + e.getMessage());
+            }
+        }
+
+        return updated;
+    }
 
     public boolean rejectOrder(int orderId, String reason) {
-    boolean updated = false;
-    String sql = "UPDATE `order` SET status_id = ?, reject_reason = ? WHERE order_id = ?";
+        boolean updated = false;
+        String sql = "UPDATE `order` SET status_id = ?, reject_reason = ? WHERE order_id = ?";
 
-    try {
-        connection = dbc.getConnection();
-        ps = connection.prepareStatement(sql);
-        ps.setInt(1, 5); // Giả sử 5 là mã trạng thái 'Từ chối giao hàng'
-        ps.setString(2, reason);
-        ps.setInt(3, orderId);
-
-        int rowsAffected = ps.executeUpdate();
-        updated = (rowsAffected > 0);
-
-    } catch (SQLException e) {
-        System.err.println("SQL Error while rejecting order: " + e.getMessage());
-        e.printStackTrace();
-    } finally {
         try {
-            this.closeResources();
-        } catch (Exception e) {
-            System.err.println("Error closing resources: " + e.getMessage());
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, 5); // Giả sử 5 là mã trạng thái 'Từ chối giao hàng'
+            ps.setString(2, reason);
+            ps.setInt(3, orderId);
+
+            int rowsAffected = ps.executeUpdate();
+            updated = (rowsAffected > 0);
+
+        } catch (SQLException e) {
+            System.err.println("SQL Error while rejecting order: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.err.println("Error closing resources: " + e.getMessage());
+            }
         }
+
+        return updated;
     }
-
-    return updated;
-}
-
 
     public static void main(String[] args) {
         OrderDAO orderDAO = new OrderDAO();
-        int testOrderId = 5; // Thay bằng order_id bạn muốn test
-        String testImagePath = "uploads/test_delivery_proof.jpg";
-
-        boolean result = orderDAO.markDelivered(testOrderId, testImagePath);
-
-        if (result) {
-            System.out.println("✅ Cập nhật trạng thái giao hàng thành công.");
-        } else {
-            System.out.println("❌ Cập nhật thất bại.");
-        }
+        orderDAO.getAllBouquets();
     }
 }
