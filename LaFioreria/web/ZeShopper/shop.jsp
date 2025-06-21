@@ -247,7 +247,7 @@
     <body>
         <jsp:include page="/ZeShopper/header.jsp"/>
 
-        <form action="${pageContext.request.contextPath}/product" method="get">
+        <form action="${pageContext.request.contextPath}/product" method="get" onsubmit="return validateRange()">
             <div style="margin-bottom: 10px; display: flex; align-items: center; margin-left: 1130px">
                 <input
                     type="text"
@@ -287,153 +287,220 @@
                 </div>
             </section>
 
-            <section>
-                <div class="container">
-                    <div class="row">
+            <section style="width: 100%; box-sizing: border-box; padding: 20px 0;">
+                <div class="container" style="display: flex; flex-wrap: wrap;">
 
+                    <!-- LEFT SIDEBAR (25%) -->
+                    <div class="left-sidebar" style="
+                         flex: 0 0 25%;
+                         max-width: 25%;
+                         box-sizing: border-box;
+                         padding-right: 15px;
+                         ">
+                        <!-- Category -->
+                        <h2>Category</h2>
+                        <c:forEach var="category" items="${cateBouquetHome}">
+                            <label>
+                                <input type="radio"
+                                       name="categoryId"
+                                       value="${category.categoryId}"
+                                       ${param.categoryId == category.categoryId ? 'checked' : ''} />
+                                ${category.categoryName}
+                            </label><br/>
+                        </c:forEach>
 
+                        <!-- Flower -->
+                        <h2>Flower</h2>
+                        <c:forEach var="flower" items="${listFlower}">
+                            <label>
+                                <input type="radio"
+                                       name="flowerID"
+                                       value="${flower.rawId}"
+                                       ${param.flowerID == flower.rawId ? 'checked' : ''} />
+                                ${flower.rawName}
+                            </label><br/>
+                        </c:forEach>
 
-                        <div class="col-sm-3">
-                            <div class="left-sidebar">
-                                <h2>Category</h2>
-                                <div class="panel-group category-products" id="accordian" style="margin-bottom: 10px"><!--category-productsr-->   
+                        <!-- Price Range -->
+                        <h2 style="font-size: 20px; margin-bottom: 10px; color: #333; text-align: center;">Price Range</h2>
+                        <div style="
+                             text-align: center;
+                             padding: 20px;
+                             border: 1px solid #ccc;
+                             border-radius: 10px;
+                             margin-bottom: 20px;
+                             ">
+                            <!-- Min Price -->
+                            <label for="minPrice" style="display: block; margin-bottom: 5px; color: #555;">Min Price</label>
+                            <input
+                                type="range"
+                                id="minPrice"
+                                name="minPrice"
+                                min="0"
+                                max="2000000"
+                                step="1000"
+                                value="${minPrice != null ? minPrice : 0}"
+                                oninput="this.nextElementSibling.value = this.value"
+                                style="width: 80%; accent-color: orange; margin-bottom: 5px;"
+                                >
+                            <output style="display: block; margin-bottom: 15px; color: #555;">
+                                ${minPrice != null ? minPrice : 0}
+                            </output>
 
+                            <!-- Max Price -->
+                            <label for="maxPrice" style="display: block; margin-bottom: 5px; color: #555;">Max Price</label>
+                            <input
+                                type="range"
+                                id="maxPrice"
+                                name="maxPrice"
+                                min="0"
+                                max="2000000"
+                                step="1000"
+                                value="${maxPrice != null ? maxPrice : 2000000}"
+                                oninput="this.nextElementSibling.value = this.value"
+                                style="width: 80%; accent-color: orange; margin-bottom: 5px;"
+                                >
+                            <output style="display: block; margin-bottom: 20px; color: #555;">
+                                ${maxPrice != null ? maxPrice : 2000000}
+                            </output>
 
-                                    <c:forEach var="category" items="${cateBouquetHome}">
-                                        <div class="panel panel-default">
-                                            <div class="panel-heading">
-                                                <h4 class="panel-title" style="color: #7d7e82">
-                                                    <button
-                                                        type="submit"
-                                                        name="categoryId"
-                                                        value="${category.categoryId}"
-                                                        class="category-button">
-                                                        ${category.getCategoryName()}
-                                                    </button>
-                                                </h4>
-                                            </div>
-                                        </div>
-                                    </c:forEach>    
+                            <div id="error" style="color: red; margin-bottom: 10px;"></div>
 
-                                </div><!--/category-products-->
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 20px; margin-top: 20px;">
+                            <!-- Apply filters -->
+                            <button type="submit"
+                                    style="background-color:orange;
+                                    color:#fff;
+                                    padding:10px 20px;
+                                    border:none;
+                                    border-radius:5px;">
+                                Apply filters
+                            </button>
 
-                                <!-- Price range -->    
-                                <h2 style="text-align: center;">Price Range</h2>   
-                                <div style="text-align: center; padding: 20px; border: 1px solid #ccc; border-radius: 10px;">
-                                    <!-- Min -->
-                                    <label for="minPrice" style="display: block; margin-bottom: 5px;">Min Price</label>
-                                    <input
-                                        type="range"
-                                        id="minPrice"
-                                        name="minPrice"
-                                        min="0"
-                                        max="2000000"
-                                        step="1000"
-                                        value="${minPrice != null ? minPrice : 0}"
-                                        oninput="this.nextElementSibling.value = this.value"
-                                        style="width: 80%; accent-color: orange; margin-bottom: 5px;"
-                                        >
-                                    <output style="display: block; margin-bottom: 15px;">${minPrice != null ? minPrice : 0}</output>
+                            <!-- Reset Filter: về trang /product không kèm tham số -->
+                            <button type="button"
+                                    onclick="window.location.href = '${pageContext.request.contextPath}/product';"
+                                    style="background-color:orange;
+                                    color:#fff;
+                                    padding:10px 20px;
+                                    border:none;
+                                    border-radius:5px;">
+                                Reset Filter
+                            </button>
+                        </div>   
+                        </form>
+                    </div>
+                    <!-- END LEFT SIDEBAR -->
 
-                                    <!-- Max -->
-                                    <label for="maxPrice" style="display: block; margin-bottom: 5px;">Max Price</label>
-                                    <input
-                                        type="range"
-                                        id="maxPrice"
-                                        name="maxPrice"
-                                        min="0"
-                                        max="2000000"
-                                        step="1000"
-                                        value="${maxPrice != null ? maxPrice : 2000000}"
-                                        oninput="this.nextElementSibling.value = this.value"
-                                        style="width: 80%; accent-color: orange; margin-bottom: 5px;"
-                                        >
-                                    <output style="display: block; margin-bottom: 20px;"> ${maxPrice != null ? maxPrice : 2000000}</output>
-
-                                    <!-- Error Message -->
-                                    <div id="error" style="color: red; margin-bottom: 10px;"></div>
-
-                                    <!-- Submit -->
-                                    <input
-                                        type="submit"
-                                        value="Submit"
-                                        style="background-color: orange; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;"
-                                        >                                 
-                                    <!-- Price range end -->
-                                    </form>
-                                </div>
-
-                                <div class="shipping text-center"><!--shipping-->
-                                    <img src="${pageContext.request.contextPath}/ZeShopper/images/home/shipping.jpg" alt="" />
-                                </div><!--/shipping-->
-
+                    <!-- RIGHT CONTENT (75%) -->
+                    <div class="col-sm-9 padding-right" style="
+                         flex: 0 0 75%;
+                         max-width: 75%;
+                         box-sizing: border-box;
+                         padding-left: 15px;
+                         ">
+                        <!-- Popup giữ nguyên chức năng -->
+                        <div id="popup" class="popup-overlay" style="display:none;">
+                            <div class="popup-content">
+                                <span class="close-btn" onclick="closePopup()">&times;</span>
+                                <form id="addToCartForm">
+                                    <h3 id="popup-name"></h3>
+                                    <img id="popup-image" src="" alt="" class="popup-img">
+                                    <p id="popup-price" class="popup-price"></p>
+                                    <p id="popup-description" class="popup-description"></p>
+                                    <label class="popup-label">Quantity:</label>
+                                    <input id="popup-quantity" type="number" name="quantity" value="1" min="1" required class="popup-input">
+                                    <input type="hidden" name="bouquetId" id="popup-id">
+                                    <div class="popup-buttons">
+                                        <button type="submit" class="popup-btn">Add to Cart</button>
+                                        <button type="button" onclick="closePopup()" class="popup-btn cancel">Cancel</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
 
-                        <div class="col-sm-9 padding-right">
-                            <div class="features_items"><!--features_items-->
-                                <div id="popup" class="popup-overlay" style="display:none;">
-                                    <div class="popup-content">
-                                        <span class="close-btn" onclick="closePopup()">&times;</span>
-                                        <form id="addToCartForm">
-                                            <h3 id="popup-name"></h3>
-                                            <img id="popup-image" src="" alt="" class="popup-img">
-                                            <p id="popup-price" class="popup-price"></p>
-                                            <p id="popup-description" class="popup-description"></p>
-
-                                            <label class="popup-label">Quantity:</label>
-                                            <input id="popup-quantity" type="number" name="quantity" value="1" min="1" required class="popup-input">
-
-                                            <input type="hidden" name="bouquetId" id="popup-id">
-                                            <div class="popup-buttons">
-                                                <button type="submit" class="popup-btn">Add to Cart</button>
-                                                <button type="button" onclick="closePopup()" class="popup-btn cancel">Cancel</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                                <h2 class="title text-center">Features Items</h2>
-
-                                <c:forEach items="${requestScope.listBouquet}" var="lb">
-                                    <div class="col-sm-4">
-                                        <div class="product-image-wrapper">
-                                            <div class="single-products">
-                                                <div class="productinfo text-center">
-                                                    <c:forEach items="${images}" var="img">
-                                                        <c:if test="${lb.getBouquetId() == img.getbouquetId()}">
-                                                    <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" alt="" />
-                                                        </c:if>
-                                                    </c:forEach>
-                                                    <h2>
-                                                        <a href="${pageContext.request.contextPath}/productDetail?id=${lb.getBouquetId()}">
-                                                            ${lb.getBouquetName()}
-                                                        </a>
-                                                    </h2>
-                                                    <p>Price: ${lb.getPrice()}</p>
-                                                    <button 
-                                                        type="button"                                   
-                                                        class="btn btn-default add-to-cart" 
+                        <h2 class="title text-center" style="margin-bottom: 20px;">Features Items</h2>
+                        <c:if test="${not empty error}">
+                            <p style="color:red;">${error}</p>
+                        </c:if>
+                        <c:forEach items="${requestScope.listBouquet}" var="lb">
+                            <div class="col-sm-4" style="
+                                 box-sizing: border-box;
+                                 padding: 10px;
+                                 float: left;
+                                 width: 33.3333%;
+                                 ">
+                                <div class="product-image-wrapper" style="border: 1px solid #eee; padding: 10px; border-radius: 4px;">
+                                    <div class="single-products">
+                                        <div class="productinfo text-center">
+                                            <c:forEach items="${images}" var="img">
+                                                <c:if test="${lb.getBouquetId() == img.getbouquetId()}">
+                                                    <img
+                                                        src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}"
+                                                        alt=""
+                                                        style="
+                                                        width: 100%;
+                                                        height: auto;
+                                                        max-height: 200px;
+                                                        object-fit: cover;
+                                                        margin-bottom: 10px;
+                                                        "
+                                                        />
+                                                </c:if>
+                                            </c:forEach>
+                                            <h2 style="font-size: 16px; margin-bottom: 8px;">
+                                                <a
+                                                    href="${pageContext.request.contextPath}/productDetail?id=${lb.getBouquetId()}"
+                                                    style="color: #333; text-decoration: none;"
+                                                    >
+                                                    ${lb.getBouquetName()}
+                                                </a>
+                                            </h2>
+                                            <p style="margin-bottom: 10px;">Price: ${lb.getPrice()} VND</p>
+                                            <!-- Đây là nút Add to Cart gốc, không thay đổi -->
+                                            <button
+                                                type="button"
+                                                class="btn btn-default add-to-cart"
+                                                <c:forEach items="${images}" var="cimg">
+                                                    <c:if test="${lb.getBouquetId() == cimg.getbouquetId()}">
                                                         onclick="openPopup(
-                                                        '${lb.getBouquetId()}',
-                                                        '${lb.getBouquetName()}',
-                                                        '${lb.getImageUrl()}',
-                                                        '${lb.getPrice()}'
-                                                        )"
-                                                        >
-                                                        <i class="fa fa-shopping-cart"></i> Add to cart
-                                                    </button>
-                                                </div>
-                                            </div>
+                                                                        '${lb.getBouquetId()}',
+                                                                        '${lb.getBouquetName()}',
+                                                                        '${pageContext.request.contextPath}/upload/BouquetIMG/${cimg.getImage_url()}',
+                                                                                        '${lb.getPrice()}',
+                                                                                        )"
+                                                    </c:if>            
+                                                </c:forEach>                
+                                                style="
+                                                background-color: #5cb85c;
+                                                color: white;
+                                                border: none;
+                                                padding: 8px 12px;
+                                                border-radius: 4px;
+                                                cursor: pointer;
+                                                "
+                                                >
+                                                <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                                                Add to cart
+                                            </button>
                                         </div>
                                     </div>
-                                </c:forEach>
-
+                                </div>
                             </div>
-                        </div>
+                        </c:forEach>
+                        <div style="clear: both;"></div>
 
-                        <ul class="pagination">
+                        <!-- Phân trang -->
+                        <ul class="pagination"
+                            style="
+                            margin-top: 20px;
+                            display: flex;
+                            list-style: none;
+                            padding: 0;
+                            justify-content: flex-end;">
                             <c:if test="${currentPage > 1}">
-                                <li>
+                                <li style="margin-right: 5px;">
                                     <a href="<c:url value='product'>
                                            <c:param name='page' value='${currentPage - 1}'/>
                                            <c:if test='${not empty param.bouquetName}'>
@@ -448,12 +515,15 @@
                                            <c:if test='${not empty param.maxPrice}'>
                                                <c:param name='maxPrice' value='${param.maxPrice}'/>
                                            </c:if>
-                                       </c:url>">&laquo;</a>
+                                       </c:url>"
+                                       style="display: block; padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none;">
+                                        &laquo;
+                                    </a>
                                 </li>
                             </c:if>
 
                             <c:forEach var="i" begin="1" end="${totalPages}">
-                                <li class="${i == currentPage ? 'active' : ''}">
+                                <li style="margin-right: 5px;">
                                     <a href="<c:url value='product'>
                                            <c:param name='page' value='${i}'/>
                                            <c:if test='${not empty param.bouquetName}'>
@@ -468,7 +538,17 @@
                                            <c:if test='${not empty param.maxPrice}'>
                                                <c:param name='maxPrice' value='${param.maxPrice}'/>
                                            </c:if>
-                                       </c:url>">${i}</a>
+                                       </c:url>"
+                                       style="
+                                       display: block;
+                                       padding: 6px 12px;
+                                       border: 1px solid #ddd;
+                                       border-radius: 4px;
+                                       text-decoration: none;
+                                       ${(i == currentPage) ? 'background: #007bff; color: white;' : 'color: #007bff;'}
+                                       ">
+                                        ${i}
+                                    </a>
                                 </li>
                             </c:forEach>
 
@@ -488,14 +568,18 @@
                                            <c:if test='${not empty param.maxPrice}'>
                                                <c:param name='maxPrice' value='${param.maxPrice}'/>
                                            </c:if>
-                                       </c:url>">&raquo;</a>
+                                       </c:url>"
+                                       style="display: block; padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none;">
+                                        &raquo;
+                                    </a>
                                 </li>
                             </c:if>
                         </ul>
+                        <!-- End Phân trang -->
 
-                    </div><!--features_items-->
-                </div>
-                </div>
+                    </div>
+                    <!-- END RIGHT CONTENT -->
+
                 </div>
             </section>
             <jsp:include page="/ZeShopper/footer.jsp"/>
@@ -505,19 +589,19 @@
 
 
             <script>
-                                                                function validateRange() {
-                                                                    var min = parseInt(document.getElementById("minPrice").value);
-                                                                    var max = parseInt(document.getElementById("maxPrice").value);
-                                                                    var errorDiv = document.getElementById("error");
+                function validateRange() {
+                    var min = parseInt(document.getElementById("minPrice").value);
+                    var max = parseInt(document.getElementById("maxPrice").value);
+                    var errorDiv = document.getElementById("error");
 
-                                                                    if (min > max) {
-                                                                        errorDiv.innerText = "Giá trị tối thiểu không được lớn hơn giá trị tối đa.";
-                                                                        return false; // Ngăn submit
-                                                                    }
+                    if (min > max) {
+                        errorDiv.innerText = "Giá trị tối thiểu không được lớn hơn giá trị tối đa.";
+                        return false; // Ngăn submit
+                    }
 
-                                                                    errorDiv.innerText = ""; // Xóa lỗi nếu hợp lệ
-                                                                    return true; // Cho phép submit
-                                                                }
+                    errorDiv.innerText = ""; // Xóa lỗi nếu hợp lệ
+                    return true; // Cho phép submit
+                }
             </script>
 
             <script>
@@ -525,7 +609,7 @@
                     document.getElementById("popup-id").value = id;
                     document.getElementById("popup-name").textContent = name;
                     document.getElementById("popup-image").src = imageUrl;
-                    document.getElementById("popup-price").textContent = "Price: " + price;
+                    document.getElementById("popup-price").textContent = "Price: " + price + " VND";
                     document.getElementById("popup-description").textContent = description;
                     document.getElementById("popup").style.display = "flex";
                 }

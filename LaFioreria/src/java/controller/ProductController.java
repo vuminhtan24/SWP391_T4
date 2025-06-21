@@ -6,6 +6,7 @@ package controller;
 
 import dal.BouquetDAO;
 import dal.CategoryDAO;
+import dal.RawFlowerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -18,6 +19,7 @@ import java.util.List;
 import model.Bouquet;
 import model.BouquetImage;
 import model.Category;
+import model.RawFlower;
 
 /**
  *
@@ -66,10 +68,14 @@ public class ProductController extends HttpServlet {
             throws ServletException, IOException {
         List<Bouquet> listBouquet = new ArrayList<>();
         List<Category> listCategoryBQ = new ArrayList<>();
+        List<RawFlower> listFlower = new ArrayList<>();
 
         BouquetDAO bdao = new BouquetDAO();
         CategoryDAO cdao = new CategoryDAO();
-
+        RawFlowerDAO fdao = new RawFlowerDAO();
+        
+        listFlower = fdao.getAll();
+        request.setAttribute("listFlower", listFlower);
         listCategoryBQ = cdao.getBouquetCategory();
         request.setAttribute("cateBouquetHome", listCategoryBQ);
         List<BouquetImage> images = bdao.getAllBouquetImage();
@@ -78,6 +84,16 @@ public class ProductController extends HttpServlet {
         String cateIDstr = request.getParameter("categoryId");
         String maxValue = request.getParameter("maxPrice");
         String minValue = request.getParameter("minPrice");
+        String flowerIDstr = request.getParameter("flowerID");
+        
+        Integer flowerID = null;
+        if(flowerIDstr != null && !flowerIDstr.trim().isEmpty()){
+            try {
+                flowerID = Integer.parseInt(flowerIDstr);
+            } catch (Exception e) {
+                flowerID = null;
+            }
+        }
 
         int max = 2000000;
         int min = 0;
@@ -108,21 +124,28 @@ public class ProductController extends HttpServlet {
 
         boolean hasName = (name != null && !name.trim().isEmpty());
         boolean hasCate = (cateID != null && cateID > 0);
+        boolean hasFlower = (flowerID != null && flowerID > 0);
 
 // Nếu giá giữ mặc định thì truyền null cho filter giá, tránh lọc giá không cần thiết
         Integer minFilter = (min == 0) ? null : min;
         Integer maxFilter = (max == 2000000) ? null : max;
 
-        if (hasName || hasCate || minFilter != null || maxFilter != null) {
+        if (hasName || hasCate || minFilter != null || maxFilter != null || hasFlower) {
             String searchName = hasName ? name.trim() : null;
             Integer searchCate = hasCate ? cateID : null;
 
-            listBouquet = bdao.searchBouquet(searchName, minFilter, maxFilter, searchCate, null);
+            listBouquet = bdao.searchBouquet(searchName, minFilter, maxFilter, searchCate, flowerID);
         } else {
             listBouquet = bdao.getAll();
         }
 
         request.setAttribute("listBouquet", listBouquet);
+        
+        if(listBouquet.isEmpty() || listBouquet.size() == 0){
+            request.setAttribute("error", "There aren't any Bouquet. Please try again!!!");
+            request.getRequestDispatcher("./ZeShopper/shop.jsp").forward(request, response);
+            return;
+        }
 
         // PHÂN TRANG
         int pageSize = 6; // số sản phẩm mỗi trang

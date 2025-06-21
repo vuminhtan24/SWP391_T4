@@ -26,7 +26,7 @@ import model.StatResult;
  *
  * @author VU MINH TAN
  */
-@WebServlet(name = "ContactListServlet", urlPatterns = {"/DashMin/admin"})
+@WebServlet(name = "AdminServlet", urlPatterns = {"/DashMin/admin"})
 public class AdminServlet extends HttpServlet {
 
     /**
@@ -75,10 +75,33 @@ public class AdminServlet extends HttpServlet {
         SalesDAO dao = new SalesDAO();
         Gson gson = new Gson();
 
-        // ✅ 3. Tổng doanh thu toàn thời gian
-        double totalRevenue = dao.getTotalRevenue();
-        request.setAttribute("totalRevenue", totalRevenue);
-// Lấy khoảng năm người dùng chọn
+        // ✅ Xử lý năm được chọn cho biểu đồ thống kê theo tháng
+        String yearParam = request.getParameter("year");
+        int selectedYear = (yearParam != null && !yearParam.isEmpty())
+                ? Integer.parseInt(yearParam)
+                : Year.now().getValue();
+
+        // ✅ Lấy danh sách StatResult từ DAO
+        List<StatResult> stats = dao.getMonthlyStats(selectedYear);
+
+        // ✅ Tách label, revenue, orderCount thành 3 list riêng để vẽ biểu đồ
+        List<String> labels = new ArrayList<>();
+        List<Double> revenues = new ArrayList<>();
+        List<Integer> orders = new ArrayList<>();
+
+        for (StatResult stat : stats) {
+            labels.add(stat.getLabel());
+            revenues.add(stat.getRevenue());
+            orders.add(stat.getOrderCount());
+        }
+
+        // ✅ Convert sang JSON
+        request.setAttribute("labelsJson", gson.toJson(labels));
+        request.setAttribute("revenuesJson", gson.toJson(revenues));
+        request.setAttribute("ordersJson", gson.toJson(orders));
+        request.setAttribute("selectedYear", selectedYear);
+
+        // Lấy khoảng năm người dùng chọn
         String fromParam = request.getParameter("fromYear");
         String toParam = request.getParameter("toYear");
 
@@ -86,14 +109,14 @@ public class AdminServlet extends HttpServlet {
         int fromYear = (fromParam != null && !fromParam.isEmpty()) ? Integer.parseInt(fromParam) : currentYear - 5;
         int toYear = (toParam != null && !toParam.isEmpty()) ? Integer.parseInt(toParam) : currentYear;
 
-// --- Tháng: luôn dùng năm toYear làm mặc định (hoặc năm hiện tại)
+        // --- Tháng: luôn dùng năm toYear làm mặc định (hoặc năm hiện tại)
         List<StatResult> monthStats = dao.getMonthlyStats(toYear);
         request.setAttribute("monthYear", toYear);
         request.setAttribute("monthLabels", gson.toJson(getLabels(monthStats)));
         request.setAttribute("monthRevenues", gson.toJson(getRevenues(monthStats)));
         request.setAttribute("monthOrders", gson.toJson(getOrders(monthStats)));
 
-// --- Năm: lọc từ getYearlyStats() theo fromYear và toYear
+        // --- Năm: lọc từ getYearlyStats() theo fromYear và toYear
         List<StatResult> allYears = dao.getYearlyStats();
         List<StatResult> filteredYears = new ArrayList<>();
         for (StatResult stat : allYears) {
@@ -107,7 +130,7 @@ public class AdminServlet extends HttpServlet {
         request.setAttribute("yearRevenues", gson.toJson(getRevenues(filteredYears)));
         request.setAttribute("yearOrders", gson.toJson(getOrders(filteredYears)));
 
-// --- Thứ trong tuần (không cần lọc)
+        // --- Thứ trong tuần (không cần lọc)
         List<StatResult> weekdayStats = dao.getWeekdayStats();
         request.setAttribute("weekdayLabels", gson.toJson(getLabels(weekdayStats)));
         request.setAttribute("weekdayRevenues", gson.toJson(getRevenues(weekdayStats)));
@@ -129,7 +152,9 @@ public class AdminServlet extends HttpServlet {
         Map<String, Double> thisMonth = dao.getRevenueGroupedThisMonth();
         request.setAttribute("thisMonthLabels", gson.toJson(new ArrayList<>(thisMonth.keySet())));
         request.setAttribute("thisMonthValues", gson.toJson(new ArrayList<>(thisMonth.values())));
+
         request.getRequestDispatcher("/DashMin/admin.jsp").forward(request, response);
+
     }
 
     private List<String> getLabels(List<StatResult> list) {
