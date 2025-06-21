@@ -7,6 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ page import="java.time.Year" %>
 
 <!DOCTYPE html>
 <html>
@@ -224,6 +225,38 @@
                                 <canvas id="weekdayChart" style="width: 100%; height: 300px;"></canvas>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- 📊 Thống kê theo tháng trong năm -->
+                <div class="container-fluid pt-4 px-4">
+                    <div class="bg-light rounded p-4">
+                        <h2 class="mb-4">📊 Thống kê theo tháng trong năm</h2>
+
+                        <!-- 🔽 Chọn năm -->
+                        <form method="get" action="${pageContext.request.contextPath}/DashMin/admin" class="mb-4">
+                            <label for="year">Năm:</label>
+                            <select name="year" class="form-select d-inline-block w-auto">
+                                <%
+                                    int currentYear = Year.now().getValue();
+                                    int selectedYear = (int) request.getAttribute("selectedYear");
+                                    for (int y = currentYear - 5; y <= currentYear + 1; y++) {
+                                %>
+                                <option value="<%= y %>" <%= (y == selectedYear ? "selected" : "") %>>Năm <%= y %></option>
+                                <%
+                                    }
+                                %>
+                            </select>
+                            <button type="submit" class="btn btn-primary">Xem</button>
+                        </form>
+
+                        <!-- ✅ Biểu đồ kép: Doanh thu và Đơn hàng -->
+                        <canvas id="statsChart"
+                                data-labels='<%= request.getAttribute("labelsJson") %>'
+                                data-revenues='<%= request.getAttribute("revenuesJson") %>'
+                                data-orders='<%= request.getAttribute("ordersJson") %>'
+                                style="max-width:100%; height:300px;">
+                        </canvas>
                     </div>
                 </div>
 

@@ -211,6 +211,56 @@
             renderChart("weekdayChart");
         });
 
+        // 📊 Thống kê theo tháng trong năm
+        if (document.getElementById('statsChart')) {
+            const labels = JSON.parse(document.getElementById('statsChart').getAttribute('data-labels'));
+            const revenues = JSON.parse(document.getElementById('statsChart').getAttribute('data-revenues'));
+            const orders = JSON.parse(document.getElementById('statsChart').getAttribute('data-orders'));
+
+            new Chart(document.getElementById('statsChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Doanh thu (VND)',
+                            data: revenues,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgb(54, 162, 235)',
+                            borderWidth: 1,
+                            yAxisID: 'y',
+                        },
+                        {
+                            label: 'Số đơn hàng',
+                            data: orders,
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgb(255, 99, 132)',
+                            borderWidth: 1,
+                            yAxisID: 'y1',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {mode: 'index', intersect: false},
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            title: {display: true, text: 'Doanh thu (VND)'},
+                            beginAtZero: true
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            title: {display: true, text: 'Số đơn hàng'},
+                            grid: {drawOnChartArea: false},
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
         // Line Chart
         if ($("#line-chart").length) {
             var ctx3 = $("#line-chart").get(0).getContext("2d");
