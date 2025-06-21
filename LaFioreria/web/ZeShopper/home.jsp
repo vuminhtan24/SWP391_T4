@@ -434,7 +434,7 @@
                                             text-align: center;
                                             display: ${status.index < 5 ? 'block' : 'none'};
                                             ">
-                                            <a href="${pageContext.request.contextPath}/product" class="text-decoration-none">
+                                            <a href="${pageContext.request.contextPath}/product?flowerID=${flower.getRawId()}" class="text-decoration-none">
                                                 <img
                                                     src="${flower.getImageUrl()}"
                                                     alt="${flower.getRawName()}"
