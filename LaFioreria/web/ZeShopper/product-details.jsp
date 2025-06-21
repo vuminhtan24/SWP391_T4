@@ -83,7 +83,7 @@
                 text-align: center;
                 line-height: 1.2;
             }
-            
+
             .success-toast {
                 display: none;
                 position: fixed;
@@ -177,7 +177,9 @@
                         <div class="product-details"><!--product-details-->
                             <div class="col-sm-5">
                                 <div class="view-product">
-                                    <img src="#" alt="" />                                   
+                                    <c:forEach items="${images}" var="img">
+                                        <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" alt="" />
+                                    </c:forEach>                                   
                                 </div>
                                 <div id="similar-product" class="carousel slide" data-ride="carousel">
 
@@ -193,7 +195,7 @@
                             </div>
                             <div class="col-sm-7">
                                 <div class="product-information"><!--/product-information-->
-                                    <img src="images/product-details/new.jpg" class="newarrival" alt="" />
+
                                     <h2>${bouquetDetail.getBouquetName()}</h2>
                                     <img src=""/>
                                     <span>
@@ -201,7 +203,6 @@
 
 
                                         <form id="addToCartForm">
-                                            <label>Quantity:</label>
                                             <label class="popup-label">Quantity:</label>
                                             <input id="popup-quantity" type="number" name="quantity" value="1" min="1" required class="popup-input">
 
@@ -245,7 +246,9 @@
                                                 <div class="product-image-wrapper">
                                                     <div class="single-products">
                                                         <div class="productinfo text-center">
-                                                            <img src="#" alt="${bouquetDetail.bouquetName}" class="img-responsive" />
+                                                            <c:forEach items="${images}" var="img">
+                                                                <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" alt="" />
+                                                            </c:forEach>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -320,8 +323,12 @@
                                                     <div class="product-card">
                                                         <!-- Image container -->
                                                         <div class="product-card__image">
-                                                            <img src="#"
-                                                                 alt="${lb.getBouquetName()}" />
+                                                            <c:forEach items="${allImage}" var="img">
+                                                                <c:if test="${lb.getBouquetId() == img.getbouquetId()}">
+                                                                <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" 
+                                                                     alt="${lb.getBouquetName()}" />
+                                                                </c:if>
+                                                            </c:forEach>
                                                         </div>
 
                                                         <!-- Thông tin phía dưới ảnh -->
@@ -379,7 +386,7 @@
 
                 const bouquetId = document.getElementById("popup-id").value;
                 const quantity = document.getElementById("popup-quantity").value;
-                
+
                 console.log(document.getElementById("popup-id"))
 
                 const formData = new URLSearchParams();
@@ -400,8 +407,8 @@
                 })
                         .then(res => res.json())
                         .then(data => {
-                            
-                            
+
+
                             if (data.status === "added") {
                                 showSuccessPopup("Added to cart successfully!");
                             } else {
