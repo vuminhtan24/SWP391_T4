@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import model.Bouquet;
+import model.BouquetImage;
 import model.BouquetRaw;
 import model.Category;
 import model.RawFlower;
@@ -78,7 +79,9 @@ public class ProductDetailController extends HttpServlet {
         List<RawFlower> allFlowers = rfdao.getRawFlower();
         List<BouquetRaw> bqRaws = bqdao.getFlowerByBouquetID(id);
         List<Bouquet> sameCate = bqdao.searchBouquet(null, null, null, detailsBQ.getCid(), null);
+        List<BouquetImage> images = bqdao.getBouquetImage(id);
         String cateDes = cdao.getCategoryDesByBouquet(id);
+        List<BouquetImage> allImage = bqdao.getAllBouquetImage();
         
         for (int i = sameCate.size() - 1; i >= 0; i--) {
             Bouquet b = sameCate.get(i);
@@ -87,6 +90,8 @@ public class ProductDetailController extends HttpServlet {
             }
         }
         
+        request.setAttribute("allImage", allImage);
+        request.setAttribute("images", images);
         request.setAttribute("cateDes", cateDes);
         request.setAttribute("listBouquet", sameCate);
         request.setAttribute("bouquetDetail", detailsBQ);
