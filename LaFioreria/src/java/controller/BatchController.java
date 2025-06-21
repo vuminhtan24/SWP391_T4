@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Comparator;
 import model.FlowerBatch;
 
 /**
@@ -56,12 +57,48 @@ public class BatchController extends HttpServlet {
                 return;
             }
 
+            // Get sort parameters
+            String sortField = request.getParameter("sortField");
+            String sortDir = request.getParameter("sortDir");
+            if (sortField == null || !sortField.matches("batchId|unitPrice|importDate|expirationDate|quantity")) {
+                sortField = "batchId"; // Default sort field
+            }
+            if (!"desc".equalsIgnoreCase(sortDir)) {
+                sortDir = "asc";
+            }
+
             // Lấy danh sách lô hoa theo flower_id
             FlowerBatchDAO fbDAO = new FlowerBatchDAO();
             List<FlowerBatch> flowerBatches = fbDAO.getFlowerBatchesByFlowerId(flowerId);
 
+            // Sorting
+            Comparator<FlowerBatch> cmp;
+            switch (sortField) {
+                case "unitPrice":
+                    cmp = Comparator.comparing(FlowerBatch::getUnitPrice);
+                    break;
+                case "importDate":
+                    cmp = Comparator.comparing(FlowerBatch::getImportDate);
+                    break;
+                case "expirationDate":
+                    cmp = Comparator.comparing(FlowerBatch::getExpirationDate);
+                    break;
+                case "quantity":
+                    cmp = Comparator.comparing(FlowerBatch::getQuantity);
+                    break;
+                default: // batchId
+                    cmp = Comparator.comparingInt(FlowerBatch::getBatchId);
+                    break;
+            }
+            if ("desc".equalsIgnoreCase(sortDir)) {
+                cmp = cmp.reversed();
+            }
+            flowerBatches.sort(cmp);
+
             // Đặt thuộc tính cho JSP
             request.setAttribute("flowerBatches", flowerBatches);
+            request.setAttribute("sortField", sortField);
+            request.setAttribute("sortDir", sortDir);
 
             // Chuyển tiếp đến JSP fragment
             request.getRequestDispatcher("DashMin/flowerbatch.jsp").forward(request, response);
@@ -96,6 +133,6 @@ public class BatchController extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Servlet để lấy danh sách lô hoa theo loại hoa dựa trên ID.";
+        return "Servlet để lấy danh sách lô hoa theo loại hoa dựa trên ID với chức năng sắp xếp.";
     }
 }

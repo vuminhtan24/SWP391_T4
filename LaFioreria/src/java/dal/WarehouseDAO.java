@@ -32,8 +32,10 @@ public class WarehouseDAO extends BaseDao { // DBContext để lấy biến conn
             while (rs.next()) {
                 Warehouse w = new Warehouse();
                 w.setWarehouseId(rs.getInt("Warehouse_ID"));
-                w.setName(rs.getString("name").trim());
-                w.setAddress(rs.getString("address").trim());
+                String n = rs.getString("name");
+                w.setName(n == null ? null : n.trim());
+                String addr = rs.getString("address");
+                w.setAddress(addr == null ? null : addr.trim());
                 w.setManagerId(rs.getInt("Manager_Id"));
                 list.add(w);
             }
