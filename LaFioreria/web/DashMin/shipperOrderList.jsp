@@ -1,7 +1,7 @@
 <%--
     Document   : shipperOrderList
     Created on : Jun 17, 2025
-    Author     : Your Name / Gemini
+    Author     : Vu Minh Tan
 --%>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
