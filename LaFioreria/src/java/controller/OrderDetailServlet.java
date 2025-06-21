@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dal.BouquetDAO;
 import dal.OrderDAO;
 import model.Order;
 import model.User;
@@ -18,6 +19,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.BouquetImage;
 
 /**
  * This servlet handles displaying order details and order editing functionality.

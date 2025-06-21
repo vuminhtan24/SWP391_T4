@@ -340,9 +340,11 @@
                                         <tr>
                                             <td>${(currentPage - 1) * 6 + status.index + 1}</td>
                                             <td>
+                                                <c:set var="imageShown" value="false" />
                                                 <c:forEach var="img" items="${listImage}">
-                                                    <c:if test="${bouquet.getBouquetId() == img.getbouquetId()}">
+                                                    <c:if test="${!imageShown and bouquet.getBouquetId() == img.getbouquetId()}">
                                                         <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" alt="alt" style="width: 60px; height: 60px;"/>
+                                                        <c:set var="imageShown" value="true" />
                                                     </c:if>
                                                 </c:forEach>
                                             </td>

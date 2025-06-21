@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import model.BouquetImage;
 
 /**
  * Data Access Object (DAO) for Order related operations. Handles database
