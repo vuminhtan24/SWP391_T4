@@ -7,6 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ page import="java.time.Year" %>
 
 <!DOCTYPE html>
 <html>
@@ -29,9 +30,12 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
-        <!-- Libraries Stylesheet -->
-        <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-        <link href="lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+        <!-- ✅ CDN: Owl Carousel Stylesheet -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+
+        <!-- ✅ CDN: Tempus Dominus Stylesheet -->
+        <link href="https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
 
         <!-- Customized Bootstrap Stylesheet -->
         <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -39,6 +43,7 @@
         <!-- Template Stylesheet -->
         <link href="css/style.css" rel="stylesheet">
     </head>
+
 
     <body>
         <%@ page import="model.User" %>
@@ -163,29 +168,99 @@
                 <!-- Sale & Revenue End -->
 
 
-                <!-- Sales Chart Start -->
+                <!-- Sales & Revenue Chart Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="row g-4">
+                        <!-- Doanh thu tháng này -->
                         <div class="col-sm-12 col-xl-6">
-                            <div class="bg-light text-center rounded p-4">
-                                <div class="d-flex align-items-center justify-content-between mb-4">
-                                    <h6 class="mb-0">Worldwide Sales</h6>
-                                    <a href="">Show All</a>
+                            <div class="bg-light text-center rounded p-4 h-100">
+                                <div class="stat mb-4" style="background:#f0f0f0;padding:15px;border-radius:8px;">
+                                    <h3><%= String.format("%,.0f", request.getAttribute("thisMonthRevenue")) %> VNĐ</h3>
+                                    <p>💰 Doanh thu tháng này</p>
                                 </div>
-                                <canvas id="worldwide-sales"></canvas>
+                                <canvas id="thisMonthChart"
+                                        data-labels='<%= request.getAttribute("thisMonthLabels") %>'
+                                        data-values='<%= request.getAttribute("thisMonthValues") %>'
+                                        style="width: 100%; height: 300px;"></canvas>
                             </div>
                         </div>
+
+                        <!-- Salse & Revenue -->
                         <div class="col-sm-12 col-xl-6">
-                            <div class="bg-light text-center rounded p-4">
+                            <div class="bg-light text-center rounded p-4 h-100">
                                 <div class="d-flex align-items-center justify-content-between mb-4">
                                     <h6 class="mb-0">Salse & Revenue</h6>
-                                    <a href="">Show All</a>
+                                    <a href="#">Show All</a>
                                 </div>
-                                <canvas id="salse-revenue"></canvas>
+                                <canvas id="salse-revenue" style="width: 100%; height: 300px;"></canvas>
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- Sales & Revenue Chart End -->
+
+                <!-- 📊 Biểu đồ tổng hợp theo tháng, năm, thứ -->
+                <div class="container-fluid pt-4 px-4">
+                    <div class="row g-4">
+                        <!-- 📆 Doanh thu theo tháng -->
+                        <div class="col-sm-12 col-xl-6">
+                            <div class="bg-light text-center rounded p-4 h-100">
+                                <h4 class="mb-3">1. Doanh thu & số đơn theo tháng – Năm <%= request.getAttribute("monthYear") %></h4>
+                                <canvas id="monthChart" style="width: 100%; height: 300px;"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 📅 Doanh thu theo năm -->
+                        <div class="col-sm-12 col-xl-6">
+                            <div class="bg-light text-center rounded p-4 h-100">
+                                <h4 class="mb-3">2. Doanh thu & số đơn theo từng năm</h4>
+                                <canvas id="yearChart" style="width: 100%; height: 300px;"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 🗓️ Doanh thu theo thứ -->
+                        <div class="col-12">
+                            <div class="bg-light text-center rounded p-4 h-100">
+                                <h4 class="mb-3">3. Doanh thu & số đơn theo thứ trong tuần</h4>
+                                <canvas id="weekdayChart" style="width: 100%; height: 300px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 📊 Thống kê theo tháng trong năm -->
+                <div class="container-fluid pt-4 px-4">
+                    <div class="bg-light rounded p-4">
+                        <h2 class="mb-4">📊 Thống kê theo tháng trong năm</h2>
+
+                        <!-- 🔽 Chọn năm -->
+                        <form method="get" action="${pageContext.request.contextPath}/DashMin/admin" class="mb-4">
+                            <label for="year">Năm:</label>
+                            <select name="year" class="form-select d-inline-block w-auto">
+                                <%
+                                    int currentYear = Year.now().getValue();
+                                    int selectedYear = (int) request.getAttribute("selectedYear");
+                                    for (int y = currentYear - 5; y <= currentYear + 1; y++) {
+                                %>
+                                <option value="<%= y %>" <%= (y == selectedYear ? "selected" : "") %>>Năm <%= y %></option>
+                                <%
+                                    }
+                                %>
+                            </select>
+                            <button type="submit" class="btn btn-primary">Xem</button>
+                        </form>
+
+                        <!-- ✅ Biểu đồ kép: Doanh thu và Đơn hàng -->
+                        <canvas id="statsChart"
+                                data-labels='<%= request.getAttribute("labelsJson") %>'
+                                data-revenues='<%= request.getAttribute("revenuesJson") %>'
+                                data-orders='<%= request.getAttribute("ordersJson") %>'
+                                style="max-width:100%; height:300px;">
+                        </canvas>
+                    </div>
+                </div>
+
+
                 <!-- Sales Chart End -->
 
 
@@ -197,69 +272,41 @@
                             <a href="">Show All</a>
                         </div>
                         <div class="table-responsive">
-                            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                            <h3 class="mt-4">🧾 Bảng chi tiết đơn hàng trong tháng</h3>
+                            <table border="1" cellspacing="0" cellpadding="8" class="table table-bordered table-striped">
                                 <thead>
-                                    <tr class="text-dark">
-                                        <th scope="col"><input class="form-check-input" type="checkbox"></th>
-                                        <th scope="col">Date</th>
-                                        <th scope="col">Invoice</th>
-                                        <th scope="col">Customer</th>
-                                        <th scope="col">Amount</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col">Action</th>
+                                    <tr style="background-color: #f0f0f0;">
+                                        <th>Order ID</th>
+                                        <th>Ngày đặt</th>
+                                        <th>Khách hàng</th>
+                                        <th>Sản phẩm</th>
+                                        <th>Loại</th>
+                                        <th>Số lượng</th>
+                                        <th>Đơn giá</th>
+                                        <th>Tổng</th>
+                                        <th>Trạng thái</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td><input class="form-check-input" type="checkbox"></td>
-                                        <td>01 Jan 2045</td>
-                                        <td>INV-0123</td>
-                                        <td>Jhon Doe</td>
-                                        <td>$123</td>
-                                        <td>Paid</td>
-                                        <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><input class="form-check-input" type="checkbox"></td>
-                                        <td>01 Jan 2045</td>
-                                        <td>INV-0123</td>
-                                        <td>Jhon Doe</td>
-                                        <td>$123</td>
-                                        <td>Paid</td>
-                                        <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><input class="form-check-input" type="checkbox"></td>
-                                        <td>01 Jan 2045</td>
-                                        <td>INV-0123</td>
-                                        <td>Jhon Doe</td>
-                                        <td>$123</td>
-                                        <td>Paid</td>
-                                        <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><input class="form-check-input" type="checkbox"></td>
-                                        <td>01 Jan 2045</td>
-                                        <td>INV-0123</td>
-                                        <td>Jhon Doe</td>
-                                        <td>$123</td>
-                                        <td>Paid</td>
-                                        <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><input class="form-check-input" type="checkbox"></td>
-                                        <td>01 Jan 2045</td>
-                                        <td>INV-0123</td>
-                                        <td>Jhon Doe</td>
-                                        <td>$123</td>
-                                        <td>Paid</td>
-                                        <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                                    </tr>
+                                    <c:forEach var="r" items="${salesList}">
+                                        <tr>
+                                            <td>${r.orderID}</td>
+                                            <td>${r.orderDate}</td>
+                                            <td>${r.customerName}</td>
+                                            <td>${r.productName}</td>
+                                            <td>${r.categoryName}</td>
+                                            <td>${r.quantity}</td>
+                                            <td>${r.unitPrice}</td>
+                                            <td>${r.totalPrice}</td>
+                                            <td>${r.status}</td>
+                                        </tr>
+                                    </c:forEach>
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
+
                 <!-- Recent Sales End -->
 
 
@@ -381,20 +428,44 @@
             <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
         </div>
 
-        <!-- JavaScript Libraries -->
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="lib/chart/chart.min.js"></script>
-        <script src="lib/easing/easing.min.js"></script>
-        <script src="lib/waypoints/waypoints.min.js"></script>
-        <script src="lib/owlcarousel/owl.carousel.min.js"></script>
-        <script src="lib/tempusdominus/js/moment.min.js"></script>
-        <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
-        <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-        <!-- Template Javascript -->
+        <!-- Bootstrap -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Chart.js -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+        <!-- Waypoints -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
+
+        <!-- Easing -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+
+        <!-- Owl Carousel -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
+        <!-- Moment + Tempus Dominus -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/js/tempusdominus-bootstrap-4.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+        <!-- Gán dữ liệu vào canvas qua data-attributes để JS đọc -->
+        <script>
+            document.getElementById("monthChart").setAttribute("data-labels", '<%= request.getAttribute("monthLabels") %>');
+            document.getElementById("monthChart").setAttribute("data-revenues", '<%= request.getAttribute("monthRevenues") %>');
+            document.getElementById("monthChart").setAttribute("data-orders", '<%= request.getAttribute("monthOrders") %>');
+
+            document.getElementById("yearChart").setAttribute("data-labels", '<%= request.getAttribute("yearLabels") %>');
+            document.getElementById("yearChart").setAttribute("data-revenues", '<%= request.getAttribute("yearRevenues") %>');
+            document.getElementById("yearChart").setAttribute("data-orders", '<%= request.getAttribute("yearOrders") %>');
+
+            document.getElementById("weekdayChart").setAttribute("data-labels", '<%= request.getAttribute("weekdayLabels") %>');
+            document.getElementById("weekdayChart").setAttribute("data-revenues", '<%= request.getAttribute("weekdayRevenues") %>');
+            document.getElementById("weekdayChart").setAttribute("data-orders", '<%= request.getAttribute("weekdayOrders") %>');
+        </script>
+        <!-- Template Javascript -->
         <script src="js/main.js"></script>
     </body>
 </html>

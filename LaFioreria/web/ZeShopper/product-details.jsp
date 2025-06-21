@@ -154,6 +154,47 @@
                 margin-bottom: 30px;
             }
 
+            .arrow-btn {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                background-color: transparent;
+                border: none;
+                font-size: 36px;
+                color: #bbb;
+                cursor: pointer;
+                padding: 0;
+                margin: 0;
+                transition: color 0.2s ease;
+                z-index: 10;
+            }
+            .arrow-btn:hover {
+                color: #333;
+            }
+            .left-arrow {
+                left: 5px;
+            }
+            .right-arrow {
+                right: 5px;
+            }
+
+            .view-product {
+                position: relative;
+                max-width: 100%;
+                overflow: hidden;
+            }
+
+            /* Ảnh chính trong phần hiển thị */
+            .main-image-fixed {
+                width: 100%;                  /* chiếm toàn bộ khối chứa */
+                max-width: 100%;
+                height: 500px;                /* bạn có thể chỉnh chiều cao theo ý muốn */
+                object-fit: cover;            /* giữ đúng tỉ lệ và cắt ảnh cho đẹp */
+                border-radius: 12px;
+                display: block;
+                margin: 0 auto;
+            }
+
         </style>
     </head><!--/head-->
 
@@ -175,24 +216,53 @@
 
                     <div class="col-sm-9 padding-right">
                         <div class="product-details"><!--product-details-->
-                            <div class="col-sm-5">
-                                <div class="view-product">
-                                    <c:forEach items="${images}" var="img">
-                                        <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" alt="" />
-                                    </c:forEach>                                   
-                                </div>
-                                <div id="similar-product" class="carousel slide" data-ride="carousel">
+                           <div class="col-sm-5">
+    <div class="view-product position-relative text-center">
+        <!-- Nút Prev -->
+        <button id="prevImage" class="arrow-btn left-arrow position-absolute start-0 top-50 translate-middle-y" aria-label="Previous image" style="z-index: 2; background: none; border: none; font-size: 32px; color: #333;">&#10094;</button>
 
-                                    <!-- Controls -->
-                                    <a class="left item-control" href="#similar-product" data-slide="prev">
-                                        <i class="fa fa-angle-left"></i>
-                                    </a>
-                                    <a class="right item-control" href="#similar-product" data-slide="next">
-                                        <i class="fa fa-angle-right"></i>
-                                    </a>
-                                </div>
+        <!-- Ảnh chính -->
+        <img id="mainImage"
+             src="${pageContext.request.contextPath}/upload/BouquetIMG/${images[0].image_url}"
+             alt="Bouquet Image"
+             class="img-fluid bouquet-img mb-2 main-image-fixed"
+             style="width: 100%; max-width: 400px; height: 500px; object-fit: cover; border-radius: 12px;" />
 
-                            </div>
+        <!-- Nút Next -->
+        <button id="nextImage" class="arrow-btn right-arrow position-absolute end-0 top-50 translate-middle-y" aria-label="Next image" style="z-index: 2; background: none; border: none; font-size: 32px; color: #333;">&#10095;</button>
+    </div>
+
+    <!-- Link mở pop-up xem tất cả ảnh -->
+    <div class="text-center mb-3 mt-2">
+        <a href="#" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#allImagesModal">View All Images</a>                             
+    </div>
+</div>
+
+<!-- Modal hiển thị tất cả ảnh -->
+<div class="modal fade" id="allImagesModal" tabindex="-1" aria-labelledby="allImagesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">All Images</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex flex-wrap gap-3 justify-content-center">
+                    <c:forEach items="${images}" var="img">
+                        <div class="text-center">
+                            <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}"
+                                 alt="Image"
+                                 class="img-fluid"
+                                 style="width: 300px; height: 300px; object-fit: cover; border-radius: 8px;" />
+                        </div>
+                    </c:forEach>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
                             <div class="col-sm-7">
                                 <div class="product-information"><!--/product-information-->
 
@@ -325,8 +395,8 @@
                                                         <div class="product-card__image">
                                                             <c:forEach items="${allImage}" var="img">
                                                                 <c:if test="${lb.getBouquetId() == img.getbouquetId()}">
-                                                                <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" 
-                                                                     alt="${lb.getBouquetName()}" />
+                                                                    <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" 
+                                                                         alt="${lb.getBouquetName()}" />
                                                                 </c:if>
                                                             </c:forEach>
                                                         </div>
@@ -380,6 +450,7 @@
         <jsp:include page="/ZeShopper/footer.jsp"/>
 
         <div id="success-popup" class="success-toast">Added to cart successfully!</div>
+        
         <script>
             document.getElementById("addToCartForm").addEventListener("submit", function (e) {
                 e.preventDefault(); // Ngăn form reload
@@ -433,9 +504,42 @@
                 }, 3000);
             }
         </script>
+        
+       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const imageUrls = [
+            <c:forEach items="${images}" var="img" varStatus="status">
+                "${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}"<c:if test="${!status.last}">,</c:if>
+            </c:forEach>
+        ];
+
+        let currentIndex = 0;
+        const mainImage = document.getElementById("mainImage");
+        const prevBtn = document.getElementById("prevImage");
+        const nextBtn = document.getElementById("nextImage");
+
+        if (prevBtn && nextBtn && mainImage) {
+            prevBtn.addEventListener("click", () => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    mainImage.src = imageUrls[currentIndex];
+                }
+            });
+
+            nextBtn.addEventListener("click", () => {
+                if (currentIndex < imageUrls.length - 1) {
+                    currentIndex++;
+                    mainImage.src = imageUrls[currentIndex];
+                }
+            });
+        }
+    });
+</script>
 
 
 
+        
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     </body>

@@ -186,7 +186,24 @@ public class EditBouquetController extends HttpServlet {
                     dao.insertBouquetRaw(new BouquetRaw(id, fid, quantity));
                 }
             }
+            // Lấy các ảnh cũ được giữ lại từ hidden input
+            String[] existingUrls = request.getParameterValues("existingImageUrls");
+
+// Xóa toàn bộ ảnh cũ (trong DB)
             dao.deleteBouquetImage(id);
+
+// Lưu lại các ảnh cũ được giữ lại
+            if (existingUrls != null) {
+                for (String fullUrl : existingUrls) {
+                    String imageName = fullUrl.substring(fullUrl.lastIndexOf("/") + 1);
+                    BouquetImage img = new BouquetImage();
+                    img.setbouquetId(id);
+                    img.setImage_url(imageName);
+                    dao.insertBouquetImage(img);
+                }
+            }
+
+// Lưu ảnh mới (vừa upload)
             if (!savedImageUrls.isEmpty()) {
                 for (String url : savedImageUrls) {
                     BouquetImage img = new BouquetImage();
@@ -226,7 +243,7 @@ public class EditBouquetController extends HttpServlet {
             int totalValue = (int) Math.round(Double.parseDouble(totalValueStr));
             dao.updateBouquet(new Bouquet(id, bqName, bqDescription, cateID, totalValue));
 
-            response.sendRedirect(request.getContextPath() + "/bouquetDetails?id=" +id);
+            response.sendRedirect(request.getContextPath() + "/bouquetDetails?id=" + id);
 
         } catch (IllegalStateException ise) {
             log("Upload failed: file vượt quá kích thước cho phép", ise);

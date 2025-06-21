@@ -78,6 +78,47 @@
                 color: #6c757d;             /* chữ xám đậm hơn một chút */
             }
 
+            .preview-img-wrapper {
+                position: relative;
+                display: inline-block;
+                margin: 5px;
+                cursor: pointer;
+                border: 2px solid transparent;
+                border-radius: 4px;
+            }
+            .preview-img-wrapper.selected {
+                border-color: #0d6efd;
+            }
+            .preview-img {
+                max-width: 100px;
+                max-height: 100px;
+                object-fit: cover;
+                border-radius: 4px;
+            }
+            .btn-delete-single {
+                position: absolute;
+                top: -6px;
+                right: -6px;
+                background: rgba(0,0,0,0.6);
+                color: #fff;
+                border: none;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                line-height: 16px;
+                font-size: 14px;
+                text-align: center;
+                padding: 0;
+            }
+            /* Ngoại hình ảnh preview bên ngoài */
+            #externalPreview img {
+                max-width: 150px;
+                max-height: 150px;
+                object-fit: cover;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+                margin-right: 10px;
+            }
         </style>    
     </head>
 
@@ -153,40 +194,61 @@
                         <div class="container-fluid py-5 px-4">
                             <div class="d-flex flex-wrap align-items-start gap-5" style="gap: 100px;">
 
-
-                                <!-- Cột ảnh -->
+                                <!-- Cột trái: Ảnh -->
                                 <div class="flex-shrink-0">
+                                    <!-- Hiển thị ảnh đầu tiên (server-side) -->
+                                    <c:set var="imageShown" value="false" />
                                     <c:forEach var="imageFiles" items="${images}">
-                                        <div class="flex-shrink-0 text-center">
+                                        <c:if test="${!imageShown}">
                                             <img
-                                                src="${pageContext.request.contextPath}/upload/BouquetIMG/${imageFiles.getImage_url()}"
+                                                src="${pageContext.request.contextPath}/upload/BouquetIMG/${imageFiles.image_url}"
                                                 alt="Bouquet Image"
-                                                class="img-fluid bouquet-img mb-2"
-                                                style="width: 550px; height: 600px; object-fit: cover; border-radius: 12px;">
-
-                                            <!-- Input để hiển thị URL ảnh (readonly) -->
-                                            <input type="text" 
-                                                   class="form-control mb-2" 
-                                                   value="${pageContext.request.contextPath}/upload/BouquetIMG/${imageFiles.getImage_url()}" 
-                                                   readonly />
-                                        </div>
+                                                class="img-fluid bouquet-img-first"
+                                                style="width: 550px; height: 600px; object-fit: cover; border-radius: 12px;"
+                                                />
+                                            <c:set var="imageShown" value="true" />
+                                        </c:if>
                                     </c:forEach>
-                                    <label for="imageFiles" class="form-label">Upload Images</label>
-                                    <input 
-                                        type="file" 
-                                        id="imageFiles" 
-                                        name="imageFiles" 
-                                        class="form-control" 
-                                        accept=".jpg,.jpeg,.png" 
-                                        multiple
-                                    <c:if test="${empty images}">
-                                        required
-                                    </c:if>/>
-                                    
-                                    <small class="form-text text-muted">
-                                        Bạn có thể chọn nhiều ảnh (.jpg, .jpeg, .png) cùng lúc.
-                                    </small>
-                                    <h6 style="color: red">${error}</h6>
+                                    <a href="#" id="linkViewPreview" class="btn btn-link">View Images</a>
+
+                                    <!-- Hidden inputs to retain server image URLs -->
+                                    <div id="serverImageInputs">
+                                        <c:forEach var="imageFiles" items="${images}">
+                                            <input type="hidden" name="existingImageUrls" value="${pageContext.request.contextPath}/upload/BouquetIMG/${imageFiles.image_url}" />
+                                        </c:forEach>
+                                    </div>
+
+                                    <!-- Input upload -->
+                                    <div class="container py-4">
+                                        <div class="mb-3">
+                                            <label for="imageFiles" class="form-label">Upload Images (max 5)</label>
+                                            <input type="file" id="imageFiles" name="imageFiles" class="form-control" accept=".jpg,.jpeg,.png" multiple <c:if test="${empty images}">required</c:if> />
+                                                <small class="form-text text-muted">Bạn có thể chọn tối đa 5 ảnh (.jpg, .jpeg, .png).</small>
+                                            </div>
+                                        </div>
+
+                                        <!-- Modal Preview -->
+                                        <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Images Preview</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div id="previewContainer" class="d-flex flex-wrap"></div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button id="btnUploadMore" type="button" class="btn btn-primary me-auto">Upload More Images</button>
+                                                        <button id="btnDeleteSelected" type="button" class="btn btn-danger">Delete Selected</button>
+                                                        <button id="btnAccept" type="button" class="btn btn-success">Accept</button>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <h6 style="color: red">${error}</h6>
                                 </div>
 
                                 <!-- Cột phải: Nội dung -->
@@ -494,6 +556,150 @@
                     });
                 });
             </script>
+
+            <script>
+                const MAX_FILES = 5;
+                const fileInput = document.getElementById('imageFiles');
+                const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+                const previewContainer = document.getElementById('previewContainer');
+                const btnUploadMore = document.getElementById('btnUploadMore');
+                const btnDeleteSelected = document.getElementById('btnDeleteSelected');
+                const btnAccept = document.getElementById('btnAccept');
+                const linkView = document.getElementById('linkViewPreview');
+                const serverImageInputsDiv = document.getElementById('serverImageInputs');
+
+                let serverImageUrls = [
+                <c:forEach items="${images}" var="img" varStatus="status">
+                '${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}'<c:if test="${!status.last}">,</c:if>
+                </c:forEach>
+                    ];
+                    let acceptedFiles = [];
+                    let selectedIndices = new Set();
+
+                    function getCurrentItems() {
+                        const items = [];
+                        serverImageUrls.forEach(url => items.push({url}));
+                        acceptedFiles.forEach(file => items.push({file}));
+                        return items.slice(0, MAX_FILES);
+                    }
+
+                    function renderPreview() {
+                        const items = getCurrentItems();
+                        previewContainer.innerHTML = '';
+                        items.forEach((item, idx) => {
+                            const wrap = document.createElement('div');
+                            wrap.className = 'preview-img-wrapper';
+                            if (selectedIndices.has(idx))
+                                wrap.classList.add('selected');
+                            wrap.addEventListener('click', () => {
+                                if (selectedIndices.has(idx)) {
+                                    selectedIndices.delete(idx);
+                                    wrap.classList.remove('selected');
+                                } else {
+                                    selectedIndices.add(idx);
+                                    wrap.classList.add('selected');
+                                }
+                                btnDeleteSelected.disabled = selectedIndices.size === 0;
+                            });
+
+                            const img = document.createElement('img');
+                            img.className = 'preview-img';
+                            if (item.file) {
+                                img.src = URL.createObjectURL(item.file);
+                                img.onload = () => URL.revokeObjectURL(img.src);
+                            } else {
+                                img.src = item.url;
+                            }
+                            wrap.appendChild(img);
+
+                            const btnDel = document.createElement('button');
+                            btnDel.type = 'button';
+                            btnDel.className = 'btn-delete-single';
+                            btnDel.innerText = '×';
+                            btnDel.addEventListener('click', ev => {
+                                ev.stopPropagation();
+                                if (item.file) {
+                                    acceptedFiles = acceptedFiles.filter(f => f !== item.file);
+                                } else {
+                                    serverImageUrls = serverImageUrls.filter(u => u !== item.url);
+                                }
+                                updateServerInputs();
+                                updateInputFiles();
+                                selectedIndices.clear();
+                                renderPreview();
+                            });
+                            wrap.appendChild(btnDel);
+
+                            previewContainer.appendChild(wrap);
+                        });
+                        btnDeleteSelected.disabled = true;
+                    }
+
+                    linkView.addEventListener('click', e => {
+                        e.preventDefault();
+                        selectedIndices.clear();
+                        renderPreview();
+                        previewModal.show();
+                    });
+
+                    btnUploadMore.addEventListener('click', () => fileInput.click());
+
+                    fileInput.addEventListener('change', e => {
+                        const newFiles = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
+                        const total = serverImageUrls.length + acceptedFiles.length;
+                        const slots = MAX_FILES - total;
+                        if (slots <= 0) {
+                            alert(`Đã có đủ ${MAX_FILES} ảnh.`);
+                        } else {
+                            acceptedFiles = acceptedFiles.concat(newFiles.slice(0, slots));
+                            updateInputFiles();
+                            renderPreview();
+                            previewModal.show();
+                        }
+                        e.target.value = '';
+                    });
+
+                    btnDeleteSelected.addEventListener('click', () => {
+                        Array.from(selectedIndices).sort((a, b) => b - a).forEach(idx => {
+                            const items = getCurrentItems();
+                            const item = items[idx];
+                            if (item.file)
+                                acceptedFiles = acceptedFiles.filter(f => f !== item.file);
+                            else
+                                serverImageUrls = serverImageUrls.filter(u => u !== item.url);
+                        });
+                        selectedIndices.clear();
+                        updateInputFiles();
+                        updateServerInputs();
+                        renderPreview();
+                    });
+
+                    btnAccept.addEventListener('click', () => {
+                        updateInputFiles();
+                        updateServerInputs();
+                        previewModal.hide();
+                    });
+
+                    function updateInputFiles() {
+                        const dt = new DataTransfer();
+                        acceptedFiles.forEach(f => dt.items.add(f));
+                        fileInput.files = dt.files;
+                    }
+
+                    function updateServerInputs() {
+                        serverImageInputsDiv.innerHTML = '';
+                        serverImageUrls.forEach(url => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'existingImageUrls';
+                            input.value = url;
+                            serverImageInputsDiv.appendChild(input);
+                        });
+                    }
+            </script>
+
+
+
 
     </body>
 </html>

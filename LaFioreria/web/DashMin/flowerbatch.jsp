@@ -37,30 +37,92 @@
         font-size: 16px;
         font-weight: 500;
     }
+    /* Styling for filter form */
+    .filter-form {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+        gap: 10px;
+    }
+    .filter-form select, .filter-form button {
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    .filter-form button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    .filter-form button:hover {
+        background-color: #0056b3;
+    }
 </style>
 <div class="table-responsive mb-3">
+    <!-- Filter form -->
+    <form action="${pageContext.request.contextPath}/rawFlowerDetails" method="get" class="filter-form">
+        <input type="hidden" name="flower_id" value="${param.flower_id}" />
+        <select name="warehouseFilter">
+            <option value="">All Warehouses</option>
+            <c:forEach var="warehouse" items="${warehouses}">
+                <option value="${warehouse.name}" ${param.warehouseFilter == warehouse.name ? 'selected' : ''}>
+                    ${warehouse.name}
+                </option>
+            </c:forEach>
+        </select>
+        <button type="submit">Filter</button>
+    </form>
+
     <table class="table table-bordered align-middle">
         <thead class="table-light">
             <tr>
-                <th scope="col">Batch ID</th>
-                <th scope="col">Unit Price (VND)</th>
-                <th scope="col">Import Date</th>
-                <th scope="col">Expiration Date</th>
-                <th scope="col">Quantity</th>
+                <th scope="col">
+                    <a href="?flower_id=${param.flower_id}&sortField=batchId&sortDir=${sortField eq 'batchId' and sortDir eq 'asc' ? 'desc' : 'asc'}&warehouseFilter=${fn:escapeXml(param.warehouseFilter)}">
+                        Batch ID
+                        <c:if test="${sortField eq 'batchId'}">
+                            <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
+                        </c:if>
+                    </a>
+                </th>
+                <th scope="col">
+                    <a href="?flower_id=${param.flower_id}&sortField=unitPrice&sortDir=${sortField eq 'unitPrice' and sortDir eq 'asc' ? 'desc' : 'asc'}&warehouseFilter=${fn:escapeXml(param.warehouseFilter)}">
+                        Unit Price (VND)
+                        <c:if test="${sortField eq 'unitPrice'}">
+                            <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
+                        </c:if>
+                    </a>
+                </th>
+                <th scope="col">
+                    <a href="?flower_id=${param.flower_id}&sortField=importDate&sortDir=${sortField eq 'importDate' and sortDir eq 'asc' ? 'desc' : 'asc'}&warehouseFilter=${fn:escapeXml(param.warehouseFilter)}">
+                        Import Date
+                        <c:if test="${sortField eq 'importDate'}">
+                            <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
+                        </c:if>
+                    </a>
+                </th>
+                <th scope="col">
+                    <a href="?flower_id=${param.flower_id}&sortField=expirationDate&sortDir=${sortField eq 'expirationDate' and sortDir eq 'asc' ? 'desc' : 'asc'}&warehouseFilter=${fn:escapeXml(param.warehouseFilter)}">
+                        Expiration Date
+                        <c:if test="${sortField eq 'expirationDate'}">
+                            <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
+                        </c:if>
+                    </a>
+                </th>
+                <th scope="col">
+                    <a href="?flower_id=${param.flower_id}&sortField=quantity&sortDir=${sortField eq 'quantity' and sortDir eq 'asc' ? 'desc' : 'asc'}&warehouseFilter=${fn:escapeXml(param.warehouseFilter)}">
+                        Quantity
+                        <c:if test="${sortField eq 'quantity'}">
+                            <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
+                        </c:if>
+                    </a>
+                </th>
                 <th scope="col">Hold</th>
                 <th scope="col">Warehouse</th>
                 <th colspan="2">Action</th>
             </tr>
         </thead>
-        <!-- Hàng chứa nút Add Batch -->
-<!--        <tr class="add-batch-row">
-            <td colspan="8">
-                <button type="button" class="btn btn-primary" 
-                        onclick="location.href='${pageContext.request.contextPath}/add_batch?flower_id=${param.flower_id}'">
-                    + Add Batch
-                </button>  
-            </td>
-        </tr>-->
         <tbody>
             <c:choose>
                 <c:when test="${not empty error}">
@@ -87,7 +149,7 @@
                                 <button type="button"
                                         class="btn btn-delete"
                                         onclick="if (confirm('Do you want to delete?'))
-                                                                location.href = '${pageContext.request.contextPath}/hidebatch?batch_id=${batch.batchId}';">
+                                                    location.href = '${pageContext.request.contextPath}/hidebatch?batch_id=${batch.batchId}';">
                                     Delete
                                 </button>
                                 <button type="button"

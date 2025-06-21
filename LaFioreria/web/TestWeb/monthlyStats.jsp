@@ -30,7 +30,7 @@
         <h2>📊 Thống kê theo tháng trong năm</h2>
 
         <!-- 🔽 Chọn năm -->
-        <form method="get" action="monthly-stats">
+        <form method="get" action="monthlystatsservlet">
             Năm:
             <select name="year">
                 <%

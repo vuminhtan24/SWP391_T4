@@ -125,6 +125,33 @@
             .btn-edit:hover {
                 background-color: #2980b9;
             }
+
+            .arrow-btn {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                background-color: transparent; /* bỏ nền */
+                border: none;                  /* bỏ viền */
+                font-size: 36px;
+                color: #bbb;
+                cursor: pointer;
+                padding: 0;                    /* bỏ padding */
+                margin: 0;
+                transition: color 0.2s ease;
+                z-index: 10;
+            }
+
+            .arrow-btn:hover {
+                color: #333;
+            }
+
+            .left-arrow {
+                left: 10px; /* Dịch sát mép trái ảnh */
+            }
+
+            .right-arrow {
+                right: 5px; /* Dịch sát mép phải ảnh */
+            }
         </style>
 
     </head>
@@ -292,17 +319,59 @@
 
 
                             <!-- Cột ảnh -->
-                            <div class="d-flex flex-wrap gap-3">
-                                <c:forEach var="imageUrl" items="${images}">
-                                    <div class="flex-shrink-0 text-center">
-                                        <img
-                                            src="${pageContext.request.contextPath}/upload/BouquetIMG/${imageUrl.getImage_url()}"
-                                            alt="Bouquet Image"
-                                            class="img-fluid bouquet-img mb-2"
-                                            style="width: 550px; height: 600px; object-fit: cover; border-radius: 12px;">
+                            <!-- Hiển thị ảnh chính và nút chuyển ảnh -->
+                            <div class="position-relative d-inline-block mb-3">
+                                <!-- Nút Prev -->
+                                <button id="prevImage"
+                                        class="arrow-btn left-arrow"
+                                        aria-label="Previous image"
+                                        style="margin-left: 25px;">
+                                    &#10094;
+                                </button>
 
+                                <!-- Ảnh chính -->
+                                <img id="mainImage"
+                                     src="${pageContext.request.contextPath}/upload/BouquetIMG/${images[0].image_url}"
+                                     alt="Bouquet Image"
+                                     class="img-fluid bouquet-img mb-2"
+                                     style="width: 550px; height: 600px; object-fit: cover; border-radius: 12px;" />
+
+                                <!-- Nút Next -->
+                                <button id="nextImage"
+                                        class="arrow-btn right-arrow"
+                                        aria-label="Next image">
+                                    &#10095;
+                                </button>
+                            </div>
+
+                            <!-- Link mở popup tất cả ảnh -->
+                            <div class="text-center mb-3">
+                                <a href="#" id="viewAllImages" class="btn btn-link">View All Images</a>
+                            </div>
+
+                            <!-- Modal hiển thị tất cả ảnh -->
+                            <div class="modal fade" id="allImagesModal" tabindex="-1" aria-labelledby="allImagesModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">All Images</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="d-flex flex-wrap gap-3 justify-content-center">
+                                                <c:forEach var="imageUrl" items="${images}">
+                                                    <div class="flex-shrink-0 text-center">
+                                                        <img
+                                                            src="${pageContext.request.contextPath}/upload/BouquetIMG/${imageUrl.image_url}"
+                                                            alt="Bouquet Image"
+                                                            class="img-fluid bouquet-img mb-2"
+                                                            style="width: 300px; height: 300px; object-fit: cover; border-radius: 8px;" />
+                                                    </div>
+                                                </c:forEach>
+                                            </div>
+                                        </div>
                                     </div>
-                                </c:forEach>
+                                </div>
                             </div>
 
                             <!-- Cột phải: Nội dung -->
@@ -523,6 +592,41 @@
                                                         attachEventsToRow(newRow);
                                                         calculateTotal();
                                                     });
+        </script>
+
+        <script>
+            const imageUrls = [
+            <c:forEach var="img" items="${images}" varStatus="status">
+            "${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}"<c:if test="${!status.last}">,</c:if>
+            </c:forEach>
+                ];
+
+                let currentIndex = 0;
+                const mainImage = document.getElementById("mainImage");
+                const prevBtn = document.getElementById("prevImage");
+                const nextBtn = document.getElementById("nextImage");
+
+                prevBtn.addEventListener("click", () => {
+                    if (currentIndex > 0) {
+                        currentIndex--;
+                        mainImage.src = imageUrls[currentIndex];
+                    }
+                });
+
+                nextBtn.addEventListener("click", () => {
+                    if (currentIndex < imageUrls.length - 1) {
+                        currentIndex++;
+                        mainImage.src = imageUrls[currentIndex];
+                    }
+                });
+
+                const viewAllImagesLink = document.getElementById("viewAllImages");
+                const allImagesModal = new bootstrap.Modal(document.getElementById("allImagesModal"));
+
+                viewAllImagesLink.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    allImagesModal.show();
+                });
         </script>
     </body>
 </html>
