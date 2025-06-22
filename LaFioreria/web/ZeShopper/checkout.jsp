@@ -282,9 +282,10 @@
                                         </td>
                                     </tr>
                                     <c:set var="total" value="${total + item.bouquet.price * item.quantity}"/>
-                                    <c:set var="vat" value="${total * 10 / 100}"/>
+                                    <%--<c:set var="vat" value="${total * 10 / 100}"/>--%>
                                 </c:forEach>
                                 <tr>
+                                    <c:set var="ship" value="30000"/>
                                     <td colspan="4">&nbsp;</td>
                                     <td colspan="2">
                                         <table class="table table-condensed total-result">
@@ -292,17 +293,17 @@
                                                 <td>Cart Subtotal</td>
                                                 <td><p><fmt:formatNumber value="${total}" pattern="#,##0" /> ₫</p></td>
                                             </tr>
-                                            <tr>
+<!--                                            <tr>
                                                 <td>Tax (VAT)</td>
                                                 <td><p><fmt:formatNumber value="${vat}" pattern="#,##0" /> ₫</p></td>
-                                            </tr>
+                                            </tr>-->
                                             <tr class="shipping-cost">
                                                 <td>Shipping Fee</td>
-                                                <td>Free</td>										
+                                                <td><fmt:formatNumber value="${ship}" pattern="#,##0" /> ₫</td>										
                                             </tr>
                                             <tr>
                                                 <td>Total</td>
-                                                <td><span><p><fmt:formatNumber value="${vat + total}" pattern="#,##0" /> ₫</p></span></td>
+                                                <td><span><p><fmt:formatNumber value="${total + ship}" pattern="#,##0" /> ₫</p></span></td>
                                             </tr>
                                         </table>
                                     </td>
