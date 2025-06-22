@@ -78,13 +78,13 @@ public class ConfirmDeliveryServlet extends HttpServlet {
         throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-//        User user = (User) session.getAttribute("currentAcc");
-//
-//        if (user == null || user.getRole() != 8) {
-//            System.out.println("Redirecting to: " + request.getContextPath() + "/ZeShopper/LoginServlet");
-//            response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet?error=unauthorized");
-//            return;
-//        }
+        User user = (User) session.getAttribute("currentAcc");
+
+        if (user == null || user.getRole() != 8) {
+            System.out.println("Redirecting to: " + request.getContextPath() + "/ZeShopper/LoginServlet");
+            response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet?error=unauthorized");
+            return;
+        }
 
         String orderIdStr = request.getParameter("orderId");
         int orderId;
