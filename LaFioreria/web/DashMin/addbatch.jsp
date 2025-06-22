@@ -155,7 +155,7 @@
                         <c:if test="${not empty warehouseIdError}">
                             <div class="error">${warehouseIdError}</div>
                         </c:if>
-                    </div>
+                    </div>   
                     <div class="d-flex justify-content-center gap-3">
                         <button type="submit" class="btn btn-primary">Add Batch</button>
                         <a href="${pageContext.request.contextPath}/rawFlowerDetails?flower_id=${flowerId}" 

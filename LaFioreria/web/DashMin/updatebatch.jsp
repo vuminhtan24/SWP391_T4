@@ -8,155 +8,159 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <title>Update Flower Batch - DASHMIN</title>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
-    <style>
-        .content {
-            padding: 30px;
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        h1.h2 {
-            font-size: 32px;
-            color: #007bff;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-        }
-        .form-label {
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 5px;
-            font-size: 16px;
-        }
-        .form-control, .form-select {
-            border-radius: 5px;
-            border: 1px solid #ced4da;
-            padding: 8px 12px;
-            font-size: 16px;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-        }
-        .error {
-            color: #dc3545;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-        .general-error {
-            color: #dc3545;
-            font-size: 14px;
-            margin-top: 5px;
-            text-align: center;
-            background-color: #f8d7da;
-            padding: 8px;
-            border-radius: 5px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container-fluid position-relative bg-white d-flex p-0">
-        <div class="content">
-            <h1 class="h2">Update Flower Batch</h1>
+    <head>
+        <meta charset="utf-8">
+        <title>Update Flower Batch - DASHMIN</title>
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
+        <style>
+            .content {
+                padding: 30px;
+                background-color: #f8f9fa;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            h1.h2 {
+                font-size: 32px;
+                color: #007bff;
+                font-weight: 600;
+                text-align: center;
+                margin-bottom: 30px;
+                border-bottom: 2px solid #007bff;
+                padding-bottom: 10px;
+            }
+            .form-label {
+                font-weight: 500;
+                color: #333;
+                margin-bottom: 5px;
+                font-size: 16px;
+            }
+            .form-control, .form-select {
+                border-radius: 5px;
+                border: 1px solid #ced4da;
+                padding: 8px 12px;
+                font-size: 16px;
+            }
+            .form-control:focus, .form-select:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+            }
+            .error {
+                color: #dc3545;
+                font-size: 14px;
+                margin-top: 5px;
+            }
+            .general-error {
+                color: #dc3545;
+                font-size: 14px;
+                margin-top: 5px;
+                text-align: center;
+                background-color: #f8d7da;
+                padding: 8px;
+                border-radius: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container-fluid position-relative bg-white d-flex p-0">
+            <div class="content">
+                <h1 class="h2">Update Flower Batch</h1>
 
-            <!-- Display general error message -->
-            <c:if test="${not empty error}">
-                <div class="general-error">${error}</div>
-            </c:if>
+                <!-- Display general error message -->
+                <c:if test="${not empty error}">
+                    <div class="general-error">${error}</div>
+                </c:if>
 
-            <form action="${pageContext.request.contextPath}/update_batch" method="post">
-                <input type="hidden" name="batch_id" value="${item.batchId}">
-                <input type="hidden" name="flower_id" value="${item.flowerId}">
-                <div class="mb-3">
-                    <label for="unit_price" class="form-label">Unit Price (VND)</label>
-                    <input type="number" id="unit_price" name="unit_price" class="form-control" 
-                           value="${not empty unit_price ? unit_price : item.unitPrice}" required min="0" step="1">
-                    <c:if test="${not empty unitPriceError}">
-                        <div class="error">${unitPriceError}</div>
-                    </c:if>
-                </div>
-                <div class="mb-3">
-                    <label for="import_date" class="form-label">Import Date</label>
-                    <input type="date" id="import_date" name="import_date" class="form-control" 
-                           value="${not empty import_date ? import_date : item.importDate}" required>
-                    <c:if test="${not empty importDateError}">
-                        <div class="error">${importDateError}</div>
-                    </c:if>
-                </div>
-                <div class="mb-3">
-                    <label for="expiration_date" class="form-label">Expiration Date</label>
-                    <input type="date" id="expiration_date" name="expiration_date" class="form-control" 
-                           value="${not empty expiration_date ? expiration_date : item.expirationDate}" required>
-                    <c:if test="${not empty expirationDateError}">
-                        <div class="error">${expirationDateError}</div>
-                    </c:if>
-                </div>
-                <div class="mb-3">
-                    <label for="quantity" class="form-label">Quantity</label>
-                    <input type="number" id="quantity" name="quantity" class="form-control" 
-                           value="${not empty quantity ? quantity : item.quantity}" required min="0" step="1">
-                    <c:if test="${not empty quantityError}">
-                        <div class="error">${quantityError}</div>
-                    </c:if>
-                </div>
-                <div class="mb-3">
-                    <label for="hold" class="form-label">Hold</label>
-                    <input type="number" id="hold" name="hold" class="form-control" 
-                           value="${not empty hold ? hold : (item.hold != null ? item.hold : '0')}" required min="0" step="1">
-                    <c:if test="${not empty holdError}">
-                        <div class="error">${holdError}</div>
-                    </c:if>
-                </div>
-                <div class="mb-3">
-                    <label for="warehouse_id" class="form-label">Warehouse</label>
-                    <select id="warehouse_id" name="warehouse_id" class="form-select" required>
-                        <option value="">Select Warehouse</option>
-                        <c:if test="${not empty sessionScope.listW}">
-                            <c:forEach var="w" items="${sessionScope.listW}">
-                                <option value="${w.warehouseId}" 
-                                        ${warehouseId != null ? (warehouseId == w.warehouseId ? 'selected' : '') : (item.warehouse.warehouseId == w.warehouseId ? 'selected' : '')}>
-                                    ${w.name}
-                                </option>
-                            </c:forEach>
+                <form action="${pageContext.request.contextPath}/update_batch" method="post">
+                    <input type="hidden" name="batch_id" value="${item.batchId}">
+                    <input type="hidden" name="flower_id" value="${item.flowerId}">
+                    <div class="mb-3">
+                        <label for="unit_price" class="form-label">Unit Price (VND)</label>
+                        <input type="number" id="unit_price" name="unit_price" class="form-control" 
+                               value="${not empty unit_price ? unit_price : item.unitPrice}" required min="0" step="1">
+                        <c:if test="${not empty unitPriceError}">
+                            <div class="error">${unitPriceError}</div>
                         </c:if>
-                        <c:if test="${empty sessionScope.listW}">
-                            <option value="" disabled>No warehouses available</option>
+                    </div>
+                    <div class="mb-3">
+                        <label for="import_date" class="form-label">Import Date</label>
+                        <input type="date" id="import_date" name="import_date" class="form-control" 
+                               value="${not empty import_date ? import_date : item.importDate}" required>
+                        <c:if test="${not empty importDateError}">
+                            <div class="error">${importDateError}</div>
                         </c:if>
-                    </select>
-                    <c:if test="${not empty warehouseIdError}">
-                        <div class="error">${warehouseIdError}</div>
-                    </c:if>
-                </div>
-                <div class="d-flex justify-content-center gap-3">
-                    <button type="submit" class="btn btn-primary">Update Batch</button>
-                    <a href="${pageContext.request.contextPath}/rawFlowerDetails?flower_id=${item.flowerId}" 
-                       class="btn btn-secondary">Cancel</a>
-                </div>
-            </form>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expiration_date" class="form-label">Expiration Date</label>
+                        <input type="date" id="expiration_date" name="expiration_date" class="form-control" 
+                               value="${not empty expiration_date ? expiration_date : item.expirationDate}" required>
+                        <c:if test="${not empty expirationDateError}">
+                            <div class="error">${expirationDateError}</div>
+                        </c:if>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" id="quantity" name="quantity" class="form-control" 
+                               value="${not empty quantity ? quantity : item.quantity}" required min="0" step="1">
+                        <c:if test="${not empty quantityError}">
+                            <div class="error">${quantityError}</div>
+                        </c:if>
+                    </div>
+                    <div class="mb-3">
+                        <label for="hold" class="form-label">Hold</label>
+                        <input type="number" id="hold" name="hold" class="form-control" 
+                               value="${not empty hold ? hold : (item.hold != null ? item.hold : '0')}" required min="0" step="1">
+                        <c:if test="${not empty holdError}">
+                            <div class="error">${holdError}</div>
+                        </c:if>
+                    </div>
+                    <div class="mb-3">
+                        <label for="warehouse_id" class="form-label">Warehouse</label>
+                        <select id="warehouse_id" name="warehouse_id" class="form-select" required>
+                            <option value="">Select Warehouse</option>
+                            <c:if test="${not empty sessionScope.listW}">
+                                <c:forEach var="w" items="${sessionScope.listW}">
+                                    <option value="${w.warehouseId}" 
+                                            ${warehouseId != null ? (warehouseId == w.warehouseId ? 'selected' : '') : (item.warehouse.warehouseId == w.warehouseId ? 'selected' : '')}>
+                                        ${w.name}
+                                    </option>
+                                </c:forEach>
+                            </c:if>
+                            <c:if test="${empty sessionScope.listW}">
+                                <option value="" disabled>No warehouses available</option>
+                            </c:if>
+                        </select>
+                        <c:if test="${not empty warehouseIdError}">
+                            <div class="error">${warehouseIdError}</div>
+                        </c:if>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <input type="text" id="status" class="form-control" value="${item.status}" readonly
+                               style="color: ${item.status == 'Expired' ? 'red' : item.status == 'Near Expired' ? 'orange' : 'green'};">
+                    </div>    
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="submit" class="btn btn-primary">Update Batch</button>
+                        <a href="${pageContext.request.contextPath}/rawFlowerDetails?flower_id=${item.flowerId}" 
+                           class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
 
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+        <!-- JavaScript Libraries -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
 </html>
-
