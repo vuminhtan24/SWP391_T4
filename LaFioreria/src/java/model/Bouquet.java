@@ -1,9 +1,8 @@
-/*
+    /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package model;
-import java.sql.Date;
 
 /**
  *
@@ -15,6 +14,7 @@ public class Bouquet {
     String Description;
     int cid;
     int price;
+    String imageUrl;
 
     public Bouquet() {
     }
@@ -67,9 +67,16 @@ public class Bouquet {
         this.price = price;
     }
 
-    @Override
-    public String toString() {
-        return "Bouquet{" + "bouquetId=" + bouquetId + ", bouquetName=" + bouquetName + ", Description=" + Description + ", cid=" + cid + ", price=" + price + '}';
+    public String getImageUrl() {
+        return imageUrl;
     }
 
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    @Override
+    public String toString() {
+        return "Bouquet{" + "bouquetId=" + bouquetId + ", bouquetName=" + bouquetName + ", Description=" + Description + ", cid=" + cid + ", price=" + price + ", imageUrl=" + imageUrl + '}';
+    }
 }

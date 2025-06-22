@@ -20,7 +20,7 @@ import model.User;
  *
  * @author Legion
  */
-@WebServlet(name = "CheckOutController", urlPatterns = {"/ZeShopper/checkout"})
+@WebServlet(name = "CheckOutController", urlPatterns = {"/checkout"})
 public class CheckOutController extends HttpServlet {
 
     @Override

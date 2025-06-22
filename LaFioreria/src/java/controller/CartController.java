@@ -6,12 +6,12 @@ package controller;
 
 import dal.CartDAO;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import model.CartDetail;
@@ -27,21 +27,50 @@ public class CartController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
+        List<CartDetail> cartDetails = new ArrayList<>();
+
         if (currentUser == null) {
-            response.sendRedirect("./login");
-            return;
+            List<CartDetail> sessionCart = (List<CartDetail>) request.getSession().getAttribute("cart");
+            if (sessionCart != null) {
+                cartDetails = sessionCart;
+            }
+
+            // Set attributes for JSP
+            request.setAttribute("cartDetails", cartDetails);
+            request.setAttribute("user", null);
+            request.setAttribute("isGuest", true);
+
+        } else {
+            try {
+                int customerId = currentUser.getUserid();
+                CartDAO cartDAO = new CartDAO();
+                cartDetails = cartDAO.getCartDetailsByCustomerId(customerId);
+
+                request.setAttribute("cartDetails", cartDetails);
+                request.setAttribute("user", currentUser);
+                request.setAttribute("isGuest", false);
+
+            } catch (Exception e) {
+                request.setAttribute("error", "Failed to load cart items");
+                request.setAttribute("cartDetails", new ArrayList<>());
+                request.setAttribute("user", currentUser);
+                request.setAttribute("isGuest", false);
+            }
         }
-        int customerId = currentUser.getUserid();
-        CartDAO cartDAO = new CartDAO();
-        List<CartDetail> cartDetails = cartDAO.getCartDetailsByCustomerId(customerId);
 
-        // ??y d? li?u vào request attribute
-        request.setAttribute("cartDetails", cartDetails);
-        request.setAttribute("user", currentUser);
+        double totalAmount = 0.0;
+        int totalItems = 0;
 
-        // Forward sang trang JSP ?? hi?n th? gi? hàng
+        for (CartDetail item : cartDetails) {
+            totalItems += item.getQuantity();
+            // Assuming you have a method to get bouquet price
+            // totalAmount += item.getQuantity() * item.getBouquet().getPrice();
+        }
+
+        request.setAttribute("totalItems", totalItems);
+        request.setAttribute("totalAmount", totalAmount);
+
         request.getRequestDispatcher("./cart.jsp").forward(request, response);
     }
 
