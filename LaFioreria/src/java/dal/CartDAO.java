@@ -131,8 +131,7 @@ public class CartDAO extends BaseDao {
                 b.setBouquetName(rs.getString("bouquet_name"));
                 b.setDescription(rs.getString("description"));
                 b.setCid(rs.getInt("cid"));
-                b.setPrice(rs.getInt("price"));
-                b.setImageUrl(rs.getString("image_url"));
+                b.setSellPrice(rs.getInt("sellPrice"));
                 
                 cd.setBouquet(b);
                 

@@ -332,6 +332,7 @@
                                         <th scope="col" class="sortable" data-type="string">Bouquet Name</th>
                                         <th scope="col" class="sortable" data-type="string">Category</th>
                                         <th scope="col" class="sortable" data-type="number">Price</th>
+                                        <th scope="col" class="sortable" data-type="number">Sell Price</th>
                                         <th colspan="2">Action</th>
                                     </tr>
                                 </thead>
@@ -365,6 +366,7 @@
                                                 </td>
 
                                                 <td>${bouquet.getPrice()} VND</td>
+                                            <td>${bouquet.getSellPrice()} VND</td>
                                             <td>
                                                 <button type="button"
                                                         class="btn btn-delete"

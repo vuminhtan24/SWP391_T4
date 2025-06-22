@@ -175,23 +175,23 @@
                                             <!-- Image URL -->
                                             <div class="col-md-6">
                                                 <div class="row mb-3">
-                                                    
-                                                        <label for="imageFiles" class="form-label">Upload Images</label>
-                                                        <input 
-                                                            type="file" 
-                                                            id="imageFiles" 
-                                                            name="imageFiles" 
-                                                            class="form-control" 
-                                                            accept=".jpg,.jpeg,.png" 
-                                                            multiple
-                                                            />
-                                                        <small class="form-text text-muted">
-                                                            You can select up to 5 photos (.jpg, .jpeg, .png).
-                                                        </small>
-                                                        <a href="#" id="linkViewPreview" class="mt-2 d-block">
-                                                            View Image Preview
-                                                        </a>
-                                                    
+
+                                                    <label for="imageFiles" class="form-label">Upload Images</label>
+                                                    <input 
+                                                        type="file" 
+                                                        id="imageFiles" 
+                                                        name="imageFiles" 
+                                                        class="form-control" 
+                                                        accept=".jpg,.jpeg,.png" 
+                                                        multiple
+                                                        />
+                                                    <small class="form-text text-muted">
+                                                        You can select up to 5 photos (.jpg, .jpeg, .png).
+                                                    </small>
+                                                    <a href="#" id="linkViewPreview" class="mt-2 d-block">
+                                                        View Image Preview
+                                                    </a>
+
                                                 </div>
                                             </div>
 
@@ -287,14 +287,17 @@
                                                 <tr>
                                                     <td colspan="4">
                                                         <div class="mt-3 text-start fw-bold" style="color: #1e40af;">
-                                                            Total Value: <span id="totalValueDisplay">0.00 VND</span>
+                                                            Price: <span id="totalValueDisplay">0.00 VND</span>
                                                         </div>
                                                         <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
                                                     </td>
                                                 </tr>
                                             </tfoot>
                                         </table>
-
+                                        <div class="mt-3 text-start fw-bold" style="color: #1e40af;">
+                                            Sell Price: <span id="sellValueDisplay">0.00 VND</span>
+                                        </div>
+                                        <input type="hidden" id="sellValueInput"  name="sellValue"  value="0" />
                                         <div class="text-end mb-4">
                                             <button type="button" id="addFlowerBtn" class="btn btn-outline-primary btn-sm">
                                                 + Add Flower
@@ -404,8 +407,15 @@
                                                     const q = parseInt(r.querySelector('input[name="quantities"]').value) || 0;
                                                     total += p * q;
                                                 });
+
+                                                // Cập nhật Total Price
                                                 document.getElementById('totalValueDisplay').textContent = total.toFixed(2) + ' VND';
                                                 document.getElementById('totalValueInput').value = total.toFixed(2);
+
+                                                // Tính và cập nhật Sell Price (bên ngoài bảng)
+                                                const sellTotal = total * 5;
+                                                document.getElementById('sellValueDisplay').textContent = sellTotal.toFixed(2) + ' VND';
+                                                document.getElementById('sellValueInput').value = sellTotal.toFixed(2);
                                             }
 
                                             function refreshAllOptions() {

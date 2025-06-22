@@ -152,6 +152,20 @@
             .right-arrow {
                 right: 5px; /* Dịch sát mép phải ảnh */
             }
+
+            #viewAllImages {
+                color: #0d6efd; /* màu xanh Bootstrap mặc định */
+                text-decoration: none;
+                transition: background-color 0.2s ease, color 0.2s ease;
+                padding: 4px 12px;
+                border-radius: 6px;
+            }
+
+            #viewAllImages:hover {
+                background-color: #e0e0e0; /* nền xám nhạt khi hover */
+                color: #000000; /* chữ đen khi hover */
+                text-decoration: none;
+            }
         </style>
 
     </head>
@@ -342,12 +356,13 @@
                                         aria-label="Next image">
                                     &#10095;
                                 </button>
+
+                                <!-- Link mở popup tất cả ảnh: chuyển vào trong div này -->
+                                <div class="text-center mt-2">
+                                    <a href="#" id="viewAllImages" class="btn btn-link">View All Images</a>
+                                </div>
                             </div>
 
-                            <!-- Link mở popup tất cả ảnh -->
-                            <div class="text-center mb-3">
-                                <a href="#" id="viewAllImages" class="btn btn-link">View All Images</a>
-                            </div>
 
                             <!-- Modal hiển thị tất cả ảnh -->
                             <div class="modal fade" id="allImagesModal" tabindex="-1" aria-labelledby="allImagesModalLabel" aria-hidden="true">
@@ -444,13 +459,15 @@
                                             <tfoot>
                                                 <tr>
                                                     <td colspan="4" class="text-start fw-bold text-primary">
-                                                        Total Value:
-                                                        <span id="totalValueDisplay">$0.00</span>
+                                                        Price:
+                                                        <span id="totalValueDisplay">0.00 VND</span>
                                                         <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
                                                     </td>
                                                 </tr>
                                             </tfoot>
                                         </table>
+                                        Sell Price: <span id="sellValueDisplay">0.00 VND</span>
+                                        <input type="hidden" id="sellValueInput"  name="sellValue"  value="0" />
                                     </div>
                                     <div class="d-flex justify-content-between">
                                         <!-- Delete Button -->
@@ -527,7 +544,7 @@
                                                         const priceText = row.querySelector('.price-text');
                                                         const priceInput = row.querySelector('.price-input');
 
-                                                        priceText.textContent = '$' + price.toFixed(2);
+                                                        priceText.textContent = price.toFixed(2) + 'VND';
                                                         priceInput.value = price;
 
                                                         calculateTotal();
@@ -543,10 +560,14 @@
                                                             total += price * quantity;
                                                         });
 
-                                                        // 1) Cập nhật hiển thị
-                                                        document.getElementById('totalValueDisplay').textContent = '$' + total.toFixed(2);
-                                                        // 2) Gán vào hidden input để gửi lên server
+                                                        // Cập nhật Total Price
+                                                        document.getElementById('totalValueDisplay').textContent = total.toFixed(2) + ' VND';
                                                         document.getElementById('totalValueInput').value = total.toFixed(2);
+
+                                                        // Tính và cập nhật Sell Price ra ngoài bảng
+                                                        const sellTotal = total * 5;
+                                                        document.getElementById('sellValueDisplay').textContent = sellTotal.toFixed(2) + ' VND';
+                                                        document.getElementById('sellValueInput').value = sellTotal.toFixed(2);
                                                     }
 
                                                     function attachEventsToRow(row) {

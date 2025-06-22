@@ -216,82 +216,96 @@
 
                     <div class="col-sm-9 padding-right">
                         <div class="product-details"><!--product-details-->
-                           <div class="col-sm-5">
-    <div class="view-product position-relative text-center">
-        <!-- Nút Prev -->
-        <button id="prevImage" class="arrow-btn left-arrow position-absolute start-0 top-50 translate-middle-y" aria-label="Previous image" style="z-index: 2; background: none; border: none; font-size: 32px; color: #333;">&#10094;</button>
+                            <div class="col-sm-5">
+                                <div class="view-product position-relative text-center">
+                                    <!-- Nút Prev -->
+                                    <button id="prevImage"
+                                            class="arrow-btn left-arrow position-absolute start-0 top-50 translate-middle-y"
+                                            aria-label="Previous image"
+                                            style="z-index: 2; background: none; border: none; font-size: 32px; color: #333;">
+                                        &#10094;
+                                    </button>
 
-        <!-- Ảnh chính -->
-        <img id="mainImage"
-             src="${pageContext.request.contextPath}/upload/BouquetIMG/${images[0].image_url}"
-             alt="Bouquet Image"
-             class="img-fluid bouquet-img mb-2 main-image-fixed"
-             style="width: 100%; max-width: 400px; height: 500px; object-fit: cover; border-radius: 12px;" />
+                                    <!-- Ảnh chính (click để mở modal) -->
+                                    <img id="mainImage"
+                                         src="${pageContext.request.contextPath}/upload/BouquetIMG/${images[0].image_url}"
+                                         alt="Bouquet Image"
+                                         class="img-fluid bouquet-img mb-2 main-image-fixed"
+                                         style="width: 100%; max-width: 400px; height: 500px; object-fit: cover; border-radius: 12px; cursor: pointer;"
+                                         data-toggle="modal" data-target="#allImagesModal"
+                                         />
 
-        <!-- Nút Next -->
-        <button id="nextImage" class="arrow-btn right-arrow position-absolute end-0 top-50 translate-middle-y" aria-label="Next image" style="z-index: 2; background: none; border: none; font-size: 32px; color: #333;">&#10095;</button>
-    </div>
+                                    <!-- Nút Next -->
+                                    <button id="nextImage"
+                                            class="arrow-btn right-arrow position-absolute end-0 top-50 translate-middle-y"
+                                            aria-label="Next image"
+                                            style="z-index: 2; background: none; border: none; font-size: 32px; color: #333;">
+                                        &#10095;
+                                    </button>
+                                </div>
+                                <!-- Đã bỏ link “View All Images” -->
+                            </div>
 
-    <!-- Link mở pop-up xem tất cả ảnh -->
-    <div class="text-center mb-3 mt-2">
-        <a href="#" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#allImagesModal">View All Images</a>                             
-    </div>
-</div>
+                            <!-- Modal hiển thị tất cả ảnh -->
+                            <div class="modal fade" id="allImagesModal" tabindex="-1" role="dialog"
+                                 aria-labelledby="allImagesModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">All Images</h5>
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        </div>
+                                        <div class="modal-body" style="max-height: 80vh; overflow-y: auto; text-align: center; position: relative;">
+                                            <!-- Prev in modal -->
+                                            <button id="modalPrev"
+                                                    class="arrow-btn left-arrow position-absolute start-0 top-50 translate-middle-y"
+                                                    aria-label="Previous modal image"
+                                                    style="z-index: 2; background: none; border: none; font-size: 48px; color: #333;">
+                                                &#10094;
+                                            </button>
 
-<!-- Modal hiển thị tất cả ảnh -->
-<div class="modal fade" id="allImagesModal" tabindex="-1" aria-labelledby="allImagesModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">All Images</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="d-flex flex-wrap gap-3 justify-content-center">
-                    <c:forEach items="${images}" var="img">
-                        <div class="text-center">
-                            <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}"
-                                 alt="Image"
-                                 class="img-fluid"
-                                 style="width: 300px; height: 300px; object-fit: cover; border-radius: 8px;" />
-                        </div>
-                    </c:forEach>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                                            <!-- Ảnh trong modal -->
+                                            <img id="modalImage"
+                                                 src=""
+                                                 alt="Modal Bouquet Image"
+                                                 class="img-fluid bouquet-img mb-2 main-image-fixed"
+                                                 style="max-width: 100%; object-fit: cover;"
+                                                 />
+
+                                            <!-- Next in modal -->
+                                            <button id="modalNext"
+                                                    class="arrow-btn right-arrow position-absolute end-0 top-50 translate-middle-y"
+                                                    aria-label="Next modal image"
+                                                    style="z-index: 2; background: none; border: none; font-size: 48px; color: #333;">
+                                                &#10095;
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
 
                             <div class="col-sm-7">
                                 <div class="product-information"><!--/product-information-->
-
                                     <h2>${bouquetDetail.getBouquetName()}</h2>
-                                    <img src=""/>
                                     <span>
                                         <span>${bouquetDetail.getPrice()} VND</span>
-
-
                                         <form id="addToCartForm">
                                             <label class="popup-label">Quantity:</label>
                                             <input id="popup-quantity" type="number" name="quantity" value="1" min="1" required class="popup-input">
-
                                             <input type="hidden" name="bouquetId" id="popup-id" value="${bouquetDetail.getBouquetId()}">
                                             <div class="popup-buttons">
                                                 <button type="submit" class="btn btn-fefault cart">
-                                                    <i class="fa fa-shopping-cart"></i>
-                                                    Add to cart
+                                                    <i class="fa fa-shopping-cart"></i> Add to cart
                                                 </button>
                                             </div>
                                         </form>
-
-
-
                                     </span>
                                     <p><b>Availability:</b> In Stock</p>
                                     <p><b>Condition:</b> New</p>
-                                    <p><b>Brand:</b>La Fioreria</p>
-                                    <a href=""><img src="${pageContext.request.contextPath}/ZeShopper/images/product-details/share.png" class="share img-responsive"  alt="" /></a>
+                                    <p><b>Brand:</b> La Fioreria</p>
+                                    <a href=""><img src="${pageContext.request.contextPath}/ZeShopper/images/product-details/share.png"
+                                                    class="share img-responsive" alt="" /></a>
                                 </div><!--/product-information-->
                             </div>
                         </div><!--/product-details-->
@@ -316,8 +330,10 @@
                                                 <div class="product-image-wrapper">
                                                     <div class="single-products">
                                                         <div class="productinfo text-center">
-                                                            <c:forEach items="${images}" var="img">
-                                                                <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" alt="" />
+                                                            <c:forEach items="${images}" var="img" varStatus="status">
+                                                                <c:if test="${status.index == 0}">
+                                                                    <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" alt="" />
+                                                                </c:if>
                                                             </c:forEach>
                                                         </div>
                                                     </div>
@@ -450,7 +466,7 @@
         <jsp:include page="/ZeShopper/footer.jsp"/>
 
         <div id="success-popup" class="success-toast">Added to cart successfully!</div>
-        
+
         <script>
             document.getElementById("addToCartForm").addEventListener("submit", function (e) {
                 e.preventDefault(); // Ngăn form reload
@@ -504,43 +520,71 @@
                 }, 3000);
             }
         </script>
-        
-       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const imageUrls = [
+
+        <!-- JS: jQuery + Bootstrap 3.4.1 -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+        <!-- Script điều khiển prev/next và sync modal -->
+        <script>
+            $(function () {
+                // Khởi tạo mảng URL ảnh
+                var imageUrls = [
             <c:forEach items="${images}" var="img" varStatus="status">
                 "${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}"<c:if test="${!status.last}">,</c:if>
             </c:forEach>
-        ];
+                        ];
 
-        let currentIndex = 0;
-        const mainImage = document.getElementById("mainImage");
-        const prevBtn = document.getElementById("prevImage");
-        const nextBtn = document.getElementById("nextImage");
+                        var currentIndex = 0;
+                        var $mainImage = $('#mainImage');
+                        var $prevBtn = $('#prevImage');
+                        var $nextBtn = $('#nextImage');
 
-        if (prevBtn && nextBtn && mainImage) {
-            prevBtn.addEventListener("click", () => {
-                if (currentIndex > 0) {
-                    currentIndex--;
-                    mainImage.src = imageUrls[currentIndex];
-                }
-            });
+                        var $modal = $('#allImagesModal');
+                        var $modalImage = $('#modalImage');
+                        var $modalPrev = $('#modalPrev');
+                        var $modalNext = $('#modalNext');
 
-            nextBtn.addEventListener("click", () => {
-                if (currentIndex < imageUrls.length - 1) {
-                    currentIndex++;
-                    mainImage.src = imageUrls[currentIndex];
-                }
-            });
-        }
-    });
-</script>
+                        // Prev/Next trên trang chính
+                        $prevBtn.on('click', function () {
+                            if (currentIndex > 0) {
+                                currentIndex--;
+                                $mainImage.attr('src', imageUrls[currentIndex]);
+                            }
+                        });
+                        $nextBtn.on('click', function () {
+                            if (currentIndex < imageUrls.length - 1) {
+                                currentIndex++;
+                                $mainImage.attr('src', imageUrls[currentIndex]);
+                            }
+                        });
 
+                        // Khi click vào ảnh chính: Bootstrap sẽ tự show modal
+                        $mainImage.on('click', function () {
+                            $modalImage.attr('src', imageUrls[currentIndex]);
+                        });
 
+                        // Khi modal show (click hoặc gọi show), luôn cập nhật src
+                        $modal.on('show.bs.modal', function () {
+                            $modalImage.attr('src', imageUrls[currentIndex]);
+                        });
 
-        
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+                        // Prev/Next trong modal
+                        $modalPrev.on('click', function () {
+                            if (currentIndex > 0) {
+                                currentIndex--;
+                                $modalImage.attr('src', imageUrls[currentIndex]);
+                                $mainImage.attr('src', imageUrls[currentIndex]);
+                            }
+                        });
+                        $modalNext.on('click', function () {
+                            if (currentIndex < imageUrls.length - 1) {
+                                currentIndex++;
+                                $modalImage.attr('src', imageUrls[currentIndex]);
+                                $mainImage.attr('src', imageUrls[currentIndex]);
+                            }
+                        });
+                    });
+        </script>
     </body>
 </html>
