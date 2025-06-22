@@ -305,7 +305,7 @@
                                         <textarea name="message" placeholder="Notes about your order, special notes for delivery (e.g., preferred delivery time, leave at security desk)" rows="16" class="form-control" id="notes-input"></textarea>
                                         <div class="error-message" id="notes-error"></div>
                                     </div>
-                                    <label><input type="checkbox" id="ship-to-billing"> Ship to this billing address</label>
+                                    <!--<label><input type="checkbox" id="ship-to-billing"> Ship to this billing address</label>-->
                                 </div>	
                             </div>					
                         </div>
@@ -721,7 +721,6 @@
                                     districtsData = data;
                                 else if (type === 'wards')
                                     wardsData = data;
-                                console.log(type + ` loaded.`, Object.keys(data).length, 'items');
                             })
                             .fail(function (jqXHR, textStatus, errorThrown) {
                                 console.error(`Failed to load ` + type + `:`, textStatus, errorThrown);
@@ -730,15 +729,12 @@
 
                 function populateProvinces() {
                     let options = '<option value="">-- Select Province/City * --</option>';
-                    console.log("provincesData at start of populateProvinces:", provincesData);
                     for (const code in provincesData) {
                         if (provincesData.hasOwnProperty(code)) {
                             const p = provincesData[code];
-                            console.log("Current p object:", p);
                             options += `<option value="` + p.code + `">` + p.name_with_type + `</option>`;
                         }
                     }
-                    console.log("Populating provinces with options:", options);
                     $('#provinceCitySelect').html(options);
                 }
 
