@@ -260,6 +260,43 @@
                     </div>
                 </div>
 
+                <!-- 📈 Doanh thu theo loại hoa (tháng này) -->
+                <div class="container-fluid pt-4 px-4">
+                    <div class="bg-light rounded p-4">
+                        <h2 class="mb-4">🌸 Doanh thu các loại hoa (tháng này)</h2>
+
+                        <form method="get" action="${pageContext.request.contextPath}/DashMin/admin" class="mb-4">
+                            <label>Chọn loại hoa:</label><br>
+                            <c:forEach var="cat" items="${categoryList}">
+                                <c:set var="checked" value="false" />
+                                <c:forEach var="selected" items="${paramValues.cid}">
+                                    <c:if test="${selected == cat.categoryId}">
+                                        <c:set var="checked" value="true" />
+                                    </c:if>
+                                </c:forEach>
+                                <input type="checkbox" name="cid" value="${cat.categoryId}" <c:if test="${checked}">checked</c:if> />
+                                ${cat.categoryName} <br>
+                            </c:forEach>
+                            <button type="submit" class="btn btn-primary mt-2">Xem biểu đồ</button>
+                        </form>
+
+                        <c:if test="${not empty labelsJson}">
+                            <canvas id="categoryRevenueChart"
+                                    data-labels='${labelsJson}'
+                                    data-categories='${categoryListJson}'
+                                    <c:forEach var="cat" items="${categoryList}">
+                                        <c:set var="dataKey" value="${cat.categoryName}_data"/>
+                                        <c:if test="${not empty requestScope[dataKey]}">
+                                            data-data_${cat.categoryName}='${requestScope[dataKey]}'
+                                        </c:if>
+
+                                    </c:forEach>
+                                    style="width:100%; height:300px;">
+                            </canvas>
+                        </c:if>
+                    </div>
+                </div>
+
 
                 <!-- Sales Chart End -->
 

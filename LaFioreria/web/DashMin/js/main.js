@@ -261,6 +261,8 @@
                 }
             });
         }
+
+
         // Line Chart
         if ($("#line-chart").length) {
             var ctx3 = $("#line-chart").get(0).getContext("2d");
@@ -352,6 +354,70 @@
                 }
             });
         }
+// Biểu đồ doanh thu loại hoa theo ngày trong tháng
+        if (document.getElementById("categoryRevenueChart")) {
+            const chart = document.getElementById("categoryRevenueChart");
+            const labels = JSON.parse(chart.getAttribute("data-labels") || "[]");
+            const categories = JSON.parse(chart.getAttribute("data-categories") || "[]");
+
+            const datasets = [];
+
+            categories.forEach(cat => {
+                const key = "data-data_" + cat.categoryName;
+                const raw = chart.getAttribute(key);
+                if (raw) {
+                    const values = JSON.parse(raw);
+
+                    const r = Math.floor(Math.random() * 200 + 30);
+                    const g = Math.floor(Math.random() * 200 + 30);
+                    const b = Math.floor(Math.random() * 200 + 30);
+
+                    datasets.push({
+                        label: cat.categoryName,
+                        data: values,
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 2,
+                        backgroundColor: `rgba(${r},${g},${b},0.2)`,
+                        borderColor: `rgb(${r},${g},${b})`
+                    });
+                }
+            });
+
+            if (datasets.length > 0) {
+                new Chart(chart, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Doanh thu theo loại hoa (tháng này)'
+                            }
+                        },
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Doanh thu (VNĐ)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+
 
     });
 
