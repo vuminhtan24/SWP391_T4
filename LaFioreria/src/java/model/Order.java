@@ -21,7 +21,7 @@ public class Order {
     private String statusName;
     private Integer shipperId;
     private String shipperName;
-    private String proofImage;
+    private String deliveryProofImage;
     private String rejectImage;
     private String rejectReason;
 
@@ -107,12 +107,12 @@ public class Order {
         return customerAddress;
     }
 
-    public String getProofImage() {
-        return proofImage;
+    public String getDeliveryProofImage() {
+        return deliveryProofImage;
     }
 
-    public void setProofImage(String proofImage) {
-        this.proofImage = proofImage;
+    public void setDeliveryProofImage(String deliveryProofImage) {
+        this.deliveryProofImage = deliveryProofImage;
     }
 
     public String getRejectImage() {

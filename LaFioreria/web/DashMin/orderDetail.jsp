@@ -136,7 +136,23 @@
                                     <p><strong>Shipper Name:</strong> ${order.shipperName != null ? order.shipperName : "Not Assigned"}</p>
                                 </div>
                             </div>
-
+                            <!-- Delivery Confirmation Image -->
+                            <c:if test="${order.statusName == 'Delivered' && not empty order.deliveryProofImage}">
+                                <hr class="my-4">
+                                <h6 class="mb-3">Delivery Confirmation Image:</h6>
+                                <div class="text-center">
+                                    <img
+                                        src="${pageContext.request.contextPath}${order.deliveryProofImage}"
+                                        alt="Bouquet Image"
+                                        class="img-fluid bouquet-img mb-2"
+                                        style="width: 300px; height: 300px; object-fit: cover; border-radius: 8px;" />
+                                </div>
+                            </c:if>
+                            <c:if test="${order.statusName == 'Delivered' && empty order.deliveryProofImage}">
+                                <hr class="my-4">
+                                <h6 class="mb-3">Delivery Confirmation Image:</h6>
+                                <p>No delivery proof image available.</p>
+                            </c:if>
                             <hr class="my-4">
                             <h6 class="mb-3">Purchased Products:</h6>
                             <c:if test="${empty orderItems}">
@@ -183,7 +199,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                
+
                             </c:if>
                             <div class="mt-4 text-end">
                                 <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}&action=edit" class="btn btn-primary me-2">Edit Order</a>
