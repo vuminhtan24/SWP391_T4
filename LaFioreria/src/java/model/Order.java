@@ -9,6 +9,7 @@ package model;
  * @author Legion
  */
 public class Order {
+
     private int orderId;
     private String orderDate;
     private int customerId;
@@ -17,17 +18,20 @@ public class Order {
     private String customerAddress;
     private String totalAmount;
     private int statusId;
-    private String statusName;   
-    private Integer shipperId; 
-    private String shipperName;  
+    private String statusName;
+    private Integer shipperId;
+    private String shipperName;
+    private String proofImage;
+    private String rejectImage;
+    private String rejectReason;
 
     // Constructors
     public Order() {
     }
 
     public Order(int orderId, String orderDate, int customerId, String customerName,
-                 String customerPhone,String customerAddress,String totalAmount, int statusId, String statusName,
-                 Integer shipperId, String shipperName) {
+            String customerPhone, String customerAddress, String totalAmount, int statusId, String statusName,
+            Integer shipperId, String shipperName) {
         this.orderId = orderId;
         this.orderDate = orderDate;
         this.customerId = customerId;
@@ -40,9 +44,10 @@ public class Order {
         this.shipperId = shipperId;
         this.shipperName = shipperName;
     }
-        public Order(int orderId, String orderDate, int customerId, String customerName,
-                String totalAmount, int statusId, String statusName,
-                 Integer shipperId, String shipperName) {
+
+    public Order(int orderId, String orderDate, int customerId, String customerName,
+            String totalAmount, int statusId, String statusName,
+            Integer shipperId, String shipperName) {
         this.orderId = orderId;
         this.orderDate = orderDate;
         this.customerId = customerId;
@@ -61,7 +66,6 @@ public class Order {
         this.totalAmount = totalAmount;
         this.statusId = statusId;
     }
-
 
     public int getOrderId() {
         return orderId;
@@ -103,10 +107,33 @@ public class Order {
         return customerAddress;
     }
 
+    public String getProofImage() {
+        return proofImage;
+    }
+
+    public void setProofImage(String proofImage) {
+        this.proofImage = proofImage;
+    }
+
+    public String getRejectImage() {
+        return rejectImage;
+    }
+
+    public void setRejectImage(String rejectImage) {
+        this.rejectImage = rejectImage;
+    }
+
+    public String getRejectReason() {
+        return rejectReason;
+    }
+
+    public void setRejectReason(String rejectReason) {
+        this.rejectReason = rejectReason;
+    }
+
     public void setCustomerAddress(String customerAddress) {
         this.customerAddress = customerAddress;
     }
-    
 
     public void setTotalAmount(String totalAmount) {
         this.totalAmount = totalAmount;
@@ -154,16 +181,16 @@ public class Order {
 
     @Override
     public String toString() {
-        return "Order{" +
-               "orderId=" + orderId +
-               ", orderDate='" + orderDate + '\'' +
-               ", customerId=" + customerId +
-               ", customerName='" + customerName + '\'' +
-               ", totalAmount='" + totalAmount + '\'' +
-               ", statusId=" + statusId +
-               ", statusName='" + statusName + '\'' +
-               ", shipperId=" + shipperId +
-               ", shipperName='" + shipperName + '\'' +
-               '}';
+        return "Order{"
+                + "orderId=" + orderId
+                + ", orderDate='" + orderDate + '\''
+                + ", customerId=" + customerId
+                + ", customerName='" + customerName + '\''
+                + ", totalAmount='" + totalAmount + '\''
+                + ", statusId=" + statusId
+                + ", statusName='" + statusName + '\''
+                + ", shipperId=" + shipperId
+                + ", shipperName='" + shipperName + '\''
+                + '}';
     }
 }

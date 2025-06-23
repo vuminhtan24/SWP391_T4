@@ -231,12 +231,6 @@
                 </nav>
                 <!-- Navbar End -->
 
-                <!-- Search Form -->
-                <form action="category" method="get" class="search-form">
-                    <input type="text" name="categoryName" placeholder="Search categories" value="${fn:escapeXml(param.categoryName)}" />
-                    <button type="submit">Search</button>
-                </form>
-
                 <!-- Table Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded h-100 p-4">
@@ -259,6 +253,11 @@
                             <h6 class="mb-0">Category List</h6>
                             <a href="${pageContext.request.contextPath}/addCategory" class="btn btn-primary">Add Category</a>
                         </div>
+                        <!-- Search Form -->
+                        <form action="category" method="get" class="search-form">
+                            <input type="text" name="categoryName" placeholder="Search categories" value="${fn:escapeXml(param.categoryName)}" />
+                            <button type="submit">Search</button>
+                        </form>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -334,7 +333,7 @@
                                     <!-- Ellipsis -->
                                     <c:if test="${currentPage > 3}">
                                         <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                    </c:if>
+                                        </c:if>
 
                                     <!-- Page range (currentPage -1, currentPage, currentPage +1) -->
                                     <c:forEach var="i" begin="${currentPage - 1}" end="${currentPage + 1}">
@@ -351,7 +350,7 @@
                                     <!-- Ellipsis -->
                                     <c:if test="${currentPage < totalPages - 2}">
                                         <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                    </c:if>
+                                        </c:if>
 
                                     <!-- Last Page -->
                                     <c:if test="${totalPages > 1}">
