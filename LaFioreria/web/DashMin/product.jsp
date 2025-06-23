@@ -332,6 +332,7 @@
                                         <th scope="col" class="sortable" data-type="string">Bouquet Name</th>
                                         <th scope="col" class="sortable" data-type="string">Category</th>
                                         <th scope="col" class="sortable" data-type="number">Price</th>
+                                        <th scope="col" class="sortable" data-type="number">Sell Price</th>
                                         <th colspan="2">Action</th>
                                     </tr>
                                 </thead>
@@ -340,9 +341,11 @@
                                         <tr>
                                             <td>${(currentPage - 1) * 6 + status.index + 1}</td>
                                             <td>
+                                                <c:set var="imageShown" value="false" />
                                                 <c:forEach var="img" items="${listImage}">
-                                                    <c:if test="${bouquet.getBouquetId() == img.getbouquetId()}">
+                                                    <c:if test="${!imageShown and bouquet.getBouquetId() == img.getbouquetId()}">
                                                         <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" alt="alt" style="width: 60px; height: 60px;"/>
+                                                        <c:set var="imageShown" value="true" />
                                                     </c:if>
                                                 </c:forEach>
                                             </td>
@@ -363,6 +366,7 @@
                                                 </td>
 
                                                 <td>${bouquet.getPrice()} VND</td>
+                                            <td>${bouquet.getSellPrice()} VND</td>
                                             <td>
                                                 <button type="button"
                                                         class="btn btn-delete"

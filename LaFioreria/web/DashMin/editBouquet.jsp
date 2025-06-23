@@ -78,6 +78,47 @@
                 color: #6c757d;             /* chữ xám đậm hơn một chút */
             }
 
+            .preview-img-wrapper {
+                position: relative;
+                display: inline-block;
+                margin: 5px;
+                cursor: pointer;
+                border: 2px solid transparent;
+                border-radius: 4px;
+            }
+            .preview-img-wrapper.selected {
+                border-color: #0d6efd;
+            }
+            .preview-img {
+                max-width: 100px;
+                max-height: 100px;
+                object-fit: cover;
+                border-radius: 4px;
+            }
+            .btn-delete-single {
+                position: absolute;
+                top: -6px;
+                right: -6px;
+                background: rgba(0,0,0,0.6);
+                color: #fff;
+                border: none;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                line-height: 16px;
+                font-size: 14px;
+                text-align: center;
+                padding: 0;
+            }
+            /* Ngoại hình ảnh preview bên ngoài */
+            #externalPreview img {
+                max-width: 150px;
+                max-height: 150px;
+                object-fit: cover;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+                margin-right: 10px;
+            }
         </style>    
     </head>
 
@@ -153,40 +194,64 @@
                         <div class="container-fluid py-5 px-4">
                             <div class="d-flex flex-wrap align-items-start gap-5" style="gap: 100px;">
 
-
-                                <!-- Cột ảnh -->
-                                <div class="flex-shrink-0">
+                                <!-- Cột trái: Ảnh -->
+                                <div class="flex-shrink-0" style="width: 50%;">
+                                    <!-- Hiển thị ảnh đầu tiên (server-side) -->
+                                    <c:set var="imageShown" value="false" />
                                     <c:forEach var="imageFiles" items="${images}">
-                                        <div class="flex-shrink-0 text-center">
+                                        <c:if test="${!imageShown}">
                                             <img
-                                                src="${pageContext.request.contextPath}/upload/BouquetIMG/${imageFiles.getImage_url()}"
+                                                src="${pageContext.request.contextPath}/upload/BouquetIMG/${imageFiles.image_url}"
                                                 alt="Bouquet Image"
-                                                class="img-fluid bouquet-img mb-2"
-                                                style="width: 550px; height: 600px; object-fit: cover; border-radius: 12px;">
-
-                                            <!-- Input để hiển thị URL ảnh (readonly) -->
-                                            <input type="text" 
-                                                   class="form-control mb-2" 
-                                                   value="${pageContext.request.contextPath}/upload/BouquetIMG/${imageFiles.getImage_url()}" 
-                                                   readonly />
-                                        </div>
+                                                class="img-fluid bouquet-img-first"
+                                                />
+                                            <c:set var="imageShown" value="true" />
+                                        </c:if>
                                     </c:forEach>
-                                    <label for="imageFiles" class="form-label">Upload Images</label>
-                                    <input 
-                                        type="file" 
-                                        id="imageFiles" 
-                                        name="imageFiles" 
-                                        class="form-control" 
-                                        accept=".jpg,.jpeg,.png" 
-                                        multiple
-                                    <c:if test="${empty images}">
-                                        required
-                                    </c:if>/>
                                     
-                                    <small class="form-text text-muted">
-                                        Bạn có thể chọn nhiều ảnh (.jpg, .jpeg, .png) cùng lúc.
-                                    </small>
-                                    <h6 style="color: red">${error}</h6>
+                                    <!--Lưu lại ảnh đã có sẵn-->
+                                    <div id="serverImageInputs">
+                                        <c:forEach var="imageFiles" items="${images}">
+                                            <input type="hidden" name="existingImageUrls"
+                                                   value="${pageContext.request.contextPath}/upload/BouquetIMG/${imageFiles.image_url}" />
+                                        </c:forEach>
+                                    </div>
+
+                                    <!-- Input upload -->
+                                    <div class="container py-4">
+                                        <div class="mb-3">
+                                            <label for="imageFiles" class="form-label">Upload Images (max 5)</label>
+                                            <input type="file" id="imageFiles" name="imageFiles"
+                                                   class="form-control" accept=".jpg,.jpeg,.png" multiple
+                                                   <c:if test="${empty images}">required</c:if> />
+                                                   <small class="form-text text-muted">
+                                                       Bạn có thể chọn tối đa 5 ảnh (.jpg, .jpeg, .png).
+                                                   </small>
+                                            </div>
+                                        </div>
+
+                                        <!-- Modal Preview (giữ nguyên mã HTML & CSS của bạn hoàn toàn) -->
+                                        <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Images Preview</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div id="previewContainer" class="d-flex flex-wrap"></div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button id="btnUploadMore"    type="button" class="btn btn-primary me-auto">Upload More Images</button>
+                                                        <button id="btnDeleteSelected"type="button" class="btn btn-danger">Delete Selected</button>
+                                                        <button id="btnAccept"        type="button" class="btn btn-success">Accept</button>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <h6 style="color: red">${error}</h6>
                                 </div>
 
                                 <!-- Cột phải: Nội dung -->
@@ -229,7 +294,7 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <!-- Chỉ duy nhất FOR-EACH, không có row mặc định -->
+                                                        <!-- Các dòng hiện có từ backend -->
                                                         <c:forEach var="br" items="${flowerInBQ}">
                                                             <tr>
                                                                 <td>
@@ -259,9 +324,7 @@
                                                                         />
                                                                 </td>
                                                                 <td>
-                                                                    <button type="button" class="btn btn-sm btn-outline-danger remove-btn">
-                                                                        &times;
-                                                                    </button>
+                                                                    <button type="button" class="btn btn-sm btn-outline-danger remove-btn">&times;</button>
                                                                 </td>
                                                             </tr>
                                                         </c:forEach>
@@ -269,13 +332,15 @@
                                                     <tfoot>
                                                         <tr>
                                                             <td colspan="4" class="text-start fw-bold text-primary">
-                                                                Total Value:
-                                                                <span id="totalValueDisplay">0.00 VND</span>
+                                                                Price: <span id="totalValueDisplay">0.00 VND</span>
                                                                 <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
+
                                                             </td>
                                                         </tr>
                                                     </tfoot>
                                                 </table>
+                                                Sell Price: <span id="sellValueDisplay">0.00 VND</span>
+                                                <input type="hidden" id="sellValueInput"  name="sellValue"  value="0" />
                                             </div>
                                             <div class="d-flex justify-content-between">
                                                 <button type="button" id="addFlowerBtn" class="btn btn-sm btn-outline-primary mb-4">
@@ -296,15 +361,17 @@
                                     <tr id="flowerRowTemplate">
                                         <td>
                                             <select name="flowerIds" class="form-select form-select-sm flower-select">
+                                                <option value="" disabled selected>-- Select flower --</option>
                                                 <c:forEach var="f" items="${allFlowers}">
-                                                    <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">
-                                                        ${f.getRawName()}
-                                                    </option>
+                                                    <option
+                                                        value="${f.getRawId()}"
+                                                        data-price="${f.getUnitPrice()}"
+                                                        >${f.getRawName()}</option>
                                                 </c:forEach>
                                             </select>
                                         </td>
                                         <td>
-                                            <span class="form-text price-text">$0.00</span>
+                                            <span class="form-text price-text">0.00 VND</span>
                                             <input type="hidden" class="price-input" name="prices[]" value="0" />
                                         </td>
                                         <td>
@@ -319,9 +386,7 @@
                                                 />
                                         </td>
                                         <td>
-                                            <button type="button" class="btn btn-sm btn-outline-danger remove-btn">
-                                                &times;
-                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger remove-btn">&times;</button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -329,6 +394,7 @@
 
                             <!-- Blank End -->
                         </div>
+                        </div>                    
 
                         <!-- Footer Start -->
                         <div class="container-fluid pt-4 px-4">
@@ -345,7 +411,7 @@
                             </div>
                         </div>
                         <!-- Footer End -->
-                    </div>
+                   
                     <!-- Content End -->
 
 
@@ -370,58 +436,52 @@
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
             <script>
                 document.addEventListener('DOMContentLoaded', () => {
+                    const SELL_MULTIPLIER = 5;
+
                     function formatCurrency(val) {
                         return parseFloat(val).toFixed(2) + ' VND';
                     }
 
                     function getSelectedFlowerIdsMap() {
                         const map = new Map();
-                        document.querySelectorAll('.flower-select').forEach((sel, index) => {
-                            const value = sel.value;
-                            if (value) {
-                                if (!map.has(value))
-                                    map.set(value, []);
-                                map.get(value).push(index); // record where it’s selected
+                        document.querySelectorAll('.flower-select').forEach((sel, idx) => {
+                            const v = sel.value;
+                            if (v) {
+                                if (!map.has(v))
+                                    map.set(v, []);
+                                map.get(v).push(idx);
                             }
                         });
                         return map;
                     }
 
                     function updateFlowerOptions() {
-                        const selectedMap = getSelectedFlowerIdsMap();
-
-                        document.querySelectorAll('.flower-select').forEach((select, selectIndex) => {
-                            const currentValue = select.value;
-
-                            Array.from(select.options).forEach(opt => {
-                                const val = opt.value;
-                                if (!val)
+                        const selMap = getSelectedFlowerIdsMap();
+                        document.querySelectorAll('.flower-select').forEach((sel, i) => {
+                            Array.from(sel.options).forEach(opt => {
+                                if (!opt.value)
                                     return;
-
-                                const isTakenElsewhere =
-                                        selectedMap.has(val) &&
-                                        !(selectedMap.get(val).includes(selectIndex));
-
-                                opt.disabled = isTakenElsewhere;
-                                opt.classList.toggle('already-selected', isTakenElsewhere);
+                                const takenElsewhere = selMap.has(opt.value) && !selMap.get(opt.value).includes(i);
+                                opt.disabled = takenElsewhere;
+                                opt.classList.toggle('already-selected', takenElsewhere);
                             });
                         });
                     }
 
                     function updateRowPrice(row) {
                         const sel = row.querySelector('.flower-select');
-                        const priceInput = row.querySelector('.price-input');
-                        const priceText = row.querySelector('.price-text');
+                        const priceIn = row.querySelector('.price-input');
+                        const priceTxt = row.querySelector('.price-text');
 
                         if (!sel.value) {
-                            priceInput.value = 0;
-                            priceText.textContent = formatCurrency(0);
+                            priceIn.value = 0;
+                            priceTxt.textContent = formatCurrency(0);
                             return;
                         }
 
-                        const unitPrice = sel.selectedOptions[0].dataset.price;
-                        priceInput.value = unitPrice;
-                        priceText.textContent = formatCurrency(unitPrice);
+                        const unit = parseFloat(sel.selectedOptions[0].dataset.price);
+                        priceIn.value = unit;
+                        priceTxt.textContent = formatCurrency(unit);
                     }
 
                     function updateTotalValue() {
@@ -431,8 +491,15 @@
                             const qty = parseInt(row.querySelector('.quantity-input').value, 10) || 0;
                             total += price * qty;
                         });
+
+                        // Total Price
                         document.getElementById('totalValueDisplay').textContent = formatCurrency(total);
                         document.getElementById('totalValueInput').value = total;
+
+                        // Sell Price = Total Price × SELL_MULTIPLIER
+                        const sellTotal = total * SELL_MULTIPLIER;
+                        document.getElementById('sellValueDisplay').textContent = formatCurrency(sellTotal);
+                        document.getElementById('sellValueInput').value = sellTotal;
                     }
 
                     function bindRowEvents(row) {
@@ -445,11 +512,7 @@
                             updateFlowerOptions();
                             updateTotalValue();
                         });
-
-                        qtyInput.addEventListener('input', () => {
-                            updateTotalValue();
-                        });
-
+                        qtyInput.addEventListener('input', updateTotalValue);
                         removeBtn.addEventListener('click', () => {
                             row.remove();
                             updateFlowerOptions();
@@ -457,7 +520,7 @@
                         });
                     }
 
-                    // Initialize existing rows
+                    // Khởi tạo các row sẵn có
                     document.querySelectorAll('#flowerTable tbody tr').forEach(r => {
                         bindRowEvents(r);
                         updateRowPrice(r);
@@ -465,35 +528,166 @@
                     updateFlowerOptions();
                     updateTotalValue();
 
-                    // Add new row
+                    // Thêm mới row
                     document.getElementById('addFlowerBtn').addEventListener('click', () => {
                         const tpl = document.getElementById('flowerRowTemplate');
                         const newRow = tpl.cloneNode(true);
                         newRow.removeAttribute('id');
                         newRow.style.display = '';
-
-                        const sel = newRow.querySelector('.flower-select');
-
-                        // Reset selected index
-                        sel.selectedIndex = -1;
-
-                        // Add placeholder
-                        const placeholder = document.createElement('option');
-                        placeholder.value = '';
-                        placeholder.text = '-- Select flower --';
-                        placeholder.disabled = true;
-                        placeholder.selected = true;
-                        sel.insertBefore(placeholder, sel.firstChild);
-
                         bindRowEvents(newRow);
                         updateRowPrice(newRow);
                         document.querySelector('#flowerTable tbody').appendChild(newRow);
-
                         updateFlowerOptions();
                         updateTotalValue();
                     });
                 });
             </script>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const MAX_FILES = 5;
+                    const fileInput = document.getElementById('imageFiles');
+                    const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+                    const previewContainer = document.getElementById('previewContainer');
+                    const btnUploadMore = document.getElementById('btnUploadMore');
+                    const btnDeleteSelected = document.getElementById('btnDeleteSelected');
+                    const btnAccept = document.getElementById('btnAccept');
+                    const serverImageInputsDiv = document.getElementById('serverImageInputs');
+                    const triggerImg = document.querySelector('.bouquet-img-first');
+
+                    let serverImageUrls = [
+                <c:forEach items="${images}" var="img" varStatus="status">
+                    '${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}'<c:if test="${!status.last}">,</c:if>
+                </c:forEach>
+                            ];
+                            let acceptedFiles = [];
+                            let selectedIndices = new Set();
+
+                            function getCurrentItems() {
+                                const items = [];
+                                serverImageUrls.forEach(url => items.push({url}));
+                                acceptedFiles.forEach(file => items.push({file}));
+                                return items.slice(0, MAX_FILES);
+                            }
+
+                            function updateServerInputs() {
+                                serverImageInputsDiv.innerHTML = '';
+                                serverImageUrls.forEach(url => {
+                                    const inp = document.createElement('input');
+                                    inp.type = 'hidden';
+                                    inp.name = 'existingImageUrls';
+                                    inp.value = url;
+                                    serverImageInputsDiv.appendChild(inp);
+                                });
+                            }
+
+                            function updateInputFiles() {
+                                const dt = new DataTransfer();
+                                acceptedFiles.forEach(f => dt.items.add(f));
+                                fileInput.files = dt.files;
+                            }
+
+                            function renderPreview() {
+                                const items = getCurrentItems();
+                                previewContainer.innerHTML = '';
+                                items.forEach((item, idx) => {
+                                    const wrap = document.createElement('div');
+                                    wrap.className = 'preview-img-wrapper';
+                                    if (selectedIndices.has(idx))
+                                        wrap.classList.add('selected');
+
+                                    wrap.addEventListener('click', () => {
+                                        if (selectedIndices.has(idx)) {
+                                            selectedIndices.delete(idx);
+                                            wrap.classList.remove('selected');
+                                        } else {
+                                            selectedIndices.add(idx);
+                                            wrap.classList.add('selected');
+                                        }
+                                        btnDeleteSelected.disabled = selectedIndices.size === 0;
+                                    });
+
+                                    const img = document.createElement('img');
+                                    img.className = 'preview-img';
+                                    img.src = item.file ? URL.createObjectURL(item.file) : item.url;
+                                    wrap.appendChild(img);
+
+                                    const btnDel = document.createElement('button');
+                                    btnDel.type = 'button';
+                                    btnDel.className = 'btn-delete-single';
+                                    btnDel.innerText = '×';
+                                    btnDel.addEventListener('click', ev => {
+                                        ev.stopPropagation();
+                                        if (item.file)
+                                            acceptedFiles = acceptedFiles.filter(f => f !== item.file);
+                                        else
+                                            serverImageUrls = serverImageUrls.filter(u => u !== item.url);
+                                        updateInputFiles();
+                                        updateServerInputs();
+                                        selectedIndices.clear();
+                                        renderPreview();
+                                    });
+                                    wrap.appendChild(btnDel);
+
+                                    previewContainer.appendChild(wrap);
+                                });
+                                btnDeleteSelected.disabled = true;
+                            }
+
+                            // Khi click vào ảnh đầu tiên .bouquet-img-first
+                            if (triggerImg) {
+                                triggerImg.addEventListener('click', () => {
+                                    selectedIndices.clear();
+                                    updateServerInputs();
+                                    updateInputFiles();
+                                    renderPreview();
+                                    previewModal.show();
+                                });
+                            }
+
+                            btnUploadMore.addEventListener('click', () => fileInput.click());
+
+                            fileInput.addEventListener('change', e => {
+                                const newFiles = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
+                                const slots = MAX_FILES - (serverImageUrls.length + acceptedFiles.length);
+                                if (slots <= 0) {
+                                    alert(`Bạn chỉ được tối đa ${MAX_FILES} ảnh.`);
+                                } else {
+                                    acceptedFiles = acceptedFiles.concat(newFiles.slice(0, slots));
+                                    updateInputFiles();
+                                    renderPreview();
+                                }
+                                e.target.value = '';
+                            });
+
+                            btnDeleteSelected.addEventListener('click', () => {
+                                Array.from(selectedIndices)
+                                        .sort((a, b) => b - a)
+                                        .forEach(idx => {
+                                            const item = getCurrentItems()[idx];
+                                            if (item.file)
+                                                acceptedFiles = acceptedFiles.filter(f => f !== item.file);
+                                            else
+                                                serverImageUrls = serverImageUrls.filter(u => u !== item.url);
+                                        });
+                                selectedIndices.clear();
+                                updateInputFiles();
+                                updateServerInputs();
+                                renderPreview();
+                            });
+
+                            btnAccept.addEventListener('click', () => {
+                                updateInputFiles();
+                                updateServerInputs();
+                                previewModal.hide();
+                            });
+                        });
+            </script>
+
+
+
+
 
     </body>
 </html>

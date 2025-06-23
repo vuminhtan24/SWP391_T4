@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import model.OrderStatusCount;
 
 /**
  * Data Access Object (DAO) for Order related operations. Handles database
@@ -183,7 +184,8 @@ public class OrderDAO extends BaseDao {
     public Order getOrderDetailById(int orderId) {
         Order order = null;
         String sql = "SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, u.Phone AS customer_phone, u.Address AS customer_address, "
-                + "o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name "
+                + "o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name, "
+                + "o.delivery_confirmation_image_path "
                 + "FROM `order` o "
                 + "JOIN `user` u ON o.customer_id = u.User_ID "
                 + "JOIN `order_status` os ON o.status_id = os.order_status_id "
@@ -210,6 +212,9 @@ public class OrderDAO extends BaseDao {
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
                         rs.getString("shipper_name")
                 );
+                 order.setDeliveryProofImage(rs.getString("delivery_confirmation_image_path"));
+                 System.out.println("DEBUG: Order = " + order);
+
             }
         } catch (SQLException e) {
             System.err.println("SQL Error while getting order details (ID: " + orderId + "): " + e.getMessage());
@@ -308,6 +313,28 @@ public class OrderDAO extends BaseDao {
         }
     }
 
+    public List<OrderStatusCount> getOrderStatusCounts() {
+        List<OrderStatusCount> list = new ArrayList<>();
+        String sql = "SELECT os.status_name, COUNT(*) AS total "
+                + "FROM `order` o "
+                + "JOIN order_status os ON o.status_id = os.order_status_id "
+                + "GROUP BY os.status_name";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                String status = rs.getString("status_name");
+                int count = rs.getInt("total");
+                list.add(new OrderStatusCount(status, count));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     /**
      * Updates the status (status_id) of an order.
      *
@@ -382,48 +409,70 @@ public class OrderDAO extends BaseDao {
      */
     public boolean deleteOrder(int orderId) {
         PreparedStatement psOrderItem = null;
+        PreparedStatement psPayment = null;
+        PreparedStatement psShipment = null;
         PreparedStatement psOrder = null;
+
         try {
             connection = dbc.getConnection();
-            connection.setAutoCommit(false); // Start transaction
+            connection.setAutoCommit(false); // Bắt đầu transaction
 
-            // 1. Delete associated order items first
+            // 1. Xóa từ bảng order_item
             String deleteOrderItemsSql = "DELETE FROM `order_item` WHERE order_id = ?";
             psOrderItem = connection.prepareStatement(deleteOrderItemsSql);
             psOrderItem.setInt(1, orderId);
-            psOrderItem.executeUpdate(); // No need to check rowsAffected here, just ensure no error
+            psOrderItem.executeUpdate();
 
-            // 2. Then delete the order itself
+            // 2. Xóa từ bảng payment
+            String deletePaymentSql = "DELETE FROM `payment` WHERE order_id = ?";
+            psPayment = connection.prepareStatement(deletePaymentSql);
+            psPayment.setInt(1, orderId);
+            psPayment.executeUpdate();
+
+            // 3. Xóa từ bảng shipment
+            String deleteShipmentSql = "DELETE FROM `shipment` WHERE order_id = ?";
+            psShipment = connection.prepareStatement(deleteShipmentSql);
+            psShipment.setInt(1, orderId);
+            psShipment.executeUpdate();
+
+            // 4. Xóa từ bảng order
             String deleteOrderSql = "DELETE FROM `order` WHERE order_id = ?";
             psOrder = connection.prepareStatement(deleteOrderSql);
             psOrder.setInt(1, orderId);
             int rowsAffected = psOrder.executeUpdate();
 
-            connection.commit(); // Commit transaction if all successful
+            connection.commit(); // Thành công, commit transaction
             return rowsAffected > 0;
+
         } catch (SQLException e) {
             try {
                 if (connection != null) {
-                    connection.rollback(); // Rollback on error
+                    connection.rollback(); // Rollback nếu có lỗi
                 }
             } catch (SQLException ex) {
                 System.err.println("Error rolling back transaction: " + ex.getMessage());
             }
             System.err.println("SQL Error while deleting order (ID: " + orderId + "): " + e.getMessage());
-            e.printStackTrace();
             return false;
+
         } finally {
             try {
                 if (psOrderItem != null) {
                     psOrderItem.close();
                 }
+                if (psPayment != null) {
+                    psPayment.close();
+                }
+                if (psShipment != null) {
+                    psShipment.close();
+                }
                 if (psOrder != null) {
                     psOrder.close();
                 }
                 if (connection != null && !connection.getAutoCommit()) {
-                    connection.setAutoCommit(true); // Reset auto-commit
+                    connection.setAutoCommit(true);
                 }
-                this.closeResources(); // Close connection
+                this.closeResources(); // Đóng connection
             } catch (Exception e) {
                 System.err.println("Error closing resources after delete operation: " + e.getMessage());
             }
@@ -788,15 +837,15 @@ public class OrderDAO extends BaseDao {
         return bouquets;
     }
 
-    public boolean markDelivered(int orderId, String deliveryProofPath) {
+    public boolean markDelivered(int orderId, String deliveryConfirmationImagePath) {
         boolean updated = false;
-        String sql = "UPDATE `order` SET status_id = ?, delivery_proof = ? WHERE order_id = ?";
+        String sql = "UPDATE `order` SET status_id = ?, delivery_confirmation_image_path = ? WHERE order_id = ?";
 
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setInt(1, 4); // Giả sử 4 là status "Đã giao hàng"
-            ps.setString(2, deliveryProofPath);
+            ps.setString(2, deliveryConfirmationImagePath);
             ps.setInt(3, orderId);
 
             int rowsAffected = ps.executeUpdate();
@@ -816,22 +865,23 @@ public class OrderDAO extends BaseDao {
         return updated;
     }
 
-    public boolean rejectOrder(int orderId, String reason) {
+    public boolean rejectOrder(int orderId, String reason, String cancellationImagePath) {
         boolean updated = false;
-        String sql = "UPDATE `order` SET status_id = ?, reject_reason = ? WHERE order_id = ?";
+        String sql = "UPDATE `order` SET status_id = ?, cancellation_reason = ?, cancellation_image_path = ? WHERE order_id = ?";
 
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
-            ps.setInt(1, 5); // Giả sử 5 là mã trạng thái 'Từ chối giao hàng'
-            ps.setString(2, reason);
-            ps.setInt(3, orderId);
+            ps.setInt(1, 5); // Giả sử 5 là mã trạng thái 'Đã hủy' hoặc 'Từ chối giao hàng'
+            ps.setString(2, reason); // Gán giá trị cho cột lý do
+            ps.setString(3, cancellationImagePath); // Gán giá trị cho cột ảnh
+            ps.setInt(4, orderId);
 
             int rowsAffected = ps.executeUpdate();
             updated = (rowsAffected > 0);
 
         } catch (SQLException e) {
-            System.err.println("SQL Error while rejecting order: " + e.getMessage());
+            System.err.println("SQL Error while canceling order: " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {
@@ -846,6 +896,6 @@ public class OrderDAO extends BaseDao {
 
     public static void main(String[] args) {
         OrderDAO orderDAO = new OrderDAO();
-        orderDAO.getAllBouquets();
+        orderDAO.getOrderDetailById(9);
     }
 }

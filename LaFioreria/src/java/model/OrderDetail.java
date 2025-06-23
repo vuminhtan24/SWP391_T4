@@ -29,7 +29,7 @@ public class OrderDetail {
         this.quantity = quantity;
         this.unitPrice = unitPrice;
     }
-
+    
     public int getOrderDetailId() {
         return orderDetailId;
     }

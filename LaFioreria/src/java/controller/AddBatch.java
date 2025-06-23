@@ -80,7 +80,7 @@ public class AddBatch extends HttpServlet {
             String quantityStr = request.getParameter("quantity");
             String holdStr = request.getParameter("hold");
             String warehouseIdStr = request.getParameter("warehouse_id");
-            
+
             // Validate each field using Validate class
             String flowerIdError = Validate.validateNumber(flowerIdStr, "Flower ID");
             String unitPriceError = Validate.validateNumberWithRange(unitPriceStr, "Unit Price", 0, Integer.MAX_VALUE);
@@ -126,9 +126,10 @@ public class AddBatch extends HttpServlet {
             int quantity = Integer.parseInt(quantityStr);
             int hold = Integer.parseInt(holdStr);
             int warehouseId = Integer.parseInt(warehouseIdStr);
+            String status = "fresh"; // Default status
 
             // Call DAO to add flower batch
-            fbDAO.addFlowerBatch(flowerId, unitPrice, importDate, expirationDate, quantity, hold, warehouseId);
+            fbDAO.addFlowerBatch(flowerId, unitPrice, importDate, expirationDate, quantity, hold, warehouseId, status);
 
             // Set success message and redirect to flower details
             session.setAttribute("message", "Flower batch added successfully!");

@@ -34,7 +34,8 @@ public class BouquetDAO extends BaseDao {
                 String description = rs.getString("description").trim();
                 int cid = rs.getInt("cid");
                 int price = rs.getInt("price");
-                Bouquet newBouquet = new Bouquet(bouquet_id, bouquet_name, description, cid, price);
+                int sellPrice = rs.getInt("sellPrice");
+                Bouquet newBouquet = new Bouquet(bouquet_id, bouquet_name, description, cid, price, sellPrice);
                 listBouquet.add(newBouquet);
             }
         } catch (SQLException e) {
@@ -77,7 +78,7 @@ public class BouquetDAO extends BaseDao {
             sql.append("AND b.cid = ? ");
             params.add(categoryID);
         }
-        if(rawId != null){
+        if (rawId != null) {
             sql.append("AND br.raw_id = ?");
             params.add(rawId);
         }
@@ -95,7 +96,8 @@ public class BouquetDAO extends BaseDao {
                 String description = rs.getString("description").trim();
                 int cid = rs.getInt("cid");
                 int price = rs.getInt("price");
-                searchListBQ.add(new Bouquet(bouquet_id, bouquet_name, description, cid, price));
+                int sellPrice = rs.getInt("sellPrice");
+                searchListBQ.add(new Bouquet(bouquet_id, bouquet_name, description, cid, price, sellPrice));
             }
         } catch (SQLException e) {
             System.out.println(e);
@@ -108,11 +110,11 @@ public class BouquetDAO extends BaseDao {
 
         return searchListBQ;
     }
-    
-    public List<BouquetRaw> getBouquetRaw(){
+
+    public List<BouquetRaw> getBouquetRaw() {
         List<BouquetRaw> list = new ArrayList<>();
         String sql = "SELECT * From la_fioreria.bouquet_raw";
-        
+
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -121,8 +123,8 @@ public class BouquetDAO extends BaseDao {
                 int id = rs.getInt("bouquet_id");
                 int rawId = rs.getInt("raw_id");
                 int quantity = rs.getInt("quantity");
-            BouquetRaw raw = new BouquetRaw(id, rawId, quantity);
-            list.add(raw);
+                BouquetRaw raw = new BouquetRaw(id, rawId, quantity);
+                list.add(raw);
             }
         } catch (Exception e) {
             System.out.println(e);
@@ -141,8 +143,8 @@ public class BouquetDAO extends BaseDao {
     public int insertBouquet(Bouquet bouquet) {
         String sql = """
         INSERT INTO la_fioreria.bouquet
-          (bouquet_name, description, cid, price)
-        VALUES (?, ?, ?, ?)
+          (bouquet_name, description, cid, price, sellPrice)
+        VALUES (?, ?, ?, ?, ?)
         """;
         // Chỉ định rõ cột PK cần lấy
         String[] genCols = {"bouquet_id"};
@@ -158,6 +160,7 @@ public class BouquetDAO extends BaseDao {
             ps.setString(2, bouquet.getDescription());
             ps.setInt(3, bouquet.getCid());
             ps.setInt(4, bouquet.getPrice());
+            ps.setInt(5, bouquet.getSellPrice());
 
             // 4. Thực thi
             int affected = ps.executeUpdate();
@@ -192,7 +195,7 @@ public class BouquetDAO extends BaseDao {
     public void insertBouquetRaw(BouquetRaw bouquetRaw) {
         String sql = """
         INSERT INTO la_fioreria.bouquet_raw 
-          (bouquet_id, raw_id, quantity)
+          (bouquet_id, batch_id, quantity)
         VALUES (?, ?, ?)
         """;
 
@@ -200,7 +203,7 @@ public class BouquetDAO extends BaseDao {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setInt(1, bouquetRaw.getBouquet_id());
-            ps.setInt(2, bouquetRaw.getRaw_id());
+            ps.setInt(2, bouquetRaw.getBatchId());
             ps.setInt(3, bouquetRaw.getQuantity());
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -250,7 +253,7 @@ public class BouquetDAO extends BaseDao {
     public void updateBouquet(Bouquet bouquet) {
         String sql = """
         UPDATE la_fioreria.bouquet
-        SET bouquet_name = ?, description = ?, cid = ?, price = ?
+        SET bouquet_name = ?, description = ?, cid = ?, price = ?, sellPrice = ?
         WHERE Bouquet_ID = ?;
         """;
         try {
@@ -260,7 +263,8 @@ public class BouquetDAO extends BaseDao {
             ps.setString(2, bouquet.getDescription());
             ps.setInt(3, bouquet.getCid());
             ps.setInt(4, bouquet.getPrice());
-            ps.setInt(5, bouquet.getBouquetId());
+            ps.setInt(5, bouquet.getSellPrice());
+            ps.setInt(6, bouquet.getBouquetId());
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e);
@@ -281,7 +285,7 @@ public class BouquetDAO extends BaseDao {
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
-            ps.setInt(1, bqRaw.getRaw_id());
+            ps.setInt(1, bqRaw.getBatchId());
             ps.setInt(2, bqRaw.getQuantity());
             ps.setInt(3, bqRaw.getBouquet_id());
             ps.executeUpdate();
@@ -307,7 +311,8 @@ public class BouquetDAO extends BaseDao {
                 String description = rs.getString("description").trim();
                 int cid = rs.getInt("cid");
                 int price = rs.getInt("price");
-                return new Bouquet(id, bouquetName, description, cid, price);
+                int sellPrice = rs.getInt("sellPrice");
+                return new Bouquet(id, bouquetName, description, cid, price, sellPrice);
             }
         } catch (SQLException e) {
             System.out.println(e);
@@ -320,14 +325,13 @@ public class BouquetDAO extends BaseDao {
         return null;
     }
 
-    public List<BouquetRaw> getFlowerByBouquetID(int id) {
+    public List<BouquetRaw> getFlowerBatchByBouquetID(int id) {
         List<BouquetRaw> listBQR = new ArrayList<>();
         String sql = """
-        SELECT br.bouquet_id, br.raw_id, br.quantity
-        FROM la_fioreria.bouquet_raw br
-        JOIN la_fioreria.bouquet b ON b.bouquet_id = br.bouquet_id
-        JOIN la_fioreria.raw_flower rf ON rf.raw_id = br.raw_id
-        WHERE b.bouquet_id = ?;
+        SELECT b.bouquet_id, b.batch_id, b.quantity FROM la_fioreria.bouquet_raw b
+        JOIN la_fioreria.flower_batch fb ON fb.batch_id = b.batch_id
+        LEFT JOIN la_fioreria.flower_type ft ON ft.flower_id = fb.flower_id
+        WHERE b.bouquet_id = ?;             
         """;
         try {
             connection = dbc.getConnection();
@@ -335,9 +339,9 @@ public class BouquetDAO extends BaseDao {
             ps.setInt(1, id);
             rs = ps.executeQuery();
             while (rs.next()) {
-                int raw_id = rs.getInt("raw_id");
+                int batch_id = rs.getInt("batch_id");
                 int quantity = rs.getInt("quantity");
-                BouquetRaw bqRaw = new BouquetRaw(id, raw_id, quantity);
+                BouquetRaw bqRaw = new BouquetRaw(id, batch_id, quantity);
                 listBQR.add(bqRaw);
             }
         } catch (SQLException e) {
@@ -363,7 +367,8 @@ public class BouquetDAO extends BaseDao {
                 String bouquetName = rs.getString("bouquet_name").trim();
                 String description = rs.getString("description").trim();
                 int price = rs.getInt("price");
-                return new Bouquet(bouquetId, bouquetName, description, cid, price);
+                int sellPrice = rs.getInt("sellPrice");
+                return new Bouquet(bouquetId, bouquetName, description, cid, price, sellPrice);
             }
         } catch (SQLException e) {
             System.out.println(e);
@@ -496,7 +501,7 @@ public class BouquetDAO extends BaseDao {
         String sql = "SELECT COUNT(*) FROM bouquet_raw WHERE raw_id = ?"; // Giả định bảng trung gian
         try {
             connection = dbc.getConnection();
-            ps = connection.prepareStatement(sql); 
+            ps = connection.prepareStatement(sql);
             ps.setInt(1, flowerId);
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -513,12 +518,49 @@ public class BouquetDAO extends BaseDao {
         return false;
     }
 
+    public Bouquet getBouquetFullInfoById(int bid) {
+        Bouquet b = new Bouquet();
+        String sql = """
+                     SELECT 
+                         b.*, bi.image_url
+                     FROM
+                         bouquet b
+                             JOIN
+                         bouquet_images bi ON b.Bouquet_ID = bi.Bouquet_ID
+                     WHERE b.Bouquet_ID = ?
+                     """;
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, bid);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                b.setBouquetId(rs.getInt("bouquet_id"));
+                b.setBouquetName(rs.getString("bouquet_name"));
+                b.setDescription(rs.getString("description"));
+                b.setCid(rs.getInt("cid"));
+                b.setPrice(rs.getInt("price"));
+//                b.setImageUrl(rs.getString("image_url"));
+            }
+        } catch (SQLException e) {
+            System.err.println("BouquetDAO: Error in isFlowerInBouquet - " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+
+        return b;
+    }
+
     public static void main(String[] args) {
         BouquetDAO dao = new BouquetDAO();
         Bouquet b = new Bouquet();
         BouquetRaw q = new BouquetRaw();
         b = dao.getBouquetByID(3);
-        List<BouquetRaw> r = dao.getFlowerByBouquetID(3);
+        List<BouquetRaw> r = dao.getFlowerBatchByBouquetID(3);
 //        BouquetImage big = dao.getBouquetImage(1);
         List<BouquetImage> big = dao.getBouquetImage(1);
         System.out.println(big);

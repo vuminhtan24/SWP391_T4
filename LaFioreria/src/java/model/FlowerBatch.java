@@ -17,11 +17,12 @@ public class FlowerBatch {
     String expirationDate;
     int hold;
     Warehouse warehouse;
+    String status;
 
     public FlowerBatch() {
     }
 
-    public FlowerBatch(int batchId, int flowerId, int quantity, int unitPrice, String importDate, String expirationDate, int hold, Warehouse warehouse) {
+    public FlowerBatch(int batchId, int flowerId, int quantity, int unitPrice, String importDate, String expirationDate, int hold, Warehouse warehouse, String status) {
         this.batchId = batchId;
         this.flowerId = flowerId;
         this.quantity = quantity;
@@ -30,6 +31,7 @@ public class FlowerBatch {
         this.expirationDate = expirationDate;
         this.hold = hold;
         this.warehouse = warehouse;
+        this.status = status;
     }
 
     public int getBatchId() {
@@ -96,9 +98,17 @@ public class FlowerBatch {
         this.warehouse = warehouse;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+   
     @Override
     public String toString() {
-        return "FlowerBatch{" + "batchId=" + batchId + ", flowerId=" + flowerId + ", quantity=" + quantity + ", unitPrice=" + unitPrice + ", importDate=" + importDate + ", expirationDate=" + expirationDate + ", hold=" + hold + ", warehouse=" + warehouse + '}';
+        return "FlowerBatch{" + "batchId=" + batchId + ", flowerId=" + flowerId + ", quantity=" + quantity + ", unitPrice=" + unitPrice + ", importDate=" + importDate + ", expirationDate=" + expirationDate + ", hold=" + hold + ", warehouse=" + warehouse + ", status=" + status + '}';
     }
        
 }

@@ -6,6 +6,8 @@ package controller;
 
 import dal.BouquetDAO;
 import dal.CategoryDAO;
+import dal.FlowerBatchDAO;
+import dal.FlowerTypeDAO;
 import dal.RawFlowerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -20,6 +22,8 @@ import model.Bouquet;
 import model.BouquetImage;
 import model.BouquetRaw;
 import model.Category;
+import model.FlowerBatch;
+import model.FlowerType;
 import model.RawFlower;
 
 /**
@@ -71,17 +75,20 @@ public class BouquetDetailsController extends HttpServlet {
 
         int id = Integer.parseInt(idStr);
         BouquetDAO bqdao = new BouquetDAO();
-        RawFlowerDAO rfdao = new RawFlowerDAO();
+        FlowerBatchDAO batchdao = new FlowerBatchDAO();
+        FlowerTypeDAO flowerdao = new FlowerTypeDAO();
         CategoryDAO cdao = new CategoryDAO();
 
         Bouquet detailsBQ = bqdao.getBouquetByID(id);
         String cateName = cdao.getCategoryNameByBouquet(id);
-        List<RawFlower> allFlowers = rfdao.getRawFlower();
-        List<BouquetRaw> bqRaws = bqdao.getFlowerByBouquetID(id);
+        List<FlowerBatch> allBatchs = batchdao.getAllFlowerBatches();
+        List<FlowerType> allFlowers = flowerdao.getAllFlowerTypes();
+        List<BouquetRaw> bqRaws = bqdao.getFlowerBatchByBouquetID(id);
         List<BouquetImage> images = bqdao.getBouquetImage(id);
 
         request.setAttribute("bouquetDetail", detailsBQ);
         request.setAttribute("cateName", cateName);
+        request.setAttribute("allBatchs", allBatchs);
         request.setAttribute("allFlowers", allFlowers);
         request.setAttribute("cateList", cdao.getBouquetCategory());
         request.setAttribute("images", images);

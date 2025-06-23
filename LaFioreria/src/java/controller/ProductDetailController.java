@@ -77,7 +77,7 @@ public class ProductDetailController extends HttpServlet {
         Bouquet detailsBQ = bqdao.getBouquetByID(id);
         String cateName = cdao.getCategoryNameByBouquet(id);
         List<RawFlower> allFlowers = rfdao.getRawFlower();
-        List<BouquetRaw> bqRaws = bqdao.getFlowerByBouquetID(id);
+        List<BouquetRaw> bqRaws = bqdao.getFlowerBatchByBouquetID(id);
         List<Bouquet> sameCate = bqdao.searchBouquet(null, null, null, detailsBQ.getCid(), null);
         List<BouquetImage> images = bqdao.getBouquetImage(id);
         String cateDes = cdao.getCategoryDesByBouquet(id);
