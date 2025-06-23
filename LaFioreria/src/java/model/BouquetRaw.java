@@ -10,15 +10,15 @@ package model;
  */
 public class BouquetRaw {
     int bouquet_id;
-    int raw_id;
+    int batchId;
     int quantity;
 
     public BouquetRaw() {
     }
 
-    public BouquetRaw(int bouquet_id, int raw_id, int quantity) {
+    public BouquetRaw(int bouquet_id, int batchId, int quantity) {
         this.bouquet_id = bouquet_id;
-        this.raw_id = raw_id;
+        this.batchId = batchId;
         this.quantity = quantity;
     }
 
@@ -30,12 +30,12 @@ public class BouquetRaw {
         this.bouquet_id = bouquet_id;
     }
 
-    public int getRaw_id() {
-        return raw_id;
+    public int getBatchId() {
+        return batchId;
     }
 
-    public void setRaw_id(int raw_id) {
-        this.raw_id = raw_id;
+    public void setBatchId(int batchId) {
+        this.batchId = batchId;
     }
 
     public int getQuantity() {
@@ -48,7 +48,7 @@ public class BouquetRaw {
 
     @Override
     public String toString() {
-        return "BouquetRaw{" + "bouquet_id=" + bouquet_id + ", raw_id=" + raw_id + ", quantity=" + quantity + '}';
+        return "BouquetRaw{" + "bouquet_id=" + bouquet_id + ", raw_id=" + batchId + ", quantity=" + quantity + '}';
     }
     
 }

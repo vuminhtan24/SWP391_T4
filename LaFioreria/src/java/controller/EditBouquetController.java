@@ -111,7 +111,7 @@ public class EditBouquetController extends HttpServlet {
         Bouquet detailsBQ = bqdao.getBouquetByID(id);
         String cateName = cdao.getCategoryNameByBouquet(id);
         List<RawFlower> allFlowers = rfdao.getRawFlower();
-        List<BouquetRaw> bqRaws = bqdao.getFlowerByBouquetID(id);
+        List<BouquetRaw> bqRaws = bqdao.getFlowerBatchByBouquetID(id);
         List<BouquetImage> images = bqdao.getBouquetImage(id);
 
         request.setAttribute("images", images);

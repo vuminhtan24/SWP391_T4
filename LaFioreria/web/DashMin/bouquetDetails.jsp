@@ -426,228 +426,234 @@
                                                 <c:forEach var="br" items="${flowerInBQ}">
                                                     <tr>
                                                         <td>
-                                                            <input type="hidden" name="flowerIds" value="${f.getRawId()}"/>
+                                                            <input type="hidden" name="flowerIds" value="${br.getBatchId()}" />
                                                             <select class="form-select form-select-sm flower-select" disabled>
-                                                                <c:forEach var="f" items="${allFlowers}">
+                                                                <c:forEach var="fb" items="${allBatchs}">
                                                                     <option
-                                                                        value="${f.getRawId()}"
-                                                                        data-price="${f.getUnitPrice()}"
-                                                                        <c:if test="${f.getRawId() eq br.getRaw_id()}">selected</c:if>
-                                                                        >${f.getRawName()}</option>
+                                                                        value="${fb.getFlowerId()}"
+                                                                        data-price="${fb.getUnitPrice()}"
+                                                                        <c:if test="${fb.getBatchId() eq br.getBatchId()}">selected</c:if>>
+
+                                                                        <c:forEach var="af" items="${allFlowers}">
+                                                                            <c:if test="${af.getFlowerId() eq fb.getFlowerId()}">
+                                                                                ${af.getFlowerName()}
+                                                                            </c:if>
+                                                                        </c:forEach>
+                                                                    </option>
                                                                 </c:forEach>
                                                             </select>
                                                         </td>
-                                                        <td>
-                                                            <span class="form-text price-text">$0.00</span>
-                                                            <input type="hidden" class="price-input" name="prices[]" value="0" />
-                                                        </td>
-                                                        <td>
-                                                            <input
-                                                                type="number"
-                                                                name="quantities"
-                                                                value="${br.getQuantity()}"
-                                                                min="1"
-                                                                step="1"
-                                                                readonly
-                                                                class="form-control form-control-sm quantity-input"
-                                                                />
-                                                        </td>
+                                            <td>
+                                                <span class="form-text price-text">$0.00</span>
+                                                <input type="hidden" class="price-input" name="prices[]" value="0" />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="number"
+                                                    name="quantities"
+                                                    value="${br.getQuantity()}"
+                                                    min="1"
+                                                    step="1"
+                                                    readonly
+                                                    class="form-control form-control-sm quantity-input"
+                                                    />
+                                            </td>
 
-                                                    </tr>
-                                                </c:forEach>
-                                            </tbody>
-                                            <tfoot>
-                                                <tr>
-                                                    <td colspan="4" class="text-start fw-bold text-primary">
-                                                        Price:
-                                                        <span id="totalValueDisplay">0.00 VND</span>
-                                                        <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
-                                                    </td>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
-                                        Sell Price: <span id="sellValueDisplay">0.00 VND</span>
-                                        <input type="hidden" id="sellValueInput"  name="sellValue"  value="0" />
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <!-- Delete Button -->
-                                        <button type="button"
-                                                class="btn btn-delete"
-                                                onclick="if (confirm('Do you want to delete?'))
+                                            </tr>
+                                        </c:forEach>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="4" class="text-start fw-bold text-primary">
+                                                    Price:
+                                                    <span id="totalValueDisplay">0.00 VND</span>
+                                                    <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                    Sell Price: <span id="sellValueDisplay">0.00 VND</span>
+                                    <input type="hidden" id="sellValueInput"  name="sellValue"  value="0" />
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <!-- Delete Button -->
+                                    <button type="button"
+                                            class="btn btn-delete"
+                                            onclick="if (confirm('Do you want to delete?'))
                                                             location.href = '${pageContext.request.contextPath}/deleteBouquet?id=${bouquetDetail.getBouquetId()}';">
-                                            Delete
-                                        </button>
+                                        Delete
+                                    </button>
 
-                                        <!-- Edit Button -->
-                                        <button type="button"
-                                                class="btn btn-edit"
-                                                onclick="location.href = '${pageContext.request.contextPath}/editBouquet?id=${bouquetDetail.getBouquetId()}';">
-                                            Edit
-                                        </button>
-
-                                    </div>
+                                    <!-- Edit Button -->
+                                    <button type="button"
+                                            class="btn btn-edit"
+                                            onclick="location.href = '${pageContext.request.contextPath}/editBouquet?id=${bouquetDetail.getBouquetId()}';">
+                                        Edit
+                                    </button>
 
                                 </div>
-                            </div>
 
-                        </div>
-                    </div>
-
-
-                    <!-- Blank End -->
-                </div>
-
-                <!-- Footer Start -->
-                <div class="container-fluid pt-4 px-4">
-                    <div class="bg-light rounded-top p-4">
-                        <div class="row">
-                            <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
-                            </div>
-                            <div class="col-12 col-sm-6 text-center text-sm-end">
-                                <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-                                Designed By <a href="https://htmlcodex.com">HTML Codex</a>
                             </div>
                         </div>
+
                     </div>
                 </div>
-                <!-- Footer End -->
+
+
+                <!-- Blank End -->
             </div>
-            <!-- Content End -->
 
-
-            <!-- Back to Top -->
-            <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+            <!-- Footer Start -->
+            <div class="container-fluid pt-4 px-4">
+                <div class="bg-light rounded-top p-4">
+                    <div class="row">
+                        <div class="col-12 col-sm-6 text-center text-sm-start">
+                            &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
+                        </div>
+                        <div class="col-12 col-sm-6 text-center text-sm-end">
+                            <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+                            Designed By <a href="https://htmlcodex.com">HTML Codex</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer End -->
         </div>
+        <!-- Content End -->
 
-        <!-- JavaScript Libraries -->
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
-        <!-- Template Javascript -->
-        <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+    </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
-                                                    function updatePrice(selectElement) {
-                                                        const selectedOption = selectElement.options[selectElement.selectedIndex];
-                                                        const price = selectedOption ? parseFloat(selectedOption.getAttribute('data-price') || "0") : 0;
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
+    <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
+    <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
+    <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
+    <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
-                                                        const row = selectElement.closest('tr');
-                                                        const priceText = row.querySelector('.price-text');
-                                                        const priceInput = row.querySelector('.price-input');
+    <!-- Template Javascript -->
+    <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
 
-                                                        priceText.textContent = price.toFixed(2) + 'VND';
-                                                        priceInput.value = price;
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+                                                function updatePrice(selectElement) {
+                                                    const selectedOption = selectElement.options[selectElement.selectedIndex];
+                                                    const price = selectedOption ? parseFloat(selectedOption.getAttribute('data-price') || "0") : 0;
 
-                                                        calculateTotal();
-                                                    }
+                                                    const row = selectElement.closest('tr');
+                                                    const priceText = row.querySelector('.price-text');
+                                                    const priceInput = row.querySelector('.price-input');
 
-                                                    function calculateTotal() {
-                                                        let total = 0;
-                                                        const rows = document.querySelectorAll('#flowerTable tbody tr');
+                                                    priceText.textContent = price.toFixed(2) + 'VND';
+                                                    priceInput.value = price;
 
-                                                        rows.forEach(row => {
-                                                            const price = parseFloat(row.querySelector('.price-input')?.value || 0);
-                                                            const quantity = parseInt(row.querySelector('input[name^="quantities"]')?.value || 0);
-                                                            total += price * quantity;
-                                                        });
+                                                    calculateTotal();
+                                                }
 
-                                                        // Cập nhật Total Price
-                                                        document.getElementById('totalValueDisplay').textContent = total.toFixed(2) + ' VND';
-                                                        document.getElementById('totalValueInput').value = total.toFixed(2);
+                                                function calculateTotal() {
+                                                    let total = 0;
+                                                    const rows = document.querySelectorAll('#flowerTable tbody tr');
 
-                                                        // Tính và cập nhật Sell Price ra ngoài bảng
-                                                        const sellTotal = total * 5;
-                                                        document.getElementById('sellValueDisplay').textContent = sellTotal.toFixed(2) + ' VND';
-                                                        document.getElementById('sellValueInput').value = sellTotal.toFixed(2);
-                                                    }
-
-                                                    function attachEventsToRow(row) {
-                                                        const select = row.querySelector('.flower-select');
-                                                        const quantityInput = row.querySelector('input[name^="quantities"]');
-                                                        const deleteButton = row.querySelector('.btn-outline-danger');
-
-                                                        if (select) {
-                                                            updatePrice(select);
-                                                            select.addEventListener('change', function () {
-                                                                updatePrice(this);
-                                                            });
-                                                        }
-
-                                                        if (quantityInput) {
-                                                            quantityInput.addEventListener('input', calculateTotal);
-                                                        }
-
-                                                        if (deleteButton) {
-                                                            deleteButton.addEventListener('click', function () {
-                                                                row.remove();
-                                                                calculateTotal(); // ✅ Update lại khi xóa
-                                                            });
-                                                        }
-                                                    }
-
-                                                    document.addEventListener('DOMContentLoaded', function () {
-                                                        // Gắn sự kiện cho dòng đầu tiên mặc định
-                                                        document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
-                                                            attachEventsToRow(row);
-                                                        });
-
-                                                        calculateTotal(); // Khởi tạo tổng ban đầu
+                                                    rows.forEach(row => {
+                                                        const price = parseFloat(row.querySelector('.price-input')?.value || 0);
+                                                        const quantity = parseInt(row.querySelector('input[name^="quantities"]')?.value || 0);
+                                                        total += price * quantity;
                                                     });
 
-                                                    document.getElementById('addFlowerBtn').addEventListener('click', function () {
-                                                        const template = document.getElementById('flowerRowTemplate');
-                                                        const newRow = template.cloneNode(true);
-                                                        newRow.removeAttribute('id');
-                                                        newRow.style.display = '';
+                                                    // Cập nhật Total Price
+                                                    document.getElementById('totalValueDisplay').textContent = total.toFixed(2) + ' VND';
+                                                    document.getElementById('totalValueInput').value = total.toFixed(2);
 
-                                                        document.querySelector('#flowerTable tbody').appendChild(newRow);
-                                                        attachEventsToRow(newRow);
-                                                        calculateTotal();
+                                                    // Tính và cập nhật Sell Price ra ngoài bảng
+                                                    const sellTotal = total * 5;
+                                                    document.getElementById('sellValueDisplay').textContent = sellTotal.toFixed(2) + ' VND';
+                                                    document.getElementById('sellValueInput').value = sellTotal.toFixed(2);
+                                                }
+
+                                                function attachEventsToRow(row) {
+                                                    const select = row.querySelector('.flower-select');
+                                                    const quantityInput = row.querySelector('input[name^="quantities"]');
+                                                    const deleteButton = row.querySelector('.btn-outline-danger');
+
+                                                    if (select) {
+                                                        updatePrice(select);
+                                                        select.addEventListener('change', function () {
+                                                            updatePrice(this);
+                                                        });
+                                                    }
+
+                                                    if (quantityInput) {
+                                                        quantityInput.addEventListener('input', calculateTotal);
+                                                    }
+
+                                                    if (deleteButton) {
+                                                        deleteButton.addEventListener('click', function () {
+                                                            row.remove();
+                                                            calculateTotal(); // ✅ Update lại khi xóa
+                                                        });
+                                                    }
+                                                }
+
+                                                document.addEventListener('DOMContentLoaded', function () {
+                                                    // Gắn sự kiện cho dòng đầu tiên mặc định
+                                                    document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
+                                                        attachEventsToRow(row);
                                                     });
-        </script>
 
-        <script>
-            const imageUrls = [
-            <c:forEach var="img" items="${images}" varStatus="status">
-            "${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}"<c:if test="${!status.last}">,</c:if>
-            </c:forEach>
-                ];
+                                                    calculateTotal(); // Khởi tạo tổng ban đầu
+                                                });
 
-                let currentIndex = 0;
-                const mainImage = document.getElementById("mainImage");
-                const prevBtn = document.getElementById("prevImage");
-                const nextBtn = document.getElementById("nextImage");
+                                                document.getElementById('addFlowerBtn').addEventListener('click', function () {
+                                                    const template = document.getElementById('flowerRowTemplate');
+                                                    const newRow = template.cloneNode(true);
+                                                    newRow.removeAttribute('id');
+                                                    newRow.style.display = '';
 
-                prevBtn.addEventListener("click", () => {
-                    if (currentIndex > 0) {
-                        currentIndex--;
-                        mainImage.src = imageUrls[currentIndex];
-                    }
-                });
+                                                    document.querySelector('#flowerTable tbody').appendChild(newRow);
+                                                    attachEventsToRow(newRow);
+                                                    calculateTotal();
+                                                });
+    </script>
 
-                nextBtn.addEventListener("click", () => {
-                    if (currentIndex < imageUrls.length - 1) {
-                        currentIndex++;
-                        mainImage.src = imageUrls[currentIndex];
-                    }
-                });
+    <script>
+        const imageUrls = [
+        <c:forEach var="img" items="${images}" varStatus="status">
+        "${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}"<c:if test="${!status.last}">,</c:if>
+        </c:forEach>
+            ];
 
-                const viewAllImagesLink = document.getElementById("viewAllImages");
-                const allImagesModal = new bootstrap.Modal(document.getElementById("allImagesModal"));
+            let currentIndex = 0;
+            const mainImage = document.getElementById("mainImage");
+            const prevBtn = document.getElementById("prevImage");
+            const nextBtn = document.getElementById("nextImage");
 
-                viewAllImagesLink.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    allImagesModal.show();
-                });
-        </script>
-    </body>
+            prevBtn.addEventListener("click", () => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    mainImage.src = imageUrls[currentIndex];
+                }
+            });
+
+            nextBtn.addEventListener("click", () => {
+                if (currentIndex < imageUrls.length - 1) {
+                    currentIndex++;
+                    mainImage.src = imageUrls[currentIndex];
+                }
+            });
+
+            const viewAllImagesLink = document.getElementById("viewAllImages");
+            const allImagesModal = new bootstrap.Modal(document.getElementById("allImagesModal"));
+
+            viewAllImagesLink.addEventListener("click", (e) => {
+                e.preventDefault();
+                allImagesModal.show();
+            });
+    </script>
+</body>
 </html>
