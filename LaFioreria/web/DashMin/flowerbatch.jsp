@@ -6,6 +6,7 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <style>
     /* Table styling from blank.jsp */
     .table td, .table th {
@@ -15,6 +16,8 @@
     .table-responsive {
         display: flex;
         justify-content: center;
+        flex-direction: column;
+        align-items: center;
     }
     .table {
         width: 100%;
@@ -41,23 +44,44 @@
     .filter-form {
         display: flex;
         justify-content: center;
+        align-items: center;
         margin-bottom: 20px;
-        gap: 10px;
+        gap: 12px;
     }
-    .filter-form select, .filter-form button {
-        padding: 8px 12px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 14px;
+    .filter-form select {
+        padding: 10px 14px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 15px;
+        background-color: #fff;
+        color: #495057;
+        transition: border-color 0.3s, box-shadow 0.3s;
+        min-width: 200px;
+    }
+    .filter-form select:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
     }
     .filter-form button {
-        background-color: #007bff;
-        color: white;
+        padding: 10px 24px;
         border: none;
+        border-radius: 6px;
+        font-size: 15px;
+        font-weight: 500;
+        background-color: #007bff;
+        color: #fff;
         cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
     }
     .filter-form button:hover {
         background-color: #0056b3;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 86, 179, 0.2);
+    }
+    .filter-form button:active {
+        transform: translateY(0);
+        box-shadow: none;
     }
 </style>
 <div class="table-responsive mb-3">
@@ -72,7 +96,7 @@
                 </option>
             </c:forEach>
         </select>
-        <button type="submit">Filter</button>
+        <button type="submit">Search</button>
     </form>
 
     <table class="table table-bordered align-middle">
@@ -120,6 +144,7 @@
                 </th>
                 <th scope="col">Hold</th>
                 <th scope="col">Warehouse</th>
+                <th scope="col">Status</th>
                 <th colspan="2">Action</th>
             </tr>
         </thead>
@@ -145,11 +170,12 @@
                             <td>${batch.quantity}</td>
                             <td>${batch.hold}</td>
                             <td>${batch.warehouse.name}</td>
+                            <td>${batch.status}</td>
                             <td>
                                 <button type="button"
                                         class="btn btn-delete"
                                         onclick="if (confirm('Do you want to delete?'))
-                                                    location.href = '${pageContext.request.contextPath}/hidebatch?batch_id=${batch.batchId}';">
+                                                    location.href = '${pageContext.request.contextPath}/delete_batch?batch_id=${batch.batchId}&flower_id=${param.flower_id}';">
                                     Delete
                                 </button>
                                 <button type="button"

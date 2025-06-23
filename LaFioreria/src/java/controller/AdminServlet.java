@@ -6,6 +6,7 @@ package controller;
 
 import com.google.gson.Gson;
 import dal.DAOContact;
+import dal.OrderDAO;
 import dal.SalesDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -16,9 +17,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Year;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import model.Category;
 import model.Contact;
+import model.OrderStatusCount;
 import model.SalesRecord;
 import model.StatResult;
 
@@ -69,58 +75,48 @@ public class AdminServlet extends HttpServlet {
             throws ServletException, IOException {
         DAOContact Dao = new DAOContact();
         List<Contact> contactList = Dao.getAllContacts();
-
         request.setAttribute("messages", contactList);
 
         SalesDAO dao = new SalesDAO();
         Gson gson = new Gson();
 
+        OrderDAO oDAO = new OrderDAO();
         // ✅ Xử lý năm được chọn cho biểu đồ thống kê theo tháng
         String yearParam = request.getParameter("year");
         int selectedYear = (yearParam != null && !yearParam.isEmpty())
                 ? Integer.parseInt(yearParam)
                 : Year.now().getValue();
 
-        // ✅ Lấy danh sách StatResult từ DAO
         List<StatResult> stats = dao.getMonthlyStats(selectedYear);
-
-        // ✅ Tách label, revenue, orderCount thành 3 list riêng để vẽ biểu đồ
         List<String> labels = new ArrayList<>();
         List<Double> revenues = new ArrayList<>();
         List<Integer> orders = new ArrayList<>();
-
         for (StatResult stat : stats) {
             labels.add(stat.getLabel());
             revenues.add(stat.getRevenue());
             orders.add(stat.getOrderCount());
         }
-
-        // ✅ Convert sang JSON
         request.setAttribute("labelsJson", gson.toJson(labels));
         request.setAttribute("revenuesJson", gson.toJson(revenues));
         request.setAttribute("ordersJson", gson.toJson(orders));
         request.setAttribute("selectedYear", selectedYear);
 
-        // Lấy khoảng năm người dùng chọn
         String fromParam = request.getParameter("fromYear");
         String toParam = request.getParameter("toYear");
-
         int currentYear = Year.now().getValue();
         int fromYear = (fromParam != null && !fromParam.isEmpty()) ? Integer.parseInt(fromParam) : currentYear - 5;
         int toYear = (toParam != null && !toParam.isEmpty()) ? Integer.parseInt(toParam) : currentYear;
 
-        // --- Tháng: luôn dùng năm toYear làm mặc định (hoặc năm hiện tại)
         List<StatResult> monthStats = dao.getMonthlyStats(toYear);
         request.setAttribute("monthYear", toYear);
         request.setAttribute("monthLabels", gson.toJson(getLabels(monthStats)));
         request.setAttribute("monthRevenues", gson.toJson(getRevenues(monthStats)));
         request.setAttribute("monthOrders", gson.toJson(getOrders(monthStats)));
 
-        // --- Năm: lọc từ getYearlyStats() theo fromYear và toYear
         List<StatResult> allYears = dao.getYearlyStats();
         List<StatResult> filteredYears = new ArrayList<>();
         for (StatResult stat : allYears) {
-            String label = stat.getLabel(); // "Năm 2023"
+            String label = stat.getLabel();
             int year = Integer.parseInt(label.replace("Năm ", "").trim());
             if (year >= fromYear && year <= toYear) {
                 filteredYears.add(stat);
@@ -130,7 +126,6 @@ public class AdminServlet extends HttpServlet {
         request.setAttribute("yearRevenues", gson.toJson(getRevenues(filteredYears)));
         request.setAttribute("yearOrders", gson.toJson(getOrders(filteredYears)));
 
-        // --- Thứ trong tuần (không cần lọc)
         List<StatResult> weekdayStats = dao.getWeekdayStats();
         request.setAttribute("weekdayLabels", gson.toJson(getLabels(weekdayStats)));
         request.setAttribute("weekdayRevenues", gson.toJson(getRevenues(weekdayStats)));
@@ -145,16 +140,89 @@ public class AdminServlet extends HttpServlet {
 
         int todayOrders = dao.getTodayOrderCount();
         double thisMonthRevenue = dao.getThisMonthRevenue();
-
+        double totalRevenue = dao.getTotalRevenue();
         request.setAttribute("todayOrders", todayOrders);
         request.setAttribute("thisMonthRevenue", thisMonthRevenue);
+        request.setAttribute("totalRevenue", totalRevenue);
 
         Map<String, Double> thisMonth = dao.getRevenueGroupedThisMonth();
         request.setAttribute("thisMonthLabels", gson.toJson(new ArrayList<>(thisMonth.keySet())));
         request.setAttribute("thisMonthValues", gson.toJson(new ArrayList<>(thisMonth.values())));
 
-        request.getRequestDispatcher("/DashMin/admin.jsp").forward(request, response);
+// ✅ Thống kê theo loại hoa (tháng này)
+        List<Category> categoryList = dao.getAllCategories();
+        request.setAttribute("categoryList", categoryList);
 
+// ✅ Convert sẵn categoryList sang JSON để main.js dùng
+        request.setAttribute("categoryListJson", gson.toJson(categoryList));
+
+        String[] selectedIds = request.getParameterValues("cid");
+        if (selectedIds != null && selectedIds.length > 0) {
+            Set<String> allDates = new TreeSet<>();
+
+            // Map để chứa tạm các dữ liệu revenue theo từng category name
+            Map<String, List<Double>> categoryData = new LinkedHashMap<>();
+
+            for (String idStr : selectedIds) {
+                int cid = Integer.parseInt(idStr);
+                Map<String, Double> data = dao.getRevenueGroupedByCategory(cid);
+
+                // Tìm tên category theo id
+                String categoryName = "";
+                for (Category c : categoryList) {
+                    if (c.getCategoryId() == cid) {
+                        categoryName = c.getCategoryName();
+                        break;
+                    }
+                }
+
+                // Gom tất cả các ngày lại (dùng để làm labels)
+                allDates.addAll(data.keySet());
+
+                // Tạm lưu dữ liệu để xử lý sau
+                categoryData.put(categoryName, data != null ? new ArrayList<>(data.values()) : new ArrayList<>());
+            }
+
+            // Chuẩn hóa lại tất cả dữ liệu để đảm bảo đúng labels (ngày)
+            List<String> dateList = new ArrayList<>(allDates);
+
+            for (String idStr : selectedIds) {
+                int cid = Integer.parseInt(idStr);
+                Map<String, Double> data = dao.getRevenueGroupedByCategory(cid);
+
+                String categoryName = "";
+                for (Category c : categoryList) {
+                    if (c.getCategoryId() == cid) {
+                        categoryName = c.getCategoryName();
+                        break;
+                    }
+                }
+
+                List<Double> values = new ArrayList<>();
+                for (String date : dateList) {
+                    values.add(data != null ? data.getOrDefault(date, 0.0) : 0.0);
+                }
+
+                // ✅ Đây là điểm quan trọng: phải set thuộc tính theo tên category để main.js lấy được
+                request.setAttribute(categoryName + "_data", gson.toJson(values));
+            }
+
+            // ✅ Gửi labels (tức danh sách ngày) để vẽ trục X
+            request.setAttribute("labelsJson", gson.toJson(dateList));
+        }
+        String filter = request.getParameter("filter");
+        if (filter == null) {
+            filter = "month"; // mặc định là tháng này
+        }
+
+        List<SalesRecord> salesListbyfilter = dao.getSalesReport(filter);
+        request.setAttribute("salesListfilter", salesListbyfilter);
+        request.setAttribute("filter", filter); // để hiển thị lại filter đã chọn
+
+        List<OrderStatusCount> statusCounts = oDAO.getOrderStatusCounts();
+        request.setAttribute("statusCounts", statusCounts);
+
+        request.getRequestDispatcher("/DashMin/admin.jsp").forward(request, response);
     }
 
     private List<String> getLabels(List<StatResult> list) {
