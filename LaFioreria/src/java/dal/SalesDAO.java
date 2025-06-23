@@ -106,6 +106,61 @@ public class SalesDAO extends BaseDao {
         return list;
     }
 
+    public List<SalesRecord> getSalesReport(String filterType) {
+        List<SalesRecord> list = new ArrayList<>();
+        String condition = "";
+
+        switch (filterType) {
+            case "week":
+                condition = "WEEK(o.order_date, 1) = WEEK(CURDATE(), 1) AND YEAR(o.order_date) = YEAR(CURDATE())";
+                break;
+            case "month":
+                condition = "MONTH(o.order_date) = MONTH(CURDATE()) AND YEAR(o.order_date) = YEAR(CURDATE())";
+                break;
+            case "year":
+                condition = "YEAR(o.order_date) = YEAR(CURDATE())";
+                break;
+            case "all":
+            default:
+                condition = "1=1"; // không lọc gì cả
+                break;
+        }
+
+        String sql = "SELECT o.order_id, o.order_date, u.Fullname AS customer_name, "
+                + "b.bouquet_name, c.category_name, oi.quantity, oi.unit_price, "
+                + "(oi.quantity * oi.unit_price) AS total_price, os.status_name "
+                + "FROM `order` o "
+                + "JOIN order_item oi ON o.order_id = oi.order_id "
+                + "JOIN bouquet b ON oi.bouquet_id = b.Bouquet_ID "
+                + "JOIN category c ON b.cid = c.category_id "
+                + "JOIN user u ON o.customer_id = u.User_ID "
+                + "JOIN order_status os ON o.status_id = os.order_status_id "
+                + "WHERE " + condition + " "
+                + "ORDER BY o.order_date DESC";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                SalesRecord r = new SalesRecord();
+                r.setOrderID(rs.getInt("order_id"));
+                r.setOrderDate(rs.getString("order_date"));
+                r.setCustomerName(rs.getString("customer_name"));
+                r.setProductName(rs.getString("bouquet_name"));
+                r.setCategoryName(rs.getString("category_name"));
+                r.setQuantity(rs.getInt("quantity"));
+                r.setUnitPrice(rs.getDouble("unit_price"));
+                r.setTotalPrice(rs.getDouble("total_price"));
+                r.setStatus(rs.getString("status_name"));
+                list.add(r);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     public int getTodayOrderCount() {
         String sql = "SELECT COUNT(DISTINCT o.order_id) AS today_orders "
                 + "FROM `order` o WHERE o.order_date = CURDATE()";
