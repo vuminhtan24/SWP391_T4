@@ -94,6 +94,46 @@
             });
         }
 
+// Biểu đồ tỉ lệ đơn hàng theo trạng thái (Donut chart)
+        if ($("#orderStatusChart").length) {
+            const canvas = document.getElementById('orderStatusChart');
+            const ctx = canvas.getContext('2d');
+            const labels = JSON.parse(canvas.getAttribute('data-labels') || "[]");
+            const data = JSON.parse(canvas.getAttribute('data-values') || "[]");
+
+            if (labels.length && data.length) {
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                                label: 'Số lượng đơn hàng',
+                                data: data,
+                                backgroundColor: [
+                                    '#4CAF50', '#FFC107', '#2196F3', '#FF5722', '#9C27B0'
+                                ],
+                                borderWidth: 1
+                            }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {position: 'bottom'},
+                            title: {
+                                display: true,
+                                text: 'Tỉ lệ đơn hàng theo trạng thái'
+                            }
+                        }
+                    }
+                });
+            } else {
+                console.warn("Không có dữ liệu trạng thái đơn hàng.");
+            }
+        }
+
+
+
+
         if (document.getElementById("thisMonthChart")) {
             const labels = JSON.parse(document.getElementById("thisMonthChart").getAttribute("data-labels"));
             const values = JSON.parse(document.getElementById("thisMonthChart").getAttribute("data-values"));

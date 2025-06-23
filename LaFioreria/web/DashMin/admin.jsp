@@ -296,6 +296,28 @@
                         </c:if>
                     </div>
                 </div>
+                <c:if test="${not empty statusCounts}">
+                    <div class="container-fluid pt-4 px-4">
+                        <div class="bg-light rounded p-4">
+                            <h2 class="mb-4">📊 Tỉ lệ đơn hàng theo trạng thái</h2>
+
+                            <!-- Bọc canvas trong một div cố định kích thước -->
+                            <div style="width: 300px; height: 300px; margin: auto;">
+                                <canvas id="orderStatusChart"
+                                        data-labels='[<c:forEach var="s" items="${statusCounts}" varStatus="loop">
+                                            "${s.statusName}"<c:if test="${!loop.last}">,</c:if>
+                                        </c:forEach>]'
+                                        data-values='[<c:forEach var="s" items="${statusCounts}" varStatus="loop">
+                                            ${s.total}<c:if test="${!loop.last}">,</c:if>
+                                        </c:forEach>]'
+                                        style="width:100% !important; height:100% !important;">
+                                </canvas>
+                            </div>
+                        </div>
+                    </div>
+                </c:if>
+
+
 
 
                 <!-- Sales Chart End -->
@@ -342,7 +364,49 @@
                             </table>
                         </div>
                     </div>
+                    <form method="get" action="${pageContext.request.contextPath}/DashMin/admin">
+                        <label for="filter">Lọc theo:</label>
+                        <select name="filter" id="filter" onchange="this.form.submit()">
+                            <option value="week" ${param.filter == 'week' ? 'selected' : ''}>Tuần này</option>
+                            <option value="month" ${param.filter == 'month' ? 'selected' : ''}>Tháng này</option>
+                            <option value="year" ${param.filter == 'year' ? 'selected' : ''}>Năm nay</option>
+                            <option value="all" ${param.filter == 'all' ? 'selected' : ''}>Tất cả</option>
+                        </select>
+
+                    </form>
+                    <table border="1" cellspacing="0" cellpadding="8" class="table table-bordered table-striped">
+                        <thead>
+                            <tr style="background-color: #f0f0f0;">
+                                <th>Order ID</th>
+                                <th>Ngày đặt</th>
+                                <th>Khách hàng</th>
+                                <th>Sản phẩm</th>
+                                <th>Loại</th>
+                                <th>Số lượng</th>
+                                <th>Đơn giá</th>
+                                <th>Tổng</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="r" items="${salesListfilter}">
+                                <tr>
+                                    <td>${r.orderID}</td>
+                                    <td>${r.orderDate}</td>
+                                    <td>${r.customerName}</td>
+                                    <td>${r.productName}</td>
+                                    <td>${r.categoryName}</td>
+                                    <td>${r.quantity}</td>
+                                    <td>${r.unitPrice}</td>
+                                    <td>${r.totalPrice}</td>
+                                    <td>${r.status}</td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
                 </div>
+
+
 
                 <!-- Recent Sales End -->
 
@@ -490,17 +554,17 @@
 
         <!-- Gán dữ liệu vào canvas qua data-attributes để JS đọc -->
         <script>
-            document.getElementById("monthChart").setAttribute("data-labels", '<%= request.getAttribute("monthLabels") %>');
-            document.getElementById("monthChart").setAttribute("data-revenues", '<%= request.getAttribute("monthRevenues") %>');
-            document.getElementById("monthChart").setAttribute("data-orders", '<%= request.getAttribute("monthOrders") %>');
+                            document.getElementById("monthChart").setAttribute("data-labels", '<%= request.getAttribute("monthLabels") %>');
+                            document.getElementById("monthChart").setAttribute("data-revenues", '<%= request.getAttribute("monthRevenues") %>');
+                            document.getElementById("monthChart").setAttribute("data-orders", '<%= request.getAttribute("monthOrders") %>');
 
-            document.getElementById("yearChart").setAttribute("data-labels", '<%= request.getAttribute("yearLabels") %>');
-            document.getElementById("yearChart").setAttribute("data-revenues", '<%= request.getAttribute("yearRevenues") %>');
-            document.getElementById("yearChart").setAttribute("data-orders", '<%= request.getAttribute("yearOrders") %>');
+                            document.getElementById("yearChart").setAttribute("data-labels", '<%= request.getAttribute("yearLabels") %>');
+                            document.getElementById("yearChart").setAttribute("data-revenues", '<%= request.getAttribute("yearRevenues") %>');
+                            document.getElementById("yearChart").setAttribute("data-orders", '<%= request.getAttribute("yearOrders") %>');
 
-            document.getElementById("weekdayChart").setAttribute("data-labels", '<%= request.getAttribute("weekdayLabels") %>');
-            document.getElementById("weekdayChart").setAttribute("data-revenues", '<%= request.getAttribute("weekdayRevenues") %>');
-            document.getElementById("weekdayChart").setAttribute("data-orders", '<%= request.getAttribute("weekdayOrders") %>');
+                            document.getElementById("weekdayChart").setAttribute("data-labels", '<%= request.getAttribute("weekdayLabels") %>');
+                            document.getElementById("weekdayChart").setAttribute("data-revenues", '<%= request.getAttribute("weekdayRevenues") %>');
+                            document.getElementById("weekdayChart").setAttribute("data-orders", '<%= request.getAttribute("weekdayOrders") %>');
         </script>
         <!-- Template Javascript -->
         <script src="js/main.js"></script>

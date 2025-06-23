@@ -184,6 +184,7 @@
                                                         class="form-control" 
                                                         accept=".jpg,.jpeg,.png" 
                                                         multiple
+                                                        required
                                                         />
                                                     <small class="form-text text-muted">
                                                         You can select up to 5 photos (.jpg, .jpeg, .png).
@@ -193,6 +194,7 @@
                                                     </a>
 
                                                 </div>
+                                                <p style="color: red">${fn:escapeXml(requestScope.errImg)}</p>
                                             </div>
 
                                             <!-- Modal Preview -->
@@ -249,32 +251,46 @@
                                             <thead class="table-dark">
                                                 <tr>
                                                     <th>Flower</th>
+                                                    <th>Flower Batch</th>
                                                     <th>Price per Stem</th>
                                                     <th>Quantity</th>
                                                     <th style="width:50px;"></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <!-- Dòng mặc định cũng dùng placeholder -->
+                                                <!-- Dòng mặc định -->
                                                 <tr>
+                                                    <!-- Flower -->
                                                     <td>
-                                                        <select name="flowerIds" class="form-select form-select-sm flower-select" onchange="updatePrice(this)">
+                                                        <select name="flowerIds" class="form-select form-select-sm flower-id-select">
                                                             <option value="0" disabled selected>-- Select Flower --</option>
-                                                            <c:forEach var="f" items="${flowerInBouquet}">
-                                                                <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">
-                                                                    ${f.getRawName()}
-                                                                </option>
+                                                            <c:forEach var="af" items="${allFlowers}">
+                                                                <option value="${af.getFlowerId()}">${af.getFlowerName()}</option>
                                                             </c:forEach>
                                                         </select>
                                                     </td>
+
+                                                    <!-- Batch -->
+                                                    <td>
+                                                        <select name="batchIds" class="form-select form-select-sm batch-select">
+                                                            <option value="0" disabled selected>-- Select Batch --</option>
+                                                            <!-- JS sẽ fill -->
+                                                        </select>
+                                                    </td>
+
+                                                    <!-- Price -->
                                                     <td>
                                                         <span class="form-text price-text">0.00 VND</span>
                                                         <input type="hidden" class="price-input" name="prices[]" value="0" />
                                                     </td>
+
+                                                    <!-- Quantity -->
                                                     <td>
                                                         <input type="number" name="quantities" value="1" min="1" step="1"
                                                                required class="form-control form-control-sm" oninput="calculateTotal()" />
                                                     </td>
+
+                                                    <!-- Delete -->
                                                     <td>
                                                         <button type="button" class="btn btn-sm btn-outline-danger"
                                                                 onclick="this.closest('tr').remove(); calculateTotal(); refreshAllOptions();">
@@ -285,18 +301,18 @@
                                             </tbody>
                                             <tfoot>
                                                 <tr>
-                                                    <td colspan="4">
+                                                    <td colspan="5">
                                                         <div class="mt-3 text-start fw-bold" style="color: #1e40af;">
-                                                            Price: <span id="totalValueDisplay">0.00 VND</span>
+                                                            Price: <span id="totalValueDisplay">0.00 VND</span><br />
+                                                            Sell Price: <span id="sellValueDisplay">0.00 VND</span>
                                                         </div>
                                                         <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
+                                                        <input type="hidden" id="sellValueInput" name="sellValue" value="0" />
                                                     </td>
                                                 </tr>
                                             </tfoot>
+                                            <h6 style="color: red">${requestScope.error}</h6>
                                         </table>
-                                        <div class="mt-3 text-start fw-bold" style="color: #1e40af;">
-                                            Sell Price: <span id="sellValueDisplay">0.00 VND</span>
-                                        </div>
                                         <input type="hidden" id="sellValueInput"  name="sellValue"  value="0" />
                                         <div class="text-end mb-4">
                                             <button type="button" id="addFlowerBtn" class="btn btn-outline-primary btn-sm">
@@ -319,33 +335,46 @@
                 <table style="display:none;">
                     <tbody>
                         <tr id="flowerRowTemplate">
+                            <!-- Flower -->
                             <td>
-                                <select name="flowerIds" class="form-select form-select-sm flower-select" onchange="updatePrice(this)">
-                                    <option value="" disabled selected>-- Select Flower --</option>
-                                    <c:forEach var="f" items="${flowerInBouquet}">
-                                        <option value="${f.getRawId()}" data-price="${f.getUnitPrice()}">
-                                            ${f.getRawName()}
-                                        </option>
+                                <select name="flowerIds" class="form-select form-select-sm flower-id-select">
+                                    <option value="0" disabled selected>-- Select Flower --</option>
+                                    <c:forEach var="af" items="${allFlowers}">
+                                        <option value="${af.getFlowerId()}">${af.getFlowerName()}</option>
                                     </c:forEach>
                                 </select>
                             </td>
+
+                            <!-- Batch (import date, giá sẽ tự cập nhật khi chọn) -->
+                            <td>
+                                <select name="batchIds" class="form-select form-select-sm batch-select">
+                                    <option value="0" disabled selected>-- Select Batch --</option>
+                                    <!-- JS sẽ đổ dữ liệu tương ứng với flowerId -->
+                                </select>
+                            </td>
+
+                            <!-- Price per Stem -->
                             <td>
                                 <span class="form-text price-text">0.00 VND</span>
                                 <input type="hidden" class="price-input" name="prices[]" value="0" />
                             </td>
+
+                            <!-- Quantity -->
                             <td>
                                 <input type="number" name="quantities" value="1" min="1" step="1"
-                                       class="form-control form-control-sm" oninput="calculateTotal()" />
+                                       class="form-control form-control-sm" />
                             </td>
+
+                            <!-- Remove button -->
                             <td>
-                                <button type="button" class="btn btn-sm btn-outline-danger"
-                                        onclick="this.closest('tr').remove(); calculateTotal(); refreshAllOptions();">
+                                <button type="button" class="btn btn-sm btn-outline-danger">
                                     &times;
                                 </button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+
 
 
 
@@ -388,88 +417,130 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-                                            function updatePrice(sel) {
-                                                // khi user chọn 1 hoa (không phải placeholder)
-                                                if (!sel.value)
-                                                    return;
-                                                const price = parseFloat(sel.selectedOptions[0].dataset.price || 0);
-                                                const row = sel.closest('tr');
-                                                row.querySelector('.price-text').textContent = price.toFixed(2) + ' VND';
-                                                row.querySelector('.price-input').value = price;
-                                                calculateTotal();
-                                                refreshAllOptions();
-                                            }
+                                                                    // === ✅ THÊM DỮ LIỆU batchS TỪ SERVER ===
+                                                                    const allBatchs = [
+            <c:forEach var="fb" items="${allBatchs}" varStatus="loop">
+                                                                    {
+                                                                    batchId: '${fb.getBatchId()}',
+                                                                            flowerId: '${fb.getFlowerId()}',
+                                                                            importDate: '${fb.getImportDate()}',
+                                                                            unitPrice: ${fb.getUnitPrice()}
+                                                                    }<c:if test="${!loop.last}">,</c:if>
+            </c:forEach>
+                                                                    ];
 
-                                            function calculateTotal() {
-                                                let total = 0;
-                                                document.querySelectorAll('#flowerTable tbody tr').forEach(r => {
-                                                    const p = parseFloat(r.querySelector('.price-input').value) || 0;
-                                                    const q = parseInt(r.querySelector('input[name="quantities"]').value) || 0;
-                                                    total += p * q;
-                                                });
+                                                                    // === ✅ THÊM HÀM onchange CHO FLOWER SELECT ===
+                                                                    function onFlowerChange(sel) {
+                                                                        const row = sel.closest('tr');
+                                                                        const flowerId = sel.value;
+                                                                        const batchSelect = row.querySelector('.batch-select');
+                                                                        const priceText = row.querySelector('.price-text');
+                                                                        const priceInput = row.querySelector('.price-input');
 
-                                                // Cập nhật Total Price
-                                                document.getElementById('totalValueDisplay').textContent = total.toFixed(2) + ' VND';
-                                                document.getElementById('totalValueInput').value = total.toFixed(2);
+                                                                        // Reset batch dropdown
+                                                                        batchSelect.innerHTML = '<option value="0" disabled selected>-- Select Batch --</option>';
 
-                                                // Tính và cập nhật Sell Price (bên ngoài bảng)
-                                                const sellTotal = total * 5;
-                                                document.getElementById('sellValueDisplay').textContent = sellTotal.toFixed(2) + ' VND';
-                                                document.getElementById('sellValueInput').value = sellTotal.toFixed(2);
-                                            }
+                                                                        // Lọc các batch của hoa đã chọn
+                                                                        allBatchs.forEach(batch => {
+                                                                            if (batch.flowerId === flowerId) {
+                                                                                const opt = document.createElement('option');
+                                                                                opt.value = batch.batchId;
+                                                                                opt.textContent = batch.importDate;
+                                                                                opt.setAttribute('data-price', batch.unitPrice);
+                                                                                batchSelect.appendChild(opt);
+                                                                            }
+                                                                        });
 
-                                            function refreshAllOptions() {
-                                                const selects = Array.from(document.querySelectorAll('select.flower-select'));
-                                                const chosen = new Set(
-                                                        selects
-                                                        .map(s => s.value)
-                                                        .filter(v => v)  // bỏ placeholder
-                                                        );
-                                                selects.forEach(sel => {
-                                                    sel.querySelectorAll('option').forEach(opt => {
-                                                        if (opt.value && chosen.has(opt.value) && opt.value !== sel.value) {
-                                                            opt.disabled = true;
-                                                            opt.style.backgroundColor = '#e9ecef';
-                                                        } else {
-                                                            opt.disabled = false;
-                                                            opt.style.backgroundColor = '';
-                                                        }
-                                                    });
-                                                });
-                                            }
+                                                                        // Reset giá
+                                                                        priceText.textContent = "0.00 VND";
+                                                                        priceInput.value = 0;
+                                                                        calculateTotal();
+                                                                    }
 
-                                            function attachEvents(row) {
-                                                const sel = row.querySelector('select.flower-select');
-                                                const del = row.querySelector('.btn-outline-danger');
-                                                const qty = row.querySelector('input[name="quantities"]');
-                                                sel.addEventListener('change', () => updatePrice(sel));
-                                                qty.addEventListener('input', calculateTotal);
-                                                del.addEventListener('click', () => {
-                                                    row.remove();
-                                                    calculateTotal();
-                                                    refreshAllOptions();
-                                                });
-                                            }
+                                                                    // === ⛔ ĐỪNG ĐỤNG VÀO HÀM NÀY (NGUYÊN BẢN) ===
+                                                                    function updatePrice(sel) {
+                                                                        if (!sel.value)
+                                                                            return;
+                                                                        const price = parseFloat(sel.selectedOptions[0].dataset.price || 0);
+                                                                        const row = sel.closest('tr');
+                                                                        row.querySelector('.price-text').textContent = price.toFixed(2) + ' VND';
+                                                                        row.querySelector('.price-input').value = price;
+                                                                        calculateTotal();
+                                                                        refreshAllOptions();
+                                                                    }
 
-                                            document.addEventListener('DOMContentLoaded', () => {
-                                                // ban đầu gắn event cho row mặc định
-                                                document.querySelectorAll('#flowerTable tbody tr').forEach(r => attachEvents(r));
-                                                calculateTotal();
-                                                refreshAllOptions();
+                                                                    function calculateTotal() {
+                                                                        let total = 0;
+                                                                        document.querySelectorAll('#flowerTable tbody tr').forEach(r => {
+                                                                            const p = parseFloat(r.querySelector('.price-input').value) || 0;
+                                                                            const q = parseInt(r.querySelector('input[name="quantities"]').value) || 0;
+                                                                            total += p * q;
+                                                                        });
 
-                                                // add new row
-                                                document.getElementById('addFlowerBtn').addEventListener('click', () => {
-                                                    const tpl = document.getElementById('flowerRowTemplate');
-                                                    const newRow = tpl.cloneNode(true);
-                                                    newRow.removeAttribute('id');
-                                                    newRow.style.display = '';
-                                                    document.querySelector('#flowerTable tbody').appendChild(newRow);
-                                                    attachEvents(newRow);
-                                                    calculateTotal();
-                                                    refreshAllOptions();
-                                                });
-                                            });
+                                                                        document.getElementById('totalValueDisplay').textContent = total.toFixed(2) + ' VND';
+                                                                        document.getElementById('totalValueInput').value = total.toFixed(2);
+
+                                                                        const sellTotal = total * 5;
+                                                                        document.getElementById('sellValueDisplay').textContent = sellTotal.toFixed(2) + ' VND';
+                                                                        document.getElementById('sellValueInput').value = sellTotal.toFixed(2);
+                                                                    }
+
+                                                                    function refreshAllOptions() {
+                                                                        const selects = Array.from(document.querySelectorAll('select.flower-select'));
+                                                                        const chosen = new Set(
+                                                                                selects.map(s => s.value).filter(v => v)
+                                                                                );
+                                                                        selects.forEach(sel => {
+                                                                            sel.querySelectorAll('option').forEach(opt => {
+                                                                                if (opt.value && chosen.has(opt.value) && opt.value !== sel.value) {
+                                                                                    opt.disabled = true;
+                                                                                    opt.style.backgroundColor = '#e9ecef';
+                                                                                } else {
+                                                                                    opt.disabled = false;
+                                                                                    opt.style.backgroundColor = '';
+                                                                                }
+                                                                            });
+                                                                        });
+                                                                    }
+
+                                                                    function attachEvents(row) {
+                                                                        const flowerSel = row.querySelector('select.flower-id-select');
+                                                                        const batchSel = row.querySelector('select.batch-select');
+                                                                        const del = row.querySelector('.btn-outline-danger');
+                                                                        const qty = row.querySelector('input[name="quantities"]');
+
+                                                                        if (flowerSel)
+                                                                            flowerSel.addEventListener('change', () => onFlowerChange(flowerSel));
+                                                                        if (batchSel)
+                                                                            batchSel.addEventListener('change', () => updatePrice(batchSel));
+                                                                        if (qty)
+                                                                            qty.addEventListener('input', calculateTotal);
+                                                                        if (del)
+                                                                            del.addEventListener('click', () => {
+                                                                                row.remove();
+                                                                                calculateTotal();
+                                                                                refreshAllOptions();
+                                                                            });
+                                                                    }
+
+                                                                    document.addEventListener('DOMContentLoaded', () => {
+                                                                        document.querySelectorAll('#flowerTable tbody tr').forEach(r => attachEvents(r));
+                                                                        calculateTotal();
+                                                                        refreshAllOptions();
+
+                                                                        document.getElementById('addFlowerBtn').addEventListener('click', () => {
+                                                                            const tpl = document.getElementById('flowerRowTemplate');
+                                                                            const newRow = tpl.cloneNode(true);
+                                                                            newRow.removeAttribute('id');
+                                                                            newRow.style.display = '';
+                                                                            document.querySelector('#flowerTable tbody').appendChild(newRow);
+                                                                            attachEvents(newRow);
+                                                                            calculateTotal();
+                                                                            refreshAllOptions();
+                                                                        });
+                                                                    });
         </script>
+
 
         <script>
             const MAX_FILES = 5;

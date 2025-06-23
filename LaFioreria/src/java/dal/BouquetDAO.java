@@ -195,7 +195,7 @@ public class BouquetDAO extends BaseDao {
     public void insertBouquetRaw(BouquetRaw bouquetRaw) {
         String sql = """
         INSERT INTO la_fioreria.bouquet_raw 
-          (bouquet_id, raw_id, quantity)
+          (bouquet_id, batch_id, quantity)
         VALUES (?, ?, ?)
         """;
 
@@ -203,7 +203,7 @@ public class BouquetDAO extends BaseDao {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setInt(1, bouquetRaw.getBouquet_id());
-            ps.setInt(2, bouquetRaw.getRaw_id());
+            ps.setInt(2, bouquetRaw.getBatchId());
             ps.setInt(3, bouquetRaw.getQuantity());
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -285,7 +285,7 @@ public class BouquetDAO extends BaseDao {
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
-            ps.setInt(1, bqRaw.getRaw_id());
+            ps.setInt(1, bqRaw.getBatchId());
             ps.setInt(2, bqRaw.getQuantity());
             ps.setInt(3, bqRaw.getBouquet_id());
             ps.executeUpdate();
@@ -325,14 +325,13 @@ public class BouquetDAO extends BaseDao {
         return null;
     }
 
-    public List<BouquetRaw> getFlowerByBouquetID(int id) {
+    public List<BouquetRaw> getFlowerBatchByBouquetID(int id) {
         List<BouquetRaw> listBQR = new ArrayList<>();
         String sql = """
-        SELECT br.bouquet_id, br.raw_id, br.quantity
-        FROM la_fioreria.bouquet_raw br
-        JOIN la_fioreria.bouquet b ON b.bouquet_id = br.bouquet_id
-        JOIN la_fioreria.raw_flower rf ON rf.raw_id = br.raw_id
-        WHERE b.bouquet_id = ?;
+        SELECT b.bouquet_id, b.batch_id, b.quantity FROM la_fioreria.bouquet_raw b
+        JOIN la_fioreria.flower_batch fb ON fb.batch_id = b.batch_id
+        LEFT JOIN la_fioreria.flower_type ft ON ft.flower_id = fb.flower_id
+        WHERE b.bouquet_id = ?;             
         """;
         try {
             connection = dbc.getConnection();
@@ -340,9 +339,9 @@ public class BouquetDAO extends BaseDao {
             ps.setInt(1, id);
             rs = ps.executeQuery();
             while (rs.next()) {
-                int raw_id = rs.getInt("raw_id");
+                int batch_id = rs.getInt("batch_id");
                 int quantity = rs.getInt("quantity");
-                BouquetRaw bqRaw = new BouquetRaw(id, raw_id, quantity);
+                BouquetRaw bqRaw = new BouquetRaw(id, batch_id, quantity);
                 listBQR.add(bqRaw);
             }
         } catch (SQLException e) {
@@ -561,7 +560,7 @@ public class BouquetDAO extends BaseDao {
         Bouquet b = new Bouquet();
         BouquetRaw q = new BouquetRaw();
         b = dao.getBouquetByID(3);
-        List<BouquetRaw> r = dao.getFlowerByBouquetID(3);
+        List<BouquetRaw> r = dao.getFlowerBatchByBouquetID(3);
 //        BouquetImage big = dao.getBouquetImage(1);
         List<BouquetImage> big = dao.getBouquetImage(1);
         System.out.println(big);

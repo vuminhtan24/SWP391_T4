@@ -126,7 +126,7 @@ public class AddBatch extends HttpServlet {
             int quantity = Integer.parseInt(quantityStr);
             int hold = Integer.parseInt(holdStr);
             int warehouseId = Integer.parseInt(warehouseIdStr);
-            String status = "Fresh"; // Default status
+            String status = "fresh"; // Default status
 
             // Call DAO to add flower batch
             fbDAO.addFlowerBatch(flowerId, unitPrice, importDate, expirationDate, quantity, hold, warehouseId, status);

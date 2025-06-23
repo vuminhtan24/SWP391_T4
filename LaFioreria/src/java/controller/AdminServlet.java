@@ -6,6 +6,7 @@ package controller;
 
 import com.google.gson.Gson;
 import dal.DAOContact;
+import dal.OrderDAO;
 import dal.SalesDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -23,6 +24,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import model.Category;
 import model.Contact;
+import model.OrderStatusCount;
 import model.SalesRecord;
 import model.StatResult;
 
@@ -78,6 +80,7 @@ public class AdminServlet extends HttpServlet {
         SalesDAO dao = new SalesDAO();
         Gson gson = new Gson();
 
+        OrderDAO oDAO = new OrderDAO();
         // ✅ Xử lý năm được chọn cho biểu đồ thống kê theo tháng
         String yearParam = request.getParameter("year");
         int selectedYear = (yearParam != null && !yearParam.isEmpty())
@@ -207,6 +210,17 @@ public class AdminServlet extends HttpServlet {
             // ✅ Gửi labels (tức danh sách ngày) để vẽ trục X
             request.setAttribute("labelsJson", gson.toJson(dateList));
         }
+        String filter = request.getParameter("filter");
+        if (filter == null) {
+            filter = "month"; // mặc định là tháng này
+        }
+
+        List<SalesRecord> salesListbyfilter = dao.getSalesReport(filter);
+        request.setAttribute("salesListfilter", salesListbyfilter);
+        request.setAttribute("filter", filter); // để hiển thị lại filter đã chọn
+
+        List<OrderStatusCount> statusCounts = oDAO.getOrderStatusCounts();
+        request.setAttribute("statusCounts", statusCounts);
 
         request.getRequestDispatcher("/DashMin/admin.jsp").forward(request, response);
     }
