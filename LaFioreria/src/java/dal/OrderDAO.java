@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import model.BouquetImage;
 
 /**
  * Data Access Object (DAO) for Order related operations. Handles database
@@ -788,61 +789,62 @@ public class OrderDAO extends BaseDao {
         return bouquets;
     }
 
-    public boolean markDelivered(int orderId, String deliveryProofPath) {
-        boolean updated = false;
-        String sql = "UPDATE `order` SET status_id = ?, delivery_proof = ? WHERE order_id = ?";
+    public boolean markDelivered(int orderId, String deliveryConfirmationImagePath) {
+    boolean updated = false;
+    String sql = "UPDATE `order` SET status_id = ?, delivery_confirmation_image_path = ? WHERE order_id = ?";
 
+    try {
+        connection = dbc.getConnection();
+        ps = connection.prepareStatement(sql);
+        ps.setInt(1, 4); // Giả sử 4 là status "Đã giao hàng"
+        ps.setString(2, deliveryConfirmationImagePath); 
+        ps.setInt(3, orderId);
+
+        int rowsAffected = ps.executeUpdate();
+        updated = (rowsAffected > 0);
+
+    } catch (SQLException e) {
+        System.err.println("SQL Error while updating delivery status: " + e.getMessage());
+        e.printStackTrace();
+    } finally {
         try {
-            connection = dbc.getConnection();
-            ps = connection.prepareStatement(sql);
-            ps.setInt(1, 4); // Giả sử 4 là status "Đã giao hàng"
-            ps.setString(2, deliveryProofPath);
-            ps.setInt(3, orderId);
-
-            int rowsAffected = ps.executeUpdate();
-            updated = (rowsAffected > 0);
-
-        } catch (SQLException e) {
-            System.err.println("SQL Error while updating delivery status: " + e.getMessage());
-            e.printStackTrace();
-        } finally {
-            try {
-                this.closeResources();
-            } catch (Exception e) {
-                System.err.println("Error closing resources: " + e.getMessage());
-            }
+            this.closeResources();
+        } catch (Exception e) {
+            System.err.println("Error closing resources: " + e.getMessage());
         }
-
-        return updated;
     }
 
-    public boolean rejectOrder(int orderId, String reason) {
-        boolean updated = false;
-        String sql = "UPDATE `order` SET status_id = ?, reject_reason = ? WHERE order_id = ?";
+    return updated;
+}
 
+    public boolean rejectOrder(int orderId, String reason, String cancellationImagePath) {
+    boolean updated = false;
+    String sql = "UPDATE `order` SET status_id = ?, cancellation_reason = ?, cancellation_image_path = ? WHERE order_id = ?";
+
+    try {
+        connection = dbc.getConnection();
+        ps = connection.prepareStatement(sql);
+        ps.setInt(1, 5); // Giả sử 5 là mã trạng thái 'Đã hủy' hoặc 'Từ chối giao hàng'
+        ps.setString(2, reason); // Gán giá trị cho cột lý do
+        ps.setString(3, cancellationImagePath); // Gán giá trị cho cột ảnh
+        ps.setInt(4, orderId);
+
+        int rowsAffected = ps.executeUpdate();
+        updated = (rowsAffected > 0);
+
+    } catch (SQLException e) {
+        System.err.println("SQL Error while canceling order: " + e.getMessage());
+        e.printStackTrace();
+    } finally {
         try {
-            connection = dbc.getConnection();
-            ps = connection.prepareStatement(sql);
-            ps.setInt(1, 5); // Giả sử 5 là mã trạng thái 'Từ chối giao hàng'
-            ps.setString(2, reason);
-            ps.setInt(3, orderId);
-
-            int rowsAffected = ps.executeUpdate();
-            updated = (rowsAffected > 0);
-
-        } catch (SQLException e) {
-            System.err.println("SQL Error while rejecting order: " + e.getMessage());
-            e.printStackTrace();
-        } finally {
-            try {
-                this.closeResources();
-            } catch (Exception e) {
-                System.err.println("Error closing resources: " + e.getMessage());
-            }
+            this.closeResources();
+        } catch (Exception e) {
+            System.err.println("Error closing resources: " + e.getMessage());
         }
-
-        return updated;
     }
+
+    return updated;
+}
 
     public static void main(String[] args) {
         OrderDAO orderDAO = new OrderDAO();

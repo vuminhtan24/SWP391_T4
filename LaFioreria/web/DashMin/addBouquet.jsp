@@ -44,6 +44,39 @@
             a.change-color-qvm:active {
                 color: #007bff;
             }
+
+            .preview-img-wrapper {
+                position: relative;
+                display: inline-block;
+                margin: 5px;
+                cursor: pointer;
+                border: 2px solid transparent;
+                border-radius: 4px;
+            }
+            .preview-img-wrapper.selected {
+                border-color: #0d6efd;
+            }
+            .preview-img {
+                max-width: 100px;
+                max-height: 100px;
+                object-fit: cover;
+                border-radius: 4px;
+            }
+            .btn-delete-single {
+                position: absolute;
+                top: -6px;
+                right: -6px;
+                background: rgba(0,0,0,0.6);
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                line-height: 16px;
+                font-size: 14px;
+                text-align: center;
+                padding: 0;
+            }
         </style>
 
     </head>
@@ -141,19 +174,46 @@
 
                                             <!-- Image URL -->
                                             <div class="col-md-6">
-                                                <label for="imageFiles" class="form-label">Upload Images</label>
-                                                <input 
-                                                    type="file" 
-                                                    id="imageFiles" 
-                                                    name="imageFiles" 
-                                                    class="form-control" 
-                                                    accept=".jpg,.jpeg, .png" 
-                                                    multiple
-                                                    required
-                                                    />
-                                                <small class="form-text text-muted">
-                                                    Bạn có thể chọn nhiều ảnh (.jpg, .jpeg, .png) cùng lúc.
-                                                </small>
+                                                <div class="row mb-3">
+
+                                                    <label for="imageFiles" class="form-label">Upload Images</label>
+                                                    <input 
+                                                        type="file" 
+                                                        id="imageFiles" 
+                                                        name="imageFiles" 
+                                                        class="form-control" 
+                                                        accept=".jpg,.jpeg,.png" 
+                                                        multiple
+                                                        />
+                                                    <small class="form-text text-muted">
+                                                        You can select up to 5 photos (.jpg, .jpeg, .png).
+                                                    </small>
+                                                    <a href="#" id="linkViewPreview" class="mt-2 d-block">
+                                                        View Image Preview
+                                                    </a>
+
+                                                </div>
+                                            </div>
+
+                                            <!-- Modal Preview -->
+                                            <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="previewModalLabel">Images Preview</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div id="previewContainer" class="d-flex flex-wrap"></div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-primary me-auto" id="btnUploadMore">Upload More Images</button>
+                                                            <button type="button" class="btn btn-danger" id="btnDeleteSelected">Delete Selected</button>
+                                                            <button type="button" class="btn btn-success" id="btnAccept">Accept</button>
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <!-- Description -->
@@ -227,14 +287,17 @@
                                                 <tr>
                                                     <td colspan="4">
                                                         <div class="mt-3 text-start fw-bold" style="color: #1e40af;">
-                                                            Total Value: <span id="totalValueDisplay">0.00 VND</span>
+                                                            Price: <span id="totalValueDisplay">0.00 VND</span>
                                                         </div>
                                                         <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
                                                     </td>
                                                 </tr>
                                             </tfoot>
                                         </table>
-
+                                        <div class="mt-3 text-start fw-bold" style="color: #1e40af;">
+                                            Sell Price: <span id="sellValueDisplay">0.00 VND</span>
+                                        </div>
+                                        <input type="hidden" id="sellValueInput"  name="sellValue"  value="0" />
                                         <div class="text-end mb-4">
                                             <button type="button" id="addFlowerBtn" class="btn btn-outline-primary btn-sm">
                                                 + Add Flower
@@ -344,8 +407,15 @@
                                                     const q = parseInt(r.querySelector('input[name="quantities"]').value) || 0;
                                                     total += p * q;
                                                 });
+
+                                                // Cập nhật Total Price
                                                 document.getElementById('totalValueDisplay').textContent = total.toFixed(2) + ' VND';
                                                 document.getElementById('totalValueInput').value = total.toFixed(2);
+
+                                                // Tính và cập nhật Sell Price (bên ngoài bảng)
+                                                const sellTotal = total * 5;
+                                                document.getElementById('sellValueDisplay').textContent = sellTotal.toFixed(2) + ' VND';
+                                                document.getElementById('sellValueInput').value = sellTotal.toFixed(2);
                                             }
 
                                             function refreshAllOptions() {
@@ -401,5 +471,145 @@
                                             });
         </script>
 
+        <script>
+            const MAX_FILES = 5;
+            const fileInput = document.getElementById('imageFiles');
+            const linkView = document.getElementById('linkViewPreview');
+            const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+            const previewContainer = document.getElementById('previewContainer');
+            const btnUploadMore = document.getElementById('btnUploadMore');
+            const btnDeleteSelected = document.getElementById('btnDeleteSelected');
+            const btnAccept = document.getElementById('btnAccept');
+
+            let acceptedFiles = [];
+            let pendingFiles = [];
+            let selectedIndices = new Set();
+            let isUploadingMore = false;
+
+            // Khi người dùng chọn file
+            fileInput.addEventListener('change', e => {
+                const newFiles = Array.from(e.target.files);
+
+                if (!isUploadingMore) {
+                    // reset khi bắt đầu upload mới
+                    acceptedFiles = [];
+                    pendingFiles = [];
+                }
+
+                if (!isUploadingMore && newFiles.length > MAX_FILES) {
+                    alert(`You can only upload up to 5 photos; keep the first 5.`);
+                    pendingFiles = newFiles.slice(0, MAX_FILES);
+                } else {
+                    for (const f of newFiles) {
+                        if (pendingFiles.length >= MAX_FILES)
+                            break;
+                        if (f.type.startsWith('image/') &&
+                                !pendingFiles.some(sf => sf.name === f.name && sf.size === f.size)) {
+                            pendingFiles.push(f);
+                        }
+                    }
+                }
+
+                isUploadingMore = false;
+                fileInput.value = '';
+                selectedIndices.clear();
+                renderPreview();
+                previewModal.show();
+            });
+
+            // Từ modal thêm ảnh
+            btnUploadMore.addEventListener('click', () => {
+                isUploadingMore = true;
+                fileInput.click();
+            });
+
+            // Xem lại ảnh đã accept
+            linkView.addEventListener('click', e => {
+                e.preventDefault();
+                pendingFiles = acceptedFiles.slice();
+                isUploadingMore = true;
+                selectedIndices.clear();
+                renderPreview();
+                previewModal.show();
+            });
+
+            // Delete selected dựa trên selectedIndices
+            btnDeleteSelected.addEventListener('click', () => {
+                // Chuyển set thành mảng index giảm dần
+                const toRemove = Array.from(selectedIndices).sort((a, b) => b - a);
+                toRemove.forEach(idx => pendingFiles.splice(idx, 1));
+                selectedIndices.clear();
+                renderPreview();
+            });
+
+            // Accept pending → accepted
+            btnAccept.addEventListener('click', () => {
+                acceptedFiles = pendingFiles.slice();
+                updateInputFiles();
+                selectedIndices.clear();
+                previewModal.hide();
+            });
+
+            // Đồng bộ acceptedFiles lên input[type=file]
+            function updateInputFiles() {
+                const dt = new DataTransfer();
+                acceptedFiles.forEach(f => dt.items.add(f));
+                fileInput.files = dt.files;
+            }
+
+            // Vẽ thumbnails
+            function renderPreview() {
+                previewContainer.innerHTML = '';
+                pendingFiles.forEach((file, idx) => {
+                    const wrap = document.createElement('div');
+                    wrap.className = 'preview-img-wrapper';
+                    wrap.dataset.idx = idx;
+                    if (selectedIndices.has(idx))
+                        wrap.classList.add('selected');
+
+                    wrap.addEventListener('click', () => {
+                        if (selectedIndices.has(idx)) {
+                            selectedIndices.delete(idx);
+                            wrap.classList.remove('selected');
+                        } else {
+                            selectedIndices.add(idx);
+                            wrap.classList.add('selected');
+                        }
+                        btnDeleteSelected.disabled = selectedIndices.size === 0;
+                    });
+
+                    const img = document.createElement('img');
+                    img.className = 'preview-img';
+                    img.alt = file.name;
+                    img.src = URL.createObjectURL(file);
+                    img.onload = () => URL.revokeObjectURL(img.src);
+
+                    const btnDel = document.createElement('button');
+                    btnDel.type = 'button';
+                    btnDel.className = 'btn-delete-single';
+                    btnDel.innerText = '×';
+                    btnDel.addEventListener('click', ev => {
+                        ev.stopPropagation();
+                        pendingFiles.splice(idx, 1);
+                        selectedIndices.delete(idx);
+                        // sau khi xóa, rebuild selectedIndices cho đúng các chỉ số mới
+                        const newSet = new Set();
+                        Array.from(selectedIndices).forEach(oldIdx => {
+                            newSet.add(oldIdx > idx ? oldIdx - 1 : oldIdx);
+                        });
+                        selectedIndices = newSet;
+                        renderPreview();
+                    });
+
+                    wrap.appendChild(img);
+                    wrap.appendChild(btnDel);
+                    previewContainer.appendChild(wrap);
+                });
+
+                btnUploadMore.disabled = pendingFiles.length >= MAX_FILES;
+                btnAccept.disabled = pendingFiles.length === 0;
+                btnDeleteSelected.disabled = selectedIndices.size === 0;
+            }
+        </script>
     </body>
 </html>

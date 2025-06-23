@@ -25,7 +25,7 @@ public class ShipperOrderManagement extends HttpServlet {
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("currentAcc");
 
-        if (currentUser == null || currentUser.getRole() != 8) { // Giả sử role 8 là Shipper
+        if (currentUser == null || currentUser.getRole() != 8) { 
             response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet?error=unauthorized");
             return;
         }
@@ -42,9 +42,9 @@ public class ShipperOrderManagement extends HttpServlet {
 
         if (action == null || action.isEmpty() || "list".equals(action)) {
             List<Integer> statusFilter = new ArrayList<>();
-            statusFilter.add(3); // Shipping (Giả sử)
-            statusFilter.add(4); // Delivered (Giả sử)
-            statusFilter.add(5); // Delivered (Giả sử)
+            statusFilter.add(3); // Shipping 
+            statusFilter.add(4); // Delivered 
+            statusFilter.add(5); // Cancel 
 
             List<Order> orders = orderDAO.getOrdersByShipperIdAndStatuses(shipperId, statusFilter);
             request.setAttribute("orders", orders);
@@ -72,8 +72,6 @@ public class ShipperOrderManagement extends HttpServlet {
 
             request.setAttribute("order", order);
             request.setAttribute("orderItems", orderItems);
-            // Nếu bạn có một shipperOrderDetails.jsp riêng mà *cũng* cần statuses,
-            // bạn thường sẽ đặt chúng ở đó nữa, nhưng dựa trên JSP của bạn, shipperOrderList.jsp là nơi cần.
             request.getRequestDispatcher("/DashMin/shipperOrderDetails.jsp").forward(request, response);
 
         } else if ("updateStatus".equals(action)) {
@@ -105,8 +103,7 @@ public class ShipperOrderManagement extends HttpServlet {
                 }
             }
             // Sau khi cập nhật trạng thái, chuyển hướng trở lại dashboard, điều này sẽ tải lại danh sách đơn hàng và trạng thái.
-            response.sendRedirect(request.getContextPath() + "/shipperDashboard"); // Điều này sẽ kích hoạt một yêu cầu GET mới và liệt kê tất cả các đơn hàng với trạng thái đã cập nhật.
-
+            response.sendRedirect(request.getContextPath() + "/shipperDashboard"); 
         } else {
             response.sendRedirect(request.getContextPath() + "/shipperDashboard");
         }

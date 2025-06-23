@@ -35,9 +35,7 @@ public class CartDetail {
     }
 
     public Bouquet getBouquet() {
-        this.bouquet = new CartDAO().getBouquetById(bouquetId);
         return this.bouquet;
-
     }
 
     public void setBouquet(Bouquet bouquet) {
@@ -71,4 +69,10 @@ public class CartDetail {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
+
+    @Override
+    public String toString() {
+        return "CartDetail{" + "cartId=" + cartId + ", customerId=" + customerId + ", bouquetId=" + bouquetId + ", quantity=" + quantity + ", bouquet=" + bouquet + '}';
+    }
+
 }

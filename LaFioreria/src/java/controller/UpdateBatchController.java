@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import dal.FlowerBatchDAO;
 import dal.WarehouseDAO;
@@ -69,6 +70,7 @@ public class UpdateBatchController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
+        FlowerBatchDAO fbDAO = new FlowerBatchDAO();
         try {
             // Get parameters from the form
             String batchIdStr = request.getParameter("batch_id");
@@ -126,13 +128,19 @@ public class UpdateBatchController extends HttpServlet {
             int hold = Integer.parseInt(holdStr);
             int warehouseId = Integer.parseInt(warehouseIdStr);
 
-            // Call DAO to update flower batch
-            FlowerBatchDAO fbDAO = new FlowerBatchDAO();
-            fbDAO.updateFlowerBatch(batchId, unitPrice, importDate, expirationDate, quantity, hold, warehouseId);
+            // Optional: Warn if batch may be deleted by scheduler
+            LocalDate currentDate = LocalDate.now();
+            LocalDate expDate = LocalDate.parse(expirationDate);
+            if (expDate.isBefore(currentDate) && hold == 0) {
+                session.setAttribute("warning", "This batch has expired and has no hold. It may be deleted by the scheduler soon.");
+            }
+
+            // Call DAO to update flower batch (status will be handled by scheduler)
+            fbDAO.updateFlowerBatch(batchId, unitPrice, importDate, expirationDate, quantity, hold, warehouseId, null);
 
             // Set success message and redirect to flower details
             session.setAttribute("message", "Flower batch updated successfully!");
-            String flowerId = request.getParameter("flower_id"); // Giả sử flower_id được truyền từ form
+            String flowerId = request.getParameter("flower_id");
             response.sendRedirect(request.getContextPath() + "/rawFlowerDetails?flower_id=" + flowerId);
         } catch (NumberFormatException e) {
             e.printStackTrace();

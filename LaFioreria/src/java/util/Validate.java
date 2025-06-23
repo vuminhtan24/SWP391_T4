@@ -102,7 +102,7 @@ public class Validate {
         }
         String trimmedValue = value.trim();
         if (trimmedValue.length() < minLength || trimmedValue.length() > maxLength) {
-            return fieldName + " must be between " + minLength + " and " + maxLength + " characters after trimming spaces.";
+            return fieldName + " must be between " + minLength + " and " + maxLength;
         }
         return null; // Hợp lệ
     }

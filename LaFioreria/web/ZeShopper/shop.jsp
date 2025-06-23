@@ -434,8 +434,9 @@
                                 <div class="product-image-wrapper" style="border: 1px solid #eee; padding: 10px; border-radius: 4px;">
                                     <div class="single-products">
                                         <div class="productinfo text-center">
+                                            <c:set var="imageShown" value="false" />
                                             <c:forEach items="${images}" var="img">
-                                                <c:if test="${lb.getBouquetId() == img.getbouquetId()}">
+                                                <c:if test="${!imageShown and lb.getBouquetId() == img.getbouquetId()}">
                                                     <img
                                                         src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}"
                                                         alt=""
@@ -447,8 +448,10 @@
                                                         margin-bottom: 10px;
                                                         "
                                                         />
+                                                    <c:set var="imageShown" value="true" />
                                                 </c:if>
                                             </c:forEach>
+
                                             <h2 style="font-size: 16px; margin-bottom: 8px;">
                                                 <a
                                                     href="${pageContext.request.contextPath}/productDetail?id=${lb.getBouquetId()}"

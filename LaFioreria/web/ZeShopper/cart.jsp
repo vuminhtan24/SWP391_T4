@@ -7,7 +7,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<fmt:setLocale value="vi_VN" />
 <!DOCTYPE html>
 <html>
     <head>
@@ -103,9 +104,22 @@
                     transform: scale(1);
                 }
             }
+
+            .guest-notice {
+                background-color: #d9edf7;
+                border: 1px solid #bce8f1;
+                color: #31708f;
+                padding: 15px;
+                margin-bottom: 20px;
+                border-radius: 4px;
+            }
+
+            .empty-cart {
+                text-align: center;
+                padding: 50px;
+                color: #666;
+            }
         </style>
-
-
     </head><!--/head-->
 
     <body>
@@ -119,119 +133,126 @@
                         <li class="active">Shopping Cart</li>
                     </ol>
                 </div>
-                <div class="table-responsive cart_info">
-                    <table class="table table-condensed">
-                        <thead>
-                            <tr class="cart_menu">
-                                <td class="image">Item</td>
-                                <td class="description"></td>
-                                <td class="price">Price</td>
-                                <td class="quantity">Quantity</td>
-                                <td class="total">Total</td>
-                                <td></td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:set var="total" value="0"/>
-                            <c:forEach var="item" items="${cartDetails}">
-                                <tr>
-                                    <td class="cart_product">
-                                        <img src="${item.bouquet.imageUrl}" alt="${item.bouquet.bouquetName}" width="100">
-                                    </td>
-                                    <td class="cart_description">
-                                        <h4>${item.bouquet.bouquetName}</h4>
-                                        <p>${item.bouquet.description}</p>
-                                    </td>
-                                    <td class="cart_price">
-                                        <p>$${item.bouquet.price}</p>
-                                    </td>
-                                    <td class="cart_quantity">
-                                        <div class="cart_quantity_button">
-                                            <form action="cart" method="post" style="display: flex;">
-                                                <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
-                                                <input type="hidden" name="action" value="update">
-                                                <input class="cart_quantity_input" type="number" name="quantity" value="${item.quantity}" min="1" style="width: 50px; text-align: center;">
-                                                <button type="submit" class="btn btn-xs">Update</button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                    <td class="cart_total">
-                                        <p class="cart_total_price">$${item.bouquet.price * item.quantity}</p>
-                                    </td>
-                                    <td class="cart_delete">
-                                        <form action="cart" method="post">
-                                            <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
-                                            <input type="hidden" name="action" value="delete">
-                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
-                                        </form>
-                                    </td>
+
+                <!-- Guest User Notice -->
+                <c:if test="${isGuest}">
+                    <div class="guest-notice">
+                        <i class="fa fa-info-circle"></i>
+                        You are shopping as a guest. <a href="${pageContext.request.contextPath}/ZeShopper/LoginServlet">Login</a> or <a href="${pageContext.request.contextPath}/ZeShopper/LoginServlet">Register</a> to save your cart and track your orders.
+                    </div>
+                </c:if>
+
+                <!-- Error Message Display -->
+                <c:if test="${not empty error}">
+                    <div class="alert alert-danger">
+                        <i class="fa fa-exclamation-triangle"></i> ${error}
+                    </div>
+                </c:if>
+
+                <!-- Empty Cart Message -->
+                <c:if test="${empty cartDetails}">
+                    <div class="empty-cart">
+                        <i class="fa fa-shopping-cart fa-5x" style="color: #ccc;"></i>
+                        <h3>Your cart is empty</h3>
+                        <p>Add some beautiful bouquets to your cart to get started!</p>
+                        <a href="${pageContext.request.contextPath}/product" class="btn btn-primary">Continue Shopping</a>
+                    </div>
+                </c:if>
+
+                <!-- Cart Items Table -->
+                <c:if test="${not empty cartDetails}">
+                    <div class="table-responsive cart_info">
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr class="cart_menu">
+                                    <td class="image">Item</td>
+                                    <td class="description"></td>
+                                    <td class="price">Price</td>
+                                    <td class="quantity">Quantity</td>
+                                    <td class="total">Total</td>
+                                    <td></td>
                                 </tr>
-                                <c:set var="total" value="${total + item.bouquet.price * item.quantity}"/>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                <c:set var="total" value="0"/>
+                                <c:forEach var="item" items="${cartDetails}">
+                                    <tr>
+                                        <td class="cart_product">
+                                            <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${item.bouquet.imageUrl}" alt="${item.bouquet.bouquetName}" width="100">
+                                        </td>
+                                        <td class="cart_description">
+                                            <h4>${item.bouquet.bouquetName}</h4>
+                                            <p>${item.bouquet.description}</p>
+                                        </td>
+                                        <td class="cart_price">
+                                            <p><fmt:formatNumber value="${item.bouquet.price}" pattern="#,##0" /> ₫</p>
+                                        </td>
+                                        <td class="cart_quantity">
+                                            <div class="cart_quantity_button">
+                                                <form action="cart" method="post" style="display: flex;">
+                                                    <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
+                                                    <input type="hidden" name="action" value="update">
+                                                    <input class="cart_quantity_input" type="number" name="quantity" value="${item.quantity}" min="1" style="width: 50px; text-align: center;">
+                                                    <button type="submit" class="btn btn-xs">Update</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                        <td class="cart_total">
+                                            <p class="cart_total_price"><fmt:formatNumber value="${item.bouquet.price * item.quantity}" pattern="#,##0" /> ₫</p>
+                                        </td>
+                                        <td class="cart_delete">
+                                            <form action="cart" method="post">
+                                                <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
+                                                <input type="hidden" name="action" value="delete">
+                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <c:set var="total" value="${total + item.bouquet.price * item.quantity}"/>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+                    </div>
+                </c:if>
             </div>
         </section> <!--/#cart_items-->
 
-        <section id="do_action">
-            <div class="container">
-                <!--                <div class="heading">
-                                    <h3>What would you like to do next?</h3>
-                                    <p>Choose if you have a discount code or reward points you want to use or would like to estimate your delivery cost.</p>
-                                </div>-->
-                <div class="row">
-                    <div class="col-sm-6" style="float: right; border: none">
-                        <div class="total_area" style=" border: none">
-                            <ul>
-                                <li style=" background-color:  white"><strong>Total</strong> <span>$${total}</span></li>
-                            </ul>
-                            <div style="display: flex; justify-content:  end">
-                                <a class="btn btn-default check_out" href="javascript:void(0)" onclick="openCheckoutPopup()">Check Out</a>
+        <!-- Checkout Section - Only show if cart has items -->
+        <c:if test="${not empty cartDetails}">
+            <section id="do_action">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6" style="float: right; border: none">
+                            <div class="total_area" style=" border: none">
+                                <ul>
+                                    <li style=" background-color:  white"><strong>Total</strong> <span><p><fmt:formatNumber value="${total}" pattern="#,##0" /> ₫</p></span></li>
+                                </ul>
+                                <div style="display: flex; justify-content:  end">
+                                    <a class="btn btn-default check_out" href="${pageContext.request.contextPath}/checkout">Check Out</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div id="checkoutPopup" class="popup-overlay" style="display: none;">
-                <div class="popup-content">
-                    <h3>Confirm Your Information</h3>
-                    <form action="checkout" method="post">
-                        <input type="hidden" name="total" value="${total}" required>
-                        <label>Full Name:</label>
-                        <input type="text" name="fullName" value="${user.fullname}" required>
-
-                        <label>Email:</label>
-                        <input type="email" name="email" value="${user.email}" required>
-
-                        <label>Phone:</label>
-                        <input type="text" name="phone" pattern="\d{10}" value="${user.phone}" maxlength="10" required>
-
-                        <label>Address:</label>
-                        <input type="text" name="address" value="${user.address}" required>
-
-                        <div class="popup-buttons">
-                            <button type="submit" class="popup-btn">Confirm Order</button>
-                            <button type="button" onclick="closeCheckoutPopup()" class="popup-btn cancel">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-        </section><!--/#do_action-->
-
+        </c:if>
 
         <jsp:include page="/ZeShopper/footer.jsp"/>
 
         <script>
-                    function openCheckoutPopup() {
-                        document.getElementById("checkoutPopup").style.display = "flex";
-                    }
+            // Close popup when clicking outside
+            document.addEventListener('click', function (event) {
+                const popup = document.getElementById('checkoutPopup');
+                if (popup && event.target === popup) {
+                    closeCheckoutPopup();
+                }
+            });
 
-                    function closeCheckoutPopup() {
-                        document.getElementById("checkoutPopup").style.display = "none";
-                    }
+            // Close popup with Escape key
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    closeCheckoutPopup();
+                }
+            });
         </script>
-
     </body>
 </html>

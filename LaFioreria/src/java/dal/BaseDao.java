@@ -14,10 +14,10 @@ import java.sql.SQLException;
  * @author ADMIN
  */
 public class BaseDao {
-    DBContext dbc = new DBContext();
-    Connection connection = null;
-    PreparedStatement ps = null;
-    ResultSet rs = null;
+    public DBContext dbc = new DBContext();
+    public Connection connection = null;
+    public PreparedStatement ps = null;
+    public ResultSet rs = null;
 
     protected boolean closeResources() throws SQLException, Exception {
         if (rs != null) {

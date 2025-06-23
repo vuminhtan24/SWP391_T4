@@ -150,7 +150,9 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
     String description = request.getParameter("description");
     int cid = Integer.parseInt(request.getParameter("category"));
     double totalValue = Double.parseDouble(request.getParameter("totalValue"));
+    double sellValue = Double.parseDouble(request.getParameter("sellValue"));
     int price = (int) Math.round(totalValue);
+    int sellPrice = (int) Math.round(sellValue);
     
     if(bouquetName == null || bouquetName.trim().isEmpty()){
         request.setAttribute("err", "Bouquet's Name must not be blank!!!");
@@ -164,6 +166,10 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
             request.setAttribute("err", "Dupplicated Bouquet's name!!! Please try again!");
             doGet(request, response);
             return;
+        }else if(b.getBouquetName() == null || b.getBouquetName().trim().isEmpty()){
+            request.setAttribute("err", "Bouquet's Name must not be blank!!!");
+            doGet(request, response);
+            return;
         }
     }
 
@@ -173,6 +179,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
     bouquet.setDescription(description);
     bouquet.setCid(cid);
     bouquet.setPrice(price);
+    bouquet.setSellPrice(sellPrice);
     int bouquetId = dao.insertBouquet(bouquet);
 
     if (bouquetId <= 0) {
