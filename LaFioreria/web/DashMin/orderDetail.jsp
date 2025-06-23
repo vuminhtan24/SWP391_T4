@@ -108,7 +108,7 @@
                             <h6 class="mb-0">Order Details</h6>
                             <a href="${pageContext.request.contextPath}/orderManagement">Back to Order Management</a>
                         </div>
-                        
+
                         <c:if test="${not empty successMessage}">
                             <div class="alert alert-success" role="alert">
                                 ${successMessage}
@@ -136,7 +136,7 @@
                                     <p><strong>Shipper Name:</strong> ${order.shipperName != null ? order.shipperName : "Not Assigned"}</p>
                                 </div>
                             </div>
-                            
+
                             <hr class="my-4">
                             <h6 class="mb-3">Purchased Products:</h6>
                             <c:if test="${empty orderItems}">
@@ -183,8 +183,8 @@
                                         </tbody>
                                     </table>
                                 </div>
+                                
                             </c:if>
-                            
                             <div class="mt-4 text-end">
                                 <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}&action=edit" class="btn btn-primary me-2">Edit Order</a>
                                 <a href="${pageContext.request.contextPath}/orderManagement" class="btn btn-secondary">Back</a>
