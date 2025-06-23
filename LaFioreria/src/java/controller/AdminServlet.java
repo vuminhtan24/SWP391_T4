@@ -137,8 +137,10 @@ public class AdminServlet extends HttpServlet {
 
         int todayOrders = dao.getTodayOrderCount();
         double thisMonthRevenue = dao.getThisMonthRevenue();
+        double totalRevenue = dao.getTotalRevenue();
         request.setAttribute("todayOrders", todayOrders);
         request.setAttribute("thisMonthRevenue", thisMonthRevenue);
+        request.setAttribute("totalRevenue", totalRevenue);
 
         Map<String, Double> thisMonth = dao.getRevenueGroupedThisMonth();
         request.setAttribute("thisMonthLabels", gson.toJson(new ArrayList<>(thisMonth.keySet())));
