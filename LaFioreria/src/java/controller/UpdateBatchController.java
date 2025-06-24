@@ -136,7 +136,7 @@ public class UpdateBatchController extends HttpServlet {
             }
 
             // Call DAO to update flower batch (status will be handled by scheduler)
-            fbDAO.updateFlowerBatch(batchId, unitPrice, importDate, expirationDate, quantity, hold, warehouseId, null);
+            fbDAO.updateFlowerBatch(batchId, unitPrice, importDate, expirationDate, quantity, hold, warehouseId);
 
             // Set success message and redirect to flower details
             session.setAttribute("message", "Flower batch updated successfully!");
