@@ -129,9 +129,14 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="totalAmount" class="form-label">Total Amount:</label>
-                                <input type="text" class="form-control" id="totalAmount" name="totalAmount"
-                                       value="${order.totalAmount}" required>
+                                <label for="totalImport" class="form-label">Total Import:</label>
+                                <input type="text" class="form-control" id="totalImport" name="totalImport"
+                                       value="${order.totalImport}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="totalSell" class="form-label">Total Sell:</label>
+                                <input type="text" class="form-control" id="totalSell" name="totalSell"
+                                       value="${order.totalSell}" required>
                             </div>
 
                             <div class="mb-3">

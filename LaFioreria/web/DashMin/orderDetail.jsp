@@ -129,7 +129,8 @@
                                     <p><strong>Customer Name:</strong> ${order.customerName}</p>
                                 </div>
                                 <div class="col-md-6">
-                                    <p><strong>Total Amount:</strong> ${order.totalAmount}</p>
+                                    <p><strong>Total Import:</strong> ${order.totalImport}</p>
+                                    <p><strong>Total Sell</strong> ${order.totalSell}</p>
                                     <p><strong>Status ID:</strong> ${order.statusId}</p>
                                     <p><strong>Status:</strong> ${order.statusName}</p>
                                     <p><strong>Shipper ID:</strong> ${order.shipperId != null ? order.shipperId : "Not Assigned"}</p>

@@ -180,7 +180,8 @@
                         <div class="mb-3">
                             <p><strong>Order Date:</strong> ${order.orderDate}</p>
                             <p><strong>Customer:</strong> ${order.customerName}</p>
-                            <p><strong>Current Total Amount:</strong> ${order.totalAmount}</p>
+                            <p><strong>Current Total Import</strong> ${order.totalImport}</p>
+                            <p><strong>Current Total Sell</strong> ${order.totalSell}</p>
                         </div>
                         
                         <hr>

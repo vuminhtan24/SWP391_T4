@@ -69,9 +69,6 @@ public class AddOrderServlet extends HttpServlet {
 
         String orderDate = request.getParameter("orderDate");
         String customerIdParam = request.getParameter("customerId");
-       
-        // totalAmount will be "0.00" initially, updated later when items are added
-        String totalAmountParam = "0.00"; // FIX: Set totalAmountParam directly here, don't get from request
         String statusIdParam = request.getParameter("statusId");
         String shipperIdParam = request.getParameter("shipperId");
 
@@ -80,7 +77,7 @@ public class AddOrderServlet extends HttpServlet {
         int statusId = -1;
         Integer shipperId = null;
 
-        // Input validation
+        // ✅ Validate input
         if (orderDate == null || orderDate.isEmpty()) {
             errorMessage = "Order Date is required.";
         } else if (customerIdParam == null || customerIdParam.isEmpty() || customerIdParam.equals("0")) {
@@ -88,50 +85,58 @@ public class AddOrderServlet extends HttpServlet {
         } else if (statusIdParam == null || statusIdParam.isEmpty() || statusIdParam.equals("0")) {
             errorMessage = "Status is required.";
         }
-        // FIX: Removed validation for totalAmountParam as it's now set internally to "0.00"
 
         try {
-            if (errorMessage == null) { 
+            if (errorMessage == null) {
                 customerId = Integer.parseInt(customerIdParam);
                 statusId = Integer.parseInt(statusIdParam);
                 if (shipperIdParam != null && !shipperIdParam.isEmpty() && !shipperIdParam.equals("0")) {
                     shipperId = Integer.parseInt(shipperIdParam);
                 }
-                // No need to parse Double.parseDouble(totalAmountParam) here as it's now fixed "0.00"
             }
         } catch (NumberFormatException e) {
-            errorMessage = "Invalid number format for Customer ID or Status ID."; // Adjusted message
+            errorMessage = "Invalid number format for Customer ID or Status ID.";
             System.err.println("AddOrderServlet (POST): Number parsing error: " + e.getMessage());
         }
 
         if (errorMessage != null) {
-            request.setAttribute("errorMessage", errorMessage);
+            // Gửi lại form cùng lỗi và dữ liệu đã nhập
             OrderDAO orderDAO = new OrderDAO();
+            request.setAttribute("errorMessage", errorMessage);
             request.setAttribute("customers", orderDAO.getAllCustomers());
             request.setAttribute("statuses", orderDAO.getAllOrderStatuses());
             request.setAttribute("shippers", orderDAO.getAllShippers());
-            request.setAttribute("currentDate", LocalDate.now().toString()); 
-            
+            request.setAttribute("currentDate", LocalDate.now().toString());
+
             request.setAttribute("selectedCustomerId", customerIdParam);
             request.setAttribute("selectedStatusId", statusIdParam);
             request.setAttribute("selectedShipperId", shipperIdParam);
-            // request.setAttribute("submittedTotalAmount", totalAmountParam); // No longer needed for re-population
             request.setAttribute("submittedOrderDate", orderDate);
 
             request.getRequestDispatcher("/DashMin/orderAdd.jsp").forward(request, response);
             return;
         }
 
+        // ✅ Tạo đơn hàng mới với totalImport = "0" (totalSell sẽ được tính trong DAO)
         OrderDAO orderDAO = new OrderDAO();
-        // Create order with initial total amount as "0.00"
-        Order newOrder = new Order(0, orderDate, customerId, null, null,null, totalAmountParam, statusId, null, shipperId, null);
+        Order newOrder = new Order(
+            0,
+            orderDate,
+            customerId,
+            null, null, null,
+            "0",        // totalSell chưa có
+            "0",        // totalImport ban đầu là 0
+            statusId,
+            null,
+            shipperId,
+            null
+        );
 
         int newOrderId = orderDAO.addOrder(newOrder);
 
         if (newOrderId != -1) {
             String successMessage = "Main order record added successfully with ID: " + newOrderId + ". Now, add products to this order.";
             String encodedSuccessMessage = URLEncoder.encode(successMessage, StandardCharsets.UTF_8.toString());
-            // Redirect to a new servlet to add order items
             response.sendRedirect(request.getContextPath() + "/addOrderItems?orderId=" + newOrderId + "&successMessage=" + encodedSuccessMessage);
         } else {
             errorMessage = "Failed to add new order record. Please try again.";
@@ -139,14 +144,13 @@ public class AddOrderServlet extends HttpServlet {
             request.setAttribute("customers", orderDAO.getAllCustomers());
             request.setAttribute("statuses", orderDAO.getAllOrderStatuses());
             request.setAttribute("shippers", orderDAO.getAllShippers());
-            request.setAttribute("currentDate", LocalDate.now().toString()); 
-            
+            request.setAttribute("currentDate", LocalDate.now().toString());
+
             request.setAttribute("selectedCustomerId", customerIdParam);
             request.setAttribute("selectedStatusId", statusIdParam);
             request.setAttribute("selectedShipperId", shipperIdParam);
-            // request.setAttribute("submittedTotalAmount", totalAmountParam); // No longer needed for re-population
             request.setAttribute("submittedOrderDate", orderDate);
-            
+
             request.getRequestDispatcher("/DashMin/orderAdd.jsp").forward(request, response);
         }
     }
