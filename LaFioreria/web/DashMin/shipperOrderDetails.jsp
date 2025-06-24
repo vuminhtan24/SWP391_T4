@@ -120,7 +120,7 @@
                                                     <td>
                                                         <c:choose>
                                                             <c:when test="${not empty item.bouquetImage}">
-                                                                <img src="${item.bouquetImage}" 
+                                                                <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${item.bouquetImage}" 
                                                                      alt="${item.bouquetName}" style="width: 50px; height: 50px; object-fit: cover;">
                                                             </c:when>
                                                             <c:otherwise>
