@@ -183,9 +183,10 @@ public class OrderDAO extends BaseDao {
      */
     public Order getOrderDetailById(int orderId) {
         Order order = null;
-        String sql = "SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, u.Phone AS customer_phone, u.Address AS customer_address, "
+        String sql = "SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, "
+                + "u.Phone AS customer_phone, u.Address AS customer_address, "
                 + "o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name, "
-                + "o.delivery_confirmation_image_path "
+                + "o.delivery_confirmation_image_path, o.cancellation_image_path, o.cancellation_reason "
                 + "FROM `order` o "
                 + "JOIN `user` u ON o.customer_id = u.User_ID "
                 + "JOIN `order_status` os ON o.status_id = os.order_status_id "
@@ -212,8 +213,9 @@ public class OrderDAO extends BaseDao {
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
                         rs.getString("shipper_name")
                 );
-                 order.setDeliveryProofImage(rs.getString("delivery_confirmation_image_path"));
-                 System.out.println("DEBUG: Order = " + order);
+                order.setDeliveryProofImage(rs.getString("delivery_confirmation_image_path"));
+                order.setRejectImage(rs.getString("cancellation_image_path"));
+                order.setRejectReason(rs.getString("cancellation_reason"));
 
             }
         } catch (SQLException e) {
@@ -896,6 +898,7 @@ public class OrderDAO extends BaseDao {
 
     public static void main(String[] args) {
         OrderDAO orderDAO = new OrderDAO();
-        orderDAO.getOrderDetailById(9);
+        List<Bouquet> n = orderDAO.getAllBouquets();
+        System.out.println(n);
     }
 }
