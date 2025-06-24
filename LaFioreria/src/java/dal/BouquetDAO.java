@@ -55,10 +55,11 @@ public class BouquetDAO extends BaseDao {
         List<Object> params = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder(
-                "SELECT DISTINCT b.* FROM la_fioreria.bouquet b "
-                + "JOIN la_fioreria.category c ON b.cid = c.category_id "
-                + "LEFT JOIN la_fioreria.bouquet_raw br ON b.Bouquet_ID = br.bouquet_id "
-                + "LEFT JOIN la_fioreria.raw_flower r ON br.raw_id = r.raw_id "
+                "SELECT DISTINCT b.* FROM la_fioreria.bouquet b \n"
+                + "JOIN la_fioreria.category c ON b.cid = c.category_id \n"
+                + "LEFT JOIN la_fioreria.bouquet_raw br ON b.Bouquet_ID = br.bouquet_id \n"
+                + "LEFT JOIN la_fioreria.flower_batch r ON br.batch_id = r.batch_id \n"
+                + "LEFT JOIN la_fioreria.flower_type ft ON ft.flower_id = r.flower_id\n"
                 + "WHERE 1=1 "
         );
 
@@ -79,7 +80,7 @@ public class BouquetDAO extends BaseDao {
             params.add(categoryID);
         }
         if (rawId != null) {
-            sql.append("AND br.raw_id = ?");
+            sql.append("AND ft.flower_id = ?");
             params.add(rawId);
         }
 

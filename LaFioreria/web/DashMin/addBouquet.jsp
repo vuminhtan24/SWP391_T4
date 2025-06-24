@@ -424,6 +424,7 @@
                                                                     batchId: '${fb.getBatchId()}',
                                                                             flowerId: '${fb.getFlowerId()}',
                                                                             importDate: '${fb.getImportDate()}',
+                                                                            expirationDate: '${fb.getExpirationDate()}',
                                                                             unitPrice: ${fb.getUnitPrice()}
                                                                     }<c:if test="${!loop.last}">,</c:if>
             </c:forEach>
@@ -445,7 +446,10 @@
                                                                             if (batch.flowerId === flowerId) {
                                                                                 const opt = document.createElement('option');
                                                                                 opt.value = batch.batchId;
-                                                                                opt.textContent = batch.importDate;
+
+                                                                                // ✅ Hiển thị dạng: importDate to expirationDate (giữ nguyên định dạng từ server)
+                                                                                opt.textContent = batch.importDate + ' to ' + batch.expirationDate;
+
                                                                                 opt.setAttribute('data-price', batch.unitPrice);
                                                                                 batchSelect.appendChild(opt);
                                                                             }
