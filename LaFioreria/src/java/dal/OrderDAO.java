@@ -242,12 +242,20 @@ public class OrderDAO extends BaseDao {
     public List<OrderDetail> getOrderItemsByOrderId(int orderId) {
         List<OrderDetail> orderItems = new ArrayList<>();
         // Modified SQL to join with bouquet_images to get image_url
-        String sql = "SELECT oi.order_item_id, oi.order_id, oi.bouquet_id, "
-                + "b.bouquet_name, bi.image_url, oi.quantity, oi.unit_price " // Changed from b.image_url to bi.image_url
-                + "FROM `order_item` oi "
-                + "JOIN `bouquet` b ON oi.bouquet_id = b.bouquet_id "
-                + "LEFT JOIN `bouquet_images` bi ON b.Bouquet_ID = bi.Bouquet_ID " // Added LEFT JOIN for bouquet_images
-                + "WHERE oi.order_id = ?";
+        String sql = "SELECT oi.order_item_id, oi.order_id, oi.bouquet_id,\n"
+                + "       b.bouquet_name,\n"
+                + "       (SELECT bi.image_url\n"
+                + "        FROM bouquet_images bi\n"
+                + "        WHERE bi.bouquet_id = b.bouquet_id\n"
+                + "        ORDER BY bi.Bouquet_ID ASC\n"
+                + "        LIMIT 1) AS image_url,\n"
+                + "       oi.quantity,\n"
+                + "       oi.unit_price,\n"
+                + "       oi.sellPrice\n"
+                + "FROM order_item oi\n"
+                + "JOIN bouquet b ON oi.bouquet_id = b.bouquet_id\n"
+                + "WHERE oi.order_id = ?;";
+
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -262,6 +270,7 @@ public class OrderDAO extends BaseDao {
                         rs.getString("image_url"), // Map the image_url from bouquet_images
                         rs.getInt("quantity"),
                         rs.getString("unit_price")
+//                        rs.getInt("sellPrice")
                 );
                 orderItems.add(item);
             }

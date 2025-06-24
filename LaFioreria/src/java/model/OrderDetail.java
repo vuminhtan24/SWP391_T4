@@ -16,7 +16,7 @@ public class OrderDetail {
     private String bouquetImage; 
     private int quantity;      
     private String unitPrice;
-
+    
     public OrderDetail() {
     }
 
