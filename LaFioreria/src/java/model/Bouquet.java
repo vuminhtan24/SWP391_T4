@@ -19,15 +19,6 @@ public class Bouquet {
     
     public Bouquet() {
     }
-
-    public Bouquet(int bouquetId, String bouquetName, String Description, int cid, int price, int sellPrice) {
-        this.bouquetId = bouquetId;
-        this.bouquetName = bouquetName;
-        this.Description = Description;
-        this.cid      = cid;
-        this.price    = price;
-        this.sellPrice = sellPrice;
-    }
     
     public Bouquet(int bouquetId, String bouquetName, String Description, int cid, int price, int sellPrice, String status) {
         this.bouquetId = bouquetId;

@@ -289,7 +289,7 @@
                                 <div class="product-information"><!--/product-information-->
                                     <h2>${bouquetDetail.getBouquetName()}</h2>
                                     <span>
-                                        <span>${bouquetDetail.getPrice()} VND</span>
+                                        <span>${bouquetDetail.getSellPrice()} VND</span>
                                         <form id="addToCartForm">
                                             <label class="popup-label">Quantity:</label>
                                             <input id="popup-quantity" type="number" name="quantity" value="1" min="1" required class="popup-input">
@@ -345,12 +345,17 @@
                                                 <div class="product-details">
                                                     <h2>${bouquetDetail.getBouquetName()}</h2>
                                                     <p><strong>Category:</strong> ${cateName}</p>
-                                                    <p><strong>Price:</strong> ${bouquetDetail.getPrice()} VND</p>
+                                                    <p><strong>Price:</strong> ${bouquetDetail.getSellPrice()} VND</p>
                                                     <p><strong>Flowers in Bouquet:</strong>
                                                         <c:forEach var="br" items="${flowerInBQ}" varStatus="status">
-                                                            <c:forEach var="f" items="${allFlowers}">
-                                                                <c:if test="${f.getRawId() eq br.getRaw_id()}">
-                                                                    ${br.getQuantity()} bông hoa ${f.getRawName()}<c:if test="${!status.last}">, </c:if>
+                                                            <c:forEach var="fb" items="${allBatchs}">
+                                                                <c:if test="${fb.getBatchId() == br.getBatchId()}">
+                                                                    <c:forEach var="f" items="${allFlowers}">
+                                                                        <c:if test="${f.getFlowerId() == fb.getFlowerId()}">
+                                                                            ${br.getQuantity()} ${f.getFlowerName()} flowers
+                                                                            <c:if test="${!status.last}">, </c:if>
+                                                                        </c:if>
+                                                                    </c:forEach>
                                                                 </c:if>
                                                             </c:forEach>
                                                         </c:forEach>

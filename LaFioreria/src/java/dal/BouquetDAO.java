@@ -35,7 +35,8 @@ public class BouquetDAO extends BaseDao {
                 int cid = rs.getInt("cid");
                 int price = rs.getInt("price");
                 int sellPrice = rs.getInt("sellPrice");
-                Bouquet newBouquet = new Bouquet(bouquet_id, bouquet_name, description, cid, price, sellPrice);
+                String status = rs.getString("status");
+                Bouquet newBouquet = new Bouquet(bouquet_id, bouquet_name, description, cid, price, sellPrice, status);
                 listBouquet.add(newBouquet);
             }
         } catch (SQLException e) {
@@ -98,7 +99,8 @@ public class BouquetDAO extends BaseDao {
                 int cid = rs.getInt("cid");
                 int price = rs.getInt("price");
                 int sellPrice = rs.getInt("sellPrice");
-                searchListBQ.add(new Bouquet(bouquet_id, bouquet_name, description, cid, price, sellPrice));
+                String status = rs.getString("status");
+                searchListBQ.add(new Bouquet(bouquet_id, bouquet_name, description, cid, price, sellPrice, status));
             }
         } catch (SQLException e) {
             System.out.println(e);
@@ -254,7 +256,7 @@ public class BouquetDAO extends BaseDao {
     public void updateBouquet(Bouquet bouquet) {
         String sql = """
         UPDATE la_fioreria.bouquet
-        SET bouquet_name = ?, description = ?, cid = ?, price = ?, sellPrice = ?
+        SET bouquet_name = ?, description = ?, cid = ?, price = ?, sellPrice = ?, status = ?
         WHERE Bouquet_ID = ?;
         """;
         try {
@@ -265,7 +267,8 @@ public class BouquetDAO extends BaseDao {
             ps.setInt(3, bouquet.getCid());
             ps.setInt(4, bouquet.getPrice());
             ps.setInt(5, bouquet.getSellPrice());
-            ps.setInt(6, bouquet.getBouquetId());
+            ps.setString(6, bouquet.getStatus());
+            ps.setInt(7, bouquet.getBouquetId());
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e);
@@ -313,7 +316,8 @@ public class BouquetDAO extends BaseDao {
                 int cid = rs.getInt("cid");
                 int price = rs.getInt("price");
                 int sellPrice = rs.getInt("sellPrice");
-                return new Bouquet(id, bouquetName, description, cid, price, sellPrice);
+                String status = rs.getString("status");
+                return new Bouquet(id, bouquetName, description, cid, price, sellPrice, status);
             }
         } catch (SQLException e) {
             System.out.println(e);
@@ -369,7 +373,8 @@ public class BouquetDAO extends BaseDao {
                 String description = rs.getString("description").trim();
                 int price = rs.getInt("price");
                 int sellPrice = rs.getInt("sellPrice");
-                return new Bouquet(bouquetId, bouquetName, description, cid, price, sellPrice);
+                String status = rs.getString("status");
+                return new Bouquet(bouquetId, bouquetName, description, cid, price, sellPrice, status);
             }
         } catch (SQLException e) {
             System.out.println(e);

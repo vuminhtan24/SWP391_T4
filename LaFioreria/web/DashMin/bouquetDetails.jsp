@@ -407,6 +407,11 @@
                                         <label class="form-label fw-semibold">Description:</label>
                                         <textarea name="bqDescription" class="form-control" rows="4" readonly>${bouquetDetail.getDescription()}</textarea>
                                     </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Status: </label>
+                                        <h6>${bouquetDetail.getStatus()}</h6>
+                                    </div>
 
                                     <!-- Flower Table -->
                                     <h5 class="mb-3 text-secondary">Flowers in Bouquet</h5>

@@ -315,9 +315,9 @@
                             <label>
                                 <input type="radio"
                                        name="flowerID"
-                                       value="${flower.rawId}"
-                                       ${param.flowerID == flower.rawId ? 'checked' : ''} />
-                                ${flower.rawName}
+                                       value="${flower.getFlowerId()}"
+                                       ${param.flowerID == flower.getFlowerId() ? 'checked' : ''} />
+                                ${flower.getFlowerName()}
                             </label><br/>
                         </c:forEach>
 
@@ -460,7 +460,7 @@
                                                     ${lb.getBouquetName()}
                                                 </a>
                                             </h2>
-                                            <p style="margin-bottom: 10px;">Price: ${lb.getPrice()} VND</p>
+                                            <p style="margin-bottom: 10px;">Price: ${lb.getSellPrice()} VND</p>
                                             <!-- Đây là nút Add to Cart gốc, không thay đổi -->
                                             <button
                                                 type="button"
