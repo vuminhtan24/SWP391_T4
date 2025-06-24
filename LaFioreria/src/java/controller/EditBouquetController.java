@@ -28,11 +28,15 @@ import model.RawFlower;
 import model.BouquetRaw;
 import dal.BouquetDAO;
 import dal.CategoryDAO;
+import dal.FlowerBatchDAO;
+import dal.FlowerTypeDAO;
 import dal.RawFlowerDAO;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import model.BouquetImage;
+import model.FlowerBatch;
+import model.FlowerType;
 
 /**
  *
@@ -105,12 +109,14 @@ public class EditBouquetController extends HttpServlet {
         }
 
         BouquetDAO bqdao = new BouquetDAO();
-        RawFlowerDAO rfdao = new RawFlowerDAO();
+        FlowerTypeDAO ftdao = new FlowerTypeDAO();
+        FlowerBatchDAO fbdao = new FlowerBatchDAO();
         CategoryDAO cdao = new CategoryDAO();
 
         Bouquet detailsBQ = bqdao.getBouquetByID(id);
         String cateName = cdao.getCategoryNameByBouquet(id);
-        List<RawFlower> allFlowers = rfdao.getRawFlower();
+        List<FlowerType> allFlowers = ftdao.getAllFlowerTypes();
+        List<FlowerBatch> allBatchs = fbdao.getAllFlowerBatches();
         List<BouquetRaw> bqRaws = bqdao.getFlowerBatchByBouquetID(id);
         List<BouquetImage> images = bqdao.getBouquetImage(id);
 
@@ -118,6 +124,7 @@ public class EditBouquetController extends HttpServlet {
         request.setAttribute("bouquetDetail", detailsBQ);
         request.setAttribute("cateName", cateName);
         request.setAttribute("allFlowers", allFlowers);
+        request.setAttribute("allBatchs", allBatchs);
         request.setAttribute("cateList", cdao.getBouquetCategory());
         request.setAttribute("flowerInBQ", bqRaws);
         request.getRequestDispatcher("./DashMin/editBouquet.jsp").forward(request, response);
@@ -177,13 +184,13 @@ public class EditBouquetController extends HttpServlet {
 
             // Xử lý raw materials và images
             dao.deleteBouquetRaw(id);
-            String[] flowerIds = request.getParameterValues("flowerIds");
+            String[] batchIds = request.getParameterValues("batchIds");
             String[] quantities = request.getParameterValues("quantities");
-            if (flowerIds != null && quantities != null) {
-                for (int i = 0; i < flowerIds.length; i++) {
-                    int fid = Integer.parseInt(flowerIds[i]);
+            if (batchIds != null && quantities != null) {
+                for (int i = 0; i < batchIds.length; i++) {
+                    int bid = Integer.parseInt(batchIds[i]);
                     int quantity = Integer.parseInt(quantities[i]);
-                    dao.insertBouquetRaw(new BouquetRaw(id, fid, quantity));
+                    dao.insertBouquetRaw(new BouquetRaw(id, bid, quantity));
                 }
             }
             // Lấy các ảnh cũ được giữ lại từ hidden input
