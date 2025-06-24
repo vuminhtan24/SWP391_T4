@@ -139,21 +139,9 @@
                                             <td>${order.customerName}</td>
                                             <td>${order.customerPhone}</td>
                                             <td class="word-wrap-td">${order.customerAddress}</td>
-                                            <td>${order.totalAmount}</td>
+                                            <td><fmt:formatNumber value="${order.totalAmount}" type="number" minFractionDigits="0" maxFractionDigits="2" /> VNĐ</td>
                                             <td>
-                                                <form action="${pageContext.request.contextPath}/shipperDashboard" method="post" class="d-flex align-items-center">
-                                                    <input type="hidden" name="action" value="updateStatus"/>
-                                                    <input type="hidden" name="orderId" value="${order.orderId}" />
-                                                    <select class="form-select form-select-sm me-2" name="newStatusId" required>
-                                                        <c:forEach var="status" items="${statuses}">
-                                                            <option value="${status.statusId}" ${order.statusId == status.statusId ? 'selected' : ''}>
-                                                                ${status.statusName}
-                                                            </option>
-                                                        </c:forEach>
-                                                    </select>
-
-                                                    <button type="submit" class="btn btn-sm btn-success">Update</button>
-                                                </form>
+                                                ${order.statusName}
                                             </td>
 
                                             <td>
