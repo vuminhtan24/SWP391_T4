@@ -65,23 +65,6 @@ public class OrderDetailServlet extends HttpServlet {
         Order order = orderDAO.getOrderDetailById(orderId);
         List<OrderDetail> orderItems = orderDAO.getOrderItemsByOrderId(orderId); 
 
-        // ===============================================
-        // DEBUGGING LOGS: Check data in Servlet
-        // ===============================================
-        System.out.println("=============================================");
-        System.out.println("DEBUG: OrderDetailServlet.doGet for Order ID: " + orderId);
-        System.out.println("DEBUG: Order Information: " + (order != null ? order.toString() : "null"));
-        System.out.println("DEBUG: Number of OrderItems: " + orderItems.size());
-        if (!orderItems.isEmpty()) {
-            for (OrderDetail item : orderItems) {
-                System.out.println("DEBUG:   - Item: " + item.getBouquetName() + ", Quantity: " + item.getQuantity() + ", Unit Price: " + item.getUnitPrice());
-            }
-        } else {
-             System.out.println("DEBUG: OrderItems list is empty or null.");
-        }
-        System.out.println("=============================================");
-        // ===============================================
-
         if (order == null) {
             request.setAttribute("errorMessage", "Order not found with ID: " + orderId);
             System.err.println("OrderDetailServlet: Order not found for ID: " + orderId);

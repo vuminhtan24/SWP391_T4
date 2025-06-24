@@ -213,7 +213,7 @@
                             <%-- THAY ĐỔI: Thêm input để upload ảnh --%>
                             <div class="mb-3">
                                 <label for="cancellationImage" class="form-label">Ảnh minh chứng từ chối</label>
-                                <input class="form-control" type="file" id="cancellationImage" name="cancellationImage" accept="image/*" required />
+                                <input class="form-control" type="file" id="cancellationImage" name="cancellationImage" accept="image/*" />
                                 <small class="form-text text-muted">Vui lòng tải lên ảnh liên quan đến việc từ chối giao hàng.</small>
                             </div>
                         </div>
