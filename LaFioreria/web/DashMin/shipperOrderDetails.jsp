@@ -199,7 +199,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <%-- THAY ĐỔI: Thêm enctype="multipart/form-data" --%>
-                    <form action="${pageContext.request.contextPath}/RejectOrderServlet" method="post" enctype="multipart/form-data">
+                    <form action="${pageContext.request.contextPath}/RejectDeliveryServlet" method="post" enctype="multipart/form-data">
                         <div class="modal-header">
                             <h5 class="modal-title" id="rejectDeliveryModalLabel">Từ chối giao hàng</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
