@@ -18,11 +18,19 @@ import java.util.concurrent.TimeUnit;
 
 public class FlowerScheduler extends BaseDao {
     public static void main(String[] args) {
+        FlowerScheduler job = new FlowerScheduler();
+
+        // **Phải** mở connection trước khi gọi getAdminEmails(),
+        // vì bên trong method đang dùng field `connection`
+        job.connection = job.dbc.getConnection();
+        List<String> mails = job.getAdminEmails();
+        System.out.println("Admin emails: " + mails);
         // Tạo scheduler
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         // Chạy job mỗi 24 giờ (86400 giây)
         scheduler.scheduleAtFixedRate(new FlowerScheduler()::checkFlowerBatches, 0, 86400, TimeUnit.SECONDS);
+
     }
 
     public void checkFlowerBatches() {
@@ -128,8 +136,8 @@ public class FlowerScheduler extends BaseDao {
 
     private void sendEmailToAdmins(int bouquetId, int batchId) {
         // Cấu hình email
-        String from = "kienhthe181323@fpt.edu.vn"; // Thay bằng email của bạn
-        String password = "adbysruxezkynoks"; // Thay bằng App Password
+        String from = "hoang.trungkien2110@gmail.com"; // Thay bằng email của bạn
+        String password = "jnto tzhj pvvd fvfm"; // Thay bằng App Password
         String host = "smtp.gmail.com";
 
         Properties properties = System.getProperties();
@@ -194,8 +202,14 @@ public class FlowerScheduler extends BaseDao {
         } catch (SQLException e) {
             System.err.println("Lỗi lấy email admin: " + e.getMessage());
             e.printStackTrace();
-        }
-        
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
+        }        
         return emails;
     }
+
 }
