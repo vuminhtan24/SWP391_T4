@@ -57,6 +57,10 @@ public class BlogManagerController extends HttpServlet {
             case BASE_PATH + "/detail" ->
                 doGetDetail(request, response);
 
+            case BASE_PATH + "/add" -> {
+                request.getRequestDispatcher("../DashMin/AddBlog.jsp").forward(request, response);
+            }
+
             default ->
                 throw new AssertionError();
         }
