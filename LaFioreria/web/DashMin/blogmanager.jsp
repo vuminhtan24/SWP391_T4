@@ -39,10 +39,218 @@
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/ZeShopper/css/main.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/ZeShopper/css/bootstrap.min.css" rel="stylesheet">
         <style>
             .table-th {
                 font-size: 18px;
                 color: black;
+            }
+
+            /* Enhanced Filter Section Styling */
+            .filter-card {
+                background: #ffffff;
+                border-radius: 0.5rem;
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+                border: 1px solid rgba(0, 0, 0, 0.125);
+                margin-bottom: 1.5rem;
+            }
+
+            .filter-card-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 1rem 1.25rem;
+                border-radius: 0.5rem 0.5rem 0 0;
+                margin-bottom: 0;
+                border-bottom: none;
+            }
+
+            .filter-card-header h5 {
+                margin: 0;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+            }
+
+            .filter-card-header i {
+                margin-right: 0.5rem;
+            }
+
+            .category-list {
+                padding: 1.25rem;
+            }
+
+            .category-item {
+                display: block;
+                padding: 0.75rem 1rem;
+                margin-bottom: 0.5rem;
+                color: #6c757d;
+                text-decoration: none;
+                border-radius: 0.375rem;
+                transition: all 0.3s ease;
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+            }
+
+            .category-item:hover {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                text-decoration: none;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .category-item.active {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                font-weight: 600;
+            }
+
+            .search-filter-form {
+                padding: 1.25rem;
+                background: #f8f9fa;
+                border-radius: 0.5rem;
+                margin-top: 1rem;
+            }
+
+            .form-group {
+                margin-bottom: 1rem;
+            }
+
+            .form-group label {
+                font-weight: 600;
+                color: #495057;
+                margin-bottom: 0.5rem;
+                display: block;
+            }
+
+            .form-control {
+                border-radius: 0.375rem;
+                border: 1px solid #ced4da;
+                transition: all 0.3s ease;
+            }
+
+            .form-control:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            }
+
+            .filter-buttons {
+                display: flex;
+                gap: 0.75rem;
+                margin-top: 1.5rem;
+            }
+
+            .btn-gradient {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border: none;
+                color: white;
+                border-radius: 0.375rem;
+                transition: all 0.3s ease;
+            }
+
+            .btn-gradient:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+                color: white;
+            }
+
+            .btn-outline-gradient {
+                background: transparent;
+                border: 2px solid #667eea;
+                color: #667eea;
+                border-radius: 0.375rem;
+                transition: all 0.3s ease;
+            }
+
+            .btn-outline-gradient:hover {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                transform: translateY(-2px);
+            }
+
+            .stats-card {
+                background: white;
+                border-radius: 0.5rem;
+                padding: 1.5rem;
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+                border: 1px solid rgba(0, 0, 0, 0.125);
+                margin-bottom: 1.5rem;
+            }
+
+            .stats-card h6 {
+                color: #6c757d;
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+            }
+
+            .stats-number {
+                font-size: 2rem;
+                font-weight: 700;
+                color: #667eea;
+                margin: 0;
+            }
+
+            .table-container {
+                background: white;
+                border-radius: 0.5rem;
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+                overflow: hidden;
+                border: 1px solid rgba(0, 0, 0, 0.125);
+            }
+
+            .table-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 1rem 1.25rem;
+                margin: 0;
+            }
+
+            .table-header h5 {
+                margin: 0;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .pagination-area {
+                padding: 1.25rem;
+                background: #f8f9fa;
+                border-top: 1px solid #e9ecef;
+            }
+
+            .pagination {
+                justify-content: center;
+                margin: 0;
+            }
+
+            .pagination .page-link {
+                color: #667eea;
+                border-color: #e9ecef;
+                border-radius: 0.375rem;
+                margin: 0 0.25rem;
+            }
+
+            .pagination .page-link:hover {
+                background: #667eea;
+                border-color: #667eea;
+                color: white;
+            }
+
+            .pagination .active .page-link {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-color: #667eea;
+            }
+
+            .action-buttons {
+                display: flex;
+                gap: 0.5rem;
+            }
+
+            .btn-sm {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.875rem;
             }
         </style>
     </head>
@@ -56,7 +264,6 @@
                 </div>
             </div>
             <!-- Spinner End -->
-
 
             <!-- Sidebar Start -->
             <div class="sidebar pe-4 pb-3">
@@ -107,7 +314,6 @@
                 </nav>
             </div>
             <!-- Sidebar End -->
-
 
             <!-- Content Start -->
             <div class="content">
@@ -200,80 +406,280 @@
 
                 <!-- Main Content -->
                 <div class="container-fluid pt-4 px-4">
-                    <div class="filter-section-container">
-                        <div class="filter-section-main">
+                    <div class="row">
+                        <!-- Filter Section -->
+                        <div class="col-lg-3 col-md-4">
+                            <!-- Blog Categories Card -->
+                            <div class="filter-card">
+                                <div class="filter-card-header">
+                                    <h5><i class="fas fa-list"></i>Blog Categories</h5>
+                                </div>
+                                <div class="category-list">
+                                    <a href="${pageContext.request.contextPath}/blog/add" 
+                                       class="category-item active">
+                                        <i class="fas fa-plus me-2"></i>Add Blog
+                                    </a>
+                                    <!-- All Categories Link -->
+                                    <a href="blogmanager?page=1" class="category-item ${empty param.categoryId ? 'active' : ''}">
+                                        <i class="fas fa-th-large me-2"></i>All Categories
+                                    </a>
+                                    <c:forEach var="category" items="${cList}">
+                                        <a href="blogmanager?categoryId=${category.categoryId}&page=1" 
+                                           class="category-item ${param.categoryId == category.categoryId ? 'active' : ''}">
+                                            <i class="fas fa-tag me-2"></i>${category.categoryName}
+                                        </a>
+                                    </c:forEach>
+                                </div>
+                            </div>
 
+                            <!-- Search and Filter Card -->
+                            <div class="filter-card">
+                                <div class="filter-card-header">
+                                    <h5><i class="fas fa-search"></i>Search & Filter</h5>
+                                </div>
+                                <div class="search-filter-form">
+                                    <form action="blogmanager" method="get">
+                                        <div class="form-group">
+                                            <label for="search">Search Blogs</label>
+                                            <input type="text" id="search" name="search" class="form-control" 
+                                                   placeholder="Enter keywords..." value="${param.search}">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="sortBy">Sort By</label>
+                                            <select id="sortBy" name="sortBy" class="form-control">
+                                                <option value="created_at" ${param.sortBy == 'created_at' ? 'selected' : ''}>Date Created</option>
+                                                <option value="updated_at" ${param.sortBy == 'updated_at' ? 'selected' : ''}>Date Updated</option>
+                                                <option value="title" ${param.sortBy == 'title' ? 'selected' : ''}>Title</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="status">Status</label>
+                                            <select id="status" name="status" class="form-control">
+                                                <option value="" ${param.status == '' ? 'selected' : ''}>All</option>
+                                                <option value="Active" ${param.status == 'Active' ? 'selected' : ''}>Active</option>
+                                                <option value="Hidden" ${param.status == 'Hidden' ? 'selected' : ''}>Hidden</option>
+                                                <option value="Deleted" ${param.status == 'Deleted' ? 'selected' : ''}>Deleted</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="sort">Order</label>
+                                            <select id="sort" name="sort" class="form-control">
+                                                <option value="DESC" ${param.sort == 'DESC' ? 'selected' : ''}>Newest First</option>
+                                                <option value="ASC" ${param.sort == 'ASC' ? 'selected' : ''}>Oldest First</option>
+                                            </select>
+                                        </div>
+
+                                        <input type="hidden" name="categoryId" value="${param.categoryId}">
+                                        <input type="hidden" name="page" value="1">
+
+                                        <div class="filter-buttons">
+                                            <button type="submit" class="btn btn-gradient flex-fill">
+                                                <i class="fas fa-filter me-1"></i>Apply Filter
+                                            </button>
+                                            <a class="btn btn-outline-gradient flex-fill" href="${pageContext.request.contextPath}/blogmanager">
+                                                <i class="fas fa-times me-1"></i>Clear
+                                            </a>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="stats-card">
+                                <h6><i class="fas fa-chart-bar me-2"></i>Quick Stats</h6>
+                                <div class="row text-center">
+                                    <div class="col-12 mb-3">
+                                        <p class="stats-number">${fn:length(blogs)}</p>
+                                        <small class="text-muted">Blogs Shown</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="list-section-container" style="padding: 20px; border: solid 1px #cccccc; border-radius: 10px;">
-                        <div class="list-section-main">
-                            <c:choose>
-                                <c:when test="${not empty blogs}">
-                                    <!-- Loop through blogs -->
-                                    <div class="table-wrapper">
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th class="table-th">Blog Id</th>
-                                                    <th class="table-th">Title</th>
-                                                    <th class="table-th">Thumbnail</th>
-                                                    <th class="table-th">Pre Context</th>
-                                                    <th class="table-th">Status</th>
-                                                    <th class="table-th">Author</th>
-                                                    <th class="table-th">Created At</th>
-                                                    <th class="table-th">Updated At</th>
-                                                    <th class="table-th" colspan="2">Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <c:forEach var="blog" items="${blogs}">
+                        <!-- Blog List Section -->
+                        <div class="col-lg-9 col-md-8">
+                            <div class="table-container">
+                                <div class="table-header">
+                                    <h5>
+                                        <span><i class="fas fa-blog me-2"></i>Blog Management</span>
+                                        <span class="badge bg-light text-dark">${fn:length(blogs)} blogs</span>
+                                    </h5>
+                                </div>
+
+                                <c:choose>
+                                    <c:when test="${not empty blogs}">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover mb-0">
+                                                <thead class="table-light">
                                                     <tr>
-                                                        <td>${blog.blogId}</td>
-                                                        <td>${blog.title}</td>
-                                                        <td><img src="${blog.img_url}" alt="${blog.title}" width="50" height="50"/></td>
-                                                        <td>${blog.pre_context}</td>
-                                                        <td>${blog.status}</td>
-                                                        <td>${blog.owner.userid}</td>
-                                                        <td><fmt:formatDate value="${blog.created_at}" pattern="dd MMM, yyyy HH:mm" /></td>
-                                                        <td>
-                                                            <c:choose>
-                                                                <c:when test="${not empty blog.updated_at}">
-                                                                    <fmt:formatDate value="${blog.updated_at}" pattern="dd MMM, yyyy HH:mm" />
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    Not Yet
-                                                                </c:otherwise>
-                                                            </c:choose>
-                                                        </td>
-                                                        <td>
-                                                            <a href="${pageContext.request.contextPath}/blog/edit"><button class="btn btn-primary">Edit</button></a>
-                                                            <button class="btn btn-danger">Delete</button>
-                                                        </td>
+                                                        <th class="table-th">ID</th>
+                                                        <th class="table-th">Title</th>
+                                                        <th class="table-th">Thumbnail</th>
+                                                        <th class="table-th">Preview</th>
+                                                        <th class="table-th">Status</th>
+                                                        <th class="table-th">Author</th>
+                                                        <th class="table-th">Created</th>
+                                                        <th class="table-th">Updated</th>
+                                                        <th class="table-th">Actions</th>
                                                     </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <c:forEach var="blog" items="${blogs}">
+                                                        <tr>
+                                                            <td><strong>#${blog.blogId}</strong></td>
+                                                            <td>
+                                                                <div style="max-width: 200px;">
+                                                                    <strong>${fn:substring(blog.title, 0, 50)}${fn:length(blog.title) > 50 ? '...' : ''}</strong>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <img src="${blog.img_url}" alt="${blog.title}" 
+                                                                     class="rounded" width="60" height="60" 
+                                                                     style="object-fit: cover;"/>
+                                                            </td>
+                                                            <td>
+                                                                <div style="max-width: 150px;">
+                                                                    <small class="text-muted">
+                                                                        ${fn:substring(blog.pre_context, 0, 80)}${fn:length(blog.pre_context) > 80 ? '...' : ''}
+                                                                    </small>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <c:choose>
+                                                                    <c:when test="${blog.status == 'active'}">
+                                                                        <span class="badge bg-success">Active</span>
+                                                                    </c:when>
+                                                                    <c:when test="${blog.status == 'draft'}">
+                                                                        <span class="badge bg-warning">Draft</span>
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <span class="badge bg-secondary">${blog.status}</span>
+                                                                    </c:otherwise>
+                                                                </c:choose>
+                                                            </td>
+                                                            <td>
+                                                                <small class="text-muted">
+                                                                    <i class="fas fa-user me-1"></i>${blog.owner.userid}
+                                                                </small>
+                                                            </td>
+                                                            <td>
+                                                                <small>
+                                                                    <fmt:formatDate value="${blog.created_at}" pattern="dd MMM, yyyy" />
+                                                                    <br>
+                                                                    <span class="text-muted">
+                                                                        <fmt:formatDate value="${blog.created_at}" pattern="HH:mm" />
+                                                                    </span>
+                                                                </small>
+                                                            </td>
+                                                            <td>
+                                                                <c:choose>
+                                                                    <c:when test="${not empty blog.updated_at}">
+                                                                        <small>
+                                                                            <fmt:formatDate value="${blog.updated_at}" pattern="dd MMM, yyyy" />
+                                                                            <br>
+                                                                            <span class="text-muted">
+                                                                                <fmt:formatDate value="${blog.updated_at}" pattern="HH:mm" />
+                                                                            </span>
+                                                                        </small>
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <small class="text-muted">Not updated</small>
+                                                                    </c:otherwise>
+                                                                </c:choose>
+                                                            </td>
+                                                            <td>
+                                                                <div class="action-buttons">
+                                                                    <a href="${pageContext.request.contextPath}/blog/edit?id=${blog.blogId}" 
+                                                                       class="btn btn-outline-primary" title="Edit">
+                                                                        <i class="fas fa-edit"></i>
+                                                                    </a>
+                                                                    <button class="btn btn-outline-danger" 
+                                                                            onclick="confirmDelete(${blog.blogId})" title="Delete">
+                                                                        <i class="fas fa-trash"></i>
+                                                                    </button>
+                                                                    <a href="${pageContext.request.contextPath}/blog/detail?bid=${blog.blogId}" 
+                                                                       class="btn btn-outline-info" title="View" target="_blank">
+                                                                        <i class="fas fa-eye"></i>
+                                                                    </a>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </c:forEach>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="text-center py-5">
+                                            <div class="mb-4">
+                                                <i class="fas fa-blog fa-4x text-muted"></i>
+                                            </div>
+                                            <h4 class="text-muted">No blogs found</h4>
+                                            <p class="text-muted">
+                                                <c:choose>
+                                                    <c:when test="${not empty param.search}">
+                                                        No blogs match your search criteria. Try different keywords.
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        No blogs are available at the moment. Please check back later.
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </p>
+                                            <a href="blogmanager" class="btn btn-gradient">
+                                                <i class="fas fa-list me-2"></i>View All Blogs
+                                            </a>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
+
+                                <!-- Pagination -->
+                                <c:if test="${totalPages > 1}">
+                                    <div class="pagination-area">
+                                        <nav aria-label="Blog pagination">
+                                            <ul class="pagination mb-0">
+                                                <!-- Previous Page -->
+                                                <c:if test="${currentPage > 1}">
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="blogmanager?page=${currentPage - 1}&search=${param.search}&sortBy=${param.sortBy}&sort=${param.sort}&categoryId=${param.categoryId}&search=${param.status}">
+                                                            <i class="fas fa-chevron-left"></i>
+                                                        </a>
+                                                    </li>
+                                                </c:if>
+
+                                                <!-- Page Numbers -->
+                                                <c:forEach var="i" begin="1" end="${totalPages}">
+                                                    <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                                        <a class="page-link" href="blogmanager?page=${i}&search=${param.search}&sortBy=${param.sortBy}&sort=${param.sort}&categoryId=${param.categoryId}&search=${param.status}">
+                                                            ${i}
+                                                        </a>
+                                                    </li>
                                                 </c:forEach>
-                                            </tbody>
-                                        </table>
+
+                                                <!-- Next Page -->
+                                                <c:if test="${currentPage < totalPages}">
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="blogmanager?page=${currentPage + 1}&search=${param.search}&sortBy=${param.sortBy}&sort=${param.sort}&categoryId=${param.categoryId}&search=${param.status}">
+                                                            <i class="fas fa-chevron-right"></i>
+                                                        </a>
+                                                    </li>
+                                                </c:if>
+                                            </ul>
+                                        </nav>
+
+                                        <!-- Pagination Info -->
+                                        <div class="text-center mt-3">
+                                            <small class="text-muted">
+                                                Page ${currentPage} of ${totalPages}
+                                                <c:if test="${not empty blogs}">
+                                                    | Showing ${fn:length(blogs)} blogs
+                                                </c:if>
+                                            </small>
+                                        </div>
                                     </div>
-                                </c:when>
-                                <c:otherwise>
-                                    <!-- No blogs found -->
-                                    <div class="single-blog-post text-center">
-                                        <h3>No blogs found</h3>
-                                        <p>
-                                            <c:choose>
-                                                <c:when test="${not empty param.search}">
-                                                    No blogs match your search criteria. Try different keywords.
-                                                </c:when>
-                                                <c:otherwise>
-                                                    No blogs are available at the moment. Please check back later.
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </p>
-                                        <a href="blog" class="btn btn-primary">View All Blogs</a>
-                                    </div>
-                                </c:otherwise>
-                            </c:choose>
+                                </c:if>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -291,10 +697,30 @@
                 <!-- Footer End -->
             </div>
             <!-- Content End -->
+        </div>
 
-
-            <!-- Back to Top -->
-            <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="deleteModalLabel">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete this blog post?</p>
+                        <p class="text-muted"><small>This action cannot be undone.</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- JavaScript Libraries -->
@@ -310,5 +736,51 @@
 
         <!-- Template Javascript -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+
+        <script>
+                                                                                // Delete confirmation functionality
+                                                                                let blogIdToDelete = null;
+
+                                                                                function confirmDelete(blogId) {
+                                                                                    blogIdToDelete = blogId;
+                                                                                    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                                                                                    deleteModal.show();
+                                                                                }
+
+                                                                                document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+                                                                                    if (blogIdToDelete) {
+                                                                                        // Perform delete action - you can modify this to match your delete endpoint
+                                                                                        window.location.href = '${pageContext.request.contextPath}/blog/delete?bid=' + blogIdToDelete;
+                                                                                    }
+                                                                                });
+
+                                                                                // Auto-hide spinner
+                                                                                $(document).ready(function () {
+                                                                                    setTimeout(function () {
+                                                                                        $('#spinner').removeClass('show');
+                                                                                    }, 1000);
+                                                                                });
+
+                                                                                // Enhanced table interactions
+                                                                                $('.table tbody tr').hover(function () {
+                                                                                    $(this).addClass('table-active');
+                                                                                }, function () {
+                                                                                    $(this).removeClass('table-active');
+                                                                                });
+
+                                                                                // Form validation
+                                                                                $('form').on('submit', function () {
+                                                                                    const submitBtn = $(this).find('button[type="submit"]');
+                                                                                    const originalText = submitBtn.html();
+                                                                                    submitBtn.html('<i class="fas fa-spinner fa-spin me-1"></i>Applying...');
+                                                                                    submitBtn.prop('disabled', true);
+
+                                                                                    // Re-enable after 3 seconds in case of issues
+                                                                                    setTimeout(function () {
+                                                                                        submitBtn.html(originalText);
+                                                                                        submitBtn.prop('disabled', false);
+                                                                                    }, 3000);
+                                                                                });
+        </script>
     </body>
 </html>

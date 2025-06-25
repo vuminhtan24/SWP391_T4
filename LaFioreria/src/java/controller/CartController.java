@@ -62,10 +62,10 @@ public class CartController extends HttpServlet {
                 CartDAO cartDAO = new CartDAO();
                 cartDetails = cartDAO.getCartDetailsByCustomerId(customerId);
 
-                List<BouquetImage> bqImages = new ArrayList<>();
+                List<List<BouquetImage>> bqImages = new ArrayList<>();
 
                 for (CartDetail cd : cartDetails) {
-                    bqImages = bouDao.getBouquetImage(cd.getBouquetId());
+                    bqImages.add(bouDao.getBouquetImage(cd.getBouquetId()));
                 }
 
                 request.setAttribute("cartImages", bqImages);
@@ -145,7 +145,7 @@ public class CartController extends HttpServlet {
             }
 
             request.getSession().setAttribute("cart", cart);
-            response.getWriter().write("{\"status\": \"added\", \"message\": \"Item added to session cart\"}");
+            response.getWriter().write("{\"status\": \"added\", \"message\": \"Item added to cart\"}");
             return;
         }
 

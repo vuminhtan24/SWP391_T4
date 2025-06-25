@@ -52,18 +52,6 @@
                             <!-- Blog Categories -->
                             <h2>Blog Categories</h2>
                             <div class="panel-group category-products" id="accordian">
-                                <c:forEach var="category" items="${blogCategories}">
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                            <h4 class="panel-title">
-                                                <a href="blog?categoryId=${category.id}&page=1">
-                                                    ${category.name}
-                                                    <span class="badge pull-right">${category.blogCount}</span>
-                                                </a>
-                                            </h4>
-                                        </div>
-                                    </div>
-                                </c:forEach>
 
                                 <!-- All Categories Link -->
                                 <div class="panel panel-default">
@@ -75,6 +63,17 @@
                                         </h4>
                                     </div>
                                 </div>
+                                <c:forEach var="category" items="${cList}">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a href="blog?categoryId=${category.categoryId}&page=1">
+                                                    ${category.categoryName}
+                                                </a>
+                                            </h4>
+                                        </div>
+                                    </div>
+                                </c:forEach>
                             </div><!--/category-products-->
 
                             <!-- Search and Filter -->
@@ -154,7 +153,7 @@
 
                                             <!-- Blog Image -->
                                             <c:if test="${not empty blog.img_url}">
-                                                <a href="blog-detail?id=${blog.blogId}">
+                                                <a href="${pageContext.request.contextPath}/blog/detail?bid=${blog.blogId}">
                                                     <img src="${blog.img_url}" alt="${blog.title}" 
                                                          style="max-width: 100%; height: 200px; object-fit: cover;">
                                                 </a>
@@ -216,7 +215,7 @@
                                         </c:if>
 
                                         <!-- Page Numbers -->
-                                        <c:forEach var="i" begin="${startPage}" end="${endPage}">
+                                        <c:forEach var="i" begin="1" end="${totalPages}">
                                             <li>
                                                 <a href="blog?page=${i}&search=${param.search}&sortBy=${param.sortBy}&sort=${param.sort}&categoryId=${param.categoryId}" 
                                                    class="${i == currentPage ? 'active' : ''}">${i}</a>

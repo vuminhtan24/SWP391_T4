@@ -19,17 +19,16 @@ public class BlogDAO extends BaseDao {
 
     public static void main(String[] args) {
         BlogDAO bDao = new BlogDAO();
-        System.out.println(bDao.getBlogById(1));
+        System.out.println(bDao.getAllBlogWithFilter(10, 0, "Flower Meanings", "", "", 0, "Active"));
     }
 
     public List<Blog> getAllBlogWithFilter(int limit, int offset, String searchKey, String sortBy, String sort, int categoryId, String status) {
         List<Blog> bList = new ArrayList<>();
-
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("SELECT * FROM blog WHERE 1 = 1");
 
         if (categoryId > 0) {
-            sqlBuilder.append(" AND category_id = ?");
+            sqlBuilder.append(" AND cid = ?");
         }
 
         if (searchKey != null && !searchKey.trim().isEmpty()) {
@@ -37,12 +36,11 @@ public class BlogDAO extends BaseDao {
         }
 
         if (status != null && !status.trim().isEmpty()) {
-            sqlBuilder.append(" AND status = ? ");
+            sqlBuilder.append(" AND status = ?");
         }
 
         if (sortBy != null && !sortBy.trim().isEmpty()) {
             sqlBuilder.append(" ORDER BY ");
-
             switch (sortBy.toLowerCase()) {
                 case "title":
                     sqlBuilder.append("title");
@@ -62,9 +60,7 @@ public class BlogDAO extends BaseDao {
                 default:
                     sqlBuilder.append("created_at");
             }
-
-            // Add sort direction
-            if (sort != null && sort.equalsIgnoreCase("ASC")) {
+            if ("asc".equalsIgnoreCase(sort)) {
                 sqlBuilder.append(" ASC");
             } else {
                 sqlBuilder.append(" DESC");
@@ -74,7 +70,6 @@ public class BlogDAO extends BaseDao {
         }
 
         sqlBuilder.append(" LIMIT ? OFFSET ?");
-
         String sql = sqlBuilder.toString();
 
         try {
@@ -83,19 +78,19 @@ public class BlogDAO extends BaseDao {
 
             int paramIndex = 1;
 
-            if (status != null && !status.trim().isBlank()) {
-                ps.setString(paramIndex++, status);
-            }
-
             if (categoryId > 0) {
                 ps.setInt(paramIndex++, categoryId);
             }
 
             if (searchKey != null && !searchKey.trim().isEmpty()) {
-                String searchPattern = "%" + searchKey.trim() + "%";
-                ps.setString(paramIndex++, searchPattern); // title
-                ps.setString(paramIndex++, searchPattern); // context
-                ps.setString(paramIndex++, searchPattern); // pre_context
+                String pattern = "%" + searchKey.trim() + "%";
+                ps.setString(paramIndex++, pattern);
+                ps.setString(paramIndex++, pattern);
+                ps.setString(paramIndex++, pattern);
+            }
+
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(paramIndex++, status);
             }
 
             ps.setInt(paramIndex++, limit);
@@ -111,29 +106,23 @@ public class BlogDAO extends BaseDao {
 
                 User u = new User();
                 u.setUserid(rs.getInt("author_id"));
-
                 blog.setOwner(u);
+
                 blog.setCreated_at(rs.getTimestamp("created_at"));
                 blog.setUpdated_at(rs.getTimestamp("updated_at"));
 
                 Category c = new Category();
                 c.setCategoryId(rs.getInt("cid"));
-
                 blog.setCategory(c);
+
                 blog.setImg_url(rs.getString("image_url"));
                 blog.setPre_context(rs.getString("pre_context"));
                 blog.setStatus(rs.getString("status"));
 
-                // Add other fields if they exist in your Blog class
-                // blog.setStatus(rs.getString("status"));
-                // blog.setCategoryId(rs.getInt("category_id"));
                 bList.add(blog);
             }
-
         } catch (SQLException e) {
             System.out.println("SQL Error in getAllBlogWithFilter: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("Error in getAllBlogWithFilter: " + e.getMessage());
         } finally {
             try {
                 closeResources();

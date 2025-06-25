@@ -568,7 +568,7 @@ public class BouquetDAO extends BaseDao {
         b = dao.getBouquetByID(3);
         List<BouquetRaw> r = dao.getFlowerBatchByBouquetID(3);
 //        BouquetImage big = dao.getBouquetImage(1);
-        List<BouquetImage> big = dao.getBouquetImage(1);
+        List<BouquetImage> big = dao.getBouquetImage(5);
         System.out.println(big);
 
     }

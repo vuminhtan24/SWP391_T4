@@ -5,6 +5,7 @@
 package controller;
 
 import dal.BlogDAO;
+import dal.CategoryDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import model.Blog;
+import model.Category;
 
 /**
  *
@@ -94,14 +96,26 @@ public class BlogManagerController extends HttpServlet {
         String search = request.getParameter("search");
         String sortBy = request.getParameter("sortBy");
         String sort = request.getParameter("sort");
+        String status = request.getParameter("status");
         int categoryId = Integer.parseInt(request.getParameter("categoryId") != null && !request.getParameter("categoryId").isBlank() ? request.getParameter("categoryId") : "0");
 
+        if(status == null || status.isBlank()){
+            status = null;
+        }
+        
         BlogDAO dao = new BlogDAO();
-        List<Blog> blogs = dao.getAllBlogWithFilter(limit, offset, search, sortBy, sort, categoryId, null);
+        CategoryDAO cDao = new CategoryDAO();
+        List<Blog> blogs = dao.getAllBlogWithFilter(limit, offset, search, sortBy, sort, categoryId, status);
         int totalCount = dao.getTotalBlogCountWithFilter(search, categoryId);
 
+        List<Category> cList = cDao.getAll();
+
+        int totalPages = (int) Math.ceil((double) totalCount / limit);
+
+        request.setAttribute("cList", cList);
         request.setAttribute("blogs", blogs);
         request.setAttribute("totalCount", totalCount);
+        request.setAttribute("totalPages", totalPages);
         request.setAttribute("currentPage", page);
         request.getRequestDispatcher("DashMin/blogmanager.jsp").forward(request, response);
     }
@@ -132,12 +146,18 @@ public class BlogManagerController extends HttpServlet {
         String sort = request.getParameter("sort");
         int categoryId = Integer.parseInt(request.getParameter("categoryId") != null && !request.getParameter("categoryId").isBlank() ? request.getParameter("categoryId") : "0");
 
+        CategoryDAO cDao = new CategoryDAO();
         BlogDAO dao = new BlogDAO();
         List<Blog> blogs = dao.getAllBlogWithFilter(limit, offset, search, sortBy, sort, categoryId, "Active");
         int totalCount = dao.getTotalBlogCountWithFilter(search, categoryId);
+        int totalPages = (int) Math.ceil((double) totalCount / limit);
 
+        List<Category> cList = cDao.getAll();
+
+        request.setAttribute("cList", cList);
         request.setAttribute("blogs", blogs);
         request.setAttribute("totalCount", totalCount);
+        request.setAttribute("totalPages", totalPages);
         request.setAttribute("currentPage", page);
         request.getRequestDispatcher("ZeShopper/blog.jsp").forward(request, response);
     }
@@ -158,10 +178,10 @@ public class BlogManagerController extends HttpServlet {
     }
 
     //Helper
-    private void fullLoadBlogInformation(Blog b){
-        
+    private void fullLoadBlogInformation(Blog b) {
+
     }
-    
+
     /**
      * Returns a short description of the servlet.
      *
