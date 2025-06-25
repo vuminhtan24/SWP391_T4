@@ -178,7 +178,13 @@
                                 <c:forEach var="item" items="${cartDetails}">
                                     <tr>
                                         <td class="cart_product">
-                                            <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${item.bouquet.imageUrl}" alt="${item.bouquet.bouquetName}" width="100">
+                                            <c:set var="firstImageShown" value="false"/>
+                                            <c:forEach items="${cartImages}" var="img">
+                                                <c:if test="${img.bouquetId == item.bouquetId && !firstImageShown}">
+                                                    <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}" alt="${item.bouquet.bouquetName}" width="100">
+                                                    <c:set var="firstImageShown" value="true"/>
+                                                </c:if>
+                                            </c:forEach>
                                         </td>
                                         <td class="cart_description">
                                             <h4>${item.bouquet.bouquetName}</h4>
@@ -234,25 +240,25 @@
                         </div>
                     </div>
                 </div>
-        </c:if>
+            </c:if>
 
-        <jsp:include page="/ZeShopper/footer.jsp"/>
+            <jsp:include page="/ZeShopper/footer.jsp"/>
 
-        <script>
-            // Close popup when clicking outside
-            document.addEventListener('click', function (event) {
-                const popup = document.getElementById('checkoutPopup');
-                if (popup && event.target === popup) {
-                    closeCheckoutPopup();
-                }
-            });
+            <script>
+                // Close popup when clicking outside
+                document.addEventListener('click', function (event) {
+                    const popup = document.getElementById('checkoutPopup');
+                    if (popup && event.target === popup) {
+                        closeCheckoutPopup();
+                    }
+                });
 
-            // Close popup with Escape key
-            document.addEventListener('keydown', function (event) {
-                if (event.key === 'Escape') {
-                    closeCheckoutPopup();
-                }
-            });
-        </script>
+                // Close popup with Escape key
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape') {
+                        closeCheckoutPopup();
+                    }
+                });
+            </script>
     </body>
 </html>

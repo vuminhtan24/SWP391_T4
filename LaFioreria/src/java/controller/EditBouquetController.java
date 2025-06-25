@@ -227,6 +227,7 @@ public class EditBouquetController extends HttpServlet {
             String sellValuestr = request.getParameter("sellValue");
             int cateID = Integer.parseInt(category);
             String bqName = request.getParameter("bqName");
+            String status = request.getParameter("status");
 
             if (bqName == null || bqName.trim().isEmpty()) {
                 request.setAttribute("id", id);
@@ -250,7 +251,7 @@ public class EditBouquetController extends HttpServlet {
 
             int totalValue = (int) Math.round(Double.parseDouble(totalValueStr));
             int sellValue = (int) Math.round(Double.parseDouble(sellValuestr));
-            dao.updateBouquet(new Bouquet(id, bqName, bqDescription, cateID, totalValue, sellValue));
+            dao.updateBouquet(new Bouquet(id, bqName, bqDescription, cateID, totalValue, sellValue, status));
 
             response.sendRedirect(request.getContextPath() + "/bouquetDetails?id=" + id);
 

@@ -182,13 +182,13 @@ public class CartDAO extends BaseDao {
     }
     
     public int insertOrder(Order order) {
-        String sql = "INSERT INTO `order` (order_date, customer_id, total_amount, status_id) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO `order` (order_date, customer_id, total_sell, status_id) VALUES (?, ?, ?, ?)";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setString(1, order.getOrderDate());
             ps.setInt(2, order.getCustomerId());
-            ps.setString(3, order.getTotalAmount());
+            ps.setString(3, order.getTotalSell());
             ps.setInt(4, 1); // status_id = 1 (processing)
             ps.executeUpdate();
             rs = ps.getGeneratedKeys();

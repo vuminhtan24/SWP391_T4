@@ -109,41 +109,35 @@ public class RejectDeliveryServlet extends HttpServlet {
         }
 
         String cancellationImagePath = null; // Biến để lưu đường dẫn ảnh
-        try {
-            // Lấy Part của file đã upload
-            Part filePart = request.getPart("cancellationImage"); // "cancellationImage" là tên của input type="file" trong form HTML
-            String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // Lấy tên file gốc
+         // Nhận file ảnh
+        Part filePart = request.getPart("cancellationImage");
+        String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
 
-            if (fileName != null && !fileName.isEmpty()) {
-                String uploadPath = getServletContext().getRealPath("/upload/RejectDeliveryIMG/");
-                File uploadDir = new File(uploadPath);
-                if (!uploadDir.exists()) {
-                    uploadDir.mkdir();
-                }
+        // Đường dẫn lưu file thực tế (ví dụ: /uploads/)
+        String uploadPath = getServletContext().getRealPath("/upload/RejectDeliveryIMG/");
+        File uploadDir = new File(uploadPath);
+        if (!uploadDir.exists()) {
+            uploadDir.mkdir();
+        }
 
-                String savedFilePath = uploadPath + File.separator + fileName;
-                filePart.write(savedFilePath);
-                String rootPath = savedFilePath.replace("\\build", "");
-                Path source = Paths.get(savedFilePath);
-                Path target = Paths.get(rootPath);
+        String savedFilePath = uploadPath + File.separator + fileName;
+        filePart.write(savedFilePath);
+        // 2) Copy từ build folder → folder dự án (root của webapp)
+        //    rootPath sẽ là đường dẫn thực sự đến folder webapp/upload/BouquetIMG
+        String rootPath = savedFilePath.replace("\\build", "");
+        Path source = Paths.get(savedFilePath);
+        Path target = Paths.get(rootPath);
+        // Tạo thư mục nếu chưa có
                 Files.createDirectories(target.getParent());
                 // Copy file (thay thế nếu đã tồn tại)
                 Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-                OrderDAO dao = new OrderDAO();
-                boolean success = dao.rejectOrder(orderId,reason, "/upload/RejectDeliveryIMG/" + fileName);
-            }
-        } catch (Exception e) {
-            System.err.println("Error uploading cancellation image: " + e.getMessage());
-            e.printStackTrace();
-            // Xử lý lỗi upload ảnh, có thể redirect về trang lỗi
-            response.sendRedirect("shipperOrderDetails?orderId=" + orderId + "&error=image_upload_failed");
-            return;
-        }
 
-        // Gọi hàm DAO đã cập nhật: cancelOrder(orderId, reason, cancellationImagePath)
+
+        // Update trạng thái đơn hàng và lưu đường dẫn ảnh
         OrderDAO dao = new OrderDAO();
-        // Giả sử bạn đã đổi tên hàm trong OrderDAO thành cancelOrder
-        boolean success = dao.rejectOrder(orderId, reason, cancellationImagePath);
+        boolean success = dao.rejectOrder(orderId, reason,"/upload/RejectDeliveryIMG/" + fileName);
+
+
 
         if (success) {
             response.sendRedirect("shipperOrderDetails?orderId=" + orderId + "&success=rejected");

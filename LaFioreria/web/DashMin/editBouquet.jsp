@@ -257,7 +257,7 @@
 
                                 <!-- Cột phải: Nội dung -->
                                 <input type="hidden" name="id" value="${bouquetDetail.getBouquetId()}">
-                                 <div class="flex-grow-1 bouquet-content" style="flex: 1;">
+                                <div class="flex-grow-1 bouquet-content" style="flex: 1;">
                                     <div class="bouquet-info p-4 shadow-sm rounded bg-white">
                                         <h1 class="fw-bold mb-4 text-primary">
                                             <input type="text" name="bqName" value="${bouquetDetail.getBouquetName()}" maxlength="35" required/>    
@@ -274,77 +274,83 @@
                                                         ${cate.getCategoryName()}
                                                     </option>
                                                 </c:forEach>   
-                                            </select>
+                                                </select>
 
-                                            <div class="mb-4">
-                                                <label class="form-label fw-semibold">Description:</label>
-                                                <textarea name="bqDescription" class="form-control" rows="4" required>${bouquetDetail.getDescription()}</textarea>
-                                            </div>
+                                                <div class="mb-4">
+                                                    <label class="form-label fw-semibold">Description:</label>
+                                                    <textarea name="bqDescription" class="form-control" rows="4" required>${bouquetDetail.getDescription()}</textarea>
+                                                </div>
+                                                
+                                                <label class="form-label fw-semibold">Status: </label>
+                                                <select name="status" class="form-select">
+                                                    <option value="valid" ${bouquetDetail.getStatus() == 'valid' ? 'selected' : ''}>valid</option>
+                                                    <option value="invalid" ${bouquetDetail.getStatus() == 'invalid' ? 'selected' : ''}>invalid</option>
+                                                </select>
 
-                                            <!-- Flower Table -->
-                                            <h5 class="mb-3 text-secondary">Flowers in Bouquet</h5>
+                                                <!-- Flower Table -->
+                                                <h5 class="mb-3 text-secondary">Flowers in Bouquet</h5>
 
-                                            <div class="table-responsive mb-3">
-                                                <table id="flowerTable" class="table table-bordered align-middle">
-                                                    <thead class="table-light">
-                                                        <tr>
-                                                            <th>Flower</th>
-                                                            <th>Flower Batch</th>
-                                                            <th>Unit Price</th>
-                                                            <th>Quantity</th>
-                                                            <th></th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <!-- existing rows -->
-                                                        <c:forEach var="br" items="${flowerInBQ}">
-                                                            <tr data-batch-id="${br.getBatchId()}" data-quantity="${br.getQuantity()}">
-                                                                <!-- giống như code cũ của bạn -->
-                                                                <td>
-                                                                    <select name="flowerIds" class="form-select form-select-sm flower-select">
-                                                                        <option value="" disabled>-- Select Flower --</option>
-                                                                        <c:forEach var="f" items="${allFlowers}">
-                                                                            <option value="${f.getFlowerId()}">${f.getFlowerName()}</option>
-                                                                        </c:forEach>
-                                                                    </select>
-                                                                </td>
-                                                                <td>
-                                                                    <select name="batchIds" class="form-select form-select-sm batch-select">
-                                                                        <option value="" disabled>-- Select Batch --</option>
-                                                                    </select>
-                                                                </td>
-                                                                <td>
-                                                                    <span class="form-text price-text">0.00 VND</span>
-                                                                    <input type="hidden" class="price-input" name="prices[]" value="0" />
-                                                                </td>
-                                                                <td>
-                                                                    <input type="number" name="quantities" class="form-control form-control-sm quantity-input" />
-                                                                </td>
-                                                                <td>
-                                                                    <button type="button" class="btn btn-sm btn-outline-danger remove-btn">&times;</button>
+                                                <div class="table-responsive mb-3">
+                                                    <table id="flowerTable" class="table table-bordered align-middle">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th>Flower</th>
+                                                                <th>Flower Batch</th>
+                                                                <th>Unit Price</th>
+                                                                <th>Quantity</th>
+                                                                <th></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <!-- existing rows -->
+                                                            <c:forEach var="br" items="${flowerInBQ}">
+                                                                <tr data-batch-id="${br.getBatchId()}" data-quantity="${br.getQuantity()}">
+                                                                    <!-- giống như code cũ của bạn -->
+                                                                    <td>
+                                                                        <select name="flowerIds" class="form-select form-select-sm flower-select">
+                                                                            <option value="" disabled>-- Select Flower --</option>
+                                                                            <c:forEach var="f" items="${allFlowers}">
+                                                                                <option value="${f.getFlowerId()}">${f.getFlowerName()}</option>
+                                                                            </c:forEach>
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        <select name="batchIds" class="form-select form-select-sm batch-select">
+                                                                            <option value="" disabled>-- Select Batch --</option>
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        <span class="form-text price-text">0.00 VND</span>
+                                                                        <input type="hidden" class="price-input" name="prices[]" value="0" />
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="number" name="quantities" class="form-control form-control-sm quantity-input" />
+                                                                    </td>
+                                                                    <td>
+                                                                        <button type="button" class="btn btn-sm btn-outline-danger remove-btn">&times;</button>
+                                                                    </td>
+                                                                </tr>
+                                                            </c:forEach>
+                                                        </tbody>
+                                                        <tfoot>
+                                                            <tr>
+                                                                <td colspan="5" class="text-start fw-bold text-primary">
+                                                                    Total Cost: <span id="totalValueDisplay">0.00 VND</span>
+                                                                    <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
+                                                                    <br/>
+                                                                    Sell Price: <span id="sellValueDisplay">0.00 VND</span>
+                                                                    <input type="hidden" id="sellValueInput" name="sellValue" value="0" />
                                                                 </td>
                                                             </tr>
-                                                        </c:forEach>
-                                                    </tbody>
-                                                    <tfoot>
-                                                        <tr>
-                                                            <td colspan="5" class="text-start fw-bold text-primary">
-                                                                Total Cost: <span id="totalValueDisplay">0.00 VND</span>
-                                                                <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
-                                                                <br/>
-                                                                Sell Price: <span id="sellValueDisplay">0.00 VND</span>
-                                                                <input type="hidden" id="sellValueInput" name="sellValue" value="0" />
-                                                            </td>
-                                                        </tr>
-                                                    </tfoot>
-                                                </table>
-                                            </div>
-                                            <div class="d-flex justify-content-between">
-                                                <button type="button" id="addFlowerBtn" class="btn btn-sm btn-outline-primary mb-4">
-                                                    + Add New Flower
-                                                </button>
-                                                <button type="submit" class="btn btn-success px-4">Save Bouquet</button>
-                                            </div>
+                                                        </tfoot>
+                                                    </table>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <button type="button" id="addFlowerBtn" class="btn btn-sm btn-outline-primary mb-4">
+                                                        + Add New Flower
+                                                    </button>
+                                                    <button type="submit" class="btn btn-success px-4">Save Bouquet</button>
+                                                </div>
 
                                         </div>
                                     </div>
@@ -487,251 +493,252 @@
                                 opt.value = b.batchID;
                                 opt.dataset.price = b.unitPrice;
                                 // Hiển thị luôn chuỗi importDate và expirationDate
-                                opt.textContent = b.importDate + ' to ' + b.expirationDate;;
-                                                    batchSel.appendChild(opt);
-                                                }
-                                            });
-                                        }
+                                opt.textContent = b.importDate + ' to ' + b.expirationDate;
+                                ;
+                                batchSel.appendChild(opt);
+                            }
+                        });
+                    }
 
-                                        function updateRowPrice(row) {
-                                            const batchSel = row.querySelector('.batch-select');
-                                            const priceIn = row.querySelector('.price-input');
-                                            const priceTxt = row.querySelector('.price-text');
-                                            const sel = batchSel.selectedOptions[0];
-                                            const unit = sel ? parseFloat(sel.dataset.price) : 0;
-                                            priceIn.value = unit;
-                                            priceTxt.textContent = formatCurrency(unit);
-                                        }
+                    function updateRowPrice(row) {
+                        const batchSel = row.querySelector('.batch-select');
+                        const priceIn = row.querySelector('.price-input');
+                        const priceTxt = row.querySelector('.price-text');
+                        const sel = batchSel.selectedOptions[0];
+                        const unit = sel ? parseFloat(sel.dataset.price) : 0;
+                        priceIn.value = unit;
+                        priceTxt.textContent = formatCurrency(unit);
+                    }
 
-                                        function updateTotals() {
-                                            let total = 0;
-                                            document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
-                                                const price = parseFloat(row.querySelector('.price-input').value) || 0;
-                                                const qty = parseInt(row.querySelector('.quantity-input').value, 10) || 0;
-                                                total += price * qty;
-                                            });
-                                            document.getElementById('totalValueDisplay').textContent = formatCurrency(total);
-                                            document.getElementById('totalValueInput').value = total;
-                                            const sell = total * SELL_MULTIPLIER;
-                                            document.getElementById('sellValueDisplay').textContent = formatCurrency(sell);
-                                            document.getElementById('sellValueInput').value = sell;
-                                        }
+                    function updateTotals() {
+                        let total = 0;
+                        document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
+                            const price = parseFloat(row.querySelector('.price-input').value) || 0;
+                            const qty = parseInt(row.querySelector('.quantity-input').value, 10) || 0;
+                            total += price * qty;
+                        });
+                        document.getElementById('totalValueDisplay').textContent = formatCurrency(total);
+                        document.getElementById('totalValueInput').value = total;
+                        const sell = total * SELL_MULTIPLIER;
+                        document.getElementById('sellValueDisplay').textContent = formatCurrency(sell);
+                        document.getElementById('sellValueInput').value = sell;
+                    }
 
-                                        function bindRow(row) {
-                                            const flowerSel = row.querySelector('.flower-select');
-                                            const batchSel = row.querySelector('.batch-select');
-                                            const qtyInput = row.querySelector('.quantity-input');
-                                            const removeBtn = row.querySelector('.remove-btn');
+                    function bindRow(row) {
+                        const flowerSel = row.querySelector('.flower-select');
+                        const batchSel = row.querySelector('.batch-select');
+                        const qtyInput = row.querySelector('.quantity-input');
+                        const removeBtn = row.querySelector('.remove-btn');
 
-                                            flowerSel.addEventListener('change', () => {
-                                                fillBatchOptions(row, flowerSel.value);
-                                                updateFlowerOptions();
-                                                updateRowPrice(row);
-                                                updateTotals();
-                                            });
+                        flowerSel.addEventListener('change', () => {
+                            fillBatchOptions(row, flowerSel.value);
+                            updateFlowerOptions();
+                            updateRowPrice(row);
+                            updateTotals();
+                        });
 
-                                            batchSel.addEventListener('change', () => {
-                                                updateRowPrice(row);
-                                                updateTotals();
-                                            });
+                        batchSel.addEventListener('change', () => {
+                            updateRowPrice(row);
+                            updateTotals();
+                        });
 
-                                            qtyInput.addEventListener('input', updateTotals);
+                        qtyInput.addEventListener('input', updateTotals);
 
-                                            removeBtn.addEventListener('click', () => {
-                                                row.remove();
-                                                updateFlowerOptions();
-                                                updateTotals();
-                                            });
-                                        }
+                        removeBtn.addEventListener('click', () => {
+                            row.remove();
+                            updateFlowerOptions();
+                            updateTotals();
+                        });
+                    }
 
-                                        // Khởi tạo các dòng đã có
-                                        document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
-                                            const batchID = row.dataset.batchId;
-                                            const qty = row.dataset.quantity;
-                                            const batch = allBatchs.find(b => b.batchID === batchID);
+                    // Khởi tạo các dòng đã có
+                    document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
+                        const batchID = row.dataset.batchId;
+                        const qty = row.dataset.quantity;
+                        const batch = allBatchs.find(b => b.batchID === batchID);
 
-                                            if (batch) {
-                                                const flowerSel = row.querySelector('.flower-select');
-                                                const batchSel = row.querySelector('.batch-select');
-                                                const qtyInput = row.querySelector('.quantity-input');
+                        if (batch) {
+                            const flowerSel = row.querySelector('.flower-select');
+                            const batchSel = row.querySelector('.batch-select');
+                            const qtyInput = row.querySelector('.quantity-input');
 
-                                                flowerSel.value = batch.flowerID;
-                                                fillBatchOptions(row, batch.flowerID);
-                                                batchSel.value = batchID;
-                                                updateRowPrice(row);
-                                                qtyInput.value = qty;
-                                            }
+                            flowerSel.value = batch.flowerID;
+                            fillBatchOptions(row, batch.flowerID);
+                            batchSel.value = batchID;
+                            updateRowPrice(row);
+                            qtyInput.value = qty;
+                        }
 
-                                            bindRow(row);
-                                        });
+                        bindRow(row);
+                    });
 
-                                        updateFlowerOptions();
-                                        updateTotals();
+                    updateFlowerOptions();
+                    updateTotals();
 
-                                        // Add New Flower
-                                        document.getElementById('addFlowerBtn').addEventListener('click', () => {
-                                            const tpl = document.getElementById('flowerRowTemplate');
-                                            const newRow = tpl.cloneNode(true);
-                                            newRow.removeAttribute('id');
-                                            newRow.style.display = '';
+                    // Add New Flower
+                    document.getElementById('addFlowerBtn').addEventListener('click', () => {
+                        const tpl = document.getElementById('flowerRowTemplate');
+                        const newRow = tpl.cloneNode(true);
+                        newRow.removeAttribute('id');
+                        newRow.style.display = '';
 
-                                            newRow.querySelector('.flower-select').value = '';
-                                            newRow.querySelector('.batch-select').innerHTML =
-                                                    '<option value="" disabled selected>-- Select Batch --</option>';
-                                            newRow.querySelector('.price-text').textContent = '0.00 VND';
-                                            newRow.querySelector('.price-input').value = 0;
-                                            newRow.querySelector('.quantity-input').value = 1;
+                        newRow.querySelector('.flower-select').value = '';
+                        newRow.querySelector('.batch-select').innerHTML =
+                                '<option value="" disabled selected>-- Select Batch --</option>';
+                        newRow.querySelector('.price-text').textContent = '0.00 VND';
+                        newRow.querySelector('.price-input').value = 0;
+                        newRow.querySelector('.quantity-input').value = 1;
 
-                                            document.querySelector('#flowerTable tbody').appendChild(newRow);
-                                            bindRow(newRow);
-                                            updateFlowerOptions();
-                                            updateTotals();
-                                        });
-                                    });
+                        document.querySelector('#flowerTable tbody').appendChild(newRow);
+                        bindRow(newRow);
+                        updateFlowerOptions();
+                        updateTotals();
+                    });
+                });
             </script>
 
 
 
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
             <script>
-                        document.addEventListener('DOMContentLoaded', () => {
-                            const MAX_FILES = 5;
-                            const fileInput = document.getElementById('imageFiles');
-                            const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
-                            const previewContainer = document.getElementById('previewContainer');
-                            const btnUploadMore = document.getElementById('btnUploadMore');
-                            const btnDeleteSelected = document.getElementById('btnDeleteSelected');
-                            const btnAccept = document.getElementById('btnAccept');
-                            const serverImageInputsDiv = document.getElementById('serverImageInputs');
-                            const triggerImg = document.querySelector('.bouquet-img-first');
+                document.addEventListener('DOMContentLoaded', () => {
+                    const MAX_FILES = 5;
+                    const fileInput = document.getElementById('imageFiles');
+                    const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+                    const previewContainer = document.getElementById('previewContainer');
+                    const btnUploadMore = document.getElementById('btnUploadMore');
+                    const btnDeleteSelected = document.getElementById('btnDeleteSelected');
+                    const btnAccept = document.getElementById('btnAccept');
+                    const serverImageInputsDiv = document.getElementById('serverImageInputs');
+                    const triggerImg = document.querySelector('.bouquet-img-first');
 
-                            let serverImageUrls = [
+                    let serverImageUrls = [
                 <c:forEach items="${images}" var="img" varStatus="status">
-                            '${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}'<c:if test="${!status.last}">,</c:if>
+                    '${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}'<c:if test="${!status.last}">,</c:if>
                 </c:forEach>
-                                    ];
-                                    let acceptedFiles = [];
-                                    let selectedIndices = new Set();
+                            ];
+                            let acceptedFiles = [];
+                            let selectedIndices = new Set();
 
-                                    function getCurrentItems() {
-                                        const items = [];
-                                        serverImageUrls.forEach(url => items.push({url}));
-                                        acceptedFiles.forEach(file => items.push({file}));
-                                        return items.slice(0, MAX_FILES);
-                                    }
+                            function getCurrentItems() {
+                                const items = [];
+                                serverImageUrls.forEach(url => items.push({url}));
+                                acceptedFiles.forEach(file => items.push({file}));
+                                return items.slice(0, MAX_FILES);
+                            }
 
-                                    function updateServerInputs() {
-                                        serverImageInputsDiv.innerHTML = '';
-                                        serverImageUrls.forEach(url => {
-                                            const inp = document.createElement('input');
-                                            inp.type = 'hidden';
-                                            inp.name = 'existingImageUrls';
-                                            inp.value = url;
-                                            serverImageInputsDiv.appendChild(inp);
-                                        });
-                                    }
+                            function updateServerInputs() {
+                                serverImageInputsDiv.innerHTML = '';
+                                serverImageUrls.forEach(url => {
+                                    const inp = document.createElement('input');
+                                    inp.type = 'hidden';
+                                    inp.name = 'existingImageUrls';
+                                    inp.value = url;
+                                    serverImageInputsDiv.appendChild(inp);
+                                });
+                            }
 
-                                    function updateInputFiles() {
-                                        const dt = new DataTransfer();
-                                        acceptedFiles.forEach(f => dt.items.add(f));
-                                        fileInput.files = dt.files;
-                                    }
+                            function updateInputFiles() {
+                                const dt = new DataTransfer();
+                                acceptedFiles.forEach(f => dt.items.add(f));
+                                fileInput.files = dt.files;
+                            }
 
-                                    function renderPreview() {
-                                        const items = getCurrentItems();
-                                        previewContainer.innerHTML = '';
-                                        items.forEach((item, idx) => {
-                                            const wrap = document.createElement('div');
-                                            wrap.className = 'preview-img-wrapper';
-                                            if (selectedIndices.has(idx))
-                                                wrap.classList.add('selected');
+                            function renderPreview() {
+                                const items = getCurrentItems();
+                                previewContainer.innerHTML = '';
+                                items.forEach((item, idx) => {
+                                    const wrap = document.createElement('div');
+                                    wrap.className = 'preview-img-wrapper';
+                                    if (selectedIndices.has(idx))
+                                        wrap.classList.add('selected');
 
-                                            wrap.addEventListener('click', () => {
-                                                if (selectedIndices.has(idx)) {
-                                                    selectedIndices.delete(idx);
-                                                    wrap.classList.remove('selected');
-                                                } else {
-                                                    selectedIndices.add(idx);
-                                                    wrap.classList.add('selected');
-                                                }
-                                                btnDeleteSelected.disabled = selectedIndices.size === 0;
-                                            });
-
-                                            const img = document.createElement('img');
-                                            img.className = 'preview-img';
-                                            img.src = item.file ? URL.createObjectURL(item.file) : item.url;
-                                            wrap.appendChild(img);
-
-                                            const btnDel = document.createElement('button');
-                                            btnDel.type = 'button';
-                                            btnDel.className = 'btn-delete-single';
-                                            btnDel.innerText = '×';
-                                            btnDel.addEventListener('click', ev => {
-                                                ev.stopPropagation();
-                                                if (item.file)
-                                                    acceptedFiles = acceptedFiles.filter(f => f !== item.file);
-                                                else
-                                                    serverImageUrls = serverImageUrls.filter(u => u !== item.url);
-                                                updateInputFiles();
-                                                updateServerInputs();
-                                                selectedIndices.clear();
-                                                renderPreview();
-                                            });
-                                            wrap.appendChild(btnDel);
-
-                                            previewContainer.appendChild(wrap);
-                                        });
-                                        btnDeleteSelected.disabled = true;
-                                    }
-
-                                    // Khi click vào ảnh đầu tiên .bouquet-img-first
-                                    if (triggerImg) {
-                                        triggerImg.addEventListener('click', () => {
-                                            selectedIndices.clear();
-                                            updateServerInputs();
-                                            updateInputFiles();
-                                            renderPreview();
-                                            previewModal.show();
-                                        });
-                                    }
-
-                                    btnUploadMore.addEventListener('click', () => fileInput.click());
-
-                                    fileInput.addEventListener('change', e => {
-                                        const newFiles = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
-                                        const slots = MAX_FILES - (serverImageUrls.length + acceptedFiles.length);
-                                        if (slots <= 0) {
-                                            alert(`Bạn chỉ được tối đa ${MAX_FILES} ảnh.`);
+                                    wrap.addEventListener('click', () => {
+                                        if (selectedIndices.has(idx)) {
+                                            selectedIndices.delete(idx);
+                                            wrap.classList.remove('selected');
                                         } else {
-                                            acceptedFiles = acceptedFiles.concat(newFiles.slice(0, slots));
-                                            updateInputFiles();
-                                            renderPreview();
+                                            selectedIndices.add(idx);
+                                            wrap.classList.add('selected');
                                         }
-                                        e.target.value = '';
+                                        btnDeleteSelected.disabled = selectedIndices.size === 0;
                                     });
 
-                                    btnDeleteSelected.addEventListener('click', () => {
-                                        Array.from(selectedIndices)
-                                                .sort((a, b) => b - a)
-                                                .forEach(idx => {
-                                                    const item = getCurrentItems()[idx];
-                                                    if (item.file)
-                                                        acceptedFiles = acceptedFiles.filter(f => f !== item.file);
-                                                    else
-                                                        serverImageUrls = serverImageUrls.filter(u => u !== item.url);
-                                                });
-                                        selectedIndices.clear();
+                                    const img = document.createElement('img');
+                                    img.className = 'preview-img';
+                                    img.src = item.file ? URL.createObjectURL(item.file) : item.url;
+                                    wrap.appendChild(img);
+
+                                    const btnDel = document.createElement('button');
+                                    btnDel.type = 'button';
+                                    btnDel.className = 'btn-delete-single';
+                                    btnDel.innerText = '×';
+                                    btnDel.addEventListener('click', ev => {
+                                        ev.stopPropagation();
+                                        if (item.file)
+                                            acceptedFiles = acceptedFiles.filter(f => f !== item.file);
+                                        else
+                                            serverImageUrls = serverImageUrls.filter(u => u !== item.url);
                                         updateInputFiles();
                                         updateServerInputs();
+                                        selectedIndices.clear();
                                         renderPreview();
                                     });
+                                    wrap.appendChild(btnDel);
 
-                                    btnAccept.addEventListener('click', () => {
-                                        updateInputFiles();
-                                        updateServerInputs();
-                                        previewModal.hide();
-                                    });
+                                    previewContainer.appendChild(wrap);
                                 });
+                                btnDeleteSelected.disabled = true;
+                            }
+
+                            // Khi click vào ảnh đầu tiên .bouquet-img-first
+                            if (triggerImg) {
+                                triggerImg.addEventListener('click', () => {
+                                    selectedIndices.clear();
+                                    updateServerInputs();
+                                    updateInputFiles();
+                                    renderPreview();
+                                    previewModal.show();
+                                });
+                            }
+
+                            btnUploadMore.addEventListener('click', () => fileInput.click());
+
+                            fileInput.addEventListener('change', e => {
+                                const newFiles = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
+                                const slots = MAX_FILES - (serverImageUrls.length + acceptedFiles.length);
+                                if (slots <= 0) {
+                                    alert(`Bạn chỉ được tối đa ${MAX_FILES} ảnh.`);
+                                } else {
+                                    acceptedFiles = acceptedFiles.concat(newFiles.slice(0, slots));
+                                    updateInputFiles();
+                                    renderPreview();
+                                }
+                                e.target.value = '';
+                            });
+
+                            btnDeleteSelected.addEventListener('click', () => {
+                                Array.from(selectedIndices)
+                                        .sort((a, b) => b - a)
+                                        .forEach(idx => {
+                                            const item = getCurrentItems()[idx];
+                                            if (item.file)
+                                                acceptedFiles = acceptedFiles.filter(f => f !== item.file);
+                                            else
+                                                serverImageUrls = serverImageUrls.filter(u => u !== item.url);
+                                        });
+                                selectedIndices.clear();
+                                updateInputFiles();
+                                updateServerInputs();
+                                renderPreview();
+                            });
+
+                            btnAccept.addEventListener('click', () => {
+                                updateInputFiles();
+                                updateServerInputs();
+                                previewModal.hide();
+                            });
+                        });
             </script>
 
 

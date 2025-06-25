@@ -74,7 +74,7 @@
                 const customConfirmModal = new bootstrap.Modal(document.getElementById('customConfirmModal'));
                 customConfirmModal.show();
 
-                document.getElementById('confirmDeleteBtn').onclick = function() {
+                document.getElementById('confirmDeleteBtn').onclick = function () {
                     customConfirmModal.hide();
                     callback(true);
                 };
@@ -83,14 +83,14 @@
                 document.getElementById('customConfirmModal').addEventListener('hidden.bs.modal', function (event) {
                     // Only call callback(false) if it hasn't been called by the confirm button
                     if (!document.getElementById('confirmDeleteBtn').onclick) { // Check if onclick was unset
-                         callback(false);
+                        callback(false);
                     }
-                     document.getElementById('customConfirmModal').remove(); // Clean up modal
+                    document.getElementById('customConfirmModal').remove(); // Clean up modal
                 });
             }
 
             function confirmDelete(orderId) {
-                showCustomConfirm('Are you sure you want to delete order ID ' + orderId + '?', function(confirmed) {
+                showCustomConfirm('Are you sure you want to delete order ID ' + orderId + '?', function (confirmed) {
                     if (confirmed) {
                         window.location.href = '${pageContext.request.contextPath}/deleteOrder?orderId=' + orderId;
                     }
@@ -184,7 +184,7 @@
                         <div class="mb-4">
                             <form action="${pageContext.request.contextPath}/orderManagement" method="get" class="d-flex flex-wrap align-items-center">
                                 <div class="input-group me-2 mb-2" style="max-width: 300px;">
-                                    <input type="text" class="form-control" placeholder="Search by ID, customer, total amount..."
+                                    <input type="text" class="form-control" placeholder="Search by ID, customer, total sell..."
                                            name="keyword" value="${currentKeyword != null ? currentKeyword : ''}">
                                     <button class="btn btn-primary" type="submit">Search</button>
                                 </div>
@@ -203,7 +203,8 @@
                                         <option value="orderDate" ${sortField == 'orderDate' ? 'selected' : ''}>Sort by Date</option>
                                         <option value="orderId" ${sortField == 'orderId' ? 'selected' : ''}>Sort by ID</option>
                                         <option value="customerName" ${sortField == 'customerName' ? 'selected' : ''}>Sort by Customer</option>
-                                        <option value="totalAmount" ${sortField == 'totalAmount' ? 'selected' : ''}>Sort by Total Amount</option>
+                                        <option value="totalImport" ${sortField == 'totalImport' ? 'selected' : ''}>Sort by Total Import</option>
+                                        <option value="totalSell" ${sortField == 'totalSell' ? 'selected' : ''}>Sort by Total Sell</option>
                                         <option value="statusName" ${sortField == 'statusName' ? 'selected' : ''}>Sort by Status</option>
                                         <option value="shipperName" ${sortField == 'shipperName' ? 'selected' : ''}>Sort by Shipper</option>
                                     </select>
@@ -257,13 +258,22 @@
                                             </a>
                                         </th>
                                         <th scope="col">
-                                            <a href="${baseSortUrl}&sortField=totalAmount&sortOrder=${sortField eq 'totalAmount' && sortOrder eq 'asc' ? 'desc' : 'asc'}">
-                                                Total
-                                                <c:if test="${sortField eq 'totalAmount'}">
+                                            <a href="${baseSortUrl}&sortField=totalImport&sortOrder=${sortField eq 'totalImport' && sortOrder eq 'asc' ? 'desc' : 'asc'}">
+                                                Total Import
+                                                <c:if test="${sortField eq 'totalSell'}">
                                                     <i class="fa fa-sort-${sortOrder eq 'asc' ? 'up' : 'down'}"></i>
                                                 </c:if>
                                             </a>
                                         </th>
+                                        <th scope="col">
+                                            <a href="${baseSortUrl}&sortField=totalSell&sortOrder=${sortField eq 'totalSell' && sortOrder eq 'asc' ? 'desc' : 'asc'}">
+                                                Total Sell
+                                                <c:if test="${sortField eq 'totalSell'}">
+                                                    <i class="fa fa-sort-${sortOrder eq 'asc' ? 'up' : 'down'}"></i>
+                                                </c:if>
+                                            </a>
+                                        </th>
+
                                         <th scope="col">
                                             <a href="${baseSortUrl}&sortField=statusName&sortOrder=${sortField eq 'statusName' && sortOrder eq 'asc' ? 'desc' : 'asc'}">
                                                 Status
@@ -294,7 +304,8 @@
                                             <td>${order.orderId}</td>
                                             <td>${order.orderDate}</td>
                                             <td>${order.customerName}</td>
-                                            <td>${order.totalAmount}</td>
+                                            <td>${order.totalImport}</td>
+                                            <td>${order.totalSell}</td>
                                             <td>${order.statusName}</td>
                                             <td>${order.shipperName != null ? order.shipperName : "Not Assigned"}</td>
                                             <td>

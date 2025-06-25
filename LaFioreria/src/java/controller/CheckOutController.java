@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import model.BouquetImage;
 import model.CartDetail;
 import model.Order;
 import model.OrderItem;
@@ -30,6 +31,7 @@ public class CheckOutController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
         List<CartDetail> cartDetails = new ArrayList<>();
+        BouquetDAO bouDao = new BouquetDAO();
 
         if (currentUser == null) {
             BouquetDAO bDao = new BouquetDAO();
@@ -38,14 +40,19 @@ public class CheckOutController extends HttpServlet {
                 cartDetails = sessionCart;
             }
 
+            List<BouquetImage> bqImages = new ArrayList<>();
+
             if (!cartDetails.isEmpty()) {
                 for (CartDetail cd : cartDetails) {
                     cd.setBouquet(bDao.getBouquetFullInfoById(cd.getBouquetId()));
+
+                    bqImages = bouDao.getBouquetImage(cd.getBouquetId());
                 }
             }
 
             // Set attributes for JSP
             request.setAttribute("cartDetails", cartDetails);
+            request.setAttribute("cartImages", bqImages);
             request.setAttribute("user", null);
             request.setAttribute("isGuest", true);
 
@@ -55,6 +62,13 @@ public class CheckOutController extends HttpServlet {
                 CartDAO cartDAO = new CartDAO();
                 cartDetails = cartDAO.getCartDetailsByCustomerId(customerId);
 
+                List<BouquetImage> bqImages = new ArrayList<>();
+
+                for (CartDetail cd : cartDetails) {
+                    bqImages = bouDao.getBouquetImage(cd.getBouquetId());
+                }
+                
+                request.setAttribute("cartImages", bqImages);
                 request.setAttribute("cartDetails", cartDetails);
                 request.setAttribute("user", currentUser);
                 request.setAttribute("isGuest", false);

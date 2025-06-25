@@ -150,15 +150,6 @@
                                        value="${not empty submittedCustomerAddress ? submittedCustomerAddress : ''}" readonly="">
                             </div>
 
-                            <%-- Total Amount is removed from here as it will be calculated from order items --%>
-                            <%--
-                            <div class="mb-3">
-                                <label for="totalAmount" class="form-label">Total Amount:</label>
-                                <input type="number" step="0.01" class="form-control" id="totalAmount" name="totalAmount"
-                                       value="${not empty submittedTotalAmount ? submittedTotalAmount : ''}" required placeholder="e.g., 100.00">
-                            </div>
-                            --%>
-
                             <div class="mb-3">
                                 <label for="statusId" class="form-label">Status:</label>
                                 <select class="form-select" id="statusId" name="statusId" required>
