@@ -19,7 +19,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Blog Manager</title>
+        <title>Add New Blog Post</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -47,216 +47,136 @@
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/main.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/bootstrap.min.css" rel="stylesheet">
+        
+        <!-- TinyMCE -->
+        <script src="https://cdn.tiny.cloud/1/1qk6lietypbc7xlhdhrz0o4y11p4j7xvk0baumrxhcja768a/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+        
         <style>
-            .table-th {
-                font-size: 18px;
-                color: black;
-            }
-
-            /* Enhanced Filter Section Styling */
-            .filter-card {
-                background: #ffffff;
+            /* Additional styles for the form */
+            .form-card {
+                background: white;
                 border-radius: 0.5rem;
                 box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
                 border: 1px solid rgba(0, 0, 0, 0.125);
-                margin-bottom: 1.5rem;
+                overflow: hidden;
             }
 
-            .filter-card-header {
+            .form-card-header {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: white;
-                padding: 1rem 1.25rem;
-                border-radius: 0.5rem 0.5rem 0 0;
-                margin-bottom: 0;
-                border-bottom: none;
+                padding: 1.5rem;
+                margin: 0;
             }
 
-            .filter-card-header h5 {
+            .form-card-header h4 {
                 margin: 0;
                 font-weight: 600;
                 display: flex;
                 align-items: center;
             }
 
-            .filter-card-header i {
-                margin-right: 0.5rem;
+            .form-card-body {
+                padding: 2rem;
             }
 
-            .category-list {
-                padding: 1.25rem;
+            .form-row {
+                margin-bottom: 1.5rem;
             }
 
-            .category-item {
-                display: block;
-                padding: 0.75rem 1rem;
-                margin-bottom: 0.5rem;
-                color: #6c757d;
-                text-decoration: none;
-                border-radius: 0.375rem;
-                transition: all 0.3s ease;
-                background: #f8f9fa;
-                border: 1px solid #e9ecef;
-            }
-
-            .category-item:hover {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                text-decoration: none;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            }
-
-            .category-item.active {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                font-weight: 600;
-            }
-
-            .search-filter-form {
-                padding: 1.25rem;
-                background: #f8f9fa;
-                border-radius: 0.5rem;
-                margin-top: 1rem;
-            }
-
-            .form-group {
-                margin-bottom: 1rem;
-            }
-
-            .form-group label {
+            .form-label {
                 font-weight: 600;
                 color: #495057;
-                margin-bottom: 0.5rem;
+                margin-bottom: 0.75rem;
                 display: block;
+                font-size: 1.6rem;
             }
 
-            .form-control {
+            .required::after {
+                content: " *";
+                color: #dc3545;
+            }
+
+            .form-control, .form-select {
                 border-radius: 0.375rem;
                 border: 1px solid #ced4da;
+                padding: 0.75rem 1rem;
+                font-size: 1.6rem;
                 transition: all 0.3s ease;
             }
 
-            .form-control:focus {
+            .form-control:focus, .form-select:focus {
                 border-color: #667eea;
                 box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
             }
 
-            .filter-buttons {
+            .form-actions {
+                background: #f8f9fa;
+                padding: 1.5rem 2rem;
+                border-top: 1px solid #e9ecef;
                 display: flex;
-                gap: 0.75rem;
-                margin-top: 1.5rem;
+                justify-content: space-between;
+                align-items: center;
             }
 
-            .btn-gradient {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            .btn-success-gradient {
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
                 border: none;
                 color: white;
+                padding: 0.75rem 2rem;
                 border-radius: 0.375rem;
+                font-weight: 600;
                 transition: all 0.3s ease;
             }
 
-            .btn-gradient:hover {
+            .btn-success-gradient:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+                box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
                 color: white;
             }
 
-            .btn-outline-gradient {
-                background: transparent;
-                border: 2px solid #667eea;
-                color: #667eea;
+            .image-preview {
+                max-width: 200px;
+                max-height: 200px;
                 border-radius: 0.375rem;
-                transition: all 0.3s ease;
+                border: 2px dashed #ced4da;
+                padding: 1rem;
+                text-align: center;
+                display: none;
             }
 
-            .btn-outline-gradient:hover {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                transform: translateY(-2px);
+            .image-preview img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 0.25rem;
             }
 
-            .stats-card {
-                background: white;
-                border-radius: 0.5rem;
-                padding: 1.5rem;
-                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-                border: 1px solid rgba(0, 0, 0, 0.125);
-                margin-bottom: 1.5rem;
-            }
-
-            .stats-card h6 {
+            .character-count {
+                font-size: 1rem;
                 color: #6c757d;
-                font-weight: 600;
-                margin-bottom: 0.5rem;
+                text-align: right;
+                margin-top: 0.25rem;
             }
 
-            .stats-number {
-                font-size: 2rem;
-                font-weight: 700;
-                color: #667eea;
-                margin: 0;
-            }
-
-            .table-container {
-                background: white;
-                border-radius: 0.5rem;
-                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-                overflow: hidden;
-                border: 1px solid rgba(0, 0, 0, 0.125);
-            }
-
-            .table-header {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 1rem 1.25rem;
-                margin: 0;
-            }
-
-            .table-header h5 {
-                margin: 0;
-                font-weight: 600;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
-
-            .pagination-area {
-                padding: 1.25rem;
+            .breadcrumb-section {
                 background: #f8f9fa;
-                border-top: 1px solid #e9ecef;
+                padding: 1rem 0;
+                margin-bottom: 2rem;
+                border-radius: 0.5rem;
             }
 
-            .pagination {
-                justify-content: center;
+            .breadcrumb {
+                background: none;
+                padding: 0;
                 margin: 0;
             }
 
-            .pagination .page-link {
+            .breadcrumb-item a {
                 color: #667eea;
-                border-color: #e9ecef;
-                border-radius: 0.375rem;
-                margin: 0 0.25rem;
+                text-decoration: none;
             }
 
-            .pagination .page-link:hover {
-                background: #667eea;
-                border-color: #667eea;
-                color: white;
-            }
-
-            .pagination .active .page-link {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                border-color: #667eea;
-            }
-
-            .action-buttons {
-                display: flex;
-                gap: 0.5rem;
-            }
-
-            .btn-sm {
-                padding: 0.375rem 0.75rem;
-                font-size: 0.875rem;
+            .breadcrumb-item a:hover {
+                text-decoration: underline;
             }
         </style>
     </head>
@@ -412,7 +332,144 @@
 
                 <!-- Main Content -->
                 <div class="container-fluid pt-4 px-4">
+                    <!-- Breadcrumb -->
+                    <div class="breadcrumb-section">
+                        <div class="container-fluid">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item">
+                                        <a href="${pageContext.request.contextPath}/DashMin/admin.jsp">
+                                            <i class="fas fa-home me-1"></i>Dashboard
+                                        </a>
+                                    </li>
+                                    <li class="breadcrumb-item">
+                                        <a href="${pageContext.request.contextPath}/blogmanager">Blog Manager</a>
+                                    </li>
+                                    <li class="breadcrumb-item active" aria-current="page">Add New Blog Post</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
 
+                    <!-- Add Blog Form -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-card-header">
+                                    <h4>
+                                        <i class="fas fa-plus-circle me-2"></i>Create New Blog Post
+                                    </h4>
+                                </div>
+                                
+                                <form action="${pageContext.request.contextPath}/blog/add" method="POST" enctype="multipart/form-data" id="blogForm">
+                                    <div class="form-card-body">
+                                        <div class="row">
+                                            <!-- Title -->
+                                            <div class="col-md-8">
+                                                <div class="form-row">
+                                                    <label for="title" class="form-label required">Blog Title</label>
+                                                    <input type="text" class="form-control" id="title" name="title" 
+                                                           placeholder="Enter blog post title..." maxlength="100" required>
+                                                    <div class="character-count">
+                                                        <span id="titleCount">0</span>/100 characters
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Category -->
+                                            <div class="col-md-4">
+                                                <div class="form-row">
+                                                    <label for="category" class="form-label required">Category</label>
+                                                    <select class="form-select" id="category" name="cid" required>
+                                                        <option value="">Select Category</option>
+                                                        <!-- You'll need to populate this from your categories table -->
+                                                        <c:forEach var="category" items="${categories}">
+                                                            <option value="${category.category_id}">${category.category_name}</option>
+                                                        </c:forEach>
+                                                        <!-- Static options for demo -->
+                                                        <option value="1">Flower Care Tips</option>
+                                                        <option value="2">Seasonal Arrangements</option>
+                                                        <option value="3">Wedding Flowers</option>
+                                                        <option value="4">Plant Care</option>
+                                                        <option value="5">Gardening</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <!-- Featured Image -->
+                                            <div class="col-md-6">
+                                                <div class="form-row">
+                                                    <label for="image" class="form-label">Featured Image</label>
+                                                    <input type="file" class="form-control" id="image" name="image" 
+                                                           accept="image/*" onchange="previewImage(this)">
+                                                    <small class="text-muted">Recommended size: 800x600px. Max size: 5MB</small>
+                                                    <div class="image-preview mt-3" id="imagePreview">
+                                                        <img id="previewImg" src="" alt="Preview">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Status -->
+                                            <div class="col-md-3">
+                                                <div class="form-row">
+                                                    <label for="status" class="form-label required">Status</label>
+                                                    <select class="form-select" id="status" name="status" required>
+                                                        <option value="1">Published</option>
+                                                        <option value="0" selected>Draft</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Author (Hidden field, will be set from session) -->
+                                            <div class="col-md-3">
+                                                <div class="form-row">
+                                                    <label class="form-label">Author</label>
+                                                    <input type="text" class="form-control" value="Current User" readonly>
+                                                    <input type="hidden" name="author_id" value="${sessionScope.user.id != null ? sessionScope.user.id : 1}">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Short Description / Pre-context -->
+                                        <div class="form-row">
+                                            <label for="preContext" class="form-label required">Short Description</label>
+                                            <textarea class="form-control" id="preContext" name="pre_context" rows="3" 
+                                                      placeholder="Write a brief description or excerpt for this blog post..." 
+                                                      maxlength="200" required></textarea>
+                                            <div class="character-count">
+                                                <span id="preContextCount">0</span>/200 characters
+                                            </div>
+                                            <small class="text-muted">This will appear as a preview on the blog listing page.</small>
+                                        </div>
+
+                                        <!-- Main Content -->
+                                        <div class="form-row">
+                                            <label for="content" class="form-label required">Blog Content</label>
+                                            <textarea class="form-control" id="content" name="context" rows="15" 
+                                                      placeholder="" required></textarea>
+                                            <small class="text-muted">Use the rich text editor to format your content with images, links, and styling.</small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Form Actions -->
+                                    <div class="form-actions">
+                                        <div>
+                                            <a href="${pageContext.request.contextPath}/blogmanager" class="btn btn-outline-gradient">
+                                                <i class="fas fa-arrow-left me-2"></i>Back to Blog Manager
+                                            </a>
+                                        </div>
+                                        <div class="action-buttons">
+                                            <button type="submit" class="btn btn-success-gradient">
+                                                <i class="fas fa-paper-plane me-2"></i>Publish Blog Post
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Footer Start -->
@@ -430,25 +487,41 @@
             <!-- Content End -->
         </div>
 
-        <!-- Delete Confirmation Modal -->
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <!-- Success Modal -->
+        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title" id="deleteModalLabel">
-                            <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="successModalLabel">
+                            <i class="fas fa-check-circle me-2"></i>Success
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <p>Are you sure you want to delete this blog post?</p>
-                        <p class="text-muted"><small>This action cannot be undone.</small></p>
+                        <p>Your blog post has been saved successfully!</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
-                            <i class="fas fa-trash me-1"></i>Delete
-                        </button>
+                        <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Modal -->
+        <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="errorModalLabel">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Error
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="errorMessage">An error occurred while saving the blog post. Please try again.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -469,21 +542,126 @@
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
 
         <script>
-            // Delete confirmation functionality
-            let blogIdToDelete = null;
-
-            function confirmDelete(blogId) {
-                blogIdToDelete = blogId;
-                const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-                deleteModal.show();
-            }
-
-            document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-                if (blogIdToDelete) {
-                    // Perform delete action - you can modify this to match your delete endpoint
-                    window.location.href = '${pageContext.request.contextPath}/blog/delete?bid=' + blogIdToDelete;
+            // Initialize TinyMCE Rich Text Editor
+            tinymce.init({
+                selector: '#content',
+                height: 400,
+                menubar: true,
+                plugins: [
+                    'advlist autolink lists link image charmap print preview anchor',
+                    'searchreplace visualblocks code fullscreen',
+                    'insertdatetime media table paste code help wordcount'
+                ],
+                toolbar: 'undo redo | formatselect | ' +
+                'bold italic backcolor | alignleft aligncenter ' +
+                'alignright alignjustify | bullist numlist outdent indent | ' +
+                'removeformat | help | link image media | code preview fullscreen',
+                content_css: '//www.tiny.cloud/css/codepen.min.css',
+                setup: function (editor) {
+                    editor.on('change', function () {
+                        editor.save();
+                    });
                 }
             });
+
+            // Character counters
+            function updateCharacterCount(inputId, countId, maxLength) {
+                const input = document.getElementById(inputId);
+                const counter = document.getElementById(countId);
+                
+                input.addEventListener('input', function() {
+                    const currentLength = this.value.length;
+                    counter.textContent = currentLength;
+                    
+                    if (currentLength > maxLength * 0.9) {
+                        counter.parentElement.style.color = '#dc3545';
+                    } else if (currentLength > maxLength * 0.7) {
+                        counter.parentElement.style.color = '#ffc107';
+                    } else {
+                        counter.parentElement.style.color = '#6c757d';
+                    }
+                });
+            }
+
+            // Initialize character counters
+            updateCharacterCount('title', 'titleCount', 100);
+            updateCharacterCount('preContext', 'preContextCount', 200);
+            updateCharacterCount('metaDescription', 'metaDescCount', 160);
+
+            // Image preview function
+            function previewImage(input) {
+                const preview = document.getElementById('imagePreview');
+                const previewImg = document.getElementById('previewImg');
+                
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        previewImg.src = e.target.result;
+                        preview.style.display = 'block';
+                    }
+                    
+                    reader.readAsDataURL(input.files[0]);
+                } else {
+                    preview.style.display = 'none';
+                }
+            }
+
+            // Form validation and submission
+            document.getElementById('blogForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Update TinyMCE content before submission
+                tinymce.triggerSave();
+                
+                // Basic validation
+                const title = document.getElementById('title').value.trim();
+                const category = document.getElementById('category').value;
+                const preContext = document.getElementById('preContext').value.trim();
+                const content = document.getElementById('content').value.trim();
+                
+                if (!title || !category || !preContext || !content) {
+                    showError('Please fill in all required fields.');
+                    return;
+                }
+                
+                // Show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Publishing...';
+                submitBtn.disabled = true;
+                
+                // Submit form (you can add AJAX submission here)
+                setTimeout(() => {
+                    // For demo - in real implementation, handle the actual form submission
+                    // this.submit();
+                    
+                    // Reset button state
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    
+                    // Show success message
+                    showSuccess();
+                }, 2000);
+            });
+
+            // Show success modal
+            function showSuccess() {
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+                
+                // Redirect after modal is closed
+                document.getElementById('successModal').addEventListener('hidden.bs.modal', function () {
+                    window.location.href = '${pageContext.request.contextPath}/blogmanager';
+                });
+            }
+
+            // Show error modal
+            function showError(message) {
+                document.getElementById('errorMessage').textContent = message;
+                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                errorModal.show();
+            }
 
             // Auto-hide spinner
             $(document).ready(function () {
@@ -492,25 +670,66 @@
                 }, 1000);
             });
 
-            // Enhanced table interactions
-            $('.table tbody tr').hover(function () {
-                $(this).addClass('table-active');
-            }, function () {
-                $(this).removeClass('table-active');
+            // Form auto-save (optional)
+            let autoSaveTimer;
+            function startAutoSave() {
+                autoSaveTimer = setInterval(function() {
+                    // Save form data to localStorage for recovery
+                    const formData = {
+                        title: document.getElementById('title').value,
+                        category: document.getElementById('category').value,
+                        preContext: document.getElementById('preContext').value,
+                        content: tinymce.get('content').getContent(),
+                        tags: document.getElementById('tags').value,
+                        metaKeywords: document.getElementById('metaKeywords').value,
+                        metaDescription: document.getElementById('metaDescription').value
+                    };
+                    
+                    localStorage.setItem('blogDraft', JSON.stringify(formData));
+                    console.log('Auto-saved draft');
+                }, 30000); // Auto-save every 30 seconds
+            }
+
+            // Load draft from localStorage if available
+            function loadDraft() {
+                const draft = localStorage.getItem('blogDraft');
+                if (draft) {
+                    const formData = JSON.parse(draft);
+                    
+                    if (confirm('A saved draft was found. Would you like to restore it?')) {
+                        document.getElementById('title').value = formData.title || '';
+                        document.getElementById('category').value = formData.category || '';
+                        document.getElementById('preContext').value = formData.preContext || '';
+                        document.getElementById('tags').value = formData.tags || '';
+                        document.getElementById('metaKeywords').value = formData.metaKeywords || '';
+                        document.getElementById('metaDescription').value = formData.metaDescription || '';
+                        
+                        // Load content into TinyMCE when it's ready
+                        tinymce.get('content').setContent(formData.content || '');
+                        
+                        // Update character counters
+                        document.getElementById('titleCount').textContent = (formData.title || '').length;
+                        document.getElementById('preContextCount').textContent = (formData.preContext || '').length;
+                        document.getElementById('metaDescCount').textContent = (formData.metaDescription || '').length;
+                    }
+                }
+            }
+
+            // Clear draft on successful submission
+            function clearDraft() {
+                localStorage.removeItem('blogDraft');
+                clearInterval(autoSaveTimer);
+            }
+
+            // Initialize auto-save and draft loading
+            window.addEventListener('load', function() {
+                loadDraft();
+                startAutoSave();
             });
 
-            // Form validation
-            $('form').on('submit', function () {
-                const submitBtn = $(this).find('button[type="submit"]');
-                const originalText = submitBtn.html();
-                submitBtn.html('<i class="fas fa-spinner fa-spin me-1"></i>Applying...');
-                submitBtn.prop('disabled', true);
-
-                // Re-enable after 3 seconds in case of issues
-                setTimeout(function () {
-                    submitBtn.html(originalText);
-                    submitBtn.prop('disabled', false);
-                }, 3000);
+            // Clear draft when leaving page
+            window.addEventListener('beforeunload', function() {
+                clearInterval(autoSaveTimer);
             });
         </script>
     </body>
