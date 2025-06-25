@@ -1,15 +1,16 @@
 <%-- 
-    Document   : blank
-    Created on : May 19, 2025, 2:34:20 PM
-    Author     : ADMIN
+    Document   : blogmanager
+    Created on : Jun 25, 2025, 7:38:33 AM
+    Author     : k16
 --%>
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
-        <title>DASHMIN - Bootstrap Admin Template</title>
+        <title>Blog Manager</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -76,14 +77,14 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
                         <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
-                        <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>User</a>
+                        <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link"><i class="fa fa-table me-2"></i>User</a>
                         <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
                         <a href="${pageContext.request.contextPath}/orderManagement" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Order</a>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
                         <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
-                        <a href="${pageContext.request.contextPath}/blogmanager" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Blog Manager</a>
+                        <a href="${pageContext.request.contextPath}/blogmanager" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Blog Manager</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
@@ -109,62 +110,16 @@
                     <a href="#" class="sidebar-toggler flex-shrink-0">
                         <i class="fa fa-bars"></i>
                     </a>
-                    <form class="d-none d-md-flex ms-4" id="f1" action="${pageContext.request.contextPath}/ViewUserList" method="post">
-                        <table class="table table-striped">
-                            <tbody>
-                                <tr>
-                                    <td>Role: </td>
-                                    <td>
-                                        <select class="form-select mb-3" aria-label="Default select example" name="txtRoleList" onchange="document.getElementById('f1').submit()">
-                                            <option value="0" <c:if test="${roleId == 0}">selected</c:if>>All</option>
-                                            <c:forEach items="${roleList}" var="role">
-                                                <option value="${role.role_id}" <c:if test="${role.role_id == roleId}">selected</c:if>>
-                                                    ${role.role_Name}
-                                                </option>
-                                            </c:forEach>
-                                        </select>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>Search name: </td>
-                                    <td><input type="text" name="txtSearchName" value="${keyword}" class="form-control" placeholder="Search" aria-label="Search"
-                                               aria-describedby="basic-addon1"></td>
-                                    <td>
-                                        <select class="form-select mb-3" aria-label="Default select example" name="sortField">
-                                            <option value="User_ID" <c:if test="${sortField == 'User_ID'}">selected</c:if>>User ID</option>
-                                            <option value="Username" <c:if test="${sortField == 'Username'}">selected</c:if>>User Name</option>
-                                            <option value="Password" <c:if test="${sortField == 'Password'}">selected</c:if>>Password</option>
-                                            <option value="Fullname" <c:if test="${sortField == 'Fullname'}">selected</c:if>>Full Name</option>
-                                            <option value="Email" <c:if test="${sortField == 'Email'}">selected</c:if>>Email</option>
-                                            <option value="Phone" <c:if test="${sortField == 'Phone'}">selected</c:if>>Phone</option>
-                                            <option value="Address" <c:if test="${sortField == 'Address'}">selected</c:if>>Address</option>
-                                            <option value="Role_name" <c:if test="${sortField == 'Role_name'}">selected</c:if>>Role</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <select class="form-select mb-3" aria-label="Default select example" name="sortOrder">
-                                                <option value="asc" <c:if test="${sortOrder == 'asc'}">selected</c:if>>Ascending</option>
-                                            <option value="desc" <c:if test="${sortOrder == 'desc'}">selected</c:if>>Descending</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <input class="btn btn-primary m-2" class="form-control border-0" type="submit" value="SEARCH" name="button" placeholder="Search">
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </form>
-                        <div class="navbar-nav align-items-center ms-auto">
-                            <div class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                    <i class="fa fa-envelope me-lg-2"></i>
-                                    <span class="d-none d-lg-inline-flex">Message</span>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                                    <a href="#" class="dropdown-item">
-                                        <div class="d-flex align-items-center">
-                                            <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                    <div class="navbar-nav align-items-center ms-auto">
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="fa fa-envelope me-lg-2"></i>
+                                <span class="d-none d-lg-inline-flex">Message</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                                <a href="#" class="dropdown-item">
+                                    <div class="d-flex align-items-center">
+                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -233,131 +188,18 @@
                     </div>
                 </nav>
                 <!-- Navbar End -->
-                <div class="col-sm-12 col-xl-6">
-                    <div class="bg-light rounded h-100 p-4">
-                        <div class="btn-group" role="group">
-                            <a  class="btn btn-primary" href="${pageContext.request.contextPath}/adduserdetail">Add new User detail</a>
-                        </div>
-                    </div>
+
+                <!-- Main Content -->
+                <div class="">
+                    
                 </div>
-                <!-- Table Start -->
-                <div class="col-sm-12 col-xl-6">
-                    <div class="bg-light rounded h-100 p-4">
-                        <h6 class="mb-4">View User List Table</h6>
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>User ID</th>
-                                    <th>User Name</th>
-                                    <th>Password</th>
-                                    <th>Full Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Address</th>
-                                    <th>Role</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach items="${userManagerList}" var="user">
-                                    <tr>
-                                        <td>${user.userid}</td>
-                                        <td>${user.username}</td>
-                                        <td>${user.password}</td>
-                                        <td>${user.fullname}</td>
-                                        <td>${user.email}</td>
-                                        <td>${user.phone}</td>
-                                        <td>${user.address}</td>
-                                        <td>${user.role}</td>
-                                        <td>
-                                            <form action="${pageContext.request.contextPath}/rejectuserlist" method="post" onsubmit="return confirm('Confirm reject this user ?');">
-                                                <input type="hidden" name="userId" value="${user.userid}" />
-                                                <button class="btn btn-danger m-2" type="submit">Reject</button>
-                                            </form>
-                                        </td>
-                                        <td>
-                                            <form action="${pageContext.request.contextPath}/DeleteUserListServlet" method="post" onsubmit="return confirm('Confirm Delete this user ?');">
-                                                <input type="hidden" name="userId" value="${user.userid}" />
-                                                <button class="btn btn-danger m-2" type="submit">Delete</button>
-                                            </form>
-                                        </td>
-                                        <td>
-                                            <form action="${pageContext.request.contextPath}/viewuserdetail" method="get">
-                                                <input type="hidden" name="id" value="${user.userid}" />
-                                                <button class="btn btn-danger m-2" type="submit">View User</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
-
-                        <!-- PAGINATION -->
-                        <%
-                            int currentPage = (Integer) request.getAttribute("currentPage");
-                            int totalPages = (Integer) request.getAttribute("totalPages");
-
-                            int maxDisplayPages = 5;
-                            int startPage = currentPage - maxDisplayPages / 2;
-                            if (startPage < 1) startPage = 1;
-
-                            int endPage = startPage + maxDisplayPages - 1;
-                            if (endPage > totalPages) {
-                                endPage = totalPages;
-                                startPage = endPage - maxDisplayPages + 1;
-                                if (startPage < 1) startPage = 1;
-                            }
-                        %>
-
-                        <div style="margin-top: 20px;">
-                            <c:if test="${totalPages > 1}">
-                                <form action="${pageContext.request.contextPath}/ViewUserList" method="post" id="paginationForm">
-                                    <!-- preserve filters -->
-                                    <input type="hidden" name="txtSearchName" value="${keyword}" />
-                                    <input type="hidden" name="txtRoleList" value="${roleId}" />
-                                    <input type="hidden" name="sortField" value="${sortField}" />
-                                    <input type="hidden" name="sortOrder" value="${sortOrder}" />
-
-                                    <!-- << và < -->
-                                    <c:if test="${currentPage > 1}">
-                                        <button class="btn btn-outline-primary m-2" type="submit" name="page" value="1"><<</button>
-                                        <button class="btn btn-outline-primary m-2" type="submit" name="page" value="${currentPage - 1}"><</button>
-                                    </c:if>
-
-                                    <!-- Các trang từ startPage đến endPage -->
-                                    <%
-                                        for (int i = startPage; i <= endPage; i++) {
-                                    %>
-                                    <button class="btn btn-outline-primary m-2" type="submit" name="page" value="<%= i %>"
-                                            <%= (i == currentPage ? "style='font-weight:bold;'" : "") %>>
-                                        <%= i %>
-                                    </button>
-                                    <%
-                                        }
-                                    %>
-
-                                    <!-- > và >> -->
-                                    <c:if test="${currentPage < totalPages}">
-                                        <button class="btn btn-outline-primary m-2" type="submit" name="page" value="${currentPage + 1}">></button>
-                                        <button class="btn btn-outline-primary m-2" type="submit" name="page" value="${totalPages}">>></button>
-                                    </c:if>
-                                </form>
-                            </c:if>
-                        </div>
-
-                    </div>
-                </div>
-
-
-                <!-- Blank End -->
-
-
+                
                 <!-- Footer Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded-top p-4">
                         <div class="row">
                             <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
+                                &copy; <a href="${pageContext.request.contextPath}">Lafioreria</a>, All Right Reserved. 
                             </div>
                             <div class="col-12 col-sm-6 text-center text-sm-end">
                                 <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
