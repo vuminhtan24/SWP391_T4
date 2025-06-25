@@ -40,13 +40,13 @@ public class CartController extends HttpServlet {
                 cartDetails = sessionCart;
             }
 
-            List<BouquetImage> bqImages = new ArrayList<>();
+            List<List<BouquetImage>> bqImages = new ArrayList<>();
 
             if (!cartDetails.isEmpty()) {
                 for (CartDetail cd : cartDetails) {
                     cd.setBouquet(bDao.getBouquetFullInfoById(cd.getBouquetId()));
 
-                    bqImages = bouDao.getBouquetImage(cd.getBouquetId());
+                    bqImages.add(bouDao.getBouquetImage(cd.getBouquetId()));
                 }
             }
 
@@ -103,10 +103,14 @@ public class CartController extends HttpServlet {
         String action = request.getParameter("action");
 
         switch (action) {
-            case "add" -> add(request, response);
-            case "update" -> update(request, response);
-            case "delete" -> delete(request, response);
-            default -> response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action: " + action);
+            case "add" ->
+                add(request, response);
+            case "update" ->
+                update(request, response);
+            case "delete" ->
+                delete(request, response);
+            default ->
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action: " + action);
         }
 
     }

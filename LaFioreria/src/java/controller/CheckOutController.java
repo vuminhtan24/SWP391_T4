@@ -35,13 +35,13 @@ public class CheckOutController extends HttpServlet {
                 cartDetails = sessionCart;
             }
 
-            List<BouquetImage> bqImages = new ArrayList<>();
+            List<List<BouquetImage>> bqImages = new ArrayList<>();
 
             if (!cartDetails.isEmpty()) {
                 for (CartDetail cd : cartDetails) {
                     cd.setBouquet(bDao.getBouquetFullInfoById(cd.getBouquetId()));
 
-                    bqImages = bouDao.getBouquetImage(cd.getBouquetId());
+                    bqImages.add(bouDao.getBouquetImage(cd.getBouquetId()));
                 }
             }
 
