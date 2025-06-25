@@ -535,7 +535,7 @@
                                                                 </div>
                                                             </td>
                                                             <td>
-                                                                <img src="${blog.img_url}" alt="${blog.title}" 
+                                                                <img src="${pageContext.request.contextPath}/upload/BlogIMG/${blog.img_url}" alt="${blog.title}" 
                                                                      class="rounded" width="60" height="60" 
                                                                      style="object-fit: cover;"/>
                                                             </td>

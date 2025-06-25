@@ -234,4 +234,39 @@ public class BlogDAO extends BaseDao {
 
         return b;
     }
+
+    public boolean addBlog(Blog b) {
+        String sql = """
+                     INSERT INTO `la_fioreria`.`blog`
+                     (`title`, `context`, `author_id`, `created_at`, `cid`, `image_url`, `pre_context`, `status`)
+                     VALUES
+                     (?, ?, ?, ?, ?, ?, ?, ?);
+                     """;
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+
+            ps.setString(1, b.getTitle());
+            ps.setString(2, b.getContext());
+            ps.setInt(3, b.getOwner().getUserid());
+            ps.setTimestamp(4, b.getCreated_at());
+            ps.setInt(5, b.getCategory().getCategoryId());
+            ps.setString(6, b.getImg_url());
+            ps.setString(7, b.getPre_context());
+            ps.setString(8, b.getStatus());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.out.println("Error getting total count: " + e.getMessage());
+            return false;
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                System.out.println("Error closing resources: " + e.getMessage());
+            }
+        }
+    }
 }

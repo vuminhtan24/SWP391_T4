@@ -9,19 +9,34 @@ import dal.CategoryDAO;
 import dal.UserDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import model.Blog;
 import model.Category;
+import model.User;
 
 /**
  *
  * @author k16
  */
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024, // 1MB lưu tạm vào disk nếu vượt
+        maxFileSize = 10 * 1024 * 1024, // Giới hạn 10MB mỗi file
+        maxRequestSize = 50 * 1024 * 1024 // Giới hạn 50MB tổng request
+)
 @WebServlet(name = "BlogManagerController", urlPatterns = {
     "/blogmanager",
     "/blog",
@@ -58,6 +73,9 @@ public class BlogManagerController extends HttpServlet {
                 doGetDetail(request, response);
 
             case BASE_PATH + "/add" -> {
+                CategoryDAO cDao = new CategoryDAO();
+                List<Category> cList = cDao.getAll();
+                request.setAttribute("cList", cList);
                 request.getRequestDispatcher("../DashMin/AddBlog.jsp").forward(request, response);
             }
 
@@ -174,7 +192,57 @@ public class BlogManagerController extends HttpServlet {
 
     private void doAdd(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        BlogDAO bDao = new BlogDAO();
+        String title = request.getParameter("title");
+        String cidStr = request.getParameter("category");
+        String status = request.getParameter("status");
+        String authorStr = request.getParameter("author");
+        String preContext = request.getParameter("preContext");
+        String context = request.getParameter("content");
 
+        Part filePart = request.getPart("image");
+
+        String uploadPath = request.getServletContext().getRealPath("/upload/BlogIMG");
+        File uploadDir = new File(uploadPath);
+        if (!uploadDir.exists() && !uploadDir.mkdirs()) {
+            throw new ServletException("Không thể tạo thư mục upload: " + uploadPath);
+        }
+
+        String originalName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+        String imageFileName = System.currentTimeMillis() + "_" + originalName;
+        String fullDiskPath = uploadPath + File.separator + imageFileName;
+        filePart.write(fullDiskPath);
+
+        String rootPath = fullDiskPath.replace("\\build", "");
+        Path source = Paths.get(fullDiskPath);
+        Path target = Paths.get(rootPath);
+        Files.createDirectories(target.getParent());
+        Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+
+        Category c = new Category();
+        User u = new User();
+
+        c.setCategoryId(Integer.parseInt(cidStr));
+
+        u.setUserid(Integer.parseInt(authorStr));
+
+        Blog b = new Blog();
+        b.setCategory(c);
+        b.setOwner(u);
+        b.setTitle(title);
+        b.setPre_context(preContext);
+        b.setContext(context);
+        b.setStatus(status);
+        b.setCreated_at(Timestamp.valueOf(LocalDateTime.now()));
+        b.setImg_url(imageFileName);
+
+        if (bDao.addBlog(b)) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().write("success");
+        } else {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Could not save blog.");
+        }
     }
 
     private void doEdit(HttpServletRequest request, HttpServletResponse response)

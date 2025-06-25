@@ -66,7 +66,7 @@
 
                                 <c:if test="${not empty blog.img_url}">
                                     <a href="${pageContext.request.contextPath}/blog/detail?bid=${blog.blogId}">
-                                        <img src="${blog.img_url}" alt="${blog.title}" 
+                                        <img src="${pageContext.request.contextPath}/upload/BlogIMG/${blog.img_url}" alt="${blog.title}" 
                                              style="max-width: 100%; height: 200px; object-fit: cover;">
                                     </a>
                                 </c:if>

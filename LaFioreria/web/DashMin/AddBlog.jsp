@@ -4,12 +4,6 @@
     Author     : k16
 --%>
 
-<%-- 
-    Document   : blogmanager
-    Created on : Jun 25, 2025, 7:38:33 AM
-    Author     : k16
---%>
-
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -36,10 +30,6 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
-        <!-- Libraries Stylesheet -->
-        <link href="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-        <link href="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
-
         <!-- Customized Bootstrap Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/bootstrap.min.css" rel="stylesheet">
 
@@ -47,10 +37,10 @@
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/main.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/bootstrap.min.css" rel="stylesheet">
-        
+
         <!-- TinyMCE -->
         <script src="https://cdn.tiny.cloud/1/1qk6lietypbc7xlhdhrz0o4y11p4j7xvk0baumrxhcja768a/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-        
+
         <style>
             /* Additional styles for the form */
             .form-card {
@@ -177,6 +167,57 @@
 
             .breadcrumb-item a:hover {
                 text-decoration: underline;
+            }
+
+            .custom-modal {
+                display: none;
+                position: fixed;
+                z-index: 9999;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+            }
+
+            .custom-modal-content {
+                background-color: white;
+                margin: 15% auto;
+                padding: 20px;
+                border-radius: 10px;
+                width: 90%;
+                max-width: 400px;
+                text-align: center;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            }
+
+            .close-btn {
+                float: right;
+                font-size: 24px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+
+            .success-header {
+                color: green;
+            }
+
+            .error-header {
+                color: red;
+            }
+
+            button {
+                margin-top: 15px;
+                padding: 8px 16px;
+                border: none;
+                background-color: #444;
+                color: white;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            button:hover {
+                background-color: #000;
             }
         </style>
     </head>
@@ -360,7 +401,7 @@
                                         <i class="fas fa-plus-circle me-2"></i>Create New Blog Post
                                     </h4>
                                 </div>
-                                
+
                                 <form action="${pageContext.request.contextPath}/blog/add" method="POST" enctype="multipart/form-data" id="blogForm">
                                     <div class="form-card-body">
                                         <div class="row">
@@ -375,7 +416,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <!-- Category -->
                                             <div class="col-md-4">
                                                 <div class="form-row">
@@ -383,15 +424,9 @@
                                                     <select class="form-select" id="category" name="cid" required>
                                                         <option value="">Select Category</option>
                                                         <!-- You'll need to populate this from your categories table -->
-                                                        <c:forEach var="category" items="${categories}">
-                                                            <option value="${category.category_id}">${category.category_name}</option>
+                                                        <c:forEach var="category" items="${cList}">
+                                                            <option value="${category.categoryId}">${category.categoryName}</option>
                                                         </c:forEach>
-                                                        <!-- Static options for demo -->
-                                                        <option value="1">Flower Care Tips</option>
-                                                        <option value="2">Seasonal Arrangements</option>
-                                                        <option value="3">Wedding Flowers</option>
-                                                        <option value="4">Plant Care</option>
-                                                        <option value="5">Gardening</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -410,24 +445,24 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <!-- Status -->
                                             <div class="col-md-3">
                                                 <div class="form-row">
                                                     <label for="status" class="form-label required">Status</label>
                                                     <select class="form-select" id="status" name="status" required>
-                                                        <option value="1">Published</option>
-                                                        <option value="0" selected>Draft</option>
+                                                        <option value="Active" selected>Active</option>
+                                                        <option value="Hidden">Hidden</option>
                                                     </select>
                                                 </div>
                                             </div>
-                                            
+
                                             <!-- Author (Hidden field, will be set from session) -->
                                             <div class="col-md-3">
                                                 <div class="form-row">
                                                     <label class="form-label">Author</label>
                                                     <input type="text" class="form-control" value="Current User" readonly>
-                                                    <input type="hidden" name="author_id" value="${sessionScope.user.id != null ? sessionScope.user.id : 1}">
+                                                    <input id="author" type="hidden" name="author_id" value="${sessionScope.currentAcc.userid != null ? sessionScope.currentAcc.userid : 1}">
                                                 </div>
                                             </div>
                                         </div>
@@ -461,7 +496,7 @@
                                             </a>
                                         </div>
                                         <div class="action-buttons">
-                                            <button type="submit" class="btn btn-success-gradient">
+                                            <button id="submitbtn" type="button" class="btn btn-success-gradient" onclick="doSubmit()">
                                                 <i class="fas fa-paper-plane me-2"></i>Publish Blog Post
                                             </button>
                                         </div>
@@ -488,249 +523,196 @@
         </div>
 
         <!-- Success Modal -->
-        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title" id="successModalLabel">
-                            <i class="fas fa-check-circle me-2"></i>Success
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Your blog post has been saved successfully!</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
-                    </div>
-                </div>
+        <div id="successModal" class="custom-modal">
+            <div class="custom-modal-content">
+                <span class="close-btn" onclick="closeModal('successModal')">&times;</span>
+                <h2 class="success-header">✅ Success</h2>
+                <p>Your blog post has been saved successfully!</p>
+                <button onclick="redirectAfterSuccess()">OK</button>
             </div>
         </div>
 
         <!-- Error Modal -->
-        <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title" id="errorModalLabel">
-                            <i class="fas fa-exclamation-triangle me-2"></i>Error
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="errorMessage">An error occurred while saving the blog post. Please try again.</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
+        <div id="errorModal" class="custom-modal">
+            <div class="custom-modal-content">
+                <span class="close-btn" onclick="closeModal('errorModal')">&times;</span>
+                <h2 class="error-header">❌ Error</h2>
+                <p id="errorMessage">An error occurred while saving the blog post.</p>
+                <button onclick="closeModal('errorModal')">Close</button>
             </div>
         </div>
 
         <!-- JavaScript Libraries -->
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
         <!-- Template Javascript -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
 
         <script>
-            // Initialize TinyMCE Rich Text Editor
-            tinymce.init({
-                selector: '#content',
-                height: 400,
-                menubar: true,
-                plugins: [
-                    'advlist autolink lists link image charmap print preview anchor',
-                    'searchreplace visualblocks code fullscreen',
-                    'insertdatetime media table paste code help wordcount'
-                ],
-                toolbar: 'undo redo | formatselect | ' +
-                'bold italic backcolor | alignleft aligncenter ' +
-                'alignright alignjustify | bullist numlist outdent indent | ' +
-                'removeformat | help | link image media | code preview fullscreen',
-                content_css: '//www.tiny.cloud/css/codepen.min.css',
-                setup: function (editor) {
-                    editor.on('change', function () {
-                        editor.save();
+                    // Initialize TinyMCE Rich Text Editor
+                    tinymce.init({
+                        selector: '#content',
+                        height: 400,
+                        menubar: true,
+                        plugins: [
+                            'advlist autolink lists link image charmap print preview anchor',
+                            'searchreplace visualblocks code fullscreen',
+                            'insertdatetime media table paste code help wordcount'
+                        ],
+                        toolbar: 'undo redo | formatselect | ' +
+                                'bold italic backcolor | alignleft aligncenter ' +
+                                'alignright alignjustify | bullist numlist outdent indent | ' +
+                                'removeformat | help | link image media | code preview fullscreen',
+                        content_css: '//www.tiny.cloud/css/codepen.min.css',
+                        setup: function (editor) {
+                            editor.on('change', function () {
+                                editor.save();
+                            });
+                        }
                     });
-                }
-            });
 
-            // Character counters
-            function updateCharacterCount(inputId, countId, maxLength) {
-                const input = document.getElementById(inputId);
-                const counter = document.getElementById(countId);
-                
-                input.addEventListener('input', function() {
-                    const currentLength = this.value.length;
-                    counter.textContent = currentLength;
-                    
-                    if (currentLength > maxLength * 0.9) {
-                        counter.parentElement.style.color = '#dc3545';
-                    } else if (currentLength > maxLength * 0.7) {
-                        counter.parentElement.style.color = '#ffc107';
-                    } else {
-                        counter.parentElement.style.color = '#6c757d';
+                    // Character counters
+                    function updateCharacterCount(inputId, countId, maxLength) {
+                        const input = document.getElementById(inputId);
+                        const counter = document.getElementById(countId);
+
+                        input.addEventListener('input', function () {
+                            const currentLength = this.value.length;
+                            counter.textContent = currentLength;
+
+                            if (currentLength > maxLength * 0.9) {
+                                counter.parentElement.style.color = '#dc3545';
+                            } else if (currentLength > maxLength * 0.7) {
+                                counter.parentElement.style.color = '#ffc107';
+                            } else {
+                                counter.parentElement.style.color = '#6c757d';
+                            }
+                        });
                     }
-                });
-            }
 
-            // Initialize character counters
-            updateCharacterCount('title', 'titleCount', 100);
-            updateCharacterCount('preContext', 'preContextCount', 200);
-            updateCharacterCount('metaDescription', 'metaDescCount', 160);
+                    // Initialize character counters
+                    updateCharacterCount('title', 'titleCount', 100);
+                    updateCharacterCount('preContext', 'preContextCount', 200);
+                    updateCharacterCount('metaDescription', 'metaDescCount', 160);
 
-            // Image preview function
-            function previewImage(input) {
-                const preview = document.getElementById('imagePreview');
-                const previewImg = document.getElementById('previewImg');
-                
-                if (input.files && input.files[0]) {
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(e) {
-                        previewImg.src = e.target.result;
-                        preview.style.display = 'block';
+                    // Image preview function
+                    function previewImage(input) {
+                        const preview = document.getElementById('imagePreview');
+                        const previewImg = document.getElementById('previewImg');
+
+                        if (input.files && input.files[0]) {
+                            const reader = new FileReader();
+
+                            reader.onload = function (e) {
+                                previewImg.src = e.target.result;
+                                preview.style.display = 'block';
+                            }
+
+                            reader.readAsDataURL(input.files[0]);
+                        } else {
+                            preview.style.display = 'none';
+                        }
                     }
-                    
-                    reader.readAsDataURL(input.files[0]);
-                } else {
-                    preview.style.display = 'none';
-                }
-            }
 
-            // Form validation and submission
-            document.getElementById('blogForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Update TinyMCE content before submission
-                tinymce.triggerSave();
-                
-                // Basic validation
-                const title = document.getElementById('title').value.trim();
-                const category = document.getElementById('category').value;
-                const preContext = document.getElementById('preContext').value.trim();
-                const content = document.getElementById('content').value.trim();
-                
-                if (!title || !category || !preContext || !content) {
-                    showError('Please fill in all required fields.');
-                    return;
-                }
-                
-                // Show loading state
-                const submitBtn = this.querySelector('button[type="submit"]');
-                const originalText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Publishing...';
-                submitBtn.disabled = true;
-                
-                // Submit form (you can add AJAX submission here)
-                setTimeout(() => {
-                    // For demo - in real implementation, handle the actual form submission
-                    // this.submit();
-                    
-                    // Reset button state
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                    
-                    // Show success message
-                    showSuccess();
-                }, 2000);
-            });
+                    function doSubmit() {
+                        tinymce.triggerSave(); // Sync TinyMCE content
 
-            // Show success modal
-            function showSuccess() {
-                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-                successModal.show();
-                
-                // Redirect after modal is closed
-                document.getElementById('successModal').addEventListener('hidden.bs.modal', function () {
-                    window.location.href = '${pageContext.request.contextPath}/blogmanager';
-                });
-            }
+                        const title = document.getElementById('title').value.trim();
+                        const category = document.getElementById('category').value;
+                        const preContext = document.getElementById('preContext').value.trim();
+                        const content = document.getElementById('content').value.trim();
+                        const status = document.getElementById('status').value.trim();
+                        const author = '${sessionScope.currentAcc.userid}';
+                        const imageInput = document.getElementById('image');
 
-            // Show error modal
-            function showError(message) {
-                document.getElementById('errorMessage').textContent = message;
-                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-                errorModal.show();
-            }
+                        if (!title || !category || !preContext || !content) {
+                            showError('Please fill in all required fields.');
+                            return;
+                        }
 
-            // Auto-hide spinner
-            $(document).ready(function () {
-                setTimeout(function () {
-                    $('#spinner').removeClass('show');
-                }, 1000);
-            });
+                        if (!imageInput.files || !imageInput.files[0]) {
+                            showError('Please upload an image.');
+                            return;
+                        }
 
-            // Form auto-save (optional)
-            let autoSaveTimer;
-            function startAutoSave() {
-                autoSaveTimer = setInterval(function() {
-                    // Save form data to localStorage for recovery
-                    const formData = {
-                        title: document.getElementById('title').value,
-                        category: document.getElementById('category').value,
-                        preContext: document.getElementById('preContext').value,
-                        content: tinymce.get('content').getContent(),
-                        tags: document.getElementById('tags').value,
-                        metaKeywords: document.getElementById('metaKeywords').value,
-                        metaDescription: document.getElementById('metaDescription').value
-                    };
-                    
-                    localStorage.setItem('blogDraft', JSON.stringify(formData));
-                    console.log('Auto-saved draft');
-                }, 30000); // Auto-save every 30 seconds
-            }
+                        // Button loading state
+                        const btn = document.getElementById('submitbtn');
+                        const originalText = btn.innerHTML;
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Publishing...';
+                        btn.disabled = true;
 
-            // Load draft from localStorage if available
-            function loadDraft() {
-                const draft = localStorage.getItem('blogDraft');
-                if (draft) {
-                    const formData = JSON.parse(draft);
-                    
-                    if (confirm('A saved draft was found. Would you like to restore it?')) {
-                        document.getElementById('title').value = formData.title || '';
-                        document.getElementById('category').value = formData.category || '';
-                        document.getElementById('preContext').value = formData.preContext || '';
-                        document.getElementById('tags').value = formData.tags || '';
-                        document.getElementById('metaKeywords').value = formData.metaKeywords || '';
-                        document.getElementById('metaDescription').value = formData.metaDescription || '';
-                        
-                        // Load content into TinyMCE when it's ready
-                        tinymce.get('content').setContent(formData.content || '');
-                        
-                        // Update character counters
-                        document.getElementById('titleCount').textContent = (formData.title || '').length;
-                        document.getElementById('preContextCount').textContent = (formData.preContext || '').length;
-                        document.getElementById('metaDescCount').textContent = (formData.metaDescription || '').length;
+                        // Build FormData
+                        const formData = new FormData();
+                        formData.append('title', title);
+                        formData.append('category', category);
+                        formData.append('preContext', preContext);
+                        formData.append('content', content);
+                        formData.append('status', status);
+                        formData.append('author', author);
+                        formData.append('image', imageInput.files[0]);
+
+                        fetch('${pageContext.request.contextPath}/blog/add', {
+                            method: 'POST',
+                            body: formData
+                        })
+                                .then(response => response.text())
+                                .then(result => {
+                                    if (result === 'success') {
+                                        showSuccess();
+                                    } else {
+                                        showError(result || 'An unknown error occurred.');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    showError('A network error occurred.');
+                                })
+                                .finally(() => {
+                                    btn.innerHTML = originalText;
+                                    btn.disabled = false;
+                                });
                     }
-                }
-            }
 
-            // Clear draft on successful submission
-            function clearDraft() {
-                localStorage.removeItem('blogDraft');
-                clearInterval(autoSaveTimer);
-            }
+                    function showSuccess() {
+                        document.getElementById('successModal').style.display = 'block';
+                    }
 
-            // Initialize auto-save and draft loading
-            window.addEventListener('load', function() {
-                loadDraft();
-                startAutoSave();
-            });
+                    function showError(message) {
+                        document.getElementById('errorMessage').textContent = message;
+                        document.getElementById('errorModal').style.display = 'block';
+                    }
 
-            // Clear draft when leaving page
-            window.addEventListener('beforeunload', function() {
-                clearInterval(autoSaveTimer);
-            });
+                    function closeModal(id) {
+                        document.getElementById(id).style.display = 'none';
+                    }
+
+                    // Auto-hide spinner
+                    $(document).ready(function () {
+                        setTimeout(function () {
+                            $('#spinner').removeClass('show');
+                        }, 1000);
+                    });
+
+                    // Form auto-save (optional)
+                    let autoSaveTimer;
+                    function startAutoSave() {
+                        autoSaveTimer = setInterval(function () {
+                            // Save form data to localStorage for recovery
+                            const formData = {
+                                title: document.getElementById('title').value,
+                                category: document.getElementById('category').value,
+                                preContext: document.getElementById('preContext').value,
+                                content: tinymce.get('content').getContent(),
+                                tags: document.getElementById('tags').value,
+                                metaKeywords: document.getElementById('metaKeywords').value,
+                                metaDescription: document.getElementById('metaDescription').value
+                            };
+
+                            localStorage.setItem('blogDraft', JSON.stringify(formData));
+                            console.log('Auto-saved draft');
+                        }, 30000); // Auto-save every 30 seconds
+                    }
         </script>
     </body>
 </html>
