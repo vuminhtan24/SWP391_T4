@@ -138,8 +138,8 @@
                                 <c:when test="${not empty blogs}">
                                     <!-- Loop through blogs -->
                                     <c:forEach var="blog" items="${blogs}">
-                                        <div class="single-blog-post">
-                                            <h3>${blog.title}</h3>
+                                        <div class="single-blog-post" style="margin-bottom: 20px; padding: 20px; border: solid 1px #cccccc; border-radius: 20px;">
+                                            <h2>${blog.title}</h2>
                                             <div class="post-meta">
                                                 <ul>
                                                     <li><i class="fa fa-user"></i> Author ID: ${blog.owner.userid}</li>
@@ -179,7 +179,7 @@
                                                 </c:choose>
                                             </p>
 
-                                            <a class="btn btn-primary" href="blog-detail?id=${blog.blogId}">Read More</a>
+                                            <a class="btn btn-primary" style="border-radius: 10px;" href="${pageContext.request.contextPath}/blog/detail?bid=${blog.blogId}">Read More</a>
                                         </div>
                                     </c:forEach>
                                 </c:when>

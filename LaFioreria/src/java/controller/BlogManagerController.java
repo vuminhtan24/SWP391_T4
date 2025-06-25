@@ -21,6 +21,7 @@ import model.Blog;
 @WebServlet(name = "BlogManagerController", urlPatterns = {
     "/blogmanager",
     "/blog",
+    "/blog/detail",
     "/blog/add",
     "/blog/edit",
     "/blog/delete"
@@ -43,12 +44,15 @@ public class BlogManagerController extends HttpServlet {
         String path = request.getServletPath();
 
         switch (path) {
-            case BASE_PATH + "manager" -> {
+            case BASE_PATH + "manager" ->
                 doGetManagerPostList(request, response);
-            }
-            case BASE_PATH -> {
+
+            case BASE_PATH ->
                 doGetPostList(request, response);
-            }
+
+            case BASE_PATH + "/detail" ->
+                doGetDetail(request, response);
+
             default ->
                 throw new AssertionError();
         }
@@ -84,7 +88,38 @@ public class BlogManagerController extends HttpServlet {
 
     private void doGetManagerPostList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        int page = Integer.parseInt(request.getParameter("page") != null ? request.getParameter("page") : "1");
+        int limit = 10;
+        int offset = (page - 1) * limit;
+        String search = request.getParameter("search");
+        String sortBy = request.getParameter("sortBy");
+        String sort = request.getParameter("sort");
+        int categoryId = Integer.parseInt(request.getParameter("categoryId") != null && !request.getParameter("categoryId").isBlank() ? request.getParameter("categoryId") : "0");
+
+        BlogDAO dao = new BlogDAO();
+        List<Blog> blogs = dao.getAllBlogWithFilter(limit, offset, search, sortBy, sort, categoryId);
+        int totalCount = dao.getTotalBlogCountWithFilter(search, categoryId);
+
+        request.setAttribute("blogs", blogs);
+        request.setAttribute("totalCount", totalCount);
+        request.setAttribute("currentPage", page);
         request.getRequestDispatcher("DashMin/blogmanager.jsp").forward(request, response);
+    }
+
+    private void doGetDetail(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        BlogDAO bDao = new BlogDAO();
+        String bidStr = request.getParameter("bid");
+
+        int bid = bidStr != null && !bidStr.isBlank() ? Integer.parseInt(bidStr) : -1;
+
+        Blog b = null;
+
+        b = bDao.getBlogById(bid);
+        fullLoadBlogInformation(b);
+
+        request.setAttribute("blog", b);
+        request.getRequestDispatcher("../ZeShopper/blogdetail.jsp").forward(request, response);
     }
 
     private void doGetPostList(HttpServletRequest request, HttpServletResponse response)
@@ -122,6 +157,11 @@ public class BlogManagerController extends HttpServlet {
 
     }
 
+    //Helper
+    private void fullLoadBlogInformation(Blog b){
+        
+    }
+    
     /**
      * Returns a short description of the servlet.
      *
