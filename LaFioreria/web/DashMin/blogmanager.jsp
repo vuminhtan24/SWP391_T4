@@ -4,7 +4,10 @@
     Author     : k16
 --%>
 
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<fmt:setLocale value="vi_VN" />
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -36,6 +39,12 @@
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
+        <style>
+            .table-th {
+                font-size: 18px;
+                color: black;
+            }
+        </style>
     </head>
 
     <body>
@@ -190,20 +199,91 @@
                 <!-- Navbar End -->
 
                 <!-- Main Content -->
-                <div class="">
-                    
+                <div class="container-fluid pt-4 px-4">
+                    <div class="filter-section-container">
+                        <div class="filter-section-main">
+
+                        </div>
+                    </div>
+
+                    <div class="list-section-container" style="padding: 20px; border: solid 1px #cccccc; border-radius: 10px;">
+                        <div class="list-section-main">
+                            <c:choose>
+                                <c:when test="${not empty blogs}">
+                                    <!-- Loop through blogs -->
+                                    <div class="table-wrapper">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th class="table-th">Blog Id</th>
+                                                    <th class="table-th">Title</th>
+                                                    <th class="table-th">Thumbnail</th>
+                                                    <th class="table-th">Pre Context</th>
+                                                    <th class="table-th">Status</th>
+                                                    <th class="table-th">Author</th>
+                                                    <th class="table-th">Created At</th>
+                                                    <th class="table-th">Updated At</th>
+                                                    <th class="table-th" colspan="2">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <c:forEach var="blog" items="${blogs}">
+                                                    <tr>
+                                                        <td>${blog.blogId}</td>
+                                                        <td>${blog.title}</td>
+                                                        <td><img src="${blog.img_url}" alt="${blog.title}" width="50" height="50"/></td>
+                                                        <td>${blog.pre_context}</td>
+                                                        <td>${blog.status}</td>
+                                                        <td>${blog.owner.userid}</td>
+                                                        <td><fmt:formatDate value="${blog.created_at}" pattern="dd MMM, yyyy HH:mm" /></td>
+                                                        <td>
+                                                            <c:choose>
+                                                                <c:when test="${not empty blog.updated_at}">
+                                                                    <fmt:formatDate value="${blog.updated_at}" pattern="dd MMM, yyyy HH:mm" />
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    Not Yet
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </td>
+                                                        <td>
+                                                            <a href="${pageContext.request.contextPath}/blog/edit"><button class="btn btn-primary">Edit</button></a>
+                                                            <button class="btn btn-danger">Delete</button>
+                                                        </td>
+                                                    </tr>
+                                                </c:forEach>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </c:when>
+                                <c:otherwise>
+                                    <!-- No blogs found -->
+                                    <div class="single-blog-post text-center">
+                                        <h3>No blogs found</h3>
+                                        <p>
+                                            <c:choose>
+                                                <c:when test="${not empty param.search}">
+                                                    No blogs match your search criteria. Try different keywords.
+                                                </c:when>
+                                                <c:otherwise>
+                                                    No blogs are available at the moment. Please check back later.
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </p>
+                                        <a href="blog" class="btn btn-primary">View All Blogs</a>
+                                    </div>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                    </div>
                 </div>
-                
+
                 <!-- Footer Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded-top p-4">
                         <div class="row">
                             <div class="col-12 col-sm-6 text-center text-sm-start">
                                 &copy; <a href="${pageContext.request.contextPath}">Lafioreria</a>, All Right Reserved. 
-                            </div>
-                            <div class="col-12 col-sm-6 text-center text-sm-end">
-                                <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-                                Designed By <a href="https://htmlcodex.com">HTML Codex</a>
                             </div>
                         </div>
                     </div>

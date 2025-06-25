@@ -97,7 +97,7 @@ public class BlogManagerController extends HttpServlet {
         int categoryId = Integer.parseInt(request.getParameter("categoryId") != null && !request.getParameter("categoryId").isBlank() ? request.getParameter("categoryId") : "0");
 
         BlogDAO dao = new BlogDAO();
-        List<Blog> blogs = dao.getAllBlogWithFilter(limit, offset, search, sortBy, sort, categoryId);
+        List<Blog> blogs = dao.getAllBlogWithFilter(limit, offset, search, sortBy, sort, categoryId, null);
         int totalCount = dao.getTotalBlogCountWithFilter(search, categoryId);
 
         request.setAttribute("blogs", blogs);
@@ -133,7 +133,7 @@ public class BlogManagerController extends HttpServlet {
         int categoryId = Integer.parseInt(request.getParameter("categoryId") != null && !request.getParameter("categoryId").isBlank() ? request.getParameter("categoryId") : "0");
 
         BlogDAO dao = new BlogDAO();
-        List<Blog> blogs = dao.getAllBlogWithFilter(limit, offset, search, sortBy, sort, categoryId);
+        List<Blog> blogs = dao.getAllBlogWithFilter(limit, offset, search, sortBy, sort, categoryId, "Active");
         int totalCount = dao.getTotalBlogCountWithFilter(search, categoryId);
 
         request.setAttribute("blogs", blogs);
