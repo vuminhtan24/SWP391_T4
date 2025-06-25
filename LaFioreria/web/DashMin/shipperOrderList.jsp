@@ -139,7 +139,7 @@
                                             <td>${order.customerName}</td>
                                             <td>${order.customerPhone}</td>
                                             <td class="word-wrap-td">${order.customerAddress}</td>
-                                            <td><fmt:formatNumber value="${order.totalAmount}" type="number" minFractionDigits="0" maxFractionDigits="2" /> VNĐ</td>
+                                            <td><fmt:formatNumber value="${order.totalSell}" type="number" minFractionDigits="0" maxFractionDigits="2" /> VNĐ</td>
                                             <td>
                                                 ${order.statusName}
                                             </td>
