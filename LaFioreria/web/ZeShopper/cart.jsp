@@ -179,12 +179,11 @@
                                     <tr>
                                         <td class="cart_product">
                                             <c:forEach items="${cartImages}" var="imgLst" varStatus="loop">
-                                                <c:forEach items="${imgLst}">
-                                                    <c:if test="${img.bouquetId == item.bouquetId}">
+                                                <c:set var="count" value="1" />
+                                                <c:forEach items="${imgLst}" var="img">
+                                                    <c:if test="${img.bouquetId == item.bouquetId && count != 2}">
                                                         <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}" alt="${item.bouquet.bouquetName}" width="100">
-                                                        <c:if test="${true}">
-                                                            <c:remove var="img" scope="page"/> <!-- simulate break -->
-                                                        </c:if>
+                                                        <c:set var="count" value="2" />
                                                     </c:if>
                                                 </c:forEach>
                                             </c:forEach>

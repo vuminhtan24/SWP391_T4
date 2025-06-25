@@ -705,7 +705,9 @@ public class UserDAO extends BaseDao {
                 "123 Main St, Anytown",
                 8
         );
-        ud.insertNewUser(user1);
+//        ud.insertNewUser(user1);
+        
+        System.out.println(ud.getUserByID(1));
 
     }
 

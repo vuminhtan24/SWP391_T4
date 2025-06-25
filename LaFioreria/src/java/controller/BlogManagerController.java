@@ -6,12 +6,14 @@ package controller;
 
 import dal.BlogDAO;
 import dal.CategoryDAO;
+import dal.UserDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.LinkedList;
 import java.util.List;
 import model.Blog;
 import model.Category;
@@ -99,10 +101,10 @@ public class BlogManagerController extends HttpServlet {
         String status = request.getParameter("status");
         int categoryId = Integer.parseInt(request.getParameter("categoryId") != null && !request.getParameter("categoryId").isBlank() ? request.getParameter("categoryId") : "0");
 
-        if(status == null || status.isBlank()){
+        if (status == null || status.isBlank()) {
             status = null;
         }
-        
+
         BlogDAO dao = new BlogDAO();
         CategoryDAO cDao = new CategoryDAO();
         List<Blog> blogs = dao.getAllBlogWithFilter(limit, offset, search, sortBy, sort, categoryId, status);
@@ -130,7 +132,11 @@ public class BlogManagerController extends HttpServlet {
         Blog b = null;
 
         b = bDao.getBlogById(bid);
-        fullLoadBlogInformation(b);
+
+        List<Blog> bList = new LinkedList<>();
+        bList.add(b);
+
+        fullLoadBlogInformation(bList);
 
         request.setAttribute("blog", b);
         request.getRequestDispatcher("../ZeShopper/blogdetail.jsp").forward(request, response);
@@ -178,8 +184,12 @@ public class BlogManagerController extends HttpServlet {
     }
 
     //Helper
-    private void fullLoadBlogInformation(Blog b) {
+    private void fullLoadBlogInformation(List<Blog> b) {
+        UserDAO uDao = new UserDAO();
 
+        for (Blog bl : b) {
+            bl.setOwner(uDao.getUserByID(bl.getOwner().getUserid()));
+        }
     }
 
     /**

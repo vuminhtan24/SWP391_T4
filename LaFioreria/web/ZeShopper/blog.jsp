@@ -141,7 +141,7 @@
                                             <h2>${blog.title}</h2>
                                             <div class="post-meta">
                                                 <ul>
-                                                    <li><i class="fa fa-user"></i> Author ID: ${blog.owner.userid}</li>
+                                                    <li><i class="fa fa-user"></i> Author: ${blog.owner.fullname}</li>
                                                     <li><i class="fa fa-calendar"></i> 
                                                         <fmt:formatDate value="${blog.created_at}" pattern="MMM dd, yyyy" />
                                                     </li>
