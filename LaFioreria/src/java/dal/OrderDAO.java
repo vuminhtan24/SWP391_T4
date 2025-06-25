@@ -1032,6 +1032,6 @@ public class OrderDAO extends BaseDao {
 
     public static void main(String[] args) {
         OrderDAO orderDAO = new OrderDAO();
-        System.out.println(orderDAO.getOrderItemsByOrderId(11));
+        System.out.println(orderDAO.getOrderDetailById(11));
     }
 }

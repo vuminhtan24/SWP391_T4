@@ -87,7 +87,7 @@
                                     <p><strong>Customer Phone</strong> ${order.customerPhone}</p>
                                 </div>
                                 <div class="col-md-6">
-                                    <p><strong>Total Amount:</strong> ${order.totalAmount}</p>
+                                    <p><strong>Total Amount:</strong> ${order.totalSell}</p>
                                     <p><strong>Status:</strong> ${order.statusName}</p>
                                     <p><strong>Shipper ID:</strong> ${order.shipperId != null ? order.shipperId : "Not Assigned"}</p>
                                     <p><strong>Shipper Name:</strong> ${order.shipperName != null ? order.shipperName : "Not Assigned"}</p>
