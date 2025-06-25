@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import model.OrderItem;
 import model.OrderStatusCount;
 
 /**
@@ -249,12 +250,26 @@ public class OrderDAO extends BaseDao {
     public List<OrderDetail> getOrderItemsByOrderId(int orderId) {
         List<OrderDetail> orderItems = new ArrayList<>();
         // Modified SQL to join with bouquet_images to get image_url
-        String sql = "SELECT oi.order_item_id, oi.order_id, oi.bouquet_id, "
-                + "b.bouquet_name, bi.image_url, oi.quantity, oi.unit_price " // Changed from b.image_url to bi.image_url
-                + "FROM `order_item` oi "
-                + "JOIN `bouquet` b ON oi.bouquet_id = b.bouquet_id "
-                + "LEFT JOIN `bouquet_images` bi ON b.Bouquet_ID = bi.Bouquet_ID " // Added LEFT JOIN for bouquet_images
-                + "WHERE oi.order_id = ?";
+        String sql = "SELECT \n"
+                + "    oi.order_item_id,\n"
+                + "    oi.order_id,\n"
+                + "    oi.bouquet_id,\n"
+                + "    b.bouquet_name,\n"
+                + "    (\n"
+                + "      SELECT bi2.image_url\n"
+                + "      FROM bouquet_images bi2\n"
+                + "      WHERE bi2.bouquet_id = oi.bouquet_id\n"
+                + "      ORDER BY bi2.image_url ASC\n"
+                + "      LIMIT 1\n"
+                + "    ) AS image_url,\n"
+                + "    oi.quantity,\n"
+                + "    oi.unit_price,\n"
+                + "    oi.sellPrice,\n"
+                + "    oi.status\n"
+                + "FROM order_item oi\n"
+                + "JOIN bouquet b \n"
+                + "  ON oi.bouquet_id = b.bouquet_id\n"
+                + "WHERE oi.order_id = ?;";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -268,7 +283,9 @@ public class OrderDAO extends BaseDao {
                         rs.getString("bouquet_name"),
                         rs.getString("image_url"), // Map the image_url from bouquet_images
                         rs.getInt("quantity"),
-                        rs.getString("unit_price")
+                        rs.getString("unit_price"),
+                        rs.getInt("sellPrice"),
+                        rs.getString("status")
                 );
                 orderItems.add(item);
             }
@@ -935,6 +952,42 @@ public class OrderDAO extends BaseDao {
         } catch (SQLException e) {
             System.err.println("Error updating total import: " + e.getMessage());
             return false;
+        }
+    }
+
+    public OrderItem getBouquetQuantityInOrder(int orderItemId, int orderId, int bouquetId) {
+        String sql = "SELECT\n"
+                + "  order_item_id,\n"
+                + "  order_id,\n"
+                + "  bouquet_id,\n"
+                + "  quantity,\n"
+                + "  sellPrice   \n"
+                + "FROM order_item\n"
+                + "WHERE order_item_id = ?\n"
+                + "AND order_id = ?\n"
+                + "AND bouquet_id = ?";
+        OrderItem item = null;
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            // Thiết lập tham số
+            ps.setInt(1, orderItemId);
+            ps.setInt(2, orderId);
+            ps.setInt(3, bouquetId);
+            rs = ps.executeQuery();
+            // Lấy kết quả
+            if (rs.next()) {
+                item = new OrderItem();
+                item.setOrderItemId(rs.getInt("order_item_id"));
+                item.setOrderId(rs.getInt("order_id"));
+                item.setBouquetId(rs.getInt("bouquet_id"));
+                item.setQuantity(rs.getInt("quantity"));
+                item.setUnitPrice(rs.getDouble("sellPrice"));
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+
         } finally {
             try {
                 this.closeResources();
@@ -942,19 +995,43 @@ public class OrderDAO extends BaseDao {
                 System.err.println("Error closing resources: " + e.getMessage());
             }
         }
+        return item;
+    }
+
+    public void completeBouquetCreation(int orderItemId, int orderId, int bouquetId, int sellPrice) {
+        String sql = """
+        UPDATE order_item
+        SET 
+            status = 'done',
+            sellPrice = ?
+        WHERE
+            order_item_id = ?
+            AND order_id = ?
+            AND bouquet_id = ?;
+        """;
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, sellPrice);
+            ps.setInt(2, orderItemId);
+            ps.setInt(3, orderId);
+            ps.setInt(4, bouquetId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error updating order_item status: " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                e.printStackTrace(); // Ghi log lỗi đóng tài nguyên
+            }
+        }
+
     }
 
     public static void main(String[] args) {
         OrderDAO orderDAO = new OrderDAO();
-        List<Bouquet> bouquetList = orderDAO.getAllBouquets();
-
-        if (bouquetList == null || bouquetList.isEmpty()) {
-            System.out.println("❌ Không có bó hoa nào được trả về.");
-        } else {
-            System.out.println("✅ Danh sách bó hoa:");
-            for (Bouquet b : bouquetList) {
-                System.out.println(b);
-            }
-        }
+        System.out.println(orderDAO.getOrderItemsByOrderId(11));
     }
 }

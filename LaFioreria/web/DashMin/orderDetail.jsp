@@ -193,6 +193,9 @@
                                                 <th scope="col">Quantity</th>
                                                 <th scope="col">Unit Price</th>
                                                 <th scope="col">Subtotal</th>
+                                                <th scope="col">Sell Price</th>
+                                                <th scope="col">Status</th>
+                                                <th scope="col">Make Bouquet</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -218,6 +221,15 @@
                                                         <fmt:parseNumber var="price" value="${item.unitPrice}" type="number" />
                                                         <fmt:formatNumber value="${qty * price}" type="number" maxFractionDigits="2" />
                                                     </td>
+                                                    <td>
+                                                        ${item.getSellPrice()}
+                                                    </td>
+                                                    <td>${item.getStatus()}</td>
+                                                    <td><button type="button"
+                                                                class="btn btn-edit"
+                                                                onclick="location.href = '${pageContext.request.contextPath}/makeBouquet?BouquetId=${item.getBouquetId()}&OrderId=${item.getOrderId()}&OrderItemID=${item.getOrderDetailId()}';">
+                                                            Make Bouquet
+                                                        </button></td>
                                                 </tr>
                                             </c:forEach>
                                         </tbody>

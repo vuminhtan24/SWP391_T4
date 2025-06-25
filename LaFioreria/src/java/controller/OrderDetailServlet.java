@@ -65,8 +65,10 @@ public class OrderDetailServlet extends HttpServlet {
         }
 
         OrderDAO orderDAO = new OrderDAO();
+        BouquetDAO bdao = new BouquetDAO();
         Order order = orderDAO.getOrderDetailById(orderId);
         List<OrderDetail> orderItems = orderDAO.getOrderItemsByOrderId(orderId);
+        List<BouquetImage> images = bdao.getAllBouquetImage();
 
         if (order == null) {
             request.setAttribute("errorMessage", "Order not found with ID: " + orderId);
@@ -84,13 +86,15 @@ public class OrderDetailServlet extends HttpServlet {
         if ("edit".equals(action)) {
             List<User> shippers = orderDAO.getAllShippers();
             List<OrderStatus> statuses = orderDAO.getAllOrderStatuses();
-
+            
+            request.setAttribute("images", images);
             request.setAttribute("order", order);
             request.setAttribute("orderItems", orderItems);
             request.setAttribute("shippers", shippers);
             request.setAttribute("statuses", statuses);
             request.getRequestDispatcher("/DashMin/orderEdit.jsp").forward(request, response);
         } else {
+            request.setAttribute("images", images);
             request.setAttribute("order", order);
             request.setAttribute("orderItems", orderItems);
             request.getRequestDispatcher("/DashMin/orderDetail.jsp").forward(request, response);
