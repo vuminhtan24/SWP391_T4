@@ -4,13 +4,15 @@
  */
 package controller;
 
+import dal.BlogDAO;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import model.Blog;
 
 /**
  *
@@ -73,7 +75,7 @@ public class BlogManagerController extends HttpServlet {
                 doEdit(request, response);
             }
             case BASE_PATH + "/delete" -> {
-                doDelete(request, response);
+                doDeletePost(request, response);
             }
             default ->
                 throw new AssertionError();
@@ -87,7 +89,22 @@ public class BlogManagerController extends HttpServlet {
 
     private void doGetPostList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        int page = Integer.parseInt(request.getParameter("page") != null ? request.getParameter("page") : "1");
+        int limit = 10;
+        int offset = (page - 1) * limit;
+        String search = request.getParameter("search");
+        String sortBy = request.getParameter("sortBy");
+        String sort = request.getParameter("sort");
+        int categoryId = Integer.parseInt(request.getParameter("categoryId") != null && !request.getParameter("categoryId").isBlank() ? request.getParameter("categoryId") : "0");
 
+        BlogDAO dao = new BlogDAO();
+        List<Blog> blogs = dao.getAllBlogWithFilter(limit, offset, search, sortBy, sort, categoryId);
+        int totalCount = dao.getTotalBlogCountWithFilter(search, categoryId);
+
+        request.setAttribute("blogs", blogs);
+        request.setAttribute("totalCount", totalCount);
+        request.setAttribute("currentPage", page);
+        request.getRequestDispatcher("ZeShopper/blog.jsp").forward(request, response);
     }
 
     private void doAdd(HttpServletRequest request, HttpServletResponse response)
@@ -100,7 +117,7 @@ public class BlogManagerController extends HttpServlet {
 
     }
 
-    private void doDelete(HttpServletRequest request, HttpServletResponse response)
+    private void doDeletePost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
     }
