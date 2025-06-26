@@ -44,7 +44,7 @@
     <body>
         <jsp:include page="/ZeShopper/header.jsp"/>
 
-        <section>
+        <section style="margin-bottom: 50px;">
             <div class="container">
                 <div class="row">
                     <div class="col-sm-9">
@@ -54,7 +54,7 @@
                                 <h2>${blog.title}</h2>
                                 <div class="post-meta">
                                     <ul>
-                                        <li><i class="fa fa-user"></i> ${blog.owner.userid}</li>
+                                        <li><i class="fa fa-user"></i> ${blog.owner.fullname}</li>
                                         <li><i class="fa fa-calendar"></i> 
                                             <fmt:formatDate value="${blog.created_at}" pattern="MMM dd, yyyy" />
                                         </li>

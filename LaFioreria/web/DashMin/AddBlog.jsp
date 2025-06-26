@@ -660,6 +660,7 @@
                                 .then(result => {
                                     if (result === 'success') {
                                         showSuccess();
+                                        location.href = '${pageContext.request.contextPath}/blogmanager';
                                     } else {
                                         showError(result || 'An unknown error occurred.');
                                     }
