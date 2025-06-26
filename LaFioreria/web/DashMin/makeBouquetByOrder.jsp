@@ -381,8 +381,10 @@
                                                             <tr>
                                                                 <!-- Bên trái: message -->
                                                                 <td colspan="3" class="text-start align-middle">
+                                                                    <!-- Thông báo stockMessage sẽ do JS xử lý -->
                                                                     <span id="stockMessage" class="fw-semibold"></span>
-                                                                    <span id="batchStatusMessage" class="fw-semibold" style="display: block; margin-top: 8px;"></span>
+
+                                                                    <!-- Nút chỉnh sửa (ẩn mặc định) -->
                                                                     <button type="button" id="editBouquetBtn" style="
                                                                             display: none;
                                                                             margin-top: 8px;
@@ -392,8 +394,7 @@
                                                                             border: none;
                                                                             border-radius: 4px;
                                                                             font-weight: bold;
-                                                                            cursor: pointer;
-                                                                            ">
+                                                                            cursor: pointer;">
                                                                         Edit Bouquet Order
                                                                     </button>
                                                                 </td>
@@ -452,17 +453,34 @@
                                                             <!-- Bên phải: Nút hoặc Message -->
                                                             <div>
                                                                 <c:if test="${oi.status eq 'not done'}">
-                                                                    <button type="submit" style="
-                                                                            display: inline-block;
-                                                                            padding: 8px 16px;
-                                                                            background-color: green;
-                                                                            color: white;
-                                                                            border: none;
-                                                                            border-radius: 4px;
-                                                                            font-weight: bold;
-                                                                            ">
-                                                                        Complete bouquet creation
-                                                                    </button>
+                                                                    <c:choose>
+
+                                                                        <c:when test="${canMakeAll}">
+                                                                            <button type="submit" style="
+                                                                                    display: inline-block;
+                                                                                    padding: 8px 16px;
+                                                                                    background-color: green;
+                                                                                    color: white;
+                                                                                    border: none;
+                                                                                    border-radius: 4px;
+                                                                                    font-weight: bold;">
+                                                                                Complete bouquet creation
+                                                                            </button>
+                                                                        </c:when>
+
+                                                                        <c:otherwise>
+                                                                            <button type="button" style="
+                                                                                    display: inline-block;
+                                                                                    padding: 8px 16px;
+                                                                                    background-color: crimson;
+                                                                                    color: white;
+                                                                                    border: none;
+                                                                                    border-radius: 4px;
+                                                                                    font-weight: bold;">
+                                                                                Request for more flower
+                                                                            </button>
+                                                                        </c:otherwise>
+                                                                    </c:choose>
                                                                 </c:if>
 
                                                                 <c:if test="${oi.status eq 'done'}">
@@ -470,8 +488,7 @@
                                                                         color: green;
                                                                         margin: 0;
                                                                         font-weight: bold;
-                                                                        text-align: right;
-                                                                        ">
+                                                                        text-align: right;">
                                                                         You have completed this order
                                                                     </h6>
                                                                 </c:if>
@@ -579,7 +596,7 @@
                         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
                         <script>
                             const BOUQUET_QTY = ${oi.quantity};
-
+                            const ORDER_DONE = '${oi.status}' === 'done';
                             const allBatchs = [
                             <c:forEach var="batch" items="${allBatchs}" varStatus="loop">
                             {
@@ -593,10 +610,8 @@
                             }<c:if test="${!loop.last}">,</c:if>
                             </c:forEach>
                             ];
-
                             document.addEventListener('DOMContentLoaded', () => {
                                 const SELL_MULTIPLIER = 5;
-
                                 function formatCurrency(val) {
                                     return new Intl.NumberFormat('vi-VN', {
                                         style: 'currency',
@@ -626,22 +641,17 @@
                                     const stock = parseInt(sel.dataset.stock, 10) || 0;
                                     const status = sel.dataset.status || '';
                                     const perQty = parseInt(row.querySelector('.quantity-input').value, 10) || 0;
-
                                     // Unit price
                                     row.querySelector('.price-input').value = unit;
                                     row.querySelector('.price-text').textContent = formatCurrency(unit);
-
                                     // Stock
                                     row.querySelector('.stock-text').textContent = stock;
-
                                     // Status
                                     row.querySelector('.status-text').textContent = status;
-
                                     // Flowers needed
                                     const needed = perQty * BOUQUET_QTY;
                                     row.querySelector('.needed-text').textContent = needed;
                                     row.querySelector('.needed-input').value = needed;
-
                                     // Cập nhật hidden input cho flowerId
                                     let flowerId = row.querySelector('.flower-select').value;
                                     let flowerHidden = row.querySelector('input[name="flowerIds"]');
@@ -652,7 +662,6 @@
                                         row.appendChild(flowerHidden);
                                     }
                                     flowerHidden.value = flowerId;
-
                                     updateTotals();
                                 }
 
@@ -660,18 +669,15 @@
                                     let total = 0;
                                     let insufficientFlowers = [];
                                     let nonFreshFlowers = [];
-
                                     document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
                                         const price = parseFloat(row.querySelector('.price-input').value) || 0;
                                         const qty = parseInt(row.querySelector('.quantity-input').value, 10) || 0;
                                         total += price * qty;
-
                                         const needed = qty * BOUQUET_QTY;
                                         const batchSel = row.querySelector('.batch-select');
                                         const flowerSel = row.querySelector('.flower-select');
                                         const sel = batchSel.selectedOptions[0];
                                         const available = sel ? parseInt(sel.dataset.stock || 0, 10) : 0;
-
                                         // Check stock
                                         if (needed > available && flowerSel && flowerSel.selectedIndex > 0) {
                                             const flowerName = flowerSel.options[flowerSel.selectedIndex].text.trim();
@@ -689,44 +695,44 @@
                                             }
                                         }
                                     });
-
                                     // Total cost
                                     document.getElementById('totalValueDisplay').textContent = formatCurrency(total);
                                     document.getElementById('totalValueInput').value = total;
-
                                     const sell = total * SELL_MULTIPLIER;
                                     document.getElementById('sellValueDisplay').textContent = formatCurrency(sell);
                                     document.getElementById('sellValueInput').value = sell;
-
                                     const orderCost = total * BOUQUET_QTY;
                                     document.getElementById('orderCostDisplay').textContent = formatCurrency(orderCost);
                                     document.getElementById('orderCostInput').value = orderCost;
-
                                     const orderSell = sell * BOUQUET_QTY;
                                     document.getElementById('orderSellDisplay').textContent = formatCurrency(orderSell);
                                     document.getElementById('orderSellInput').value = orderSell;
-
                                     // Stock message
                                     const messageEl = document.getElementById('stockMessage');
-                                    if (insufficientFlowers.length === 0) {
+                                    const editBtn = document.getElementById('editBouquetBtn');
+                                    let stockStatus = 0; // Mặc định là không đủ
+
+                                    if (ORDER_DONE) {
+                                        // Nếu đơn hàng đã hoàn tất, luôn hiển thị thành công
                                         messageEl.textContent = 'You can make this bouquet order';
                                         messageEl.className = 'text-success fw-semibold';
+                                        stockStatus = 1;
+                                        if (editBtn)
+                                            editBtn.style.display = 'none';
                                     } else {
-                                        messageEl.textContent = 'There are not enough flowers in stock to fulfill this order. Insufficient: ' + insufficientFlowers.join(', ');
-                                        messageEl.className = 'text-danger fw-semibold';
-                                    }
-
-                                    // Non-fresh batch message
-                                    const batchMsgEl = document.getElementById('batchStatusMessage');
-                                    const editBtn = document.getElementById('editBouquetBtn');
-
-                                    if (nonFreshFlowers.length > 0) {
-                                        batchMsgEl.textContent = 'This batch of ' + nonFreshFlowers.join(', ') + ' flowers is not fresh, please change to another batch.';
-                                        batchMsgEl.style.color = 'orange';
-                                        editBtn.style.display = 'inline-block';
-                                    } else {
-                                        batchMsgEl.textContent = '';
-                                        editBtn.style.display = 'none';
+                                        if (insufficientFlowers.length === 0) {
+                                            messageEl.textContent = 'You can make this bouquet order';
+                                            messageEl.className = 'text-success fw-semibold';
+                                            stockStatus = 1;
+                                            if (editBtn)
+                                                editBtn.style.display = 'none';
+                                        } else {
+                                            messageEl.textContent = 'There are not enough flowers in stock to fulfill this order. Insufficient: ' + insufficientFlowers.join(', ');
+                                            messageEl.className = 'text-danger fw-semibold';
+                                            stockStatus = 0;
+                                            if (editBtn)
+                                                editBtn.style.display = 'inline-block';
+                                        }
                                     }
                                 }
 
@@ -735,12 +741,10 @@
                                     const batchSel = row.querySelector('.batch-select');
                                     const qtyInput = row.querySelector('.quantity-input');
                                     const removeBtn = row.querySelector('.remove-btn');
-
                                     flowerSel.addEventListener('change', () => {
                                         fillBatchOptions(row, flowerSel.value);
                                         updateRow(row);
                                     });
-
                                     batchSel.addEventListener('change', () => updateRow(row));
                                     qtyInput.addEventListener('input', () => updateRow(row));
                                     removeBtn.addEventListener('click', () => {
@@ -754,7 +758,6 @@
                                     const batchID = row.dataset.batchId;
                                     const brQty = parseInt(row.dataset.quantity, 10);
                                     const batch = allBatchs.find(b => b.batchID == batchID);
-
                                     if (batch) {
                                         row.querySelector('.flower-select').value = batch.flowerID;
                                         fillBatchOptions(row, batch.flowerID);
@@ -765,14 +768,12 @@
                                     bindRow(row);
                                     updateRow(row);
                                 });
-
                                 // Add new flower row
                                 document.getElementById('addFlowerBtn').addEventListener('click', () => {
                                     const tpl = document.getElementById('flowerRowTemplate');
                                     const newRow = tpl.cloneNode(true);
                                     newRow.removeAttribute('id');
                                     newRow.style.display = '';
-
                                     newRow.querySelector('.flower-select').value = '';
                                     newRow.querySelector('.batch-select').innerHTML = '<option value="" disabled selected>-- Select Batch --</option>';
                                     newRow.querySelector('.quantity-input').value = 1;
@@ -781,11 +782,9 @@
                                     newRow.querySelector('.stock-text').textContent = '0';
                                     newRow.querySelector('.status-text').textContent = '';
                                     newRow.querySelector('.needed-text').textContent = '0';
-
                                     document.querySelector('#flowerTable tbody').appendChild(newRow);
                                     bindRow(newRow);
                                 });
-
                                 // Edit button: Enable batch-select
                                 const editBtn = document.getElementById('editBouquetBtn');
                                 if (editBtn) {
@@ -810,7 +809,6 @@
                                 const btnAccept = document.getElementById('btnAccept');
                                 const serverImageInputsDiv = document.getElementById('serverImageInputs');
                                 const triggerImg = document.querySelector('.bouquet-img-first');
-
                                 let serverImageUrls = [
                             <c:forEach items="${images}" var="img" varStatus="status">
                                 '${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}'<c:if test="${!status.last}">,</c:if>
@@ -818,7 +816,6 @@
                                         ];
                                         let acceptedFiles = [];
                                         let selectedIndices = new Set();
-
                                         function getCurrentItems() {
                                             const items = [];
                                             serverImageUrls.forEach(url => items.push({url}));
@@ -851,7 +848,6 @@
                                                 wrap.className = 'preview-img-wrapper';
                                                 if (selectedIndices.has(idx))
                                                     wrap.classList.add('selected');
-
                                                 wrap.addEventListener('click', () => {
                                                     if (selectedIndices.has(idx)) {
                                                         selectedIndices.delete(idx);
@@ -862,12 +858,10 @@
                                                     }
                                                     btnDeleteSelected.disabled = selectedIndices.size === 0;
                                                 });
-
                                                 const img = document.createElement('img');
                                                 img.className = 'preview-img';
                                                 img.src = item.file ? URL.createObjectURL(item.file) : item.url;
                                                 wrap.appendChild(img);
-
                                                 const btnDel = document.createElement('button');
                                                 btnDel.type = 'button';
                                                 btnDel.className = 'btn-delete-single';
@@ -884,7 +878,6 @@
                                                     renderPreview();
                                                 });
                                                 wrap.appendChild(btnDel);
-
                                                 previewContainer.appendChild(wrap);
                                             });
                                             btnDeleteSelected.disabled = true;
@@ -902,7 +895,6 @@
                                         }
 
                                         btnUploadMore.addEventListener('click', () => fileInput.click());
-
                                         fileInput.addEventListener('change', e => {
                                             const newFiles = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
                                             const slots = MAX_FILES - (serverImageUrls.length + acceptedFiles.length);
@@ -915,7 +907,6 @@
                                             }
                                             e.target.value = '';
                                         });
-
                                         btnDeleteSelected.addEventListener('click', () => {
                                             Array.from(selectedIndices)
                                                     .sort((a, b) => b - a)
@@ -931,7 +922,6 @@
                                             updateServerInputs();
                                             renderPreview();
                                         });
-
                                         btnAccept.addEventListener('click', () => {
                                             updateInputFiles();
                                             updateServerInputs();
