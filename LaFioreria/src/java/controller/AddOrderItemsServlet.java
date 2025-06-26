@@ -182,10 +182,10 @@ public class AddOrderItemsServlet extends HttpServlet {
         }
 
         if (allItemsAdded && errorMessage == null) {
-            String formattedImport = String.format("%.2f", currentTotalImport);
+            int totalImportInt = (int) Math.round(currentTotalImport);
 
             // Gọi update tổng tiền (totalImport) – giả sử bạn đã sửa DAO cho hàm này
-            if (!orderDAO.updateTotalImport(orderId, formattedImport)) {
+            if (!orderDAO.updateTotalImport(orderId, totalImportInt)) {
                 errorMessage = "Items added, but failed to update total import.";
             }
         }

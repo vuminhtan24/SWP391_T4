@@ -941,12 +941,12 @@ public class OrderDAO extends BaseDao {
         return false;
     }
 
-    public boolean updateTotalImport(int orderId, String totalImport) {
+    public boolean updateTotalImport(int orderId, int totalImport) {
         String sql = "UPDATE `order` SET total_import = ? WHERE order_id = ?";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
-            ps.setString(1, totalImport);
+            ps.setInt(1, totalImport);
             ps.setInt(2, orderId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
