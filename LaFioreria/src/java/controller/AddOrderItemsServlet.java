@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
 import dal.OrderDAO;
@@ -131,6 +127,7 @@ public class AddOrderItemsServlet extends HttpServlet {
 
         boolean allItemsAdded = true;
         double currentTotalImport = 0.0;
+        double currentTotalSell = 0.0; // ✅ THÊM biến để tính tổng tiền bán
 
         List<Bouquet> allBouquetsData = orderDAO.getAllBouquets();
 
@@ -145,29 +142,33 @@ public class AddOrderItemsServlet extends HttpServlet {
                     break;
                 }
 
-                double price = -1;
+                double importPrice = -1; // Giá nhập
+                double sellPrice = -1; // Giá bán
 
                 for (Bouquet b : allBouquetsData) {
                     if (b.getBouquetId() == bouquetId) {
-                        price = b.getPrice(); // ✅ đây là giá nhập
+                        importPrice = b.getPrice(); // Giá nhập
+                        sellPrice = b.getSellPrice(); // ✅ Lấy giá bán
                         break;
                     }
                 }
 
-                if (price <= 0) {
+                if (importPrice <= 0 || sellPrice <= 0) { // Kiểm tra cả giá nhập và giá bán
                     errorMessage = "Could not find price for bouquet ID: " + bouquetId;
                     allItemsAdded = false;
                     break;
                 }
 
-                OrderDetail newItem = new OrderDetail(0, orderId, bouquetId, null, null, quantity, String.valueOf(price));
+                // Chèn OrderItem
+                OrderDetail newItem = new OrderDetail(0, orderId, bouquetId, null, null, quantity, String.valueOf(importPrice));
                 if (!orderDAO.addOrderItem(newItem)) {
                     errorMessage = "Failed to add item for bouquet ID: " + bouquetId;
                     allItemsAdded = false;
                     break;
                 }
 
-                currentTotalImport += price * quantity;
+                currentTotalImport += importPrice * quantity;
+                currentTotalSell += sellPrice * quantity; // ✅ Cập nhật tổng tiền bán
 
             } catch (NumberFormatException e) {
                 errorMessage = "Invalid number format for bouquet ID or quantity.";
@@ -183,10 +184,11 @@ public class AddOrderItemsServlet extends HttpServlet {
 
         if (allItemsAdded && errorMessage == null) {
             String formattedImport = String.format("%.2f", currentTotalImport);
+            String formattedSell = String.format("%.2f", currentTotalSell); // ✅ Format tổng tiền bán
 
-            // Gọi update tổng tiền (totalImport) – giả sử bạn đã sửa DAO cho hàm này
-            if (!orderDAO.updateTotalImport(orderId, formattedImport)) {
-                errorMessage = "Items added, but failed to update total import.";
+            // ✅ GỌI update tổng tiền nhập và tổng tiền bán
+            if (!orderDAO.updateTotalImportAndSell(orderId, formattedImport, formattedSell)) {
+                errorMessage = "Items added, but failed to update total import and sell.";
             }
         }
 

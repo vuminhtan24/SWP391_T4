@@ -842,6 +842,7 @@ public class OrderDAO extends BaseDao {
                 + "    b.Bouquet_Name,\n"
                 + "    MIN(bi.image_url) AS image_url,\n" // Using MIN() to aggregate image_url
                 + "    b.Price,\n"
+                + "    b.sellPrice,\n"
                 + "    b.Description,\n"
                 + "    b.CID\n"
                 + "FROM\n"
@@ -858,6 +859,7 @@ public class OrderDAO extends BaseDao {
                 bouquet.setBouquetId(rs.getInt("Bouquet_ID"));
                 bouquet.setBouquetName(rs.getString("Bouquet_Name"));
                 bouquet.setPrice(rs.getInt("Price"));
+                bouquet.setSellPrice(rs.getInt("sellPrice")); 
                 bouquet.setDescription(rs.getString("Description"));
                 bouquet.setCid(rs.getInt("CID"));
                 bouquets.add(bouquet);
