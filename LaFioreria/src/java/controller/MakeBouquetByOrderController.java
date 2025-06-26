@@ -174,7 +174,7 @@ public class MakeBouquetByOrderController extends HttpServlet {
             int needed = flower.getQuantity() * oi.getQuantity();
             for (FlowerBatch allBatch : allBatchs) {
                 if (flower.getBatchId() == allBatch.getBatchId()) {
-                    if (allBatch.getQuantity() <= needed) {
+                    if (allBatch.getQuantity() < needed) {
                         canMakeAll = false;
                         break;
                     }
