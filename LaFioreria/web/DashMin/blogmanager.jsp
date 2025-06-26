@@ -548,11 +548,14 @@
                                                             </td>
                                                             <td>
                                                                 <c:choose>
-                                                                    <c:when test="${blog.status == 'active'}">
+                                                                    <c:when test="${blog.status == 'Active'}">
                                                                         <span class="badge bg-success">Active</span>
                                                                     </c:when>
-                                                                    <c:when test="${blog.status == 'draft'}">
-                                                                        <span class="badge bg-warning">Draft</span>
+                                                                    <c:when test="${blog.status == 'Hidden'}">
+                                                                        <span class="badge bg-warning">Hidden</span>
+                                                                    </c:when>
+                                                                    <c:when test="${blog.status == 'Deleted'}">
+                                                                        <span class="badge bg-danger">Deleted</span>
                                                                     </c:when>
                                                                     <c:otherwise>
                                                                         <span class="badge bg-secondary">${blog.status}</span>
@@ -561,7 +564,7 @@
                                                             </td>
                                                             <td>
                                                                 <small class="text-muted">
-                                                                    <i class="fas fa-user me-1"></i>${blog.owner.userid}
+                                                                    <i class="fas fa-user me-1"></i>${blog.owner.fullname}
                                                                 </small>
                                                             </td>
                                                             <td>
