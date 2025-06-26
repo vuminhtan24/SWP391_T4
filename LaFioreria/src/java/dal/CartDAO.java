@@ -17,12 +17,12 @@ import model.OrderItem;
  * @author Legion
  */
 public class CartDAO extends BaseDao {
-    
+
     public static void main(String[] args) {
         CartDAO cDao = new CartDAO();
         System.out.println(cDao.getCartDetailsByCustomerId(13));
     }
-    
+
     public CartDetail getCartItem(int customerId, int bouquetId) {
         String sql = "SELECT * FROM cartdetails WHERE customer_id = ? AND bouquet_id = ?";
         try {
@@ -45,12 +45,12 @@ public class CartDAO extends BaseDao {
             try {
                 this.closeResources();
             } catch (Exception e) {
-                
+
             }
         }
         return null;
     }
-    
+
     public void updateQuantity(int customerId, int bouquetId, int quantity) {
         String sql = "UPDATE cartdetails SET quantity = ? WHERE customer_id = ? AND bouquet_id = ?";
         try {
@@ -69,7 +69,7 @@ public class CartDAO extends BaseDao {
             }
         }
     }
-    
+
     public void deleteItem(int customerId, int bouquetId) {
         String sql = "DELETE FROM cartdetails WHERE customer_id = ? AND bouquet_id = ?";
         try {
@@ -87,7 +87,7 @@ public class CartDAO extends BaseDao {
             }
         }
     }
-    
+
     public void insertItem(int customerId, int bouquetId, int quantity) {
         String sql = "INSERT INTO cartdetails (customer_id, bouquet_id, quantity) VALUES (?, ?, ?)";
         try {
@@ -106,7 +106,7 @@ public class CartDAO extends BaseDao {
             }
         }
     }
-    
+
     public List<CartDetail> getCartDetailsByCustomerId(int customerId) {
         List<CartDetail> list = new ArrayList<>();
         String sql = "SELECT \n"
@@ -125,20 +125,20 @@ public class CartDAO extends BaseDao {
             while (rs.next()) {
                 CartDetail cd = new CartDetail();
                 Bouquet b = new Bouquet();
-                
+
                 cd.setCartId(rs.getInt("cart_id"));
                 cd.setCustomerId(rs.getInt("customer_id"));
                 cd.setBouquetId(rs.getInt("bouquet_id"));
                 cd.setQuantity(rs.getInt("quantity"));
-                
+
                 b.setBouquetId(rs.getInt("bouquet_id"));
                 b.setBouquetName(rs.getString("bouquet_name"));
                 b.setDescription(rs.getString("description"));
                 b.setCid(rs.getInt("cid"));
                 b.setSellPrice(rs.getInt("sellPrice"));
-                
+
                 cd.setBouquet(b);
-                
+
                 list.add(cd);
             }
         } catch (SQLException e) {
@@ -151,7 +151,7 @@ public class CartDAO extends BaseDao {
         }
         return list;
     }
-    
+
     public Bouquet getBouquetById(int bouquetId) {
         String sql = """
         SELECT bouquet_id, bouquet_name,
@@ -184,32 +184,48 @@ public class CartDAO extends BaseDao {
         }
         return null;
     }
-    
+
     public int insertOrder(Order order) {
-        String sql = "INSERT INTO `order` (order_date, customer_id, total_sell, status_id) VALUES (?, ?, ?, ?)";
+        // Câu lệnh SQL chỉ bao gồm các cột cơ bản và total_import
+        String sql = "INSERT INTO `order` ("
+                + "order_date, customer_id, total_sell, total_import, status_id"
+                + ") VALUES (?, ?, ?, ?, ?)";
+
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-            ps.setString(1, order.getOrderDate());
-            ps.setInt(2, order.getCustomerId());
-            ps.setString(3, order.getTotalSell());
-            ps.setInt(4, 1); // status_id = 1 (processing)
+            int paramIndex = 1;
+
+            ps.setString(paramIndex++, order.getOrderDate());
+            ps.setInt(paramIndex++, order.getCustomerId());
+
+            // Chuyển đổi từ String sang Double để lưu vào DB (giả sử cột là kiểu số)
+            ps.setDouble(paramIndex++, Double.parseDouble(order.getTotalSell()));
+            ps.setDouble(paramIndex++, Double.parseDouble(order.getTotalImport()));
+
+            ps.setInt(paramIndex++, 1); // status_id = 1 (mặc định là "processing" hoặc "pending")
+
             ps.executeUpdate();
             rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 return rs.getInt(1);
             }
         } catch (SQLException e) {
+            System.err.println("SQL Error in insertOrder: " + e.getMessage());
+            e.printStackTrace();
+        } catch (NumberFormatException e) {
+            System.err.println("Lỗi chuyển đổi chuỗi totalSell/totalImport sang Double trong insertOrder: " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {
                 this.closeResources();
             } catch (Exception e) {
+                System.err.println("Error closing resources in insertOrder finally: " + e.getMessage());
             }
         }
         return -1;
     }
-    
+
     public void insertOrderItem(OrderItem item) {
         String sql = "INSERT INTO order_item (order_id, bouquet_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
         try {
@@ -229,7 +245,7 @@ public class CartDAO extends BaseDao {
             }
         }
     }
-    
+
     public void deleteCartByCustomerId(int customerId) {
         String sql = "DELETE FROM cartdetails WHERE customer_id = ?";
         try {
@@ -246,5 +262,5 @@ public class CartDAO extends BaseDao {
             }
         }
     }
-    
+
 }

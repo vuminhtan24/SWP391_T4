@@ -106,6 +106,29 @@
                 font-weight: 600;
             }
 
+            .add {
+                display: block;
+                padding: 0.75rem 1rem;
+                margin-bottom: 0.5rem;
+                color: black;
+                text-decoration: none;
+                border-radius: 0.375rem;
+                background: linear-gradient(135deg, #66ff66 0%, white 100%);
+                background-size: 200% 200%;
+                background-position: 0% 50%;
+                border: 1px solid #e9ecef;
+                transition: all 0.3s ease, background-position 0.5s ease;
+            }
+
+            .add:hover {
+                background-position: 100% 50%;
+                color: black;
+                text-decoration: none;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+
             .search-filter-form {
                 padding: 1.25rem;
                 background: #f8f9fa;
@@ -252,6 +275,45 @@
                 padding: 0.375rem 0.75rem;
                 font-size: 0.875rem;
             }
+
+            .swal-wide {
+                width: 600px !important;
+                font-size: 1.25rem;
+            }
+
+            .swal2-confirm, .swal2-cancel {
+                font-size: 1.1rem !important;
+                padding: 0.75rem 1.5rem !important;
+            }
+
+            .swal2-title {
+                font-size: 1.5rem !important;
+            }
+
+            .swal2-html-container {
+                font-size: 1.2rem !important;
+            }
+            .swal-wide {
+                width: 600px !important;
+            }
+
+            /* Title */
+            .swal2-title {
+                font-size: 3rem !important;
+            }
+
+            /* Text content */
+            .swal2-html-container {
+                font-size: 2rem !important;
+            }
+
+            /* Confirm and cancel buttons */
+            .swal2-confirm,
+            .swal2-cancel {
+                font-size: 1.6rem !important;
+                padding: 1rem 2rem !important;
+            }
+
         </style>
     </head>
 
@@ -423,7 +485,7 @@
                                 </div>
                                 <div class="category-list">
                                     <a href="${pageContext.request.contextPath}/blog/add" 
-                                       class="category-item active">
+                                       class="add">
                                         <i class="fas fa-plus me-2"></i>Add Blog
                                     </a>
                                     <!-- All Categories Link -->
@@ -538,7 +600,7 @@
                                                             <td><strong>#${blog.blogId}</strong></td>
                                                             <td>
                                                                 <div style="max-width: 200px;">
-                                                                    <strong>${fn:substring(blog.title, 0, 50)}${fn:length(blog.title) > 50 ? '...' : ''}</strong>
+                                                                    <strong>${fn:substring(blog.title, 0, 25)} ${fn:length(blog.title) > 25 ? '...' : ''}</strong>
                                                                 </div>
                                                             </td>
                                                             <td>
@@ -549,7 +611,7 @@
                                                             <td>
                                                                 <div style="max-width: 150px;">
                                                                     <small class="text-muted">
-                                                                        ${fn:substring(blog.pre_context, 0, 80)}${fn:length(blog.pre_context) > 80 ? '...' : ''}
+                                                                        ${fn:substring(blog.pre_context, 0, 25)}${fn:length(blog.pre_context) > 25 ? '...' : ''}
                                                                     </small>
                                                                 </div>
                                                             </td>
@@ -601,12 +663,13 @@
                                                             </td>
                                                             <td>
                                                                 <div class="action-buttons">
-                                                                    <a href="${pageContext.request.contextPath}/blog/edit?id=${blog.blogId}" 
+                                                                    <a href="${pageContext.request.contextPath}/blog/edit?bid=${blog.blogId}" 
                                                                        class="btn btn-outline-primary" title="Edit">
                                                                         <i class="fas fa-edit"></i>
                                                                     </a>
                                                                     <button class="btn btn-outline-danger" 
-                                                                            onclick="confirmDelete(${blog.blogId})" title="Delete">
+                                                                            onclick="confirmDelete(${blog.blogId})" 
+                                                                            title="Delete">
                                                                         <i class="fas fa-trash"></i>
                                                                     </button>
                                                                     <a href="${pageContext.request.contextPath}/blog/detail?bid=${blog.blogId}" 
@@ -709,30 +772,6 @@
             <!-- Content End -->
         </div>
 
-        <!-- Delete Confirmation Modal -->
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title" id="deleteModalLabel">
-                            <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to delete this blog post?</p>
-                        <p class="text-muted"><small>This action cannot be undone.</small></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
-                            <i class="fas fa-trash me-1"></i>Delete
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- JavaScript Libraries -->
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -746,23 +785,61 @@
 
         <!-- Template Javascript -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script>
-                                                                                // Delete confirmation functionality
-                                                                                let blogIdToDelete = null;
-
                                                                                 function confirmDelete(blogId) {
-                                                                                    blogIdToDelete = blogId;
-                                                                                    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-                                                                                    deleteModal.show();
-                                                                                }
+                                                                                    const formData = new FormData();
+                                                                                    formData.append('bid', blogId);
 
-                                                                                document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-                                                                                    if (blogIdToDelete) {
-                                                                                        // Perform delete action - you can modify this to match your delete endpoint
-                                                                                        window.location.href = '${pageContext.request.contextPath}/blog/delete?bid=' + blogIdToDelete;
-                                                                                    }
-                                                                                });
+                                                                                    Swal.fire({
+                                                                                        title: 'Are you sure?',
+                                                                                        text: "This action cannot be undone!",
+                                                                                        icon: 'warning',
+                                                                                        showCancelButton: true,
+                                                                                        confirmButtonColor: '#d33',
+                                                                                        cancelButtonColor: '#3085d6',
+                                                                                        confirmButtonText: 'Yes, delete it!',
+                                                                                        cancelButtonText: 'Cancel',
+                                                                                        customClass: {
+                                                                                            popup: 'swal-wide'
+                                                                                        }
+                                                                                    }).then((result) => {
+                                                                                        if (result.isConfirmed) {
+                                                                                            fetch(`${pageContext.request.contextPath}/blog/delete`, {
+                                                                                                method: 'POST',
+                                                                                                body: formData
+                                                                                            })
+                                                                                                    .then(response => response.json())
+                                                                                                    .then(result => {
+                                                                                                        if (result.ok === true) {
+                                                                                                            Swal.fire({
+                                                                                                                title: 'Deleted!',
+                                                                                                                text: result.message || 'The blog has been deleted.',
+                                                                                                                icon: 'success',
+                                                                                                                customClass: {popup: 'swal-wide'}
+                                                                                                            }).then(() => location.reload());
+                                                                                                        } else {
+                                                                                                            Swal.fire({
+                                                                                                                title: 'Error!',
+                                                                                                                text: result.message || 'Something went wrong.',
+                                                                                                                icon: 'error',
+                                                                                                                customClass: {popup: 'swal-wide'}
+                                                                                                            });
+                                                                                                        }
+                                                                                                    })
+                                                                                                    .catch(error => {
+                                                                                                        console.error('Fetch error:', error);
+                                                                                                        Swal.fire({
+                                                                                                            title: 'Error!',
+                                                                                                            text: 'Could not connect to server.',
+                                                                                                            icon: 'error',
+                                                                                                            customClass: {popup: 'swal-wide'}
+                                                                                                        });
+                                                                                                    });
+                                                                                        }
+                                                                                    });
+                                                                                }
 
                                                                                 // Auto-hide spinner
                                                                                 $(document).ready(function () {

@@ -38,6 +38,10 @@
                 display: flex;
                 gap: 10px;
             }
+            
+            .single-blog-post {
+                
+            }
         </style>
     </head><!--/head-->
 
@@ -51,7 +55,7 @@
                         <div class="blog-post-area">
                             <!-- Blog post content -->
                             <div class="single-blog-post">
-                                <h2>${blog.title}</h2>
+                                <h2 style="word-break: break-all; overflow-wrap: break-word; margin-bottom: 10px;">${blog.title}</h2>
                                 <div class="post-meta">
                                     <ul>
                                         <li><i class="fa fa-user"></i> ${blog.owner.fullname}</li>
@@ -71,7 +75,7 @@
                                     </a>
                                 </c:if>
 
-                                <div class="post-content">
+                                <div class="post-content" style="word-break: break-all; overflow-wrap: break-word; margin-bottom: 10px;">
                                     ${blog.context}
                                 </div>
                             </div>
