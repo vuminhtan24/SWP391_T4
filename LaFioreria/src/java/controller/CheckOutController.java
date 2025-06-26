@@ -21,8 +21,9 @@ import model.OrderItem; // Import lớp OrderItem
 import model.User;
 
 /**
- * Servlet xử lý các yêu cầu liên quan đến Checkout.
- * Bao gồm hiển thị giỏ hàng, cập nhật, xóa và đặt hàng.
+ * Servlet xử lý các yêu cầu liên quan đến Checkout. Bao gồm hiển thị giỏ hàng,
+ * cập nhật, xóa và đặt hàng.
+ *
  * @author Legion
  */
 @WebServlet(name = "CheckOutController", urlPatterns = {"/checkout"})
@@ -30,6 +31,7 @@ public class CheckOutController extends HttpServlet {
 
     /**
      * Xử lý yêu cầu GET để hiển thị trang checkout và giỏ hàng.
+     *
      * @param request HttpServletRequest
      * @param response HttpServletResponse
      * @throws ServletException
@@ -77,8 +79,8 @@ public class CheckOutController extends HttpServlet {
                     for (CartDetail cd : cartDetails) {
                         // Lấy thông tin chi tiết của Bouquet nếu chưa được load
                         if (cd.getBouquet() == null) {
-                             BouquetDAO bDao = new BouquetDAO(); // Tạo lại DAO nếu cần
-                             cd.setBouquet(bDao.getBouquetFullInfoById(cd.getBouquetId()));
+                            BouquetDAO bDao = new BouquetDAO(); // Tạo lại DAO nếu cần
+                            cd.setBouquet(bDao.getBouquetFullInfoById(cd.getBouquetId()));
                         }
                         bqImages.add(bouDao.getBouquetImage(cd.getBouquetId()));
                     }
@@ -116,8 +118,9 @@ public class CheckOutController extends HttpServlet {
     }
 
     /**
-     * Xử lý yêu cầu POST. Dựa vào tham số "action" để thực hiện các hành động khác nhau
-     * như thêm, cập nhật, xóa sản phẩm trong giỏ hàng, hoặc đặt hàng.
+     * Xử lý yêu cầu POST. Dựa vào tham số "action" để thực hiện các hành động
+     * khác nhau như thêm, cập nhật, xóa sản phẩm trong giỏ hàng, hoặc đặt hàng.
+     *
      * @param request HttpServletRequest
      * @param response HttpServletResponse
      * @throws ServletException
@@ -161,6 +164,7 @@ public class CheckOutController extends HttpServlet {
 
     /**
      * Phương thức xử lý logic đặt hàng và lưu vào cơ sở dữ liệu.
+     *
      * @param request HttpServletRequest
      * @param response HttpServletResponse
      * @throws ServletException
@@ -195,11 +199,11 @@ public class CheckOutController extends HttpServlet {
         String paymentMethod = request.getParameter("paymentMethod"); // Lấy phương thức thanh toán
 
         // In các giá trị nhận được để debug (có thể bỏ comment để kiểm tra)
-         System.out.println("DEBUG: Payment Method nhận được: " + paymentMethod);
-         System.out.println("DEBUG: Full Name: " + fullName);
-         System.out.println("DEBUG: Phone Number: " + phoneNumber);
-         System.out.println("DEBUG: Address: " + addressLine + ", " + ward + ", " + district + ", " + province);
-         System.out.println("DEBUG: Notes: " + notes);
+        System.out.println("DEBUG: Payment Method nhận được: " + paymentMethod);
+        System.out.println("DEBUG: Full Name: " + fullName);
+        System.out.println("DEBUG: Phone Number: " + phoneNumber);
+        System.out.println("DEBUG: Address: " + addressLine + ", " + ward + ", " + district + ", " + province);
+        System.out.println("DEBUG: Notes: " + notes);
 
         String totalSellStr = request.getParameter("totalAmount"); // Lấy tổng tiền bán từ client
         double actualTotalSell; // Tổng tiền thực tế từ client
@@ -217,10 +221,10 @@ public class CheckOutController extends HttpServlet {
         // Sử dụng Objects.equals để tránh NullPointerException nếu paymentMethod là null
         if (Objects.equals(paymentMethod, "ewallet")) {
             finalTotalSellToSave = "0"; // Lưu 0đ nếu thanh toán bằng E-wallet
-             System.out.println("DEBUG: Phương thức E-wallet, totalSell sẽ là 0."); // Debug
+            System.out.println("DEBUG: Phương thức E-wallet, totalSell sẽ là 0."); // Debug
         } else { // Mặc định là COD hoặc các phương thức khác
             finalTotalSellToSave = String.valueOf(actualTotalSell); // Lưu đầy đủ số tiền
-             System.out.println("DEBUG: Phương thức khác E-wallet, totalSell sẽ là: " + finalTotalSellToSave); // Debug
+            System.out.println("DEBUG: Phương thức khác E-wallet, totalSell sẽ là: " + finalTotalSellToSave); // Debug
         }
 
         // Tạo đối tượng Order
@@ -234,7 +238,6 @@ public class CheckOutController extends HttpServlet {
         // Không set các trường customerName, customerPhone, customerAddress, paymentMethod, notes vào Order object
         // vì phương thức insertOrder trong CartDAO gốc của bạn không lưu chúng vào DB.
         // Các thông tin này chỉ được truyền từ client và xử lý tại đây (nếu cần cho logic khác).
-
         CartDAO cartDAO = new CartDAO();
         try {
             // 1. Chèn đơn hàng mới vào DB và lấy orderId được tạo tự động
@@ -243,11 +246,11 @@ public class CheckOutController extends HttpServlet {
             if (orderId == -1) {
                 throw new Exception("Không thể tạo đơn hàng, insertOrder trả về -1.");
             }
-             System.out.println("DEBUG: Đơn hàng #" + orderId + " đã được tạo."); // Debug
+            System.out.println("DEBUG: Đơn hàng #" + orderId + " đã được tạo."); // Debug
 
             // 2. Lấy danh sách các sản phẩm trong giỏ hàng của khách hàng
             List<CartDetail> cartItems = cartDAO.getCartDetailsByCustomerId(customerId);
-             System.out.println("DEBUG: Số lượng sản phẩm trong giỏ hàng: " + cartItems.size()); // Debug
+            System.out.println("DEBUG: Số lượng sản phẩm trong giỏ hàng: " + cartItems.size()); // Debug
 
             // 3. Chèn từng sản phẩm trong giỏ hàng vào bảng OrderItem
             for (CartDetail cartItem : cartItems) {
@@ -258,18 +261,18 @@ public class CheckOutController extends HttpServlet {
                 }
 
                 OrderItem orderItem = new OrderItem(
-                    orderId,
-                    cartItem.getBouquetId(),
-                    cartItem.getQuantity(),
-                    cartItem.getBouquet().getSellPrice() // Lấy đơn giá bán của sản phẩm
+                        orderId,
+                        cartItem.getBouquetId(),
+                        cartItem.getQuantity(),
+                        cartItem.getBouquet().getSellPrice() // Lấy đơn giá bán của sản phẩm
                 );
                 cartDAO.insertOrderItem(orderItem);
-                 System.out.println("DEBUG: Đã thêm OrderItem cho Bouquet ID: " + cartItem.getBouquetId()); // Debug
+                System.out.println("DEBUG: Đã thêm OrderItem cho Bouquet ID: " + cartItem.getBouquetId()); // Debug
             }
 
             // 4. Xóa giỏ hàng của khách hàng sau khi đã đặt hàng thành công
             cartDAO.deleteCartByCustomerId(customerId);
-             System.out.println("DEBUG: Giỏ hàng của khách hàng " + customerId + " đã được xóa."); // Debug
+            System.out.println("DEBUG: Giỏ hàng của khách hàng " + customerId + " đã được xóa."); // Debug
 
             // Gửi phản hồi thành công về client
             response.getWriter().write("{\"status\": \"success\", \"message\": \"Đơn hàng của bạn đã được đặt thành công! Mã đơn hàng: " + orderId + "\"}");
@@ -284,6 +287,7 @@ public class CheckOutController extends HttpServlet {
 
     /**
      * Xử lý thêm sản phẩm vào giỏ hàng.
+     *
      * @param request HttpServletRequest
      * @param response HttpServletResponse
      * @throws IOException
@@ -348,6 +352,7 @@ public class CheckOutController extends HttpServlet {
 
     /**
      * Xử lý cập nhật số lượng sản phẩm trong giỏ hàng.
+     *
      * @param request HttpServletRequest
      * @param response HttpServletResponse
      * @throws IOException
@@ -379,7 +384,7 @@ public class CheckOutController extends HttpServlet {
                 request.setAttribute("error", "Định dạng số lượng không hợp lệ.");
             }
             // Chuyển hướng lại trang checkout để cập nhật hiển thị
-            request.getRequestDispatcher("./ZeShopper/checkout.jsp").forward(request, response);
+            response.sendRedirect("checkout");
             return;
         }
 
@@ -403,11 +408,12 @@ public class CheckOutController extends HttpServlet {
             System.err.println("Lỗi khi cập nhật giỏ hàng (DB): " + e.getMessage());
         }
         // Chuyển hướng lại trang checkout để cập nhật hiển thị
-        request.getRequestDispatcher("./ZeShopper/checkout.jsp").forward(request, response);
+        response.sendRedirect("checkout");
     }
 
     /**
      * Xử lý xóa sản phẩm khỏi giỏ hàng.
+     *
      * @param request HttpServletRequest
      * @param response HttpServletResponse
      * @throws IOException
