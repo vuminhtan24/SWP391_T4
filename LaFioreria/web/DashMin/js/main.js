@@ -1,6 +1,19 @@
 (function ($) {
     "use strict";
 
+    // ✅ Đặt các hàm dùng chung ở đây
+    window.downloadChartAsImage = function (chart, filename = 'chart.png') {
+        if (!chart)
+            return;
+        const url = chart.toBase64Image();
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.click();
+    };
+
+
+
     $(document).ready(function () {
 
         // Spinner
@@ -251,13 +264,15 @@
             renderChart("weekdayChart");
         });
 
-        // 📊 Thống kê theo tháng trong năm
-        if (document.getElementById('statsChart')) {
-            const labels = JSON.parse(document.getElementById('statsChart').getAttribute('data-labels'));
-            const revenues = JSON.parse(document.getElementById('statsChart').getAttribute('data-revenues'));
-            const orders = JSON.parse(document.getElementById('statsChart').getAttribute('data-orders'));
+// 📊 Thống kê theo tháng trong năm
+        const statsChartElem = document.getElementById('statsChart');
+        if (statsChartElem) {
+            const labels = JSON.parse(statsChartElem.getAttribute('data-labels'));
+            const revenues = JSON.parse(statsChartElem.getAttribute('data-revenues'));
+            const orders = JSON.parse(statsChartElem.getAttribute('data-orders'));
 
-            new Chart(document.getElementById('statsChart'), {
+            // ✅ Gán biểu đồ vào biến toàn cục để có thể gọi từ các nút (download/export)
+            window.statsChart = new Chart(statsChartElem, {
                 type: 'bar',
                 data: {
                     labels: labels,
@@ -301,6 +316,7 @@
                 }
             });
         }
+
 
 
         // Line Chart
@@ -457,7 +473,65 @@
             }
         }
 
+        // Chart: Doanh thu toàn thời gian
+        if (document.getElementById("allTimeChart")) {
+            const labels = JSON.parse(document.getElementById("allTimeChart").getAttribute("data-labels"));
+            const values = JSON.parse(document.getElementById("allTimeChart").getAttribute("data-values"));
 
+            window.allTimeChart = new Chart(document.getElementById("allTimeChart"), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                            label: 'Doanh thu (VND)',
+                            data: values,
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'VNĐ'
+                            }
+                        }
+                    },
+                    plugins: {
+                        custom_canvas_background_color: {
+                            color: 'white'
+                        }
+                    }
+                },
+                plugins: [{
+                        id: 'custom_canvas_background_color',
+                        beforeDraw: (chart) => {
+                            const ctx = chart.canvas.getContext('2d');
+                            ctx.save();
+                            ctx.globalCompositeOperation = 'destination-over';
+                            ctx.fillStyle = chart.config.options.plugins.custom_canvas_background_color.color || 'white';
+                            ctx.fillRect(0, 0, chart.width, chart.height);
+                            ctx.restore();
+                        }
+                    }]
+            });
+        }
+
+        // Nút tải biểu đồ PNG
+        window.downloadChartImage = function () {
+            if (window.allTimeChart) {
+                const imageUrl = window.allTimeChart.toBase64Image();
+                const link = document.createElement('a');
+                link.href = imageUrl;
+                link.download = 'doanhthu_toanthoigian.png';
+                link.click();
+            }
+        };
 
     });
 

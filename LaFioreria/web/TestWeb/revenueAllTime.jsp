@@ -52,7 +52,8 @@
             const labels = <%= request.getAttribute("labelsJson") %>;
             const values = <%= request.getAttribute("valuesJson") %>;
 
-            new Chart(document.getElementById("allTimeChart"), {
+            // Gán vào biến để có thể dùng sau
+            const allTimeChart = new Chart(document.getElementById("allTimeChart"), {
                 type: 'line',
                 data: {
                     labels: labels,
@@ -73,9 +74,36 @@
                             title: {display: true, text: "VNĐ"}
                         }
                     }
-                }
+                },
+                plugins: [{
+                        id: 'custom_canvas_background_color',
+                        beforeDraw: (chart) => {
+                            const ctx = chart.canvas.getContext('2d');
+                            ctx.save();
+                            ctx.globalCompositeOperation = 'destination-over';
+                            ctx.fillStyle = 'white'; // 👈 hoặc 'lightyellow', 'lavender', v.v.
+                            ctx.fillRect(0, 0, chart.width, chart.height);
+                            ctx.restore();
+                        }
+                    }]
             });
+
         </script>
+        <!-- Nút tải -->
+        <button onclick="downloadChartImage()">📥 Tải biểu đồ PNG</button>
+
+        <script>
+            function downloadChartImage() {
+                const imageUrl = allTimeChart.toBase64Image();
+                const link = document.createElement('a');
+                link.href = imageUrl;
+                link.download = 'doanhthu_toanthoigian.png';
+                link.click();
+            }
+        </script>
+
+
+
 
         <!-- Bảng chi tiết -->
         <h3>📋 Bảng doanh thu từng ngày</h3>

@@ -362,4 +362,58 @@ public class SalesDAO extends BaseDao {
         return list;
     }
 
+// 1. Tổng hợp tổn thất hoa theo lý do (cho biểu đồ Pie hoặc Bar)
+    public Map<String, Integer> getDiscardReasonStats() {
+        Map<String, Integer> map = new LinkedHashMap<>();
+        String sql = "SELECT reason, SUM(quantity) AS total_discarded "
+                + "FROM flower_discard GROUP BY reason ORDER BY total_discarded DESC";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                map.put(rs.getString("reason"), rs.getInt("total_discarded"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+// 2. So sánh số lượng hoa nhập vs số lượng bị hỏng, dùng cho biểu đồ Pie
+    public Map<String, Integer> getTotalImportVsWaste() {
+        Map<String, Integer> map = new LinkedHashMap<>();
+        String sqlImport = "SELECT SUM(quantity) AS total_imported FROM flower_batch";
+        String sqlWaste = "SELECT SUM(quantity) AS total_discarded FROM flower_discard";
+        try {
+            connection = dbc.getConnection();
+
+            // Tổng nhập
+            ps = connection.prepareStatement(sqlImport);
+            rs = ps.executeQuery();
+            int imported = 0;
+            if (rs.next()) {
+                imported = rs.getInt("total_imported");
+            }
+
+            // Tổng hỏng
+            ps = connection.prepareStatement(sqlWaste);
+            rs = ps.executeQuery();
+            int wasted = 0;
+            if (rs.next()) {
+                wasted = rs.getInt("total_discarded");
+            }
+
+            // Tính dùng được = nhập - hỏng
+            map.put("Dùng được (bán)", imported - wasted);
+            map.put("Tổn thất (hỏng/quá hạn/từ chối)", wasted);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+
+
 }
