@@ -191,6 +191,7 @@ public class FlowerScheduler extends BaseDao {
         String sql = "SELECT Email FROM user WHERE Role = 1 AND status = 'active'";
         
         try {
+            connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             rs = ps.executeQuery();
             while (rs.next()) {
