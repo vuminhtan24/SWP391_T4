@@ -423,8 +423,8 @@ public class BlogManagerController extends HttpServlet {
         } catch (NumberFormatException e) {
             jsonResponse.put("ok", false);
             jsonResponse.put("message", "Invalid blog ID or category ID format.");
-        } catch (Exception e) {
-            e.printStackTrace(); // For debugging
+        } catch (ServletException | IOException e) { // For debugging
+            // For debugging
             jsonResponse.put("ok", false);
             jsonResponse.put("message", "Internal server error: " + e.getMessage());
         }
