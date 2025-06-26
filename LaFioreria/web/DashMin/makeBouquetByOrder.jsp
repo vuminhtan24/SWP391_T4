@@ -119,11 +119,6 @@
                 border: 1px solid #ccc;
                 margin-right: 10px;
             }
-
-            .readonly-select {
-                pointer-events: none;
-                background-color: #e9ecef; /* Màu giống disabled */
-            }
         </style>    
     </head>
 
@@ -338,7 +333,6 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <!-- existing rows -->
                                                             <c:forEach var="br" items="${flowerInBQ}">
                                                                 <tr data-batch-id="${br.batchId}" data-quantity="${br.quantity}">
                                                                     <td>
@@ -388,6 +382,20 @@
                                                                 <!-- Bên trái: message -->
                                                                 <td colspan="3" class="text-start align-middle">
                                                                     <span id="stockMessage" class="fw-semibold"></span>
+                                                                    <span id="batchStatusMessage" class="fw-semibold" style="display: block; margin-top: 8px;"></span>
+                                                                    <button type="button" id="editBouquetBtn" style="
+                                                                            display: none;
+                                                                            margin-top: 8px;
+                                                                            padding: 8px 16px;
+                                                                            background-color: orange;
+                                                                            color: white;
+                                                                            border: none;
+                                                                            border-radius: 4px;
+                                                                            font-weight: bold;
+                                                                            cursor: pointer;
+                                                                            ">
+                                                                        Edit Bouquet Order
+                                                                    </button>
                                                                 </td>
 
                                                                 <!-- Bên phải: Total Cost + Sell Price -->
@@ -400,8 +408,8 @@
                                                                 </td>
                                                             </tr>
                                                         </tfoot>
-
                                                     </table>
+
                                                     <div class="mt-3 text-end fw-bold">
                                                         <p>
                                                             Total Cost in Order: 
@@ -414,167 +422,166 @@
                                                             <input type="hidden" id="orderSellInput" name="orderSell" value="0" />
                                                         </p>
                                                     </div>
-                                                </div>
 
-                                                <div class="d-flex justify-content-between">
-                                                    <button type="button" id="addFlowerBtn" class="btn btn-sm btn-outline-primary mb-4" style="display: none" disabled>
-                                                        + Add New Flower
-                                                    </button>
-                                                    <div style="
-                                                         display: flex;
-                                                         justify-content: space-between;
-                                                         align-items: center;
-                                                         width: 100%;
-                                                         margin-top: 10px;
-                                                         ">
+                                                    <div class="d-flex justify-content-between">
+                                                        <button type="button" id="addFlowerBtn" class="btn btn-sm btn-outline-primary mb-4" style="display: none" disabled>
+                                                            + Add New Flower
+                                                        </button>
+                                                        <div style="
+                                                             display: flex;
+                                                             justify-content: space-between;
+                                                             align-items: center;
+                                                             width: 100%;
+                                                             margin-top: 10px;
+                                                             ">
 
-                                                        <!-- Bên trái: Nút Back -->
-                                                        <a href="${pageContext.request.contextPath}/orderDetail?orderId=${OrderId}" style="
-                                                           display: inline-block;
-                                                           padding: 8px 16px;
-                                                           background-color: white;
-                                                           color: #009cff;
-                                                           border: 2px solid #009cff;
-                                                           text-decoration: none;
-                                                           border-radius: 4px;
-                                                           font-weight: bold;
-                                                           ">
-                                                            Back to Order Details
-                                                        </a>
+                                                            <!-- Bên trái: Nút Back -->
+                                                            <a href="${pageContext.request.contextPath}/orderDetail?orderId=${OrderId}" style="
+                                                               display: inline-block;
+                                                               padding: 8px 16px;
+                                                               background-color: white;
+                                                               color: #009cff;
+                                                               border: 2px solid #009cff;
+                                                               text-decoration: none;
+                                                               border-radius: 4px;
+                                                               font-weight: bold;
+                                                               ">
+                                                                Back to Order Details
+                                                            </a>
 
-                                                        <!-- Bên phải: Nút hoặc Message -->
-                                                        <div>
-                                                            <c:if test="${oi.status eq 'not done'}">
-                                                                <button type="submit" style="
-                                                                        display: inline-block;
-                                                                        padding: 8px 16px;
-                                                                        background-color: green;
-                                                                        color: white;
-                                                                        border: none;
-                                                                        border-radius: 4px;
+                                                            <!-- Bên phải: Nút hoặc Message -->
+                                                            <div>
+                                                                <c:if test="${oi.status eq 'not done'}">
+                                                                    <button type="submit" style="
+                                                                            display: inline-block;
+                                                                            padding: 8px 16px;
+                                                                            background-color: green;
+                                                                            color: white;
+                                                                            border: none;
+                                                                            border-radius: 4px;
+                                                                            font-weight: bold;
+                                                                            ">
+                                                                        Complete bouquet creation
+                                                                    </button>
+                                                                </c:if>
+
+                                                                <c:if test="${oi.status eq 'done'}">
+                                                                    <h6 style="
+                                                                        color: green;
+                                                                        margin: 0;
                                                                         font-weight: bold;
+                                                                        text-align: right;
                                                                         ">
-                                                                    Complete bouquet creation
-                                                                </button>
-                                                            </c:if>
+                                                                        You have completed this order
+                                                                    </h6>
+                                                                </c:if>
+                                                            </div>
 
-                                                            <c:if test="${oi.status eq 'done'}">
-                                                                <h6 style="
-                                                                    color: green;
-                                                                    margin: 0;
-                                                                    font-weight: bold;
-                                                                    text-align: right;
-                                                                    ">
-                                                                    You have completed this order
-                                                                </h6>
-                                                            </c:if>
                                                         </div>
-
                                                     </div>
+
                                                 </div>
-
                                             </div>
+
                                         </div>
-
                                     </div>
+                                    </form>
+                                    <!-- TEMPLATE để clone (ẩn) -->
+
+                                    <table style="display:none;">
+                                        <tbody>
+                                            <tr id="flowerRowTemplate">
+                                                <td>
+                                                    <select name="flowerIds" class="form-select form-select-sm flower-select">
+                                                        <option value="" disabled selected>-- Select Flower --</option>
+                                                        <c:forEach var="f" items="${allFlowers}">
+                                                            <option value="${f.flowerId}">${f.flowerName}</option>
+                                                        </c:forEach>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select name="batchIds" class="form-select form-select-sm batch-select">
+                                                        <option value="" disabled selected>-- Select Batch --</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <span class="form-text price-text">0.00 VND</span>
+                                                    <input type="hidden" class="price-input" name="prices[]" value="0" />
+                                                </td>
+                                                <td>
+                                                    <input type="number"
+                                                           name="quantities"
+                                                           value="1"
+                                                           min="1" step="1"
+                                                           required
+                                                           class="form-control form-control-sm quantity-input" />
+                                                </td>
+                                                <td>
+                                                    <span class="stock-text">0</span>
+                                                </td>
+                                                <td>
+                                                    <span class="status-text"></span>
+                                                </td>
+                                                <td>
+                                                    <span class="needed-text">0</span>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger remove-btn">&times;</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+
+
+                                    <!-- Blank End -->
                                 </div>
-                                </form>
-                                <!-- TEMPLATE để clone (ẩn) -->
+                            </div>   
+                        </div>                                        
 
-                                <table style="display:none;">
-                                    <tbody>
-                                        <tr id="flowerRowTemplate">
-                                            <td>
-                                                <select name="flowerIds" class="form-select form-select-sm flower-select">
-                                                    <option value="" disabled selected>-- Select Flower --</option>
-                                                    <c:forEach var="f" items="${allFlowers}">
-                                                        <option value="${f.flowerId}">${f.flowerName}</option>
-                                                    </c:forEach>
-                                                </select>
-                                            </td>
-                                            <td>
-                                                <select name="batchIds" class="form-select form-select-sm batch-select">
-                                                    <option value="" disabled selected>-- Select Batch --</option>
-                                                </select>
-                                            </td>
-                                            <td>
-                                                <span class="form-text price-text">0.00 VND</span>
-                                                <input type="hidden" class="price-input" name="prices[]" value="0" />
-                                            </td>
-                                            <td>
-                                                <input type="number"
-                                                       name="quantities"
-                                                       value="1"
-                                                       min="1" step="1"
-                                                       required
-                                                       class="form-control form-control-sm quantity-input" />
-                                            </td>
-                                            <td>
-                                                <span class="stock-text">0</span>
-                                            </td>
-                                            <td>
-                                                <span class="status-text"></span>
-                                            </td>
-                                            <td>
-                                                <span class="needed-text">0</span>
-                                            </td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-outline-danger remove-btn">&times;</button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-
-
-                                <!-- Blank End -->
-                            </div>
-                        </div>   
-                    </div>                                        
-
-                    <!-- Footer Start -->
-                    <div class="container-fluid pt-4 px-4">
-                        <div class="bg-light rounded-top p-4">
-                            <div class="row">
-                                <div class="col-12 col-sm-6 text-center text-sm-start">
-                                    &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
-                                </div>
-                                <div class="col-12 col-sm-6 text-center text-sm-end">
-                                    <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-                                    Designed By <a href="https://htmlcodex.com">HTML Codex</a>
+                        <!-- Footer Start -->
+                        <div class="container-fluid pt-4 px-4">
+                            <div class="bg-light rounded-top p-4">
+                                <div class="row">
+                                    <div class="col-12 col-sm-6 text-center text-sm-start">
+                                        &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
+                                    </div>
+                                    <div class="col-12 col-sm-6 text-center text-sm-end">
+                                        <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+                                        Designed By <a href="https://htmlcodex.com">HTML Codex</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <!-- Footer End -->
+                        <!-- Footer End -->
 
-                    <!-- Content End -->
-
-
-                    <!-- Back to Top -->
-                    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+                        <!-- Content End -->
 
 
-                    <!-- JavaScript Libraries -->
-                    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-                    <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
-                    <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
-                    <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
-                    <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
-                    <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
-                    <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
-                    <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+                        <!-- Back to Top -->
+                        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
 
-                    <!-- Template Javascript -->
-                    <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
 
-                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-                    <script>
+                        <!-- JavaScript Libraries -->
+                        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+                        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+                        <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
+                        <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
+                        <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
+                        <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
+                        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
+                        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
+                        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+                        <!-- Template Javascript -->
+                        <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+
+                        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                        <script>
                             const BOUQUET_QTY = ${oi.quantity};
 
                             const allBatchs = [
-                        <c:forEach var="batch" items="${allBatchs}" varStatus="loop">
+                            <c:forEach var="batch" items="${allBatchs}" varStatus="loop">
                             {
                             batchID: '${batch.batchId}',
                                     flowerID: '${batch.flowerId}',
@@ -584,7 +591,7 @@
                                     quantity: ${batch.quantity},
                                     status: '${batch.status}'
                             }<c:if test="${!loop.last}">,</c:if>
-                        </c:forEach>
+                            </c:forEach>
                             ];
 
                             document.addEventListener('DOMContentLoaded', () => {
@@ -635,6 +642,7 @@
                                     row.querySelector('.needed-text').textContent = needed;
                                     row.querySelector('.needed-input').value = needed;
 
+                                    // Cập nhật hidden input cho flowerId
                                     let flowerId = row.querySelector('.flower-select').value;
                                     let flowerHidden = row.querySelector('input[name="flowerIds"]');
                                     if (!flowerHidden) {
@@ -651,6 +659,7 @@
                                 function updateTotals() {
                                     let total = 0;
                                     let insufficientFlowers = [];
+                                    let nonFreshFlowers = [];
 
                                     document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
                                         const price = parseFloat(row.querySelector('.price-input').value) || 0;
@@ -663,15 +672,25 @@
                                         const sel = batchSel.selectedOptions[0];
                                         const available = sel ? parseInt(sel.dataset.stock || 0, 10) : 0;
 
+                                        // Check stock
                                         if (needed > available && flowerSel && flowerSel.selectedIndex > 0) {
                                             const flowerName = flowerSel.options[flowerSel.selectedIndex].text.trim();
                                             if (!insufficientFlowers.includes(flowerName)) {
                                                 insufficientFlowers.push(flowerName);
                                             }
                                         }
+
+                                        // Check non-fresh batch
+                                        const status = sel ? sel.dataset.status || '' : '';
+                                        if (status.toLowerCase() !== 'fresh' && flowerSel && flowerSel.selectedIndex > 0) {
+                                            const flowerName = flowerSel.options[flowerSel.selectedIndex].text.trim();
+                                            if (!nonFreshFlowers.includes(flowerName)) {
+                                                nonFreshFlowers.push(flowerName);
+                                            }
+                                        }
                                     });
 
-                                    // Hiển thị giá cho từng bó
+                                    // Total cost
                                     document.getElementById('totalValueDisplay').textContent = formatCurrency(total);
                                     document.getElementById('totalValueInput').value = total;
 
@@ -679,7 +698,6 @@
                                     document.getElementById('sellValueDisplay').textContent = formatCurrency(sell);
                                     document.getElementById('sellValueInput').value = sell;
 
-                                    // Hiển thị tổng giá đơn hàng (số bó * giá)
                                     const orderCost = total * BOUQUET_QTY;
                                     document.getElementById('orderCostDisplay').textContent = formatCurrency(orderCost);
                                     document.getElementById('orderCostInput').value = orderCost;
@@ -688,17 +706,27 @@
                                     document.getElementById('orderSellDisplay').textContent = formatCurrency(orderSell);
                                     document.getElementById('orderSellInput').value = orderSell;
 
-
-                                    // Message
+                                    // Stock message
                                     const messageEl = document.getElementById('stockMessage');
                                     if (insufficientFlowers.length === 0) {
                                         messageEl.textContent = 'You can make this bouquet order';
                                         messageEl.className = 'text-success fw-semibold';
                                     } else {
-                                        messageEl.textContent =
-                                                'There are not enough flowers in stock to fulfill this order. Insufficient: ' +
-                                                insufficientFlowers.join(', ');
+                                        messageEl.textContent = 'There are not enough flowers in stock to fulfill this order. Insufficient: ' + insufficientFlowers.join(', ');
                                         messageEl.className = 'text-danger fw-semibold';
+                                    }
+
+                                    // Non-fresh batch message
+                                    const batchMsgEl = document.getElementById('batchStatusMessage');
+                                    const editBtn = document.getElementById('editBouquetBtn');
+
+                                    if (nonFreshFlowers.length > 0) {
+                                        batchMsgEl.textContent = 'This batch of ' + nonFreshFlowers.join(', ') + ' flowers is not fresh, please change to another batch.';
+                                        batchMsgEl.style.color = 'orange';
+                                        editBtn.style.display = 'inline-block';
+                                    } else {
+                                        batchMsgEl.textContent = '';
+                                        editBtn.style.display = 'none';
                                     }
                                 }
 
@@ -757,154 +785,159 @@
                                     document.querySelector('#flowerTable tbody').appendChild(newRow);
                                     bindRow(newRow);
                                 });
-                            });
-                    </script>
 
-
-
-
-
-
-                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', () => {
-                            const MAX_FILES = 5;
-                            const fileInput = document.getElementById('imageFiles');
-                            const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
-                            const previewContainer = document.getElementById('previewContainer');
-                            const btnUploadMore = document.getElementById('btnUploadMore');
-                            const btnDeleteSelected = document.getElementById('btnDeleteSelected');
-                            const btnAccept = document.getElementById('btnAccept');
-                            const serverImageInputsDiv = document.getElementById('serverImageInputs');
-                            const triggerImg = document.querySelector('.bouquet-img-first');
-
-                            let serverImageUrls = [
-                        <c:forEach items="${images}" var="img" varStatus="status">
-                            '${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}'<c:if test="${!status.last}">,</c:if>
-                        </c:forEach>
-                                    ];
-                                    let acceptedFiles = [];
-                                    let selectedIndices = new Set();
-
-                                    function getCurrentItems() {
-                                        const items = [];
-                                        serverImageUrls.forEach(url => items.push({url}));
-                                        acceptedFiles.forEach(file => items.push({file}));
-                                        return items.slice(0, MAX_FILES);
-                                    }
-
-                                    function updateServerInputs() {
-                                        serverImageInputsDiv.innerHTML = '';
-                                        serverImageUrls.forEach(url => {
-                                            const inp = document.createElement('input');
-                                            inp.type = 'hidden';
-                                            inp.name = 'existingImageUrls';
-                                            inp.value = url;
-                                            serverImageInputsDiv.appendChild(inp);
+                                // Edit button: Enable batch-select
+                                const editBtn = document.getElementById('editBouquetBtn');
+                                if (editBtn) {
+                                    editBtn.addEventListener('click', () => {
+                                        document.querySelectorAll('.batch-select').forEach(sel => {
+                                            sel.disabled = false;
                                         });
-                                    }
-
-                                    function updateInputFiles() {
-                                        const dt = new DataTransfer();
-                                        acceptedFiles.forEach(f => dt.items.add(f));
-                                        fileInput.files = dt.files;
-                                    }
-
-                                    function renderPreview() {
-                                        const items = getCurrentItems();
-                                        previewContainer.innerHTML = '';
-                                        items.forEach((item, idx) => {
-                                            const wrap = document.createElement('div');
-                                            wrap.className = 'preview-img-wrapper';
-                                            if (selectedIndices.has(idx))
-                                                wrap.classList.add('selected');
-
-                                            wrap.addEventListener('click', () => {
-                                                if (selectedIndices.has(idx)) {
-                                                    selectedIndices.delete(idx);
-                                                    wrap.classList.remove('selected');
-                                                } else {
-                                                    selectedIndices.add(idx);
-                                                    wrap.classList.add('selected');
-                                                }
-                                                btnDeleteSelected.disabled = selectedIndices.size === 0;
-                                            });
-
-                                            const img = document.createElement('img');
-                                            img.className = 'preview-img';
-                                            img.src = item.file ? URL.createObjectURL(item.file) : item.url;
-                                            wrap.appendChild(img);
-
-                                            const btnDel = document.createElement('button');
-                                            btnDel.type = 'button';
-                                            btnDel.className = 'btn-delete-single';
-                                            btnDel.innerText = '×';
-                                            btnDel.addEventListener('click', ev => {
-                                                ev.stopPropagation();
-                                                if (item.file)
-                                                    acceptedFiles = acceptedFiles.filter(f => f !== item.file);
-                                                else
-                                                    serverImageUrls = serverImageUrls.filter(u => u !== item.url);
-                                                updateInputFiles();
-                                                updateServerInputs();
-                                                selectedIndices.clear();
-                                                renderPreview();
-                                            });
-                                            wrap.appendChild(btnDel);
-
-                                            previewContainer.appendChild(wrap);
-                                        });
-                                        btnDeleteSelected.disabled = true;
-                                    }
-
-                                    // Khi click vào ảnh đầu tiên .bouquet-img-first
-                                    if (triggerImg) {
-                                        triggerImg.addEventListener('click', () => {
-                                            selectedIndices.clear();
-                                            updateServerInputs();
-                                            updateInputFiles();
-                                            renderPreview();
-                                            previewModal.show();
-                                        });
-                                    }
-
-                                    btnUploadMore.addEventListener('click', () => fileInput.click());
-
-                                    fileInput.addEventListener('change', e => {
-                                        const newFiles = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
-                                        const slots = MAX_FILES - (serverImageUrls.length + acceptedFiles.length);
-                                        if (slots <= 0) {
-                                            alert(`Bạn chỉ được tối đa ${MAX_FILES} ảnh.`);
-                                        } else {
-                                            acceptedFiles = acceptedFiles.concat(newFiles.slice(0, slots));
-                                            updateInputFiles();
-                                            renderPreview();
-                                        }
-                                        e.target.value = '';
                                     });
+                                }
+                            });
+                        </script>
 
-                                    btnDeleteSelected.addEventListener('click', () => {
-                                        Array.from(selectedIndices)
-                                                .sort((a, b) => b - a)
-                                                .forEach(idx => {
-                                                    const item = getCurrentItems()[idx];
+                        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', () => {
+                                const MAX_FILES = 5;
+                                const fileInput = document.getElementById('imageFiles');
+                                const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+                                const previewContainer = document.getElementById('previewContainer');
+                                const btnUploadMore = document.getElementById('btnUploadMore');
+                                const btnDeleteSelected = document.getElementById('btnDeleteSelected');
+                                const btnAccept = document.getElementById('btnAccept');
+                                const serverImageInputsDiv = document.getElementById('serverImageInputs');
+                                const triggerImg = document.querySelector('.bouquet-img-first');
+
+                                let serverImageUrls = [
+                            <c:forEach items="${images}" var="img" varStatus="status">
+                                '${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}'<c:if test="${!status.last}">,</c:if>
+                            </c:forEach>
+                                        ];
+                                        let acceptedFiles = [];
+                                        let selectedIndices = new Set();
+
+                                        function getCurrentItems() {
+                                            const items = [];
+                                            serverImageUrls.forEach(url => items.push({url}));
+                                            acceptedFiles.forEach(file => items.push({file}));
+                                            return items.slice(0, MAX_FILES);
+                                        }
+
+                                        function updateServerInputs() {
+                                            serverImageInputsDiv.innerHTML = '';
+                                            serverImageUrls.forEach(url => {
+                                                const inp = document.createElement('input');
+                                                inp.type = 'hidden';
+                                                inp.name = 'existingImageUrls';
+                                                inp.value = url;
+                                                serverImageInputsDiv.appendChild(inp);
+                                            });
+                                        }
+
+                                        function updateInputFiles() {
+                                            const dt = new DataTransfer();
+                                            acceptedFiles.forEach(f => dt.items.add(f));
+                                            fileInput.files = dt.files;
+                                        }
+
+                                        function renderPreview() {
+                                            const items = getCurrentItems();
+                                            previewContainer.innerHTML = '';
+                                            items.forEach((item, idx) => {
+                                                const wrap = document.createElement('div');
+                                                wrap.className = 'preview-img-wrapper';
+                                                if (selectedIndices.has(idx))
+                                                    wrap.classList.add('selected');
+
+                                                wrap.addEventListener('click', () => {
+                                                    if (selectedIndices.has(idx)) {
+                                                        selectedIndices.delete(idx);
+                                                        wrap.classList.remove('selected');
+                                                    } else {
+                                                        selectedIndices.add(idx);
+                                                        wrap.classList.add('selected');
+                                                    }
+                                                    btnDeleteSelected.disabled = selectedIndices.size === 0;
+                                                });
+
+                                                const img = document.createElement('img');
+                                                img.className = 'preview-img';
+                                                img.src = item.file ? URL.createObjectURL(item.file) : item.url;
+                                                wrap.appendChild(img);
+
+                                                const btnDel = document.createElement('button');
+                                                btnDel.type = 'button';
+                                                btnDel.className = 'btn-delete-single';
+                                                btnDel.innerText = '×';
+                                                btnDel.addEventListener('click', ev => {
+                                                    ev.stopPropagation();
                                                     if (item.file)
                                                         acceptedFiles = acceptedFiles.filter(f => f !== item.file);
                                                     else
                                                         serverImageUrls = serverImageUrls.filter(u => u !== item.url);
+                                                    updateInputFiles();
+                                                    updateServerInputs();
+                                                    selectedIndices.clear();
+                                                    renderPreview();
                                                 });
-                                        selectedIndices.clear();
-                                        updateInputFiles();
-                                        updateServerInputs();
-                                        renderPreview();
-                                    });
+                                                wrap.appendChild(btnDel);
 
-                                    btnAccept.addEventListener('click', () => {
-                                        updateInputFiles();
-                                        updateServerInputs();
-                                        previewModal.hide();
+                                                previewContainer.appendChild(wrap);
+                                            });
+                                            btnDeleteSelected.disabled = true;
+                                        }
+
+                                        // Khi click vào ảnh đầu tiên .bouquet-img-first
+                                        if (triggerImg) {
+                                            triggerImg.addEventListener('click', () => {
+                                                selectedIndices.clear();
+                                                updateServerInputs();
+                                                updateInputFiles();
+                                                renderPreview();
+                                                previewModal.show();
+                                            });
+                                        }
+
+                                        btnUploadMore.addEventListener('click', () => fileInput.click());
+
+                                        fileInput.addEventListener('change', e => {
+                                            const newFiles = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
+                                            const slots = MAX_FILES - (serverImageUrls.length + acceptedFiles.length);
+                                            if (slots <= 0) {
+                                                alert(`Bạn chỉ được tối đa ${MAX_FILES} ảnh.`);
+                                            } else {
+                                                acceptedFiles = acceptedFiles.concat(newFiles.slice(0, slots));
+                                                updateInputFiles();
+                                                renderPreview();
+                                            }
+                                            e.target.value = '';
+                                        });
+
+                                        btnDeleteSelected.addEventListener('click', () => {
+                                            Array.from(selectedIndices)
+                                                    .sort((a, b) => b - a)
+                                                    .forEach(idx => {
+                                                        const item = getCurrentItems()[idx];
+                                                        if (item.file)
+                                                            acceptedFiles = acceptedFiles.filter(f => f !== item.file);
+                                                        else
+                                                            serverImageUrls = serverImageUrls.filter(u => u !== item.url);
+                                                    });
+                                            selectedIndices.clear();
+                                            updateInputFiles();
+                                            updateServerInputs();
+                                            renderPreview();
+                                        });
+
+                                        btnAccept.addEventListener('click', () => {
+                                            updateInputFiles();
+                                            updateServerInputs();
+                                            previewModal.hide();
+                                        });
                                     });
-                                });
-                    </script>
-                    </body>
-                    </html>
+                        </script>
+                        </body>
+                        </html>
