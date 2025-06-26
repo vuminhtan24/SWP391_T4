@@ -7,6 +7,8 @@ package dal;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import model.Blog;
 import model.Category;
 import model.User;
@@ -19,7 +21,7 @@ public class BlogDAO extends BaseDao {
 
     public static void main(String[] args) {
         BlogDAO bDao = new BlogDAO();
-        System.out.println(bDao.getAllBlogWithFilter(10, 0, "Flower Meanings", "", "", 0, "Active"));
+        System.out.println(bDao.getTotalBlogCountWithFilter("", 0, "Active"));
     }
 
     public List<Blog> getAllBlogWithFilter(int limit, int offset, String searchKey, String sortBy, String sort, int categoryId, String status) {
@@ -134,18 +136,22 @@ public class BlogDAO extends BaseDao {
         return bList;
     }
 
-    public int getTotalBlogCountWithFilter(String searchKey, int categoryId) {
+    public int getTotalBlogCountWithFilter(String searchKey, int categoryId, String status) {
         int totalCount = 0;
 
         StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("SELECT COUNT(*) as total FROM blog WHERE status = 'Active'");
+        sqlBuilder.append("SELECT COUNT(*) as total FROM blog WHERE 1 = 1");
 
         if (categoryId > 0) {
-            sqlBuilder.append(" AND category_id = ?");
+            sqlBuilder.append(" AND cid = ?");
         }
 
         if (searchKey != null && !searchKey.trim().isEmpty()) {
             sqlBuilder.append(" AND (title LIKE ? OR context LIKE ? OR pre_context LIKE ?)");
+        }
+
+        if (status != null && !status.trim().isEmpty()) {
+            sqlBuilder.append(" AND (status = ?)");
         }
 
         String sql = sqlBuilder.toString();
@@ -165,6 +171,10 @@ public class BlogDAO extends BaseDao {
                 ps.setString(paramIndex++, searchPattern);
                 ps.setString(paramIndex++, searchPattern);
                 ps.setString(paramIndex, searchPattern);
+            }
+
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(paramIndex++, status);
             }
 
             rs = ps.executeQuery();
@@ -220,10 +230,11 @@ public class BlogDAO extends BaseDao {
                 b.setCategory(c);
                 b.setImg_url(rs.getString("image_url"));
                 b.setPre_context(rs.getString("pre_context"));
+                b.setStatus(rs.getString("status"));
             }
 
         } catch (SQLException e) {
-            System.out.println("Error getting total count: " + e.getMessage());
+            System.out.println("Error Blog by id: " + e.getMessage());
         } finally {
             try {
                 closeResources();
@@ -259,7 +270,76 @@ public class BlogDAO extends BaseDao {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Error getting total count: " + e.getMessage());
+            System.out.println("Error add blog: " + e.getMessage());
+            return false;
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                System.out.println("Error closing resources: " + e.getMessage());
+            }
+        }
+    }
+
+    public boolean updateBlogStatus(int bid, String status) {
+        String sql = """
+                     UPDATE blog
+                     SET status = ?
+                     WHERE blog_id = ?;
+                     """;
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+
+            ps.setString(1, status);
+            ps.setInt(2, bid);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.out.println("Error update blog status: " + e.getMessage());
+            return false;
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                System.out.println("Error closing resources: " + e.getMessage());
+            }
+        }
+    }
+
+    public boolean updateBlog(Blog b) {
+        String sql = """
+                     UPDATE `la_fioreria`.`blog`
+                     SET
+                     `title` = ?,
+                     `context` = ?,
+                     `updated_at` = ?,
+                     `image_url` = ?,
+                     `pre_context` = ?,
+                     `status` = ?,  
+                     `cid` = ?
+                     WHERE `blog_id` = ?;
+                     """;
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+
+            ps.setString(1, b.getTitle());
+            ps.setString(2, b.getContext());
+            ps.setTimestamp(3, b.getUpdated_at());
+            ps.setString(4, b.getImg_url());
+            ps.setString(5, b.getPre_context());
+            ps.setString(6, b.getStatus());
+            ps.setInt(7, b.getCategory().getCategoryId());
+            ps.setInt(8, b.getBlogId());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.out.println("Error Update post: " + e.getMessage());
             return false;
         } finally {
             try {
