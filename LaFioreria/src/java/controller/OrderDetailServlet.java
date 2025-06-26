@@ -11,8 +11,8 @@ import model.User;
 import model.OrderStatus;
 import model.OrderDetail;
 import java.io.IOException;
-import java.net.URLEncoder; 
-import java.nio.charset.StandardCharsets; 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -22,15 +22,18 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.BouquetImage;
 
 /**
- * This servlet handles displaying order details and order editing functionality.
+ * This servlet handles displaying order details and order editing
+ * functionality.
+ *
  * @author VU MINH TAN
  */
 @WebServlet(name = "OrderDetailServlet", urlPatterns = {"/orderDetail"})
 public class OrderDetailServlet extends HttpServlet {
 
     /**
-     * Handles the HTTP <code>GET</code> method.
-     * Processes requests to display order details or the order editing form.
+     * Handles the HTTP <code>GET</code> method. Processes requests to display
+     * order details or the order editing form.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -44,7 +47,7 @@ public class OrderDetailServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         String orderIdParam = request.getParameter("orderId");
-        String action = request.getParameter("action"); 
+        String action = request.getParameter("action");
 
         if (orderIdParam == null || orderIdParam.isEmpty()) {
             System.out.println("OrderDetailServlet: orderIdParam is null or empty. Redirecting to orderManagement.");
@@ -62,8 +65,10 @@ public class OrderDetailServlet extends HttpServlet {
         }
 
         OrderDAO orderDAO = new OrderDAO();
+        BouquetDAO bdao = new BouquetDAO();
         Order order = orderDAO.getOrderDetailById(orderId);
-        List<OrderDetail> orderItems = orderDAO.getOrderItemsByOrderId(orderId); 
+        List<OrderDetail> orderItems = orderDAO.getOrderItemsByOrderId(orderId);
+        List<BouquetImage> images = bdao.getAllBouquetImage();
 
         if (order == null) {
             request.setAttribute("errorMessage", "Order not found with ID: " + orderId);
@@ -81,22 +86,25 @@ public class OrderDetailServlet extends HttpServlet {
         if ("edit".equals(action)) {
             List<User> shippers = orderDAO.getAllShippers();
             List<OrderStatus> statuses = orderDAO.getAllOrderStatuses();
-
+            
+            request.setAttribute("images", images);
             request.setAttribute("order", order);
-            request.setAttribute("orderItems", orderItems); 
+            request.setAttribute("orderItems", orderItems);
             request.setAttribute("shippers", shippers);
             request.setAttribute("statuses", statuses);
             request.getRequestDispatcher("/DashMin/orderEdit.jsp").forward(request, response);
         } else {
+            request.setAttribute("images", images);
             request.setAttribute("order", order);
-            request.setAttribute("orderItems", orderItems); 
+            request.setAttribute("orderItems", orderItems);
             request.getRequestDispatcher("/DashMin/orderDetail.jsp").forward(request, response);
         }
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
-     * Processes requests to update order information from the editing form.
+     * Handles the HTTP <code>POST</code> method. Processes requests to update
+     * order information from the editing form.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -109,16 +117,16 @@ public class OrderDetailServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         String orderIdParam = request.getParameter("orderId");
-        String totalAmountParam = request.getParameter("totalAmount");
+        String totalImportParam = request.getParameter("totalImport");
+        String totalSellParam = request.getParameter("totalSell");
         String statusIdParam = request.getParameter("statusId");
-        String shipperIdParam = request.getParameter("shipperId"); 
+        String shipperIdParam = request.getParameter("shipperId");
 
-        int orderId = -1; 
-        int statusId = -1; 
-        Integer shipperId = null; 
+        int orderId = -1;
+        int statusId = -1;
+        Integer shipperId = null;
         String errorMessage = null;
 
-        // Step 1: Parse parameters and check for format/missing errors
         try {
             if (orderIdParam != null && !orderIdParam.isEmpty()) {
                 orderId = Integer.parseInt(orderIdParam);
@@ -126,19 +134,24 @@ public class OrderDetailServlet extends HttpServlet {
                 errorMessage = "Missing Order ID.";
             }
 
-            if (totalAmountParam == null || totalAmountParam.isEmpty()) {
-                errorMessage = "Missing total amount.";
+            if (totalImportParam == null || totalImportParam.isEmpty()) {
+                errorMessage = "Missing total import.";
             }
-            
+
+            if (totalSellParam == null || totalSellParam.isEmpty()) {
+                errorMessage = "Missing total sell.";
+            }
+
             if (statusIdParam != null && !statusIdParam.isEmpty()) {
                 statusId = Integer.parseInt(statusIdParam);
             } else {
                 errorMessage = "Missing order status.";
             }
-            
-            if (shipperIdParam != null && !shipperIdParam.isEmpty() && !shipperIdParam.equals("0")) { 
+
+            if (shipperIdParam != null && !shipperIdParam.isEmpty() && !shipperIdParam.equals("0")) {
                 shipperId = Integer.parseInt(shipperIdParam);
             }
+
         } catch (NumberFormatException e) {
             errorMessage = "Invalid number format in update data.";
             System.err.println("OrderDetailServlet (POST): Number parsing error: " + e.getMessage());
@@ -150,7 +163,7 @@ public class OrderDetailServlet extends HttpServlet {
             System.err.println("OrderDetailServlet (POST): Error during initial parameter parsing/validation: " + errorMessage);
 
             OrderDAO orderDAO = new OrderDAO();
-            if (orderId != -1) { 
+            if (orderId != -1) {
                 request.setAttribute("order", orderDAO.getOrderDetailById(orderId));
                 request.setAttribute("orderItems", orderDAO.getOrderItemsByOrderId(orderId));
                 request.setAttribute("shippers", orderDAO.getAllShippers());
@@ -159,12 +172,12 @@ public class OrderDetailServlet extends HttpServlet {
             } else {
                 request.getRequestDispatcher("/DashMin/error.jsp").forward(request, response);
             }
-            return; 
+            return;
         }
 
         // Step 3: If no errors, proceed with order update
         OrderDAO orderDAO = new OrderDAO();
-        boolean updated = orderDAO.updateOrder(orderId, totalAmountParam, statusId, shipperId);
+        boolean updated = orderDAO.updateOrder(orderId, totalImportParam, totalSellParam, statusId, shipperId);
 
         if (updated) {
             System.out.println("OrderDetailServlet (POST): Order ID " + orderId + " updated successfully.");
@@ -174,12 +187,12 @@ public class OrderDetailServlet extends HttpServlet {
             System.err.println("OrderDetailServlet (POST): Update failed for order ID " + orderId + ".");
             request.setAttribute("errorMessage", "Order update failed. Please try again.");
             Order order = orderDAO.getOrderDetailById(orderId);
-            List<OrderDetail> orderItems = orderDAO.getOrderItemsByOrderId(orderId); 
+            List<OrderDetail> orderItems = orderDAO.getOrderItemsByOrderId(orderId);
             List<User> shippers = orderDAO.getAllShippers();
             List<OrderStatus> statuses = orderDAO.getAllOrderStatuses();
 
             request.setAttribute("order", order);
-            request.setAttribute("orderItems", orderItems); 
+            request.setAttribute("orderItems", orderItems);
             request.setAttribute("shippers", shippers);
             request.setAttribute("statuses", statuses);
             request.getRequestDispatcher("/DashMin/orderEdit.jsp").forward(request, response);

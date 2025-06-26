@@ -20,14 +20,16 @@ import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Servlet for handling adding items to an existing order.
+ *
  * @author VU MINH TAN
  */
 @WebServlet(name = "AddOrderItemsServlet", urlPatterns = {"/addOrderItems"})
 public class AddOrderItemsServlet extends HttpServlet {
 
     /**
-     * Handles the HTTP <code>GET</code> method.
-     * Displays the form to add items to a specific order.
+     * Handles the HTTP <code>GET</code> method. Displays the form to add items
+     * to a specific order.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -81,8 +83,9 @@ public class AddOrderItemsServlet extends HttpServlet {
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
-     * Processes the submission of the form to add items to an order.
+     * Handles the HTTP <code>POST</code> method. Processes the submission of
+     * the form to add items to an order.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -95,8 +98,8 @@ public class AddOrderItemsServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         String orderIdParam = request.getParameter("orderId");
-        String[] bouquetIds = request.getParameterValues("bouquetId"); // Array for multiple items
-        String[] quantities = request.getParameterValues("quantity"); // Array for multiple quantities
+        String[] bouquetIds = request.getParameterValues("bouquetId");
+        String[] quantities = request.getParameterValues("quantity");
 
         String errorMessage = null;
         int orderId = -1;
@@ -114,10 +117,9 @@ public class AddOrderItemsServlet extends HttpServlet {
         if (errorMessage == null && (bouquetIds == null || bouquetIds.length == 0)) {
             errorMessage = "No products selected to add.";
         }
-        
+
         OrderDAO orderDAO = new OrderDAO();
-        
-        // If there's an error, set attributes and forward back
+
         if (errorMessage != null) {
             request.setAttribute("errorMessage", errorMessage);
             request.setAttribute("order", orderDAO.getOrderDetailById(orderId));
@@ -128,20 +130,8 @@ public class AddOrderItemsServlet extends HttpServlet {
         }
 
         boolean allItemsAdded = true;
-        double currentTotalAmount = 0.0; // To calculate the new total amount for the order
+        double currentTotalImport = 0.0;
 
-        // Get current total amount first, if it exists
-        Order existingOrder = orderDAO.getOrderDetailById(orderId);
-        if (existingOrder != null && existingOrder.getTotalAmount() != null && !existingOrder.getTotalAmount().isEmpty()) {
-            try {
-                currentTotalAmount = Double.parseDouble(existingOrder.getTotalAmount());
-            } catch (NumberFormatException e) {
-                System.err.println("AddOrderItemsServlet: Existing total amount for order " + orderId + " is not a valid number: " + existingOrder.getTotalAmount());
-                currentTotalAmount = 0.0; // Reset if invalid
-            }
-        }
-        
-        // Get prices for all bouquets once to avoid repeated DB calls in loop
         List<Bouquet> allBouquetsData = orderDAO.getAllBouquets();
 
         for (int i = 0; i < bouquetIds.length; i++) {
@@ -155,52 +145,48 @@ public class AddOrderItemsServlet extends HttpServlet {
                     break;
                 }
 
-                // Find the bouquet to get its current price
-                String unitPrice = null;
+                double price = -1;
+
                 for (Bouquet b : allBouquetsData) {
                     if (b.getBouquetId() == bouquetId) {
-                        unitPrice = String.valueOf(b.getPrice()); // FIX: Use getPrice() and convert to String
+                        price = b.getPrice(); // ✅ đây là giá nhập
                         break;
                     }
                 }
 
-                if (unitPrice == null) {
-                    errorMessage = "Could not find price for selected bouquet ID: " + bouquetId;
+                if (price <= 0) {
+                    errorMessage = "Could not find price for bouquet ID: " + bouquetId;
                     allItemsAdded = false;
                     break;
                 }
-                
-                // Add the item to order_item table
-                OrderDetail newItem = new OrderDetail(0, orderId, bouquetId, null, null, quantity, unitPrice);
+
+                OrderDetail newItem = new OrderDetail(0, orderId, bouquetId, null, null, quantity, String.valueOf(price));
                 if (!orderDAO.addOrderItem(newItem)) {
                     errorMessage = "Failed to add item for bouquet ID: " + bouquetId;
                     allItemsAdded = false;
                     break;
                 }
-                
-                // Accumulate total amount
-                currentTotalAmount += (Double.parseDouble(unitPrice) * quantity);
+
+                currentTotalImport += price * quantity;
 
             } catch (NumberFormatException e) {
                 errorMessage = "Invalid number format for bouquet ID or quantity.";
                 allItemsAdded = false;
                 break;
             } catch (Exception e) {
-                errorMessage = "An unexpected error occurred while adding an item.";
-                System.err.println("AddOrderItemsServlet: Error adding item: " + e.getMessage());
+                errorMessage = "An unexpected error occurred.";
                 e.printStackTrace();
                 allItemsAdded = false;
                 break;
             }
         }
-        
-        // Update the order's total amount if all items were added successfully
+
         if (allItemsAdded && errorMessage == null) {
-            String newTotalAmountFormatted = String.format("%.2f", currentTotalAmount); // Format to 2 decimal places
-            if (!orderDAO.updateTotalAmount(orderId, newTotalAmountFormatted)) {
-                errorMessage = "Items added, but failed to update order total amount.";
-                // Even if total amount update fails, items are added, so we still redirect to details page.
-                // The error message will indicate the issue.
+            String formattedImport = String.format("%.2f", currentTotalImport);
+
+            // Gọi update tổng tiền (totalImport) – giả sử bạn đã sửa DAO cho hàm này
+            if (!orderDAO.updateTotalImport(orderId, formattedImport)) {
+                errorMessage = "Items added, but failed to update total import.";
             }
         }
 

@@ -18,6 +18,11 @@ import model.OrderItem;
  */
 public class CartDAO extends BaseDao {
     
+    public static void main(String[] args) {
+        CartDAO cDao = new CartDAO();
+        System.out.println(cDao.getCartDetailsByCustomerId(13));
+    }
+    
     public CartDetail getCartItem(int customerId, int bouquetId) {
         String sql = "SELECT * FROM cartdetails WHERE customer_id = ? AND bouquet_id = ?";
         try {
@@ -40,6 +45,7 @@ public class CartDAO extends BaseDao {
             try {
                 this.closeResources();
             } catch (Exception e) {
+                
             }
         }
         return null;
@@ -105,12 +111,10 @@ public class CartDAO extends BaseDao {
         List<CartDetail> list = new ArrayList<>();
         String sql = "SELECT \n"
                 + "    cd.cart_id, cd.customer_id, cd.bouquet_id, cd.quantity,\n"
-                + "    b.bouquet_name, b.description, b.cid, b.price,\n"
-                + "    bi.image_url\n"
+                + "    b.bouquet_name, b.description, b.cid, b.price, b.sellPrice\n"
                 + "FROM\n"
                 + "    cartdetails cd\n"
                 + "    JOIN bouquet b ON cd.bouquet_id = b.Bouquet_ID\n"
-                + "    JOIN bouquet_images bi ON bi.Bouquet_ID = b.Bouquet_ID\n"
                 + "WHERE\n"
                 + "    customer_id = ?";
         try {
@@ -151,7 +155,7 @@ public class CartDAO extends BaseDao {
     public Bouquet getBouquetById(int bouquetId) {
         String sql = """
         SELECT bouquet_id, bouquet_name,
-               description, image_url, cid, price
+               description, cid, price
         FROM bouquet
         WHERE bouquet_id = ?
     """;
@@ -182,13 +186,13 @@ public class CartDAO extends BaseDao {
     }
     
     public int insertOrder(Order order) {
-        String sql = "INSERT INTO `order` (order_date, customer_id, total_amount, status_id) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO `order` (order_date, customer_id, total_sell, status_id) VALUES (?, ?, ?, ?)";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setString(1, order.getOrderDate());
             ps.setInt(2, order.getCustomerId());
-            ps.setString(3, order.getTotalAmount());
+            ps.setString(3, order.getTotalSell());
             ps.setInt(4, 1); // status_id = 1 (processing)
             ps.executeUpdate();
             rs = ps.getGeneratedKeys();

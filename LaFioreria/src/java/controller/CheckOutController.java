@@ -3,20 +3,16 @@ package controller;
 import dal.BouquetDAO;
 import dal.CartDAO;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import model.BouquetImage;
 import model.CartDetail;
-import model.Order;
-import model.OrderItem;
 import model.User;
 
 /**
@@ -30,6 +26,7 @@ public class CheckOutController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
         List<CartDetail> cartDetails = new ArrayList<>();
+        BouquetDAO bouDao = new BouquetDAO();
 
         if (currentUser == null) {
             BouquetDAO bDao = new BouquetDAO();
@@ -38,14 +35,19 @@ public class CheckOutController extends HttpServlet {
                 cartDetails = sessionCart;
             }
 
+            List<List<BouquetImage>> bqImages = new ArrayList<>();
+
             if (!cartDetails.isEmpty()) {
                 for (CartDetail cd : cartDetails) {
                     cd.setBouquet(bDao.getBouquetFullInfoById(cd.getBouquetId()));
+
+                    bqImages.add(bouDao.getBouquetImage(cd.getBouquetId()));
                 }
             }
 
             // Set attributes for JSP
             request.setAttribute("cartDetails", cartDetails);
+            request.setAttribute("cartImages", bqImages);
             request.setAttribute("user", null);
             request.setAttribute("isGuest", true);
 
@@ -55,6 +57,13 @@ public class CheckOutController extends HttpServlet {
                 CartDAO cartDAO = new CartDAO();
                 cartDetails = cartDAO.getCartDetailsByCustomerId(customerId);
 
+                List<List<BouquetImage>> bqImages = new ArrayList<>();
+
+                for (CartDetail cd : cartDetails) {
+                    bqImages.add(bouDao.getBouquetImage(cd.getBouquetId()));
+                }
+
+                request.setAttribute("cartImages", bqImages);
                 request.setAttribute("cartDetails", cartDetails);
                 request.setAttribute("user", currentUser);
                 request.setAttribute("isGuest", false);

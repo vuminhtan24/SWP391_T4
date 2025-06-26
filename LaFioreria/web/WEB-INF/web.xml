@@ -250,4 +250,7 @@
     <welcome-file-list>
         <welcome-file>home</welcome-file>
     </welcome-file-list>
+    <listener>
+    <listener-class>scheduler.AppInitializer</listener-class>
+    </listener>
 </web-app>

@@ -111,7 +111,7 @@ public class ConfirmDeliveryServlet extends HttpServlet {
         String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
 
         // Đường dẫn lưu file thực tế (ví dụ: /uploads/)
-        String uploadPath = getServletContext().getRealPath("/upload/ConfirmDeliveryIMG");
+        String uploadPath = getServletContext().getRealPath("/upload/ConfirmDeliveryIMG/");
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) {
             uploadDir.mkdir();
@@ -132,7 +132,7 @@ public class ConfirmDeliveryServlet extends HttpServlet {
 
         // Update trạng thái đơn hàng và lưu đường dẫn ảnh
         OrderDAO dao = new OrderDAO();
-        boolean success = dao.markDelivered(orderId, "/upload/ConfirmDeliveryIMG" + fileName);
+        boolean success = dao.markDelivered(orderId, "/upload/ConfirmDeliveryIMG/" + fileName);
 
         if (success) {
             response.sendRedirect("shipperOrderDetails?orderId=" + orderId + "&success=delivered");

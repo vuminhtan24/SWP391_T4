@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 package controller;
 
 import dal.OrderDAO;
@@ -17,48 +16,54 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import model.User;
 
 /**
  *
  * @author VU MINH TAN
  */
-@WebServlet("/DashMin/RejectDeliveryServlet")
+@WebServlet(name = "RejectDeliveryServlet", urlPatterns = {"/DashMin/RejectDeliveryServlet"})
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 2, // 2MB
-    maxFileSize = 1024 * 1024 * 10,      // 10MB
-    maxRequestSize = 1024 * 1024 * 50    // 50MB
+        fileSizeThreshold = 1024 * 1024,
+        maxFileSize = -1L,
+        maxRequestSize = -1L
 )
 public class RejectDeliveryServlet extends HttpServlet {
-   
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet RejectDeliveryServlet</title>");  
+            out.println("<title>Servlet RejectDeliveryServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet RejectDeliveryServlet at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet RejectDeliveryServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
-    } 
+    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
+    /**
      * Handles the HTTP <code>GET</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -66,12 +71,13 @@ public class RejectDeliveryServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
-    } 
+    }
 
-    /** 
+    /**
      * Handles the HTTP <code>POST</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -103,44 +109,35 @@ public class RejectDeliveryServlet extends HttpServlet {
         }
 
         String cancellationImagePath = null; // Biến để lưu đường dẫn ảnh
-        try {
-            // Lấy Part của file đã upload
-            Part filePart = request.getPart("cancellationImage"); // "cancellationImage" là tên của input type="file" trong form HTML
-            String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // Lấy tên file gốc
+         // Nhận file ảnh
+        Part filePart = request.getPart("cancellationImage");
+        String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
 
-            if (fileName != null && !fileName.isEmpty()) {
-                // Định nghĩa thư mục lưu trữ ảnh trên server
-                // KHUYẾN CÁO: Luôn sử dụng một đường dẫn tuyệt đối an toàn bên ngoài thư mục project
-                // Ví dụ: /path/to/your/upload/directory/images/cancellations
-                // Để đơn giản cho ví dụ này, tôi sẽ lưu vào thư mục webapp/uploads/cancellations
-                String uploadPath = getServletContext().getRealPath("") + File.separator + "uploads" + File.separator + "cancellations";
-                File uploadDir = new File(uploadPath);
-                if (!uploadDir.exists()) {
-                    uploadDir.mkdirs(); // Tạo thư mục nếu chưa tồn tại
-                }
-
-                // Tạo tên file duy nhất để tránh trùng lặp
-                // Có thể thêm timestamp hoặc UUID vào tên file
-                String uniqueFileName = System.currentTimeMillis() + "_" + fileName;
-                String filePath = uploadPath + File.separator + uniqueFileName;
-                filePart.write(filePath); // Lưu file vào server
-
-                // Lưu đường dẫn tương đối vào database
-                // Đảm bảo rằng đường dẫn này có thể truy cập được từ client (qua URL)
-                cancellationImagePath = request.getContextPath() + "/uploads/cancellations/" + uniqueFileName;
-            }
-        } catch (Exception e) {
-            System.err.println("Error uploading cancellation image: " + e.getMessage());
-            e.printStackTrace();
-            // Xử lý lỗi upload ảnh, có thể redirect về trang lỗi
-            response.sendRedirect("shipperOrderDetails?orderId=" + orderId + "&error=image_upload_failed");
-            return;
+        // Đường dẫn lưu file thực tế (ví dụ: /uploads/)
+        String uploadPath = getServletContext().getRealPath("/upload/RejectDeliveryIMG/");
+        File uploadDir = new File(uploadPath);
+        if (!uploadDir.exists()) {
+            uploadDir.mkdir();
         }
 
-        // Gọi hàm DAO đã cập nhật: cancelOrder(orderId, reason, cancellationImagePath)
+        String savedFilePath = uploadPath + File.separator + fileName;
+        filePart.write(savedFilePath);
+        // 2) Copy từ build folder → folder dự án (root của webapp)
+        //    rootPath sẽ là đường dẫn thực sự đến folder webapp/upload/BouquetIMG
+        String rootPath = savedFilePath.replace("\\build", "");
+        Path source = Paths.get(savedFilePath);
+        Path target = Paths.get(rootPath);
+        // Tạo thư mục nếu chưa có
+                Files.createDirectories(target.getParent());
+                // Copy file (thay thế nếu đã tồn tại)
+                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+
+
+        // Update trạng thái đơn hàng và lưu đường dẫn ảnh
         OrderDAO dao = new OrderDAO();
-        // Giả sử bạn đã đổi tên hàm trong OrderDAO thành cancelOrder
-        boolean success = dao.rejectOrder(orderId, reason, cancellationImagePath);
+        boolean success = dao.rejectOrder(orderId, reason,"/upload/RejectDeliveryIMG/" + fileName);
+
+
 
         if (success) {
             response.sendRedirect("shipperOrderDetails?orderId=" + orderId + "&success=rejected");
@@ -150,8 +147,9 @@ public class RejectDeliveryServlet extends HttpServlet {
         }
     }
 
-    /** 
+    /**
      * Returns a short description of the servlet.
+     *
      * @return a String containing servlet description
      */
     @Override

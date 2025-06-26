@@ -16,7 +16,9 @@ public class OrderDetail {
     private String bouquetImage; 
     private int quantity;      
     private String unitPrice;
-
+    private int sellPrice;
+    private String status;
+    
     public OrderDetail() {
     }
 
@@ -29,6 +31,18 @@ public class OrderDetail {
         this.quantity = quantity;
         this.unitPrice = unitPrice;
     }
+
+    public OrderDetail(int orderDetailId, int orderId, int bouquetId, String bouquetName, String bouquetImage, int quantity, String unitPrice, int sellPrice, String status) {
+        this.orderDetailId = orderDetailId;
+        this.orderId = orderId;
+        this.bouquetId = bouquetId;
+        this.bouquetName = bouquetName;
+        this.bouquetImage = bouquetImage;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+        this.sellPrice = sellPrice;
+        this.status = status;
+    }    
     
     public int getOrderDetailId() {
         return orderDetailId;
@@ -86,6 +100,22 @@ public class OrderDetail {
         this.unitPrice = unitPrice;
     }
 
+    public int getSellPrice() {
+        return sellPrice;
+    }
+
+    public void setSellPrice(int sellPrice) {
+        this.sellPrice = sellPrice;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    
     @Override
     public String toString() {
         return "OrderDetail{" + "orderDetailId=" + orderDetailId + ", orderId=" + orderId + ", bouquetId=" + bouquetId + ", bouquetName=" + bouquetName + ", bouquetImage=" + bouquetImage + ", quantity=" + quantity + ", unitPrice=" + unitPrice + '}';

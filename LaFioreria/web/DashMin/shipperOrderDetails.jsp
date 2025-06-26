@@ -87,7 +87,7 @@
                                     <p><strong>Customer Phone</strong> ${order.customerPhone}</p>
                                 </div>
                                 <div class="col-md-6">
-                                    <p><strong>Total Amount:</strong> ${order.totalAmount}</p>
+                                    <p><strong>Total Amount:</strong> ${order.totalSell}</p>
                                     <p><strong>Status:</strong> ${order.statusName}</p>
                                     <p><strong>Shipper ID:</strong> ${order.shipperId != null ? order.shipperId : "Not Assigned"}</p>
                                     <p><strong>Shipper Name:</strong> ${order.shipperName != null ? order.shipperName : "Not Assigned"}</p>
@@ -120,7 +120,7 @@
                                                     <td>
                                                         <c:choose>
                                                             <c:when test="${not empty item.bouquetImage}">
-                                                                <img src="${item.bouquetImage}" 
+                                                                <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${item.bouquetImage}" 
                                                                      alt="${item.bouquetName}" style="width: 50px; height: 50px; object-fit: cover;">
                                                             </c:when>
                                                             <c:otherwise>
@@ -199,7 +199,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <%-- THAY ĐỔI: Thêm enctype="multipart/form-data" --%>
-                    <form action="${pageContext.request.contextPath}/RejectOrderServlet" method="post" enctype="multipart/form-data">
+                    <form action="${pageContext.request.contextPath}/RejectDeliveryServlet" method="post" enctype="multipart/form-data">
                         <div class="modal-header">
                             <h5 class="modal-title" id="rejectDeliveryModalLabel">Từ chối giao hàng</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

@@ -80,6 +80,7 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
                         <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
+                        <a href="${pageContext.request.contextPath}/repairOrders" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Repair Orders</a>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
@@ -129,9 +130,14 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="totalAmount" class="form-label">Total Amount:</label>
-                                <input type="text" class="form-control" id="totalAmount" name="totalAmount"
-                                       value="${order.totalAmount}" required>
+                                <label for="totalImport" class="form-label">Total Import:</label>
+                                <input type="text" class="form-control" id="totalImport" name="totalImport"
+                                       value="${order.totalImport}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="totalSell" class="form-label">Total Sell:</label>
+                                <input type="text" class="form-control" id="totalSell" name="totalSell"
+                                       value="${order.totalSell}" required>
                             </div>
 
                             <div class="mb-3">

@@ -137,6 +137,7 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
                         <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
+                        <a href="${pageContext.request.contextPath}/repairOrders" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Repair Orders</a>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
@@ -180,7 +181,8 @@
                         <div class="mb-3">
                             <p><strong>Order Date:</strong> ${order.orderDate}</p>
                             <p><strong>Customer:</strong> ${order.customerName}</p>
-                            <p><strong>Current Total Amount:</strong> ${order.totalAmount}</p>
+                            <p><strong>Current Total Import</strong> ${order.totalImport}</p>
+                            <p><strong>Current Total Sell</strong> ${order.totalSell}</p>
                         </div>
                         
                         <hr>
