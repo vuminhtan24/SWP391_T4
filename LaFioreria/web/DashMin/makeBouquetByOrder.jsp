@@ -342,11 +342,13 @@
                                                                                 <option value="${f.flowerId}">${f.flowerName}</option>
                                                                             </c:forEach>
                                                                         </select>
+                                                                        <input type="hidden" name="flowerIds" class="hidden-flower-id" />
                                                                     </td>
                                                                     <td>
                                                                         <select name="batchIds" class="form-select form-select-sm batch-select" disabled>
                                                                             <option value="" disabled>-- Select Batch --</option>
                                                                         </select>
+                                                                        <input type="hidden" name="batchIds" value="${br.batchId}" />
                                                                     </td>
                                                                     <td>
                                                                         <span class="form-text price-text">0.00</span>
@@ -640,6 +642,17 @@
                                     row.querySelector('.needed-text').textContent = needed;
                                     row.querySelector('.needed-input').value = needed;
 
+                                    // Cập nhật hidden input cho flowerId
+                                    let flowerId = row.querySelector('.flower-select').value;
+                                    let flowerHidden = row.querySelector('input[name="flowerIds"]');
+                                    if (!flowerHidden) {
+                                        flowerHidden = document.createElement('input');
+                                        flowerHidden.type = 'hidden';
+                                        flowerHidden.name = 'flowerIds';
+                                        row.appendChild(flowerHidden);
+                                    }
+                                    flowerHidden.value = flowerId;
+
                                     updateTotals();
                                 }
 
@@ -784,11 +797,6 @@
                                 }
                             });
                         </script>
-
-
-
-
-
 
                         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
                         <script>

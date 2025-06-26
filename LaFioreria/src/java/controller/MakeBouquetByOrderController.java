@@ -224,7 +224,6 @@ public class MakeBouquetByOrderController extends HttpServlet {
                 request.getParameter("OrderId"),
                 request.getParameter("OrderItemID"),
                 request.getParameter("orderSell"));
-
         try {
             // Validate and parse OrderItemID
             if (orderItemIdStr == null || orderItemIdStr.isEmpty()) {

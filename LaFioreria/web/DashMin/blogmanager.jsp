@@ -600,7 +600,7 @@
                                                             <td><strong>#${blog.blogId}</strong></td>
                                                             <td>
                                                                 <div style="max-width: 200px;">
-                                                                    <strong>${fn:substring(blog.title, 0, 50)}${fn:length(blog.title) > 50 ? '...' : ''}</strong>
+                                                                    <strong>${fn:substring(blog.title, 0, 25)} ${fn:length(blog.title) > 25 ? '...' : ''}</strong>
                                                                 </div>
                                                             </td>
                                                             <td>
@@ -611,7 +611,7 @@
                                                             <td>
                                                                 <div style="max-width: 150px;">
                                                                     <small class="text-muted">
-                                                                        ${fn:substring(blog.pre_context, 0, 80)}${fn:length(blog.pre_context) > 80 ? '...' : ''}
+                                                                        ${fn:substring(blog.pre_context, 0, 25)}${fn:length(blog.pre_context) > 25 ? '...' : ''}
                                                                     </small>
                                                                 </div>
                                                             </td>
