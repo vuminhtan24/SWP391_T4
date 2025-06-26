@@ -29,7 +29,7 @@ public class FlowerScheduler extends BaseDao {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         // Chạy job mỗi 24 giờ (86400 giây)
-        scheduler.scheduleAtFixedRate(new FlowerScheduler()::checkFlowerBatches, 0, 86400, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(new FlowerScheduler()::checkFlowerBatches, 0, 43200, TimeUnit.SECONDS);
 
     }
 
@@ -202,13 +202,7 @@ public class FlowerScheduler extends BaseDao {
         } catch (SQLException e) {
             System.err.println("Lỗi lấy email admin: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            try {
-                closeResources();
-            } catch (Exception e) {
-                // ignore
-            }
-        }        
+        }     
         return emails;
     }
 

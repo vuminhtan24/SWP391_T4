@@ -100,7 +100,13 @@
                         <a href="${pageContext.request.contextPath}/orderManagement" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Order</a>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
                         <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
-                        <a href="${pageContext.request.contextPath}/repairOrders" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Repair Orders</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-table me-2"></i>Repair Center</a>
+                            <div class="dropdown-menu bg-transparent border-0">
+                                <a href="${pageContext.request.contextPath}/repairOrders" class="dropdown-item">Repair Orders</a>
+                                <a href="${pageContext.request.contextPath}/repairHistory" class="dropdown-item">Repair History</a>
+                            </div>
+                        </div>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
 
 

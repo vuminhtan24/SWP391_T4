@@ -43,7 +43,7 @@ public class RepairOrdersController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int repairId = Integer.parseInt(request.getParameter("repairId"));
-        int bouquetId = Integer.parseInt(request.getParameter("bouquetId"));
+        int bouquetId = Integer.parseInt(request.getParameter("id"));
         int oldBatchId = Integer.parseInt(request.getParameter("oldBatchId"));
         String newBatchIdStr = request.getParameter("newBatchId");
 

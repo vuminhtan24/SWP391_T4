@@ -11,20 +11,26 @@ package model;
 public class RepairOrders {
     int repairId;
     int bouquetId;
+    String bouquetName;
     int batchId;
+    String flowerName;
     String reason;
     String createdAt;
+    String updatedAt;
     String status;
 
     public RepairOrders() {
     }
 
-    public RepairOrders(int repairId, int bouquetId, int batchId, String reason, String createdAt, String status) {
+    public RepairOrders(int repairId, int bouquetId, String bouquetName, int batchId, String flowerName, String reason, String createdAt, String updatedAt, String status) {
         this.repairId = repairId;
         this.bouquetId = bouquetId;
+        this.bouquetName = bouquetName;
         this.batchId = batchId;
+        this.flowerName = flowerName;
         this.reason = reason;
         this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
         this.status = status;
     }
 
@@ -76,9 +82,35 @@ public class RepairOrders {
         this.status = status;
     }
 
+    public String getBouquetName() {
+        return bouquetName;
+    }
+
+    public void setBouquetName(String bouquetName) {
+        this.bouquetName = bouquetName;
+    }
+
+    public String getFlowerName() {
+        return flowerName;
+    }
+
+    public void setFlowerName(String flowerName) {
+        this.flowerName = flowerName;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     @Override
     public String toString() {
-        return "RepairOrders{" + "repairId=" + repairId + ", bouquetId=" + bouquetId + ", batchId=" + batchId + ", reason=" + reason + ", createdAt=" + createdAt + ", status=" + status + '}';
+        return "RepairOrders{" + "repairId=" + repairId + ", bouquetId=" + bouquetId + ", bouquetName=" + bouquetName + ", batchId=" + batchId + ", flowerName=" + flowerName + ", reason=" + reason + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", status=" + status + '}';
     }
-        
+
+    
+                   
 }
