@@ -65,10 +65,26 @@ public class OrderDetailServlet extends HttpServlet {
         }
 
         OrderDAO orderDAO = new OrderDAO();
+        
+        List<OrderDetail> orderItems = orderDAO.getOrderItemsByOrderId(orderId);
+        boolean allDone = true;
+
+        for (OrderDetail item : orderItems) {
+            if (!"done".equalsIgnoreCase(item.getStatus())) {
+                allDone = false;
+                break;
+            }
+        }
+
+        if (allDone) {
+            orderDAO.updateOrderStatusAfterMakingBouquet(orderId);
+        } 
+        
         BouquetDAO bdao = new BouquetDAO();
         Order order = orderDAO.getOrderDetailById(orderId);
-        List<OrderDetail> orderItems = orderDAO.getOrderItemsByOrderId(orderId);
         List<BouquetImage> images = bdao.getAllBouquetImage();
+
+        
 
         if (order == null) {
             request.setAttribute("errorMessage", "Order not found with ID: " + orderId);
@@ -84,9 +100,12 @@ public class OrderDetailServlet extends HttpServlet {
         }
 
         if ("edit".equals(action)) {
+            if (order.getStatusName().equalsIgnoreCase("Pending")) {
+
+            }
             List<User> shippers = orderDAO.getAllShippers();
             List<OrderStatus> statuses = orderDAO.getAllOrderStatuses();
-            
+
             request.setAttribute("images", images);
             request.setAttribute("order", order);
             request.setAttribute("orderItems", orderItems);

@@ -44,7 +44,7 @@
     <body>
         <jsp:include page="/ZeShopper/header.jsp"/>
 
-        <section>
+        <section style="margin-bottom: 50px;">
             <div class="container">
                 <div class="row">
                     <div class="col-sm-9">
@@ -54,7 +54,7 @@
                                 <h2>${blog.title}</h2>
                                 <div class="post-meta">
                                     <ul>
-                                        <li><i class="fa fa-user"></i> ${blog.owner.userid}</li>
+                                        <li><i class="fa fa-user"></i> ${blog.owner.fullname}</li>
                                         <li><i class="fa fa-calendar"></i> 
                                             <fmt:formatDate value="${blog.created_at}" pattern="MMM dd, yyyy" />
                                         </li>
@@ -66,7 +66,7 @@
 
                                 <c:if test="${not empty blog.img_url}">
                                     <a href="${pageContext.request.contextPath}/blog/detail?bid=${blog.blogId}">
-                                        <img src="${blog.img_url}" alt="${blog.title}" 
+                                        <img src="${pageContext.request.contextPath}/upload/BlogIMG/${blog.img_url}" alt="${blog.title}" 
                                              style="max-width: 100%; height: 200px; object-fit: cover;">
                                     </a>
                                 </c:if>

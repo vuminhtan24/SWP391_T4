@@ -5,19 +5,38 @@
 package controller;
 
 import dal.BlogDAO;
+import dal.CategoryDAO;
+import dal.UserDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.LinkedList;
 import java.util.List;
 import model.Blog;
+import model.Category;
+import model.User;
 
 /**
  *
  * @author k16
  */
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024, // 1MB lưu tạm vào disk nếu vượt
+        maxFileSize = 10 * 1024 * 1024, // Giới hạn 10MB mỗi file
+        maxRequestSize = 50 * 1024 * 1024 // Giới hạn 50MB tổng request
+)
 @WebServlet(name = "BlogManagerController", urlPatterns = {
     "/blogmanager",
     "/blog",
@@ -27,7 +46,7 @@ import model.Blog;
     "/blog/delete"
 })
 public class BlogManagerController extends HttpServlet {
-
+    
     private static final String BASE_PATH = "/blog";
 
     /**
@@ -42,17 +61,24 @@ public class BlogManagerController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String path = request.getServletPath();
-
+        
         switch (path) {
             case BASE_PATH + "manager" ->
                 doGetManagerPostList(request, response);
-
+            
             case BASE_PATH ->
                 doGetPostList(request, response);
-
+            
             case BASE_PATH + "/detail" ->
                 doGetDetail(request, response);
-
+            
+            case BASE_PATH + "/add" -> {
+                CategoryDAO cDao = new CategoryDAO();
+                List<Category> cList = cDao.getAll();
+                request.setAttribute("cList", cList);
+                request.getRequestDispatcher("../DashMin/AddBlog.jsp").forward(request, response);
+            }
+            
             default ->
                 throw new AssertionError();
         }
@@ -70,7 +96,7 @@ public class BlogManagerController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String path = request.getServletPath();
-
+        
         switch (path) {
             case BASE_PATH + "/add" -> {
                 doAdd(request, response);
@@ -85,7 +111,7 @@ public class BlogManagerController extends HttpServlet {
                 throw new AssertionError();
         }
     }
-
+    
     private void doGetManagerPostList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int page = Integer.parseInt(request.getParameter("page") != null ? request.getParameter("page") : "1");
@@ -94,34 +120,51 @@ public class BlogManagerController extends HttpServlet {
         String search = request.getParameter("search");
         String sortBy = request.getParameter("sortBy");
         String sort = request.getParameter("sort");
+        String status = request.getParameter("status");
         int categoryId = Integer.parseInt(request.getParameter("categoryId") != null && !request.getParameter("categoryId").isBlank() ? request.getParameter("categoryId") : "0");
-
+        
+        if (status == null || status.isBlank()) {
+            status = null;
+        }
+        
         BlogDAO dao = new BlogDAO();
-        List<Blog> blogs = dao.getAllBlogWithFilter(limit, offset, search, sortBy, sort, categoryId, null);
+        CategoryDAO cDao = new CategoryDAO();
+        List<Blog> blogs = dao.getAllBlogWithFilter(limit, offset, search, sortBy, sort, categoryId, status);
+        fullLoadBlogInformation(blogs);
         int totalCount = dao.getTotalBlogCountWithFilter(search, categoryId);
-
+        
+        List<Category> cList = cDao.getAll();
+        
+        int totalPages = (int) Math.ceil((double) totalCount / limit);
+        
+        request.setAttribute("cList", cList);
         request.setAttribute("blogs", blogs);
         request.setAttribute("totalCount", totalCount);
+        request.setAttribute("totalPages", totalPages);
         request.setAttribute("currentPage", page);
         request.getRequestDispatcher("DashMin/blogmanager.jsp").forward(request, response);
     }
-
+    
     private void doGetDetail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         BlogDAO bDao = new BlogDAO();
         String bidStr = request.getParameter("bid");
-
+        
         int bid = bidStr != null && !bidStr.isBlank() ? Integer.parseInt(bidStr) : -1;
-
+        
         Blog b = null;
-
+        
         b = bDao.getBlogById(bid);
-        fullLoadBlogInformation(b);
-
+        
+        List<Blog> bList = new LinkedList<>();
+        bList.add(b);
+        
+        fullLoadBlogInformation(bList);
+        
         request.setAttribute("blog", b);
         request.getRequestDispatcher("../ZeShopper/blogdetail.jsp").forward(request, response);
     }
-
+    
     private void doGetPostList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int page = Integer.parseInt(request.getParameter("page") != null ? request.getParameter("page") : "1");
@@ -131,37 +174,98 @@ public class BlogManagerController extends HttpServlet {
         String sortBy = request.getParameter("sortBy");
         String sort = request.getParameter("sort");
         int categoryId = Integer.parseInt(request.getParameter("categoryId") != null && !request.getParameter("categoryId").isBlank() ? request.getParameter("categoryId") : "0");
-
+        
+        CategoryDAO cDao = new CategoryDAO();
         BlogDAO dao = new BlogDAO();
         List<Blog> blogs = dao.getAllBlogWithFilter(limit, offset, search, sortBy, sort, categoryId, "Active");
+        fullLoadBlogInformation(blogs);
         int totalCount = dao.getTotalBlogCountWithFilter(search, categoryId);
-
+        int totalPages = (int) Math.ceil((double) totalCount / limit);
+        
+        List<Category> cList = cDao.getAll();
+        
+        request.setAttribute("cList", cList);
         request.setAttribute("blogs", blogs);
         request.setAttribute("totalCount", totalCount);
+        request.setAttribute("totalPages", totalPages);
         request.setAttribute("currentPage", page);
         request.getRequestDispatcher("ZeShopper/blog.jsp").forward(request, response);
     }
-
+    
     private void doAdd(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        BlogDAO bDao = new BlogDAO();
+        String title = request.getParameter("title");
+        String cidStr = request.getParameter("category");
+        String status = request.getParameter("status");
+        String authorStr = request.getParameter("author");
+        String preContext = request.getParameter("preContext");
+        String context = request.getParameter("content");
+        
+        Part filePart = request.getPart("image");
+        
+        String uploadPath = request.getServletContext().getRealPath("/upload/BlogIMG");
+        File uploadDir = new File(uploadPath);
+        if (!uploadDir.exists() && !uploadDir.mkdirs()) {
+            throw new ServletException("Không thể tạo thư mục upload: " + uploadPath);
+        }
+        
+        String originalName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+        String imageFileName = System.currentTimeMillis() + "_" + originalName;
+        String fullDiskPath = uploadPath + File.separator + imageFileName;
+        filePart.write(fullDiskPath);
+        
+        String rootPath = fullDiskPath.replace("\\build", "");
+        Path source = Paths.get(fullDiskPath);
+        Path target = Paths.get(rootPath);
+        Files.createDirectories(target.getParent());
+        Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+        
+        Category c = new Category();
+        User u = new User();
+        
+        c.setCategoryId(Integer.parseInt(cidStr));
+        
+        u.setUserid(Integer.parseInt(authorStr));
+        
+        Blog b = new Blog();
+        b.setCategory(c);
+        b.setOwner(u);
+        b.setTitle(title);
+        b.setPre_context(preContext);
+        b.setContext(context);
+        b.setStatus(status);
+        b.setCreated_at(Timestamp.valueOf(LocalDateTime.now()));
+        b.setImg_url(imageFileName);
+        
+        if (bDao.addBlog(b)) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().write("success");
+        } else {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Could not save blog.");
+        }
     }
-
+    
     private void doEdit(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-    }
-
-    private void doDeletePost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-    }
-
-    //Helper
-    private void fullLoadBlogInformation(Blog b){
         
     }
     
+    private void doDeletePost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+    }
+
+    //Helper
+    private void fullLoadBlogInformation(List<Blog> b) {
+        UserDAO uDao = new UserDAO();
+        
+        for (Blog bl : b) {
+            bl.setOwner(uDao.getUserByID(bl.getOwner().getUserid()));
+        }
+    }
+
     /**
      * Returns a short description of the servlet.
      *
@@ -171,5 +275,5 @@ public class BlogManagerController extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }
-
+    
 }

@@ -528,12 +528,10 @@ public class BouquetDAO extends BaseDao {
         Bouquet b = new Bouquet();
         String sql = """
                      SELECT 
-                         b.*, bi.image_url
+                         *
                      FROM
-                         bouquet b
-                             JOIN
-                         bouquet_images bi ON b.Bouquet_ID = bi.Bouquet_ID
-                     WHERE b.Bouquet_ID = ?
+                         bouquet
+                     WHERE Bouquet_ID = ?
                      """;
 
         try {
@@ -547,6 +545,7 @@ public class BouquetDAO extends BaseDao {
                 b.setDescription(rs.getString("description"));
                 b.setCid(rs.getInt("cid"));
                 b.setPrice(rs.getInt("price"));
+                b.setSellPrice(rs.getInt("sellPrice"));
 //                b.setImageUrl(rs.getString("image_url"));
             }
         } catch (SQLException e) {
@@ -568,8 +567,9 @@ public class BouquetDAO extends BaseDao {
         b = dao.getBouquetByID(3);
         List<BouquetRaw> r = dao.getFlowerBatchByBouquetID(3);
 //        BouquetImage big = dao.getBouquetImage(1);
-        List<BouquetImage> big = dao.getBouquetImage(1);
-        System.out.println(big);
+        List<BouquetImage> big = dao.getBouquetImage(5);
+//        System.out.println(big);
+        System.out.println(dao.getBouquetFullInfoById(1));
 
     }
 

@@ -94,8 +94,6 @@ public class Order {
         this.customerId = customerId;
     }
 
-    
-
     public String getCustomerPhone() {
         return customerPhone;
     }

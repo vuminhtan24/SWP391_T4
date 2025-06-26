@@ -165,7 +165,7 @@
                         <table class="table table-condensed">
                             <thead>
                                 <tr class="cart_menu">
-                                    <td class="image">Item</td>
+                                    <td class="image">Item Detail</td>
                                     <td class="description"></td>
                                     <td class="price">Price</td>
                                     <td class="quantity">Quantity</td>
@@ -178,20 +178,23 @@
                                 <c:forEach var="item" items="${cartDetails}">
                                     <tr>
                                         <td class="cart_product">
-                                            <c:set var="firstImageShown" value="false"/>
-                                            <c:forEach items="${cartImages}" var="img">
-                                                <c:if test="${img.bouquetId == item.bouquetId && !firstImageShown}">
-                                                    <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}" alt="${item.bouquet.bouquetName}" width="100">
-                                                    <c:set var="firstImageShown" value="true"/>
-                                                </c:if>
+                                            <c:forEach items="${cartImages}" var="imgLst" varStatus="loop">
+                                                <c:set var="count" value="1" />
+                                                <c:forEach items="${imgLst}" var="img">
+                                                    <c:if test="${img.bouquetId == item.bouquetId && count != 2}">
+                                                        <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}" alt="${item.bouquet.bouquetName}" width="100">
+                                                        <c:set var="count" value="2" />
+                                                    </c:if>
+                                                </c:forEach>
                                             </c:forEach>
+                                        </td>
                                         </td>
                                         <td class="cart_description">
                                             <h4>${item.bouquet.bouquetName}</h4>
                                             <p>${item.bouquet.description}</p>
                                         </td>
                                         <td class="cart_price">
-                                            <p><fmt:formatNumber value="${item.bouquet.price}" pattern="#,##0" /> ₫</p>
+                                            <p><fmt:formatNumber value="${item.bouquet.sellPrice}" pattern="#,##0" /> ₫</p>
                                         </td>
                                         <td class="cart_quantity">
                                             <div class="cart_quantity_button">
@@ -204,7 +207,7 @@
                                             </div>
                                         </td>
                                         <td class="cart_total">
-                                            <p class="cart_total_price"><fmt:formatNumber value="${item.bouquet.price * item.quantity}" pattern="#,##0" /> ₫</p>
+                                            <p class="cart_total_price"><fmt:formatNumber value="${item.bouquet.sellPrice * item.quantity}" pattern="#,##0" /> ₫</p>
                                         </td>
                                         <td class="cart_delete">
                                             <form action="cart" method="post">
@@ -214,7 +217,7 @@
                                             </form>
                                         </td>
                                     </tr>
-                                    <c:set var="total" value="${total + item.bouquet.price * item.quantity}"/>
+                                    <c:set var="total" value="${total + item.bouquet.sellPrice * item.quantity}"/>
                                 </c:forEach>
                             </tbody>
                         </table>
@@ -233,7 +236,7 @@
                                 <ul>
                                     <li style=" background-color:  white"><strong>Total</strong> <span><p><fmt:formatNumber value="${total}" pattern="#,##0" /> ₫</p></span></li>
                                 </ul>
-                                <div style="display: flex; justify-content:  end">
+                                <div style="display: flex; justify-content: end;">
                                     <a class="btn btn-default check_out" href="${pageContext.request.contextPath}/checkout">Check Out</a>
                                 </div>
                             </div>
