@@ -57,7 +57,8 @@ public class OrderDAO extends BaseDao {
 
         StringBuilder dataSql = new StringBuilder();
         dataSql.append("SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, ")
-                .append("o.total_import, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name ")
+                // ✅ THAY ĐỔI: Thêm o.total_sell vào câu lệnh SELECT để lấy giá trị trực tiếp từ cột
+                .append("o.total_import, o.total_sell, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name ")
                 .append("FROM `order` o ")
                 .append("JOIN `user` u ON o.customer_id = u.User_ID ")
                 .append("JOIN `order_status` os ON o.status_id = os.order_status_id ")
@@ -94,8 +95,8 @@ public class OrderDAO extends BaseDao {
                 orderByColumnName = "u.Fullname";
                 break;
             case "totalSell":
-                orderByColumnName = "o.total_import";
-                break; // Vì totalSell = total_import * 5
+                orderByColumnName = "o.total_sell"; // ✅ THAY ĐỔI: Sắp xếp theo cột total_sell trực tiếp
+                break;
             case "statusName":
                 orderByColumnName = "os.status_name";
                 break;
@@ -146,18 +147,20 @@ public class OrderDAO extends BaseDao {
 
             rs = ps.executeQuery();
             while (rs.next()) {
-                int totalImport = rs.getInt("total_import");
-                int totalSell = totalImport * 5;
+                // ✅ THAY ĐỔI: LẤY TRỰC TIẾP total_import và total_sell từ ResultSet
+                // KHÔNG còn nhân total_import với 5 nữa
+                String totalImportStr = rs.getString("total_import");
+                String totalSellStr = rs.getString("total_sell");
 
                 listOrders.add(new Order(
                         rs.getInt("order_id"),
                         rs.getString("order_date") != null ? rs.getString("order_date").trim() : null,
                         rs.getInt("customer_id"),
                         rs.getString("customer_name"),
-                        null,
-                        null,
-                        String.valueOf(totalSell), // totalSell thay vì total_amount
-                        String.valueOf(totalImport),
+                        null, // customerPhone không có trong select này, nên để null
+                        null, // customerAddress không có trong select này, nên để null
+                        totalSellStr, // Sử dụng giá trị totalSell trực tiếp từ DB
+                        totalImportStr, // Sử dụng giá trị totalImport trực tiếp từ DB
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
@@ -189,7 +192,8 @@ public class OrderDAO extends BaseDao {
         Order order = null;
         String sql = "SELECT o.order_id, o.order_date, o.customer_id, "
                 + "u.Fullname AS customer_name, u.Phone AS customer_phone, u.Address AS customer_address, "
-                + "o.total_import, o.status_id, os.status_name, "
+                // ✅ THAY ĐỔI: Thêm o.total_sell vào câu lệnh SELECT
+                + "o.total_import, o.total_sell, o.status_id, os.status_name, "
                 + "o.shipper_id, s.Fullname AS shipper_name, "
                 + "o.delivery_confirmation_image_path "
                 + "FROM `order` o "
@@ -205,8 +209,10 @@ public class OrderDAO extends BaseDao {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                int totalImport = rs.getInt("total_import");
-                int totalSell = totalImport * 5;
+                // ✅ THAY ĐỔI: LẤY TRỰC TIẾP total_import và total_sell từ ResultSet
+                // KHÔNG còn nhân total_import với 5 nữa
+                String totalImportStr = rs.getString("total_import");
+                String totalSellStr = rs.getString("total_sell");
 
                 order = new Order(
                         rs.getInt("order_id"),
@@ -215,8 +221,8 @@ public class OrderDAO extends BaseDao {
                         rs.getString("customer_name"),
                         rs.getString("customer_phone"),
                         rs.getString("customer_address"),
-                        String.valueOf(totalSell), // totalSell
-                        String.valueOf(totalImport), // totalImport
+                        totalSellStr, // Sử dụng giá trị totalSell trực tiếp từ DB
+                        totalImportStr, // Sử dụng giá trị totalImport trực tiếp từ DB
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
