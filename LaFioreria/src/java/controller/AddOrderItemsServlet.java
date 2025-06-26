@@ -2,7 +2,7 @@ package controller;
 
 import dal.OrderDAO;
 import model.Order;
-import model.OrderDetail;
+import model.OrderDetail; 
 import model.Bouquet;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -65,7 +65,6 @@ public class AddOrderItemsServlet extends HttpServlet {
         request.setAttribute("currentOrderItems", currentOrderItems);
         request.setAttribute("allBouquets", allBouquets);
 
-        // Pass success/error messages from redirect (if any)
         String successMessage = request.getParameter("successMessage");
         if (successMessage != null && !successMessage.isEmpty()) {
             request.setAttribute("successMessage", successMessage);
@@ -83,7 +82,7 @@ public class AddOrderItemsServlet extends HttpServlet {
      * the form to add items to an order.
      *
      * @param request servlet request
-     * @param response servlet response
+     * @param response servlet servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
@@ -127,7 +126,7 @@ public class AddOrderItemsServlet extends HttpServlet {
 
         boolean allItemsAdded = true;
         double currentTotalImport = 0.0;
-        double currentTotalSell = 0.0; // ✅ THÊM biến để tính tổng tiền bán
+        double currentTotalSellDouble = 0.0; // Sử dụng biến double để tính toán, sau đó ép kiểu int nếu cần cho OrderDetail
 
         List<Bouquet> allBouquetsData = orderDAO.getAllBouquets();
 
@@ -142,25 +141,25 @@ public class AddOrderItemsServlet extends HttpServlet {
                     break;
                 }
 
-                double importPrice = -1; // Giá nhập
-                double sellPrice = -1; // Giá bán
+                double importPrice = -1; 
+                int sellPrice = -1; // ✅ THAY ĐỔI: sellPrice là int
 
                 for (Bouquet b : allBouquetsData) {
                     if (b.getBouquetId() == bouquetId) {
-                        importPrice = b.getPrice(); // Giá nhập
-                        sellPrice = b.getSellPrice(); // ✅ Lấy giá bán
+                        importPrice = b.getPrice();
+                        sellPrice = b.getSellPrice(); // ✅ Lấy sellPrice là int
                         break;
                     }
                 }
 
-                if (importPrice <= 0 || sellPrice <= 0) { // Kiểm tra cả giá nhập và giá bán
-                    errorMessage = "Could not find price for bouquet ID: " + bouquetId;
+                if (importPrice <= 0 || sellPrice <= 0) {
+                    errorMessage = "Could not find valid price (import or sell) for bouquet ID: " + bouquetId;
                     allItemsAdded = false;
                     break;
                 }
 
-                // Chèn OrderItem
-                OrderDetail newItem = new OrderDetail(0, orderId, bouquetId, null, null, quantity, String.valueOf(importPrice));
+                // ✅ THAY ĐỔI: Tạo OrderDetail với unitPrice là String và sellPrice là int
+                OrderDetail newItem = new OrderDetail(orderId, bouquetId, quantity, String.valueOf(importPrice), sellPrice); 
                 if (!orderDAO.addOrderItem(newItem)) {
                     errorMessage = "Failed to add item for bouquet ID: " + bouquetId;
                     allItemsAdded = false;
@@ -168,7 +167,7 @@ public class AddOrderItemsServlet extends HttpServlet {
                 }
 
                 currentTotalImport += importPrice * quantity;
-                currentTotalSell += sellPrice * quantity; // ✅ Cập nhật tổng tiền bán
+                currentTotalSellDouble += sellPrice * quantity; // Tính toán tổng tiền bán dưới dạng double
 
             } catch (NumberFormatException e) {
                 errorMessage = "Invalid number format for bouquet ID or quantity.";
@@ -184,11 +183,13 @@ public class AddOrderItemsServlet extends HttpServlet {
 
         if (allItemsAdded && errorMessage == null) {
             String formattedImport = String.format("%.2f", currentTotalImport);
-            String formattedSell = String.format("%.2f", currentTotalSell); // ✅ Format tổng tiền bán
+            String formattedSell = String.format("%.2f", currentTotalSellDouble); // ✅ Sử dụng double cho String.format
 
-            // ✅ GỌI update tổng tiền nhập và tổng tiền bán
-            if (!orderDAO.updateTotalImportAndSell(orderId, formattedImport, formattedSell)) {
-                errorMessage = "Items added, but failed to update total import and sell.";
+            Order currentOrder = orderDAO.getOrderDetailById(orderId);
+            if (currentOrder != null) {
+                orderDAO.updateOrder(orderId, formattedImport, formattedSell, currentOrder.getStatusId(), currentOrder.getShipperId());
+            } else {
+                errorMessage = "Failed to retrieve current order for total update.";
             }
         }
 
