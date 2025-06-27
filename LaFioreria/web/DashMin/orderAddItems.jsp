@@ -7,6 +7,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -54,9 +55,16 @@
             .product-item-row .quantity-input {
                 width: 100px; /* Smaller width for quantity */
             }
+            /* Căn chỉnh các cột số sang phải */
+            .table th.text-end,
+            .table td.text-end,
+            .price-display {
+                text-align: right;
+            }
         </style>
         <script>
             let itemCounter = 0;
+
             // Function to add a new product item row to the form
             function addProductItemRow() {
                 const container = document.getElementById('productItemsContainer');
@@ -65,10 +73,10 @@
                 newRow.innerHTML = `
                     <div class="col-md-6">
                         <label for="bouquetId_${itemCounter}" class="form-label visually-hidden">Bouquet:</label>
-                        <select class="form-select" id="bouquetId_${itemCounter}" name="bouquetId" required>
+                        <select class="form-select bouquet-select" id="bouquetId_${itemCounter}" name="bouquetId" required>
                             <option value="">-- Select Bouquet --</option>
                             <c:forEach var="bouquet" items="${allBouquets}">
-                                <option value="${bouquet.bouquetId}" data-price="${bouquet.price}">${bouquet.bouquetName} (${bouquet.price})</option>
+                                <option value="${bouquet.bouquetId}" data-price="${bouquet.price}" data-sellprice="${bouquet.sellPrice}">${bouquet.bouquetName} (Import: <fmt:formatNumber value="${bouquet.price}" pattern="#,##0" /> ₫ - Sell: <fmt:formatNumber value="${bouquet.sellPrice}" pattern="#,##0" /> ₫)</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -81,17 +89,64 @@
                     </div>
                 `;
                 container.appendChild(newRow);
+
+                // Attach event listener to the new select element
+                newRow.querySelector('.bouquet-select').addEventListener('change', updateBouquetOptions);
+
                 itemCounter++;
+                updateBouquetOptions(); // Update options after adding a new row
             }
 
             // Function to remove a product item row
             function removeProductItemRow(button) {
                 button.closest('.product-item-row').remove();
+                updateBouquetOptions(); // Update options after removing a row
             }
 
-            // Initial row on page load
+            // Function to update disabled state of bouquet options across all select boxes
+            function updateBouquetOptions() {
+                const allSelects = document.querySelectorAll('.bouquet-select');
+                const selectedValues = new Set(); // To store currently selected bouquet IDs
+
+                // First, collect all selected values
+                allSelects.forEach(select => {
+                    if (select.value !== "") {
+                        selectedValues.add(select.value);
+                    }
+                });
+
+                // Then, iterate through all selects again to disable/enable options
+                allSelects.forEach(select => {
+                    Array.from(select.options).forEach(option => {
+                        // Enable all options first (except the empty one)
+                        if (option.value !== "") {
+                            option.disabled = false;
+                        }
+
+                        // If an option's value is in selectedValues AND it's not the current select's value, disable it
+                        if (option.value !== "" && selectedValues.has(option.value) && option.value !== select.value) {
+                            option.disabled = true;
+                        }
+                    });
+                });
+            }
+
+
+            // Initial setup on page load
             document.addEventListener('DOMContentLoaded', () => {
-                addProductItemRow(); // Always add one initial row for adding items
+                // Check if there are any rows rendered by server-side (e.g., after a validation error)
+                const existingRows = document.querySelectorAll('#productItemsContainer .product-item-row');
+                if (existingRows.length === 0) {
+                    addProductItemRow(); // Add one initial row if none exist
+                } else {
+                    // If rows exist from server-side, attach event listeners and update options
+                    existingRows.forEach(row => {
+                        row.querySelector('.bouquet-select').addEventListener('change', updateBouquetOptions);
+                    });
+                    // Set itemCounter based on existing rows
+                    itemCounter = existingRows.length;
+                    updateBouquetOptions(); // Initial update for server-side rendered rows
+                }
             });
         </script>
     </head>
@@ -187,8 +242,18 @@
                         <div class="mb-3">
                             <p><strong>Order Date:</strong> ${order.orderDate}</p>
                             <p><strong>Customer:</strong> ${order.customerName}</p>
-                            <p><strong>Current Total Import</strong> ${order.totalImport}</p>
-                            <p><strong>Current Total Sell</strong> ${order.totalSell}</p>
+                            <p>
+                                <strong>Current Total Import:</strong> 
+                                <span class="price-display">
+                                    <fmt:formatNumber value="${order.totalImport}" pattern="#,##0" /> ₫
+                                </span>
+                            </p>
+                            <p>
+                                <strong>Current Total Sell:</strong> 
+                                <span class="price-display">
+                                    <fmt:formatNumber value="${order.totalSell}" pattern="#,##0" /> ₫
+                                </span>
+                            </p>
                         </div>
                         
                         <hr>
@@ -204,9 +269,11 @@
                                             <th scope="col">#</th>
                                             <th scope="col">Image</th>
                                             <th scope="col">Product Name</th>
-                                            <th scope="col">Quantity</th>
-                                            <th scope="col">Unit Price</th>
-                                            <th scope="col">Subtotal</th>
+                                            <th scope="col" class="text-end">Quantity</th>
+                                            <th scope="col" class="text-end">Unit Price (Import)</th>
+                                            <th scope="col" class="text-end">Unit Price (Sell)</th>
+                                            <th scope="col" class="text-end">Subtotal (Import)</th>
+                                            <th scope="col" class="text-end">Subtotal (Sell)</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -220,17 +287,26 @@
                                                                  alt="${item.bouquetName}" style="width: 50px; height: 50px; object-fit: cover;">
                                                         </c:when>
                                                         <c:otherwise>
-                                                            [Image of No image]
+                                                            [No Image]
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </td>
                                                 <td>${item.bouquetName}</td>
-                                                <td>${item.quantity}</td>
-                                                <td>${item.unitPrice}</td>
-                                                <td>
+                                                <td class="text-end">${item.quantity}</td>
+                                                <td class="text-end">
+                                                    <fmt:formatNumber value="${item.unitPrice}" pattern="#,##0" /> ₫
+                                                </td>
+                                                <td class="text-end">
+                                                    <fmt:formatNumber value="${item.sellPrice}" pattern="#,##0" /> ₫
+                                                </td>
+                                                <td class="text-end">
                                                     <fmt:parseNumber var="qty" value="${item.quantity}" integerOnly="true" />
-                                                    <fmt:parseNumber var="price" value="${item.unitPrice}" type="number" />
-                                                    <fmt:formatNumber value="${qty * price}" type="number" maxFractionDigits="2" />
+                                                    <fmt:parseNumber var="priceImport" value="${item.unitPrice}" type="number" />
+                                                    <fmt:formatNumber value="${qty * priceImport}" pattern="#,##0" /> ₫
+                                                </td>
+                                                <td class="text-end">
+                                                    <fmt:parseNumber var="priceSell" value="${item.sellPrice}" type="number" />
+                                                    <fmt:formatNumber value="${qty * priceSell}" pattern="#,##0" /> ₫
                                                 </td>
                                             </tr>
                                         </c:forEach>
@@ -246,6 +322,36 @@
                             
                             <div id="productItemsContainer">
                                 <%-- Dynamic product item rows will be added here by JavaScript --%>
+                                <c:if test="${not empty paramValues.bouquetId}">
+                                    <c:forEach var="i" begin="0" end="${fn:length(paramValues.bouquetId) - 1}">
+                                        <div class="product-item-row d-flex align-items-center mb-3 p-2 border rounded">
+                                            <div class="col-md-6">
+                                                <label for="bouquetId_${i}" class="form-label visually-hidden">Bouquet:</label>
+                                                <select class="form-select" id="bouquetId_${i}" name="bouquetId" required>
+                                                    <option value="">-- Select Bouquet --</option>
+                                                    <c:forEach var="bouquet" items="${allBouquets}">
+                                                        <option value="${bouquet.bouquetId}" 
+                                                                data-price="${bouquet.price}" 
+                                                                data-sellprice="${bouquet.sellPrice}"
+                                                                <c:if test="${paramValues.bouquetId[i] == bouquet.bouquetId}">selected</c:if>>
+                                                            ${bouquet.bouquetName} (Import: <fmt:formatNumber value="${bouquet.price}" pattern="#,##0" /> ₫ - Sell: <fmt:formatNumber value="${bouquet.sellPrice}" pattern="#,##0" /> ₫)</option>
+                                                    </c:forEach>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="quantity_${i}" class="form-label visually-hidden">Quantity:</label>
+                                                <input type="number" class="form-control quantity-input" id="quantity_${i}" name="quantity" min="1" value="${paramValues.quantity[i]}" required>
+                                            </div>
+                                            <div class="col-md-2 d-flex align-items-center">
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="removeProductItemRow(this)">Remove</button>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                    <script>
+                                        // Set itemCounter to the correct value after server-side rendering
+                                        itemCounter = ${fn:length(paramValues.bouquetId)}; 
+                                    </script>
+                                </c:if>
                             </div>
 
                             <button type="button" class="btn btn-secondary mt-3" onclick="addProductItemRow()">Add Another Product</button>

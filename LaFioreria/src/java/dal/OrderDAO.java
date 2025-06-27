@@ -57,7 +57,8 @@ public class OrderDAO extends BaseDao {
 
         StringBuilder dataSql = new StringBuilder();
         dataSql.append("SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, ")
-                .append("o.total_import, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name ")
+                // ✅ THAY ĐỔI: Thêm o.total_sell vào câu lệnh SELECT để lấy giá trị trực tiếp từ cột
+                .append("o.total_import, o.total_sell, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name ")
                 .append("FROM `order` o ")
                 .append("JOIN `user` u ON o.customer_id = u.User_ID ")
                 .append("JOIN `order_status` os ON o.status_id = os.order_status_id ")
@@ -94,8 +95,8 @@ public class OrderDAO extends BaseDao {
                 orderByColumnName = "u.Fullname";
                 break;
             case "totalSell":
-                orderByColumnName = "o.total_import";
-                break; // Vì totalSell = total_import * 5
+                orderByColumnName = "o.total_sell"; // ✅ THAY ĐỔI: Sắp xếp theo cột total_sell trực tiếp
+                break;
             case "statusName":
                 orderByColumnName = "os.status_name";
                 break;
@@ -146,18 +147,20 @@ public class OrderDAO extends BaseDao {
 
             rs = ps.executeQuery();
             while (rs.next()) {
-                int totalImport = rs.getInt("total_import");
-                int totalSell = totalImport * 5;
+                // ✅ THAY ĐỔI: LẤY TRỰC TIẾP total_import và total_sell từ ResultSet
+                // KHÔNG còn nhân total_import với 5 nữa
+                String totalImportStr = rs.getString("total_import");
+                String totalSellStr = rs.getString("total_sell");
 
                 listOrders.add(new Order(
                         rs.getInt("order_id"),
                         rs.getString("order_date") != null ? rs.getString("order_date").trim() : null,
                         rs.getInt("customer_id"),
                         rs.getString("customer_name"),
-                        null,
-                        null,
-                        String.valueOf(totalSell), // totalSell thay vì total_amount
-                        String.valueOf(totalImport),
+                        null, // customerPhone không có trong select này, nên để null
+                        null, // customerAddress không có trong select này, nên để null
+                        totalSellStr, // Sử dụng giá trị totalSell trực tiếp từ DB
+                        totalImportStr, // Sử dụng giá trị totalImport trực tiếp từ DB
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
@@ -189,7 +192,8 @@ public class OrderDAO extends BaseDao {
         Order order = null;
         String sql = "SELECT o.order_id, o.order_date, o.customer_id, "
                 + "u.Fullname AS customer_name, u.Phone AS customer_phone, u.Address AS customer_address, "
-                + "o.total_import, o.status_id, os.status_name, "
+                // ✅ THAY ĐỔI: Thêm o.total_sell vào câu lệnh SELECT
+                + "o.total_import, o.total_sell, o.status_id, os.status_name, "
                 + "o.shipper_id, s.Fullname AS shipper_name, "
                 + "o.delivery_confirmation_image_path "
                 + "FROM `order` o "
@@ -205,8 +209,10 @@ public class OrderDAO extends BaseDao {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                int totalImport = rs.getInt("total_import");
-                int totalSell = totalImport * 5;
+                // ✅ THAY ĐỔI: LẤY TRỰC TIẾP total_import và total_sell từ ResultSet
+                // KHÔNG còn nhân total_import với 5 nữa
+                String totalImportStr = rs.getString("total_import");
+                String totalSellStr = rs.getString("total_sell");
 
                 order = new Order(
                         rs.getInt("order_id"),
@@ -215,8 +221,8 @@ public class OrderDAO extends BaseDao {
                         rs.getString("customer_name"),
                         rs.getString("customer_phone"),
                         rs.getString("customer_address"),
-                        String.valueOf(totalSell), // totalSell
-                        String.valueOf(totalImport), // totalImport
+                        totalSellStr, // Sử dụng giá trị totalSell trực tiếp từ DB
+                        totalImportStr, // Sử dụng giá trị totalImport trực tiếp từ DB
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
@@ -568,14 +574,15 @@ public class OrderDAO extends BaseDao {
      * @return true if the order item is added successfully, false otherwise.
      */
     public boolean addOrderItem(OrderDetail orderItem) {
-        String sql = "INSERT INTO `order_item` (order_id, bouquet_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO `order_item` (order_id, bouquet_id, quantity, unit_price, sellPrice) VALUES (?, ?, ?, ?, ?)";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setInt(1, orderItem.getOrderId());
             ps.setInt(2, orderItem.getBouquetId());
             ps.setInt(3, orderItem.getQuantity());
-            ps.setString(4, orderItem.getUnitPrice()); // Ensure unitPrice is handled as String/VARCHAR
+            ps.setString(4, orderItem.getUnitPrice());
+            ps.setDouble(5, orderItem.getSellPrice());
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
@@ -836,6 +843,7 @@ public class OrderDAO extends BaseDao {
                 + "    b.Bouquet_Name,\n"
                 + "    MIN(bi.image_url) AS image_url,\n" // Using MIN() to aggregate image_url
                 + "    b.Price,\n"
+                + "    b.sellPrice,\n"
                 + "    b.Description,\n"
                 + "    b.CID\n"
                 + "FROM\n"
@@ -852,6 +860,7 @@ public class OrderDAO extends BaseDao {
                 bouquet.setBouquetId(rs.getInt("Bouquet_ID"));
                 bouquet.setBouquetName(rs.getString("Bouquet_Name"));
                 bouquet.setPrice(rs.getInt("Price"));
+                bouquet.setSellPrice(rs.getInt("sellPrice")); 
                 bouquet.setDescription(rs.getString("Description"));
                 bouquet.setCid(rs.getInt("CID"));
                 bouquets.add(bouquet);
@@ -941,12 +950,12 @@ public class OrderDAO extends BaseDao {
         return false;
     }
 
-    public boolean updateTotalImport(int orderId, String totalImport) {
+    public boolean updateTotalImport(int orderId, int totalImport) {
         String sql = "UPDATE `order` SET total_import = ? WHERE order_id = ?";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
-            ps.setString(1, totalImport);
+            ps.setInt(1, totalImport);
             ps.setInt(2, orderId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

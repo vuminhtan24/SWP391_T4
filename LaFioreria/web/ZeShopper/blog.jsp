@@ -138,7 +138,16 @@
                                     <!-- Loop through blogs -->
                                     <c:forEach var="blog" items="${blogs}">
                                         <div class="single-blog-post" style="margin-bottom: 20px; padding: 20px; border: solid 1px #cccccc; border-radius: 20px;">
-                                            <h2>${blog.title}</h2>
+                                            <h2>
+                                                <c:choose>
+                                                    <c:when test="${fn:length(blog.title) > 50}">
+                                                        ${fn:substring(blog.title, 0, 50)}...
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        ${blog.title}
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </h2>
                                             <div class="post-meta">
                                                 <ul>
                                                     <li><i class="fa fa-user"></i> Author: ${blog.owner.fullname}</li>
@@ -163,12 +172,19 @@
                                             <p>
                                                 <c:choose>
                                                     <c:when test="${not empty blog.pre_context}">
-                                                        ${blog.pre_context}
+                                                        <c:choose>
+                                                            <c:when test="${fn:length(blog.pre_context) > 120}">
+                                                                ${fn:substring(blog.pre_context, 0, 120)}...
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                ${blog.pre_context}
+                                                            </c:otherwise>
+                                                        </c:choose>
                                                     </c:when>
                                                     <c:otherwise>
                                                         <c:choose>
-                                                            <c:when test="${fn:length(blog.context) > 200}">
-                                                                ${fn:substring(blog.context, 0, 200)}...
+                                                            <c:when test="${fn:length(blog.context) > 50}">
+                                                                ${fn:substring(blog.context, 0, 50)}...
                                                             </c:when>
                                                             <c:otherwise>
                                                                 ${blog.context}

@@ -43,6 +43,13 @@ public class OrderDetail {
         this.sellPrice = sellPrice;
         this.status = status;
     }    
+    public OrderDetail(int orderId, int bouquetId, int quantity, String unitPrice, int sellPrice) {
+        this.orderId = orderId;
+        this.bouquetId = bouquetId;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+        this.sellPrice = sellPrice;
+    }
     
     public int getOrderDetailId() {
         return orderDetailId;
