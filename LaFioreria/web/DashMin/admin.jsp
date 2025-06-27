@@ -181,8 +181,8 @@
                         <div class="col-sm-12 col-xl-6">
                             <div class="bg-light text-center rounded p-4 h-100">
                                 <div class="stat mb-4" style="background:#f0f0f0;padding:15px;border-radius:8px;">
-                                    <h3><%= String.format("%,.0f", request.getAttribute("thisMonthRevenue")) %> VNĐ</h3>
-                                    <p>💰 Doanh thu tháng này</p>
+                                    <h6 class="mb-0">💰 Doanh thu tháng này</h3>
+                                        <a href="${pageContext.request.contextPath}/revenuebydateservlet">Show All</a>
                                 </div>
                                 <canvas id="thisMonthChart"
                                         data-labels='<%= request.getAttribute("thisMonthLabels") %>'
@@ -213,6 +213,7 @@
                             <div class="bg-light text-center rounded p-4 h-100">
                                 <h4 class="mb-3">1. Doanh thu & số đơn theo tháng – Năm <%= request.getAttribute("monthYear") %></h4>
                                 <canvas id="monthChart" style="width: 100%; height: 300px;"></canvas>
+
                                 <button onclick="downloadChartAsImage(window.statsChart, 'thongke_theothang.png')">
                                     📥 Tải PNG
                                 </button>
@@ -223,6 +224,7 @@
                         <div class="col-sm-12 col-xl-6">
                             <div class="bg-light text-center rounded p-4 h-100">
                                 <h4 class="mb-3">2. Doanh thu & số đơn theo từng năm</h4>
+                                <a href="${pageContext.request.contextPath}/revenuealltimeservlet">Show All</a>
                                 <canvas id="yearChart" style="width: 100%; height: 300px;"></canvas>
                             </div>
                         </div>
@@ -272,8 +274,9 @@
                 <!-- 📈 Doanh thu theo loại hoa (tháng này) -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded p-4">
-                        <h2 class="mb-4">🌸 Doanh thu các loại hoa (tháng này)</h2>
-
+                        <h2 class="mb-4">🌸 Flower sales (this month)</h2>
+                        <a href="${pageContext.request.contextPath}/flowerqualitystatsservlet">Show Quality flower State</a><br>
+                        <a href="${pageContext.request.contextPath}/flowerlossstats">Show loss flower</a>
                         <form method="get" action="${pageContext.request.contextPath}/DashMin/admin" class="mb-4">
                             <label>Chọn loại hoa:</label><br>
                             <c:forEach var="cat" items="${categoryList}">
