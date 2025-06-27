@@ -13,6 +13,7 @@ public class StatResult {
     private String label;       // Ví dụ: "Tháng 6", "Năm 2025", "Monday"
     private double revenue;     // Tổng doanh thu
     private int orderCount;     // Số đơn hàng
+    private int value; // số hoa hết hạn (dùng cho biểu đồ line)
 
     public StatResult() {
     }
@@ -45,5 +46,13 @@ public class StatResult {
 
     public void setOrderCount(int orderCount) {
         this.orderCount = orderCount;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
     }
 }

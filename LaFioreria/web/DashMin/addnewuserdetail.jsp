@@ -210,15 +210,6 @@
                             <table class="table table-striped">
                                 <tbody>
                                     <tr>
-                                        <td>User ID: </td>
-                                        <td>
-                                            <input type="text" name="id" class="form-control" placeholder="id"
-                                                   value="${idValue}" readonly aria-label="id" aria-describedby="basic-addon1">
-
-                                        </td>
-                                    </tr>
-
-                                    <tr>
                                         <td>User Name: </td>
                                         <td>
                                             <input type="text" name="name" class="form-control" placeholder="User Name"
