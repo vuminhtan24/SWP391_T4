@@ -29,7 +29,7 @@ public class FlowerScheduler extends BaseDao {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         // Chạy job mỗi 24 giờ (86400 giây)
-        scheduler.scheduleAtFixedRate(new FlowerScheduler()::checkFlowerBatches, 0, 43200, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(new FlowerScheduler()::checkFlowerBatches, 0, 3600, TimeUnit.SECONDS);
 
     }
 
@@ -118,7 +118,10 @@ public class FlowerScheduler extends BaseDao {
             ps.setString(1, currentDate);
             int freshRows = ps.executeUpdate();
             System.out.println("Đã cập nhật " + freshRows + " lô hoa thành fresh.");
-
+            
+            // 8. Kiểm tra số lượng lô hoa và đơn hàng
+            checkStockLevelsAndOrders();
+            
             System.out.println("Hoàn thành kiểm tra trạng thái lô hoa.");
         } catch (SQLException e) {
             System.err.println("SQLException: " + e.getMessage());
@@ -179,6 +182,113 @@ public class FlowerScheduler extends BaseDao {
 
                 Transport.send(message);
                 System.out.println("Đã gửi email thông báo đến: " + to);
+            } catch (MessagingException e) {
+                System.err.println("Lỗi gửi email đến " + to + ": " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    private void checkStockLevelsAndOrders() throws SQLException {
+        // Kiểm tra số lượng lô hoa trong flower_batch < 10
+        String checkLowQuantity = "SELECT b.batch_id, b.quantity, b.flower_id, t.flower_name " +
+                                "FROM flower_batch b " +
+                                "JOIN flower_type t ON t.flower_id = b.flower_id " +
+                                "WHERE b.quantity < 10 " +
+                                "ORDER BY b.batch_id, b.quantity, b.flower_id, t.flower_name";
+        ps = connection.prepareStatement(checkLowQuantity);
+        rs = ps.executeQuery();
+        while (rs.next()) {
+            int batchId = rs.getInt("b.batch_id");
+            int quantity = rs.getInt("b.quantity");
+            int flowerId = rs.getInt("b.flower_id");
+            String flowerName = rs.getString("t.flower_name");
+            System.out.println("Lô hoa " + batchId + " (" + flowerName + ") có số lượng thấp: " + quantity + " < 10");
+            sendEmailToAdminsForStock(batchId, flowerId, flowerName, "low_quantity");
+        }
+
+        // Kiểm tra số lượng hoa cần so với tồn kho dựa trên câu lệnh SQL của bạn
+        String checkOrdersVsStock = "SELECT b.Bouquet_ID, b.bouquet_name, need.total_needed, stock.total_stock, " +
+                                   "(stock.total_stock - need.total_needed) AS diff " +
+                                   "FROM bouquet b " +
+                                   "LEFT JOIN ( " +
+                                   "    SELECT oi.bouquet_id, SUM(oi.quantity * br.quantity) AS total_needed " +
+                                   "    FROM la_fioreria.order_item oi " +
+                                   "    JOIN bouquet_raw br ON oi.bouquet_id = br.bouquet_id " +
+                                   "    JOIN la_fioreria.`order` o ON oi.order_id = o.order_id " +
+                                   "    JOIN order_status s ON o.status_id = s.order_status_id " +
+                                   "    WHERE s.status_name = 'pending' " +
+                                   "    GROUP BY oi.bouquet_id " +
+                                   ") AS need ON need.bouquet_id = b.Bouquet_ID " +
+                                   "LEFT JOIN ( " +
+                                   "    SELECT br.bouquet_id, SUM(fb.quantity) AS total_stock " +
+                                   "    FROM bouquet_raw br " +
+                                   "    JOIN flower_batch fb ON fb.batch_id = br.batch_id " +
+                                   "    GROUP BY br.bouquet_id " +
+                                   ") AS stock ON stock.bouquet_id = b.Bouquet_ID " +
+                                   "WHERE need.total_needed IS NOT NULL " +
+                                   "HAVING diff < 0 " +
+                                   "ORDER BY diff ASC";
+        ps = connection.prepareStatement(checkOrdersVsStock);
+        rs = ps.executeQuery();
+        while (rs.next()) {
+            int bouquetId = rs.getInt("Bouquet_ID");
+            String bouquetName = rs.getString("bouquet_name");
+            int totalNeeded = rs.getInt("total_needed");
+            int totalStock = rs.getInt("total_stock");
+            int diff = rs.getInt("diff");
+            System.out.println("Giỏ hoa " + bouquetName + " (ID: " + bouquetId + ") cần " + totalNeeded +
+                              " hoa, tồn kho " + totalStock + ", chênh lệch " + diff);
+            sendEmailToAdminsForStock(-1, -1, bouquetName, "low_stock");
+        }
+    }
+    
+    private void sendEmailToAdminsForStock(int batchId, int flowerId, String name, String reasonType) {
+        String from = "hoang.trungkien2110@gmail.com";
+        String password = "jnto tzhj pvvd fvfm";
+        String host = "smtp.gmail.com";
+
+        Properties properties = new Properties();
+        properties.put("mail.smtp.host", host);
+        properties.put("mail.smtp.port", "587");
+        properties.put("mail.smtp.auth", "true");
+        properties.put("mail.smtp.starttls.enable", "true");
+
+        Session session = Session.getDefaultInstance(properties, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(from, password);
+            }
+        });
+
+        List<String> adminEmails = getAdminEmails();
+
+        if (adminEmails.isEmpty()) {
+            System.out.println("Không tìm thấy email admin để gửi thông báo.");
+            return;
+        }
+
+        String subject = "Yêu cầu nhập thêm lô hoa";
+        String body = "Kính gửi Admin,\n\n";
+        if ("low_quantity".equals(reasonType)) {
+            body += "Lô hoa ID " + batchId + " (" + name + ") có số lượng thấp.\n" +
+                    "Vui lòng nhập thêm lô hoa cho loại hoa ID " + flowerId + ".\n";
+        } else if ("low_stock".equals(reasonType)) {
+            body += "Giỏ hoa " + name + " cần " + (reasonType.equals("low_stock") ? "thêm hoa" : "") + " vì số lượng đơn hàng vượt tồn kho.\n" +
+                    "Vui lòng nhập thêm lô hoa để đáp ứng nhu cầu.\n";
+        }
+        body += "- Thời gian: " + new Date() + "\n\n" +
+                "Trân trọng,\nHệ thống La Fioreria";
+
+        for (String to : adminEmails) {
+            try {
+                MimeMessage message = new MimeMessage(session);
+                message.setFrom(new InternetAddress(from));
+                message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+                message.setSubject(subject);
+                message.setText(body);
+
+                Transport.send(message);
+                System.out.println("Đã gửi email thông báo nhập lô hoa đến: " + to);
             } catch (MessagingException e) {
                 System.err.println("Lỗi gửi email đến " + to + ": " + e.getMessage());
                 e.printStackTrace();
