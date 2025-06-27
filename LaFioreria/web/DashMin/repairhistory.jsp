@@ -1,19 +1,19 @@
 <%-- 
-    Document   : repairorders
-    Created on : Jun 24, 2025, 3:25:03 PM
+    Document   : repairhistory
+    Created on : Jun 25, 2025, 9:46:50 PM
     Author     : Admin
 --%>
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Quản lý yêu cầu sửa giỏ hoa - La Fioreria</title>
+    <title>Repair History - La Fioreria</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="Quản lý yêu cầu sửa giỏ hoa" name="keywords">
-    <meta content="Trang quản lý yêu cầu sửa giỏ hoa cho admin" name="description">
+    <meta content="Repair History" name="keywords">
+    <meta content="Admin page for viewing bouquet repair history" name="description">
 
     <!-- Favicon -->
     <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
@@ -39,6 +39,14 @@
 </head>
 <body>
     <div class="container-fluid position-relative bg-white d-flex p-0">
+        <!-- Spinner Start -->
+        <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        <!-- Spinner End -->
+
         <!-- Sidebar Start -->
         <div class="sidebar pe-4 pb-3">
             <nav class="navbar bg-light navbar-light">
@@ -74,19 +82,20 @@
                     <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
                     <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
                     <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-table me-2 active"></i>Repair Center</a>
-                            <div class="dropdown-menu bg-transparent border-0">
-                                <a href="${pageContext.request.contextPath}/repairOrders" class="dropdown-item active">Repair Orders</a>
-                                <a href="${pageContext.request.contextPath}/repairHistory" class="dropdown-item">Repair History</a>
-                            </div>
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-table me-2 active"></i>Repair Center</a>
+                        <div class="dropdown-menu bg-transparent border-0">
+                            <a href="${pageContext.request.contextPath}/repairOrders" class="dropdown-item">Repair Orders</a>
+                            <a href="${pageContext.request.contextPath}/repairHistory" class="dropdown-item active">Repair History</a>
+                        </div>
                     </div>
+                    <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                         <div class="dropdown-menu bg-transparent border-0">
                             <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
                             <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
                             <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item">View User Detail</a>
-                            <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item">Add new User</a>
+                            <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item">Add New User</a>
                         </div>
                     </div>
                 </div>
@@ -96,79 +105,18 @@
 
         <!-- Content Start -->
         <div class="content">
-            <!-- Navbar Start -->
-            <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
-                <a href="${pageContext.request.contextPath}/DashMin/admin" class="navbar-brand d-flex d-lg-none me-4">
-                    <h2 class="text-primary mb-0"><i class="fa fa-hashtag"></i></h2>
-                </a>
-                <a href="#" class="sidebar-toggler flex-shrink-0">
-                    <i class="fa fa-bars"></i>
-                </a>
-                <form class="d-none d-md-flex ms-4">
-                    <input class="form-control border-0" type="search" placeholder="Search">
-                </form>
-                <div class="navbar-nav align-items-center ms-auto">
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="fa fa-envelope me-lg-2"></i>
-                            <span class="d-none d-lg-inline-flex">Message</span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                            <a href="#" class="dropdown-item">
-                                <div class="d-flex align-items-center">
-                                    <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                    <div class="ms-2">
-                                        <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                        <small>15 minutes ago</small>
-                                    </div>
-                                </div>
-                            </a>
-                            <hr class="dropdown-divider">
-                            <a href="#" class="dropdown-item text-center">See all message</a>
-                        </div>
-                    </div>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="fa fa-bell me-lg-2"></i>
-                            <span class="d-none d-lg-inline-flex">Notification</span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                            <a href="#" class="dropdown-item">
-                                <h6 class="fw-normal mb-0">Profile updated</h6>
-                                <small>15 minutes ago</small>
-                            </a>
-                            <hr class="dropdown-divider">
-                            <a href="#" class="dropdown-item text-center">See all notifications</a>
-                        </div>
-                    </div>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                            <img class="rounded-circle me-lg-2" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                            <span class="d-none d-lg-inline-flex">John Doe</span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                            <a href="#" class="dropdown-item">My Profile</a>
-                            <a href="#" class="dropdown-item">Settings</a>
-                            <a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet" class="dropdown-item">Log Out</a>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-            <!-- Navbar End -->
+            <jsp:include page="/DashMin/navbar.jsp"/> <!-- nav bar -->
 
-            <!-- Repair Orders Start -->
+            <!-- Repair History Start -->
             <div class="container-fluid pt-4 px-4">
                 <div class="bg-light rounded h-100 p-4">
-                    <h6 class="mb-4">Danh sách yêu cầu sửa giỏ hoa</h6>
+                    <h6 class="mb-4">Repair History List</h6>
                     <c:if test="${not empty error}">
                         <div class="alert alert-danger">${error}</div>
                     </c:if>
-                    <c:if test="${not empty message}">
-                        <div class="alert alert-success">${message}</div>
-                    </c:if>
                     <c:choose>
-                        <c:when test="${empty repairOrders}">
-                            <p>Không có yêu cầu sửa giỏ hoa nào.</p>
+                        <c:when test="${empty repairHistory}">
+                            <p>No repair history records found.</p>
                         </c:when>
                         <c:otherwise>
                             <div class="table-responsive">
@@ -176,28 +124,40 @@
                                     <thead>
                                         <tr>
                                             <th scope="col">ID</th>
-                                            <th scope="col">Giỏ hoa</th>
-                                            <th scope="col">Lô hoa</th>
-                                            <th scope="col">Lý do</th>
-                                            <th scope="col">Thời gian tạo</th>
-                                            <th scope="col">Trạng thái</th>
-                                            <th scope="col">Hành động</th>
+                                            <th scope="col">Repair ID</th>
+                                            <th scope="col">Bouquet</th>
+                                            <th scope="col">Old Batch</th>
+                                            <th scope="col">New Batch</th>
+                                            <th scope="col">Updated At</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <c:forEach var="order" items="${repairOrders}">
+                                        <c:forEach var="record" items="${repairHistory}">
                                             <tr>
-                                                <td>${order.repairId}</td>
-                                                <td>${order.bouquetName} (ID: ${order.bouquetId})</td>
-                                                <td>${order.flowerName} (ID: ${order.batchId})</td>
-                                                <td>${order.reason}</td>
+                                                <td>${record.id}</td>
+                                                <td>${record.repairId}</td>
                                                 <td>
-                                                    <fmt:parseDate value="${order.createdAt}" pattern="yyyy-MM-dd HH:mm:ss" var="parsedDate"/>
-                                                    <fmt:formatDate value="${parsedDate}" pattern="dd/MM/yyyy HH:mm"/>
+                                                    <c:choose>
+                                                        <c:when test="${not empty record.bouquetName}">
+                                                            ${record.bouquetName} (Bouquet ID: ${record.bouquetId})
+                                                        </c:when>
+                                                        <c:otherwise>ID: ${record.bouquetId}</c:otherwise>
+                                                    </c:choose>
                                                 </td>
-                                                <td>${order.status}</td>
+                                                <td>${record.oldFlowerName} (Batch ID: ${record.oldBatchId})</td>
                                                 <td>
-                                                    <a href="${pageContext.request.contextPath}/editBouquet?id=${order.bouquetId}&repairId=${order.repairId}&oldBatchId=${order.batchId}&fromRepair=true" class="btn btn-primary btn-sm">Repair</a>
+                                                    <c:choose>
+                                                        <c:when test="${not empty record.newBatchId}">
+                                                            ${record.newFlowerName} (Batch ID: ${record.newBatchId})
+                                                        </c:when>
+                                                        <c:otherwise>N/A</c:otherwise>
+                                                    </c:choose>
+                                                </td>
+                                                <td>
+                                                    <c:if test="${not empty record.updatedAt}">
+                                                        <fmt:parseDate value="${record.updatedAt}" pattern="yyyy-MM-dd HH:mm:ss" var="parsedDate"/>
+                                                        <fmt:formatDate value="${parsedDate}" pattern="dd/MM/yyyy HH:mm"/>
+                                                    </c:if>
                                                 </td>
                                             </tr>
                                         </c:forEach>
@@ -208,14 +168,14 @@
                     </c:choose>
                 </div>
             </div>
-            <!-- Repair Orders End -->
+            <!-- Repair History End -->
 
             <!-- Footer Start -->
             <div class="container-fluid pt-4 px-4">
                 <div class="bg-light rounded-top p-4">
                     <div class="row">
                         <div class="col-12 col-sm-6 text-center text-sm-start">
-                            © <a href="#">La Fioreria</a>, All Right Reserved.
+                            © <a href="#">La Fioreria</a>, All Rights Reserved.
                         </div>
                         <div class="col-12 col-sm-6 text-center text-sm-end">
                             Designed By <a href="https://htmlcodex.com">HTML Codex</a>

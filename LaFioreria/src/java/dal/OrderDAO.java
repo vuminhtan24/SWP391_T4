@@ -961,7 +961,8 @@ public class OrderDAO extends BaseDao {
                 + "  order_id,\n"
                 + "  bouquet_id,\n"
                 + "  quantity,\n"
-                + "  sellPrice   \n"
+                + "  sellPrice,   \n"
+                + "  status   \n"
                 + "FROM order_item\n"
                 + "WHERE order_item_id = ?\n"
                 + "AND order_id = ?\n"
@@ -983,6 +984,7 @@ public class OrderDAO extends BaseDao {
                 item.setBouquetId(rs.getInt("bouquet_id"));
                 item.setQuantity(rs.getInt("quantity"));
                 item.setUnitPrice(rs.getDouble("sellPrice"));
+                item.setStatus(rs.getString("status"));
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -1030,8 +1032,30 @@ public class OrderDAO extends BaseDao {
 
     }
 
+    public void updateOrderStatusAfterMakingBouquet(int orderId) {
+        String sql = "UPDATE la_fioreria.order o\n"
+                + "JOIN la_fioreria.order_status os ON o.status_id = os.order_status_id\n"
+                + "SET o.status_id = 3\n"
+                + "WHERE o.order_id = ?";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Error updating order_item status: " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                e.printStackTrace(); // Ghi log lỗi đóng tài nguyên
+            }
+        }
+    }
+
     public static void main(String[] args) {
         OrderDAO orderDAO = new OrderDAO();
-        System.out.println(orderDAO.getOrderDetailById(11));
+        System.out.println(orderDAO.getBouquetQuantityInOrder(2, 2, 3));
     }
 }

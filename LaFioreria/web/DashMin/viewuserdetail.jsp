@@ -82,7 +82,13 @@
                         <a href="${pageContext.request.contextPath}/orderManagement" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Order</a>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
                         <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
-                        <a href="${pageContext.request.contextPath}/repairOrders" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Repair Orders</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-table me-2"></i>Repair Center</a>
+                            <div class="dropdown-menu bg-transparent border-0">
+                                <a href="${pageContext.request.contextPath}/repairOrders" class="dropdown-item">Repair Orders</a>
+                                <a href="${pageContext.request.contextPath}/repairHistory" class="dropdown-item">Repair History</a>
+                            </div>
+                        </div>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
@@ -174,82 +180,162 @@
                                         </c:if>
                                         <tr>
                                             <c:if test="${not empty passwordStrength}">
-                                        <div style="font-size: small;
-                                             color: ${passwordStrength == 'Mạnh' ? 'green' :
-                                                      passwordStrength == 'Trung bình' ? 'orange' : 'red'};">
-                                            Mật khẩu: ${passwordStrength}
-                                        </div>
-                                    </c:if>
-                                    </tr>
-                                    <tr>
-                                        <td>Full Name: </td>
-                                        <td>
-                                            <input type="text" name="FullName" class="form-control" placeholder="Full Name" aria-label="Username"
-                                                   aria-describedby="basic-addon1" value="${userManager.fullname}">
-                                        </td>
+                                                <div style="font-size: small;
+                                                         color: ${passwordStrength == 'Mạnh' ? 'green' :
+                                                                  passwordStrength == 'Trung bình' ? 'orange' : 'red'};">
+                                                    Mật khẩu: ${passwordStrength}
+                                                </div>
+                                            </c:if>
+                                        </tr>
+                                        <tr>
+                                            <td>Full Name: </td>
+                                            <td>
+                                                <input type="text" name="FullName" class="form-control" placeholder="Full Name" aria-label="Username"
+                                                       aria-describedby="basic-addon1" value="${userManager.fullname}">
+                                            </td>
 
-                                    </tr>
-                                    <c:if test="${not empty errorFullname}">
-                                        <tr>
-                                            <td colspan="2"><span style="color:red">${errorFullname}</span></td>
                                         </tr>
-                                    </c:if>
-                                    <tr>
-                                        <td>Email: </td>
-                                        <td>
-                                            <input type="text" class="form-control" placeholder="Email"
-                                                   aria-label="Recipient's username" aria-describedby="basic-addon2" name="email" value="${userManager.email}">
-                                        </td>
-                                        <td>
-                                            <span class="input-group-text" id="basic-addon2">@flower.com</span>
-                                        </td>
-                                    </tr>
-                                    <c:if test="${not empty errorEmail}">
+                                        <c:if test="${not empty errorFullname}">
+                                            <tr>
+                                                <td colspan="2"><span style="color:red">${errorFullname}</span></td>
+                                            </tr>
+                                        </c:if>
                                         <tr>
-                                            <td colspan="2"><span style="color:red">${errorEmail}</span></td>
+                                            <td>Email: </td>
+                                            <td>
+                                                <input type="text" class="form-control" placeholder="Email"
+                                                       aria-label="Recipient's username" aria-describedby="basic-addon2" name="email" value="${userManager.email}">
+                                            </td>
+                                            <td>
+                                                <span class="input-group-text" id="basic-addon2">@flower.com</span>
+                                            </td>
                                         </tr>
-                                    </c:if>
-                                    <tr>
-                                        <td>Phone Number: </td>
-                                        <td>
-                                            <input type="type" name="phone" class="form-control" placeholder="Phone Number" aria-label="Username"
-                                                   aria-describedby="basic-addon1" value="${userManager.phone}">
-                                        </td>
-                                    </tr>
-                                    <c:if test="${not empty errorPhone}">
+                                        <c:if test="${not empty errorEmail}">
+                                            <tr>
+                                                <td colspan="2"><span style="color:red">${errorEmail}</span></td>
+                                            </tr>
+                                        </c:if>
                                         <tr>
-                                            <td colspan="2"><span style="color:red">${errorPhone}</span></td>
+                                            <td>Phone Number: </td>
+                                            <td>
+                                                <input type="text" name="phone" class="form-control" placeholder="Phone Number" aria-label="Username"
+                                                       aria-describedby="basic-addon1" value="${userManager.phone}">
+                                            </td>
                                         </tr>
-                                    </c:if>
-                                    <tr>
-                                        <td>Address: </td>
-                                        <td>
-                                            <input type="type" name="address" class="form-control" placeholder="Address" aria-label="Username"
-                                                   aria-describedby="basic-addon1" value="${userManager.address}">
-                                        </td>
-                                    </tr>
-                                    <c:if test="${not empty errorAddress}">
+                                        <c:if test="${not empty errorPhone}">
+                                            <tr>
+                                                <td colspan="2"><span style="color:red">${errorPhone}</span></td>
+                                            </tr>
+                                        </c:if>
                                         <tr>
-                                            <td colspan="2"><span style="color:red">${errorAddress}</span></td>
+                                            <td>Address: </td>
+                                            <td>
+                                                <input type="text" name="address" class="form-control" placeholder="Address" aria-label="Username"
+                                                       aria-describedby="basic-addon1" value="${userManager.address}">
+                                            </td>
                                         </tr>
-                                    </c:if>
-                                    <tr>
-                                        <td>Role: </td>
-                                        <td>
-                                            <input type="type" name="role" class="form-control" placeholder="Role" aria-label="Username"
-                                                   aria-describedby="basic-addon1" value="${userManager.role}" readonly="">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <select class="form-select mb-3" aria-label="Default select example" name="option">
-                                                <c:forEach items="${roleNames}" var="role">
-                                                    <option value="${role}">${role}</option>
-                                                </c:forEach>
-                                            </select>
-                                        </td>
-                                        <td><input  class="btn btn-primary"type="submit" name="ud" value="UPDATE"></td>
-                                    </tr>
+                                        <c:if test="${not empty errorAddress}">
+                                            <tr>
+                                                <td colspan="2"><span style="color:red">${errorAddress}</span></td>
+                                            </tr>
+                                        </c:if>
+                                        <tr>
+                                            <td>Role: </td>
+                                            <td>
+                                                <input type="text" name="role" class="form-control" placeholder="Role" aria-label="Username"
+                                                       aria-describedby="basic-addon1" value="${userManager.role}" readonly="">
+                                            </td>
+                                        </tr>
+                                        <c:if test="${userManager.role eq 'Customer'}">
+                                            <tr><td colspan="2"><hr></td></tr>
+                                            <tr><td colspan="2"><h6 class="mb-3">Customer Information</h6></td></tr>
+
+                                            <tr>
+                                                <td>Customer Code:</td>
+                                                <td><input type="text" name="customerCode" class="form-control"
+                                                           value="${customerInfo.customerCode != null ? customerInfo.customerCode : ''}"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Join Date:</td>
+                                                <td><input type="date" name="joinDate" class="form-control"
+                                                           value="${customerInfo.joinDate != null ? customerInfo.joinDate : ''}"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Loyalty Point:</td>
+                                                <td><input type="number" name="loyaltyPoint" class="form-control"
+                                                           value="${customerInfo.loyaltyPoint != null ? customerInfo.loyaltyPoint : 0}"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Birthday:</td>
+                                                <td><input type="date" name="birthday" class="form-control"
+                                                           value="${customerInfo.birthday != null ? customerInfo.birthday : ''}"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Gender:</td>
+                                                <td>
+                                                    <select name="gender" class="form-select">
+                                                        <option value="Male" ${customerInfo.gender eq 'Male' ? 'selected' : ''}>Male</option>
+                                                        <option value="Female" ${customerInfo.gender eq 'Female' ? 'selected' : ''}>Female</option>
+                                                        <option value="Other" ${customerInfo.gender eq 'Other' ? 'selected' : ''}>Other</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        </c:if>
+
+                                        <!-- Employee Info -->
+                                        <c:if test="${userManager.role ne 'Customer'}">
+                                            <tr><td colspan="2"><hr></td></tr>
+                                            <tr><td colspan="2"><h6>Employee Information</h6></td></tr>
+
+                                            <tr>
+                                                <td>Employee Code:</td>
+                                                <td><input type="text" name="employeeCode" class="form-control"
+                                                           value="${employeeInfo.employeeCode != null ? employeeInfo.employeeCode : ''}"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Contract Type:</td>
+                                                <td><input type="text" name="contractType" class="form-control"
+                                                           value="${employeeInfo.contractType != null ? employeeInfo.contractType : ''}"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Start Date:</td>
+                                                <td><input type="date" name="startDate" class="form-control"
+                                                           value="${employeeInfo.startDate != null ? employeeInfo.startDate : ''}"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>End Date:</td>
+                                                <td><input type="date" name="endDate" class="form-control"
+                                                           value="${employeeInfo.endDate != null ? employeeInfo.endDate : ''}"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Department:</td>
+                                                <td><input type="text" name="department" class="form-control"
+                                                           value="${employeeInfo.department != null ? employeeInfo.department : ''}"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Position:</td>
+                                                <td><input type="text" name="position" class="form-control"
+                                                           value="${employeeInfo.position != null ? employeeInfo.position : ''}"/></td>
+                                            </tr>
+                                        </c:if>
+
+                                        <!-- Role dropdown & Submit -->
+                                        <tr>
+                                            <td>
+                                                <select class="form-select mb-3" aria-label="Default select example" name="option">
+                                                    <c:forEach items="${roleNames}" var="role">
+                                                        <option value="${role}">${role}</option>
+                                                    </c:forEach>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td colspan="2" style="text-align: right;">
+                                                <input type="submit" name="ud" value="UPDATE" class="btn btn-primary" />
+                                            </td>
+                                        </tr>
+
                                     </tbody>
                                 </table>           
                             </form>

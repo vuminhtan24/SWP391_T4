@@ -160,7 +160,7 @@ public class MakeBouquetByOrderController extends HttpServlet {
 
         Order order = oddao.getOrderDetailById(orderId);
         OrderItem oi = oddao.getBouquetQuantityInOrder(orderItemId, orderId, bouquetId);
-
+        
         Bouquet detailsBQ = bqdao.getBouquetByID(bouquetId);
         String cateName = cdao.getCategoryNameByBouquet(bouquetId);
         List<FlowerType> allFlowers = ftdao.getAllFlowerTypes();
@@ -258,9 +258,35 @@ public class MakeBouquetByOrderController extends HttpServlet {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid numeric format for one or more IDs or Sell Price. Please ensure all values are valid numbers.");
             return;
         }
+        OrderDAO oddao = new OrderDAO();
+        FlowerBatchDAO fbdao = new FlowerBatchDAO();
+
+        String[] flowerNeedStr = request.getParameterValues("flowerNeeded");
+        String[] flowerIdStr = request.getParameterValues("flowerIds");
+        String[] batchIdStr = request.getParameterValues("batchIds");
+
+        if (flowerNeedStr != null && flowerIdStr != null && batchIdStr != null) {
+            for (int i = 0; i < flowerNeedStr.length; i++) {
+                try {
+                    int neededQuantity = Integer.parseInt(flowerNeedStr[i].trim());
+                    int flowerId = Integer.parseInt(flowerIdStr[i].trim());
+                    int batchId = Integer.parseInt(batchIdStr[i].trim());
+
+                    // Gọi hàm DAO
+                    fbdao.reduceBatchQuantity(neededQuantity, flowerId, batchId);
+
+                } catch (NumberFormatException e) {
+                    System.err.println("Error parsing parameters at index " + i + ": " + e.getMessage());
+                    return;
+                    // Có thể log lỗi, hoặc bỏ qua dòng lỗi, hoặc thông báo cho người dùng
+                }
+            }
+        } else {
+            System.err.println("Missing parameters: One or more of flowerNeeded, flowerIds, batchIds is null");
+            return;
+        }
 
         // Proceed with DAO operations if all parameters are valid
-        OrderDAO oddao = new OrderDAO();
         oddao.completeBouquetCreation(orderItemId, orderId, bouquetId, sellPrice);
 
         response.sendRedirect("/LaFioreria/orderDetail?orderId=" + orderId);
