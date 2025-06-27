@@ -188,6 +188,9 @@
                                         data-labels='<%= request.getAttribute("thisMonthLabels") %>'
                                         data-values='<%= request.getAttribute("thisMonthValues") %>'
                                         style="width: 100%; height: 300px;"></canvas>
+                                <button onclick="downloadChartAsImage(window.thisMonthChart, 'thisMonthChart.png')">
+                                    📥 Tải PNG
+                                </button>
                             </div>
                         </div>
 
@@ -226,6 +229,9 @@
                                 <h4 class="mb-3">2. Doanh thu & số đơn theo từng năm</h4>
                                 <a href="${pageContext.request.contextPath}/revenuealltimeservlet">Show All</a>
                                 <canvas id="yearChart" style="width: 100%; height: 300px;"></canvas>
+                                <button onclick="downloadChartAsImage(window.yearChart, 'yearChart.png')">
+                                    📥 Tải PNG
+                                </button>
                             </div>
                         </div>
 
@@ -234,6 +240,9 @@
                             <div class="bg-light text-center rounded p-4 h-100">
                                 <h4 class="mb-3">3. Doanh thu & số đơn theo thứ trong tuần</h4>
                                 <canvas id="weekdayChart" style="width: 100%; height: 300px;"></canvas>
+                                <button onclick="downloadChartAsImage(window.weekdayChart, 'weekdayChart.png')">
+                                    📥 Tải PNG
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -268,6 +277,9 @@
                                 data-orders='<%= request.getAttribute("ordersJson") %>'
                                 style="max-width:100%; height:300px;">
                         </canvas>
+                        <button onclick="downloadChartAsImage(window.statsChart, 'thongke_theothang.png')">
+                            📥 Tải PNG
+                        </button>
                     </div>
                 </div>
 
@@ -290,6 +302,8 @@
                                 ${cat.categoryName} <br>
                             </c:forEach>
                             <button type="submit" class="btn btn-primary mt-2">Xem biểu đồ</button>
+                            📥 Tải PNG
+                            </button>
                         </form>
 
                         <c:if test="${not empty labelsJson}">
@@ -305,6 +319,9 @@
                                     </c:forEach>
                                     style="width:100%; height:300px;">
                             </canvas>
+                            <button onclick="downloadChartAsImage(window.categoryRevenueChart, 'categoryRevenueChart.png')">
+                                📥 Tải PNG
+                            </button>
                         </c:if>
                     </div>
                 </div>
@@ -324,6 +341,9 @@
                                         </c:forEach>]'
                                         style="width:100% !important; height:100% !important;">
                                 </canvas>
+                                <button onclick="downloadChartAsImage(window.statsChart, 'thongke_theothang.png')">
+                                    📥 Tải PNG
+                                </button>
                             </div>
                         </div>
                     </div>
