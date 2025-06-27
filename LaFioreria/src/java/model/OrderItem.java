@@ -9,20 +9,34 @@ package model;
  * @author Legion
  */
 public class OrderItem {
+
     private int orderItemId;
     private int orderId;
     private int bouquetId;
     private int quantity;
     private double unitPrice;
+    private double sellPrice;
+    private String status;
 
     // Constructors, Getters & Setters
-    public OrderItem() {}
+    public OrderItem() {
+    }
 
     public OrderItem(int orderId, int bouquetId, int quantity, double unitPrice) {
         this.orderId = orderId;
         this.bouquetId = bouquetId;
         this.quantity = quantity;
         this.unitPrice = unitPrice;
+    }
+
+    public OrderItem(int orderItemId, int orderId, int bouquetId, int quantity, double unitPrice, double sellPrice, String status) {
+        this.orderItemId = orderItemId;
+        this.orderId = orderId;
+        this.bouquetId = bouquetId;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+        this.sellPrice = sellPrice;
+        this.status = status;
     }
 
     public int getOrderItemId() {
@@ -64,4 +78,26 @@ public class OrderItem {
     public void setUnitPrice(double unitPrice) {
         this.unitPrice = unitPrice;
     }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public double getSellPrice() {
+        return sellPrice;
+    }
+
+    public void setSellPrice(double sellPrice) {
+        this.sellPrice = sellPrice;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderItem{" + "orderItemId=" + orderItemId + ", orderId=" + orderId + ", bouquetId=" + bouquetId + ", quantity=" + quantity + ", unitPrice=" + unitPrice + ", status=" + status + '}';
+    }
+
 }

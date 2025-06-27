@@ -1,19 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import java.io.File;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import dal.BouquetDAO;
+import dal.CategoryDAO;
+import dal.FlowerBatchDAO;
+import dal.FlowerTypeDAO;
+import dal.RepairOrdersDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,105 +12,57 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
-
 import model.Bouquet;
-import model.Category;
-import model.RawFlower;
+import model.BouquetImage;
 import model.BouquetRaw;
-import dal.BouquetDAO;
-import dal.CategoryDAO;
-import dal.RawFlowerDAO;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import model.BouquetImage;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- *
- * @author ADMIN
- */
 @MultipartConfig(
-        fileSizeThreshold = 1024 * 1024, // 1MB lưu tạm vào disk nếu vượt
-        maxFileSize = -1L, // -1 = không giới hạn kích thước mỗi file
-        maxRequestSize = -1L // -1 = không giới hạn tổng kích thước request
+        fileSizeThreshold = 1024 * 1024, // 1MB
+        maxFileSize = -1L, // Không giới hạn
+        maxRequestSize = -1L // Không giới hạn
 )
 @WebServlet(name = "EditBouquetController", urlPatterns = {"/editBouquet"})
 public class EditBouquetController extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet EditBouquetController</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet EditBouquetController at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Lấy ID ưu tiên từ attribute (khi forward từ doPost), nếu không thì từ parameter
-        String idStr;
-        Object idAttr = request.getAttribute("id");
-        if (idAttr != null) {
-            idStr = String.valueOf(idAttr);
-        } else {
-            idStr = request.getParameter("id");
-        }
+        String idStr = request.getAttribute("id") != null ? String.valueOf(request.getAttribute("id")) : request.getParameter("id");
         if (idStr == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing bouquet ID");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Thiếu ID giỏ hoa");
             return;
         }
         int id;
         try {
             id = Integer.parseInt(idStr);
         } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid bouquet ID");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID giỏ hoa không hợp lệ");
             return;
         }
 
         BouquetDAO bqdao = new BouquetDAO();
-        RawFlowerDAO rfdao = new RawFlowerDAO();
+        FlowerTypeDAO ftdao = new FlowerTypeDAO();
+        FlowerBatchDAO fbdao = new FlowerBatchDAO();
         CategoryDAO cdao = new CategoryDAO();
 
-        Bouquet detailsBQ = bqdao.getBouquetByID(id);
-        String cateName = cdao.getCategoryNameByBouquet(id);
-        List<RawFlower> allFlowers = rfdao.getRawFlower();
-        List<BouquetRaw> bqRaws = bqdao.getFlowerBatchByBouquetID(id);
-        List<BouquetImage> images = bqdao.getBouquetImage(id);
-
-        request.setAttribute("images", images);
-        request.setAttribute("bouquetDetail", detailsBQ);
-        request.setAttribute("cateName", cateName);
-        request.setAttribute("allFlowers", allFlowers);
+        request.setAttribute("images", bqdao.getBouquetImage(id));
+        request.setAttribute("bouquetDetail", bqdao.getBouquetByID(id));
+        request.setAttribute("cateName", cdao.getCategoryNameByBouquet(id));
+        request.setAttribute("allFlowers", ftdao.getAllFlowerTypes());
+        request.setAttribute("allBatchs", fbdao.getAllFlowerBatches());
         request.setAttribute("cateList", cdao.getBouquetCategory());
-        request.setAttribute("flowerInBQ", bqRaws);
+        request.setAttribute("flowerInBQ", bqdao.getFlowerBatchByBouquetID(id));
         request.getRequestDispatcher("./DashMin/editBouquet.jsp").forward(request, response);
     }
 
@@ -129,87 +72,99 @@ public class EditBouquetController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
 
-        // Đọc ID ngay đầu, để luôn có giá trị khi fallback
+        // Đọc tham số
         String idParam = request.getParameter("id");
+        String repairIdStr = request.getParameter("repairId");
+        String oldBatchIdStr = request.getParameter("oldBatchId");
+        String fromRepair = request.getParameter("fromRepair");
         int id = -1;
+        int repairId = -1;
+        int oldBatchId = -1;
+        boolean isFromRepair = "true".equalsIgnoreCase(fromRepair);
+
         try {
             id = Integer.parseInt(idParam);
+            if (isFromRepair) {
+                repairId = Integer.parseInt(repairIdStr);
+                oldBatchId = Integer.parseInt(oldBatchIdStr);
+            }
         } catch (NumberFormatException e) {
-            // Không cần throw, sẽ xử lý ở catch chung
+            request.setAttribute("error", "ID không hợp lệ");
+            request.setAttribute("id", id);
+            doGet(request, response);
+            return;
         }
 
         List<String> savedImageUrls = new ArrayList<>();
-        BouquetDAO dao = new BouquetDAO();
+        BouquetDAO bouquetDAO = new BouquetDAO();
+        RepairOrdersDAO repairOrderDAO = new RepairOrdersDAO();
 
         try {
-            // phần upload ảnh (giữ nguyên như trước)
+            // Xử lý upload ảnh
             String uploadPath = request.getServletContext().getRealPath("/upload/BouquetIMG");
             File uploadDir = new File(uploadPath);
             if (!uploadDir.exists() && !uploadDir.mkdirs()) {
                 throw new ServletException("Không thể tạo thư mục upload: " + uploadPath);
             }
             Collection<Part> fileParts = request.getParts().stream()
-                    .filter(p -> "imageFiles".equals(p.getName())
-                    && p.getSubmittedFileName() != null
-                    && !p.getSubmittedFileName().isEmpty())
+                    .filter(p -> "imageFiles".equals(p.getName()) && p.getSubmittedFileName() != null && !p.getSubmittedFileName().isEmpty())
                     .collect(Collectors.toList());
             for (Part part : fileParts) {
-                String originalName = Paths.get(part.getSubmittedFileName())
-                        .getFileName().toString();
+                String originalName = Paths.get(part.getSubmittedFileName()).getFileName().toString();
                 String newFileName = System.currentTimeMillis() + "_" + originalName;
-
-                // 1) Viết (move) file tạm → thư mục build
                 String fullDiskPath = uploadPath + File.separator + newFileName;
                 part.write(fullDiskPath);
-
-                // 2) Copy từ build folder → folder dự án (root của webapp)
-                //    rootPath sẽ là đường dẫn thực sự đến folder webapp/upload/BouquetIMG
                 String rootPath = fullDiskPath.replace("\\build", "");
                 Path source = Paths.get(fullDiskPath);
                 Path target = Paths.get(rootPath);
-                // Tạo thư mục nếu chưa có
                 Files.createDirectories(target.getParent());
-                // Copy file (thay thế nếu đã tồn tại)
                 Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-
                 savedImageUrls.add(newFileName);
             }
 
-            // Xử lý raw materials và images
-            dao.deleteBouquetRaw(id);
-            String[] flowerIds = request.getParameterValues("flowerIds");
+            // Cập nhật bouquet_raw
+            bouquetDAO.deleteBouquetRaw(id);
+            String[] batchIds = request.getParameterValues("batchIds");
             String[] quantities = request.getParameterValues("quantities");
-            if (flowerIds != null && quantities != null) {
-                for (int i = 0; i < flowerIds.length; i++) {
-                    int fid = Integer.parseInt(flowerIds[i]);
+            int newBatchId = -1;
+            if (batchIds != null && quantities != null) {
+                boolean oldBatchFound = false;
+                for (int i = 0; i < batchIds.length; i++) {
+                    int bid = Integer.parseInt(batchIds[i]);
                     int quantity = Integer.parseInt(quantities[i]);
-                    dao.insertBouquetRaw(new BouquetRaw(id, fid, quantity));
+                    bouquetDAO.insertBouquetRaw(new BouquetRaw(id, bid, quantity));
+                    if (isFromRepair && bid == oldBatchId) {
+                        oldBatchFound = true;
+                    } else if (isFromRepair && repairOrderDAO.isSameFlowerType(bid, oldBatchId)) {
+                        newBatchId = bid; // Chọn batch mới cùng loại hoa
+                    }
+                }
+                if (isFromRepair && oldBatchFound) {
+                    request.setAttribute("error", "Bạn phải thay thế lô hoa cũ (ID: " + oldBatchId + ") bằng lô mới.");
+                    request.setAttribute("id", id);
+                    doGet(request, response);
+                    return;
                 }
             }
-            // Lấy các ảnh cũ được giữ lại từ hidden input
+
+            // Xử lý ảnh
+            bouquetDAO.deleteBouquetImage(id);
             String[] existingUrls = request.getParameterValues("existingImageUrls");
-
-// Xóa toàn bộ ảnh cũ (trong DB)
-            dao.deleteBouquetImage(id);
-
-// Lưu lại các ảnh cũ được giữ lại
             if (existingUrls != null) {
                 for (String fullUrl : existingUrls) {
                     String imageName = fullUrl.substring(fullUrl.lastIndexOf("/") + 1);
                     BouquetImage img = new BouquetImage();
                     img.setbouquetId(id);
                     img.setImage_url(imageName);
-                    dao.insertBouquetImage(img);
+                    bouquetDAO.insertBouquetImage(img);
                 }
             }
-
-// Lưu ảnh mới (vừa upload)
             if (!savedImageUrls.isEmpty()) {
                 for (String url : savedImageUrls) {
                     BouquetImage img = new BouquetImage();
                     img.setbouquetId(id);
                     img.setImage_url(url);
-                    dao.insertBouquetImage(img);
+                    bouquetDAO.insertBouquetImage(img);
                 }
             }
 
@@ -217,57 +172,60 @@ public class EditBouquetController extends HttpServlet {
             String category = request.getParameter("category");
             String bqDescription = request.getParameter("bqDescription");
             String totalValueStr = request.getParameter("totalValue");
-            String sellValuestr = request.getParameter("sellValue");
-            int cateID = Integer.parseInt(category);
+            String sellValueStr = request.getParameter("sellValue");
             String bqName = request.getParameter("bqName");
+            String status = isFromRepair ? "valid" : request.getParameter("status");
 
             if (bqName == null || bqName.trim().isEmpty()) {
+                request.setAttribute("error", "Tên giỏ hoa không được để trống!");
                 request.setAttribute("id", id);
-                request.setAttribute("error", "Bouquet's Name must not be blank!!!");
                 doGet(request, response);
                 return;
             }
 
-            List<Bouquet> bqL = new ArrayList<>();
-            bqL = new BouquetDAO().getAll();
-            for (Bouquet bouquet : bqL) {
-                if (bouquet.getBouquetId() != id) {
-                    if (bouquet.getBouquetName().equalsIgnoreCase(bqName)) {
-                        request.setAttribute("id", id);
-                        request.setAttribute("error", "Dupplicated Bouquet Name!!! Please try again");
-                        doGet(request, response);
-                        return;
-                    }
+            List<Bouquet> bqList = bouquetDAO.getAll();
+            for (Bouquet bouquet : bqList) {
+                if (bouquet.getBouquetId() != id && bouquet.getBouquetName().equalsIgnoreCase(bqName)) {
+                    request.setAttribute("error", "Tên giỏ hoa bị trùng! Vui lòng thử lại.");
+                    request.setAttribute("id", id);
+                    doGet(request, response);
+                    return;
                 }
             }
 
+            int cateID = Integer.parseInt(category);
             int totalValue = (int) Math.round(Double.parseDouble(totalValueStr));
-            int sellValue = (int) Math.round(Double.parseDouble(sellValuestr));
-            dao.updateBouquet(new Bouquet(id, bqName, bqDescription, cateID, totalValue, sellValue));
+            int sellValue = (int) Math.round(Double.parseDouble(sellValueStr));
+            bouquetDAO.updateBouquet(new Bouquet(id, bqName, bqDescription, cateID, totalValue, sellValue, status));
 
-            response.sendRedirect(request.getContextPath() + "/bouquetDetails?id=" + id);
+            // Xử lý repair order nếu từ repair
+            if (isFromRepair) {
+                repairOrderDAO.completeRepairOrder(repairId, id, oldBatchId, newBatchId);
+            }
+
+            // Chuyển hướng
+            response.sendRedirect(request.getContextPath() + (isFromRepair ? "/repairOrders" : "/bouquetDetails?id=" + id));
 
         } catch (IllegalStateException ise) {
-            log("Upload failed: file vượt quá kích thước cho phép", ise);
+            log("Upload thất bại: file quá lớn", ise);
             request.setAttribute("error", "Kích thước file quá lớn. Vui lòng chọn file nhỏ hơn.");
             request.setAttribute("id", id);
             doGet(request, response);
+        } catch (SQLException e) {
+            log("Lỗi cơ sở dữ liệu", e);
+            request.setAttribute("error", "Lỗi cơ sở dữ liệu: " + e.getMessage());
+            request.setAttribute("id", id);
+            doGet(request, response);
         } catch (Exception e) {
-            log("Unexpected error", e);
-            request.setAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            log("Lỗi không xác định", e);
+            request.setAttribute("error", "Lỗi xảy ra: " + e.getMessage());
             request.setAttribute("id", id);
             doGet(request, response);
         }
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Chỉnh sửa thông tin giỏ hoa";
+    }
 }

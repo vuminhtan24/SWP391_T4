@@ -4,15 +4,11 @@
  */
 package testcode;
 
-import static util.ReportScheduler.sendDailyReport;
+import util.ReportScheduler;
 
-/**
- *
- * @author LAPTOP
- */
 public class TestMail {
+
     public static void main(String[] args) {
-        sendDailyReport(); 
+        ReportScheduler.scheduleDailyReport();  // GỌI schedule
     }
- 
 }

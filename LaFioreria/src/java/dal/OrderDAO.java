@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import model.OrderItem;
 import model.OrderStatusCount;
 
 /**
@@ -48,29 +49,29 @@ public class OrderDAO extends BaseDao {
         List<Order> listOrders = new ArrayList<>();
 
         StringBuilder countSql = new StringBuilder();
-        countSql.append("SELECT COUNT(o.order_id) FROM `order` o ");
-        countSql.append("JOIN `user` u ON o.customer_id = u.User_ID ");
-        countSql.append("JOIN `order_status` os ON o.status_id = os.order_status_id ");
-        countSql.append("LEFT JOIN `user` s ON o.shipper_id = s.User_ID ");
-        countSql.append("WHERE 1=1 ");
+        countSql.append("SELECT COUNT(o.order_id) FROM `order` o ")
+                .append("LEFT JOIN `user` u ON o.customer_id = u.User_ID ")
+                .append("JOIN `order_status` os ON o.status_id = os.order_status_id ")
+                .append("LEFT JOIN `user` s ON o.shipper_id = s.User_ID ")
+                .append("WHERE 1=1 ");
 
         StringBuilder dataSql = new StringBuilder();
-        dataSql.append("SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, ");
-        dataSql.append("o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name ");
-        dataSql.append("FROM `order` o ");
-        dataSql.append("JOIN `user` u ON o.customer_id = u.User_ID ");
-        dataSql.append("JOIN `order_status` os ON o.status_id = os.order_status_id ");
-        dataSql.append("LEFT JOIN `user` s ON o.shipper_id = s.User_ID ");
-        dataSql.append("WHERE 1=1 ");
+        dataSql.append("SELECT o.order_id, o.order_date, o.customer_id, ")
+                .append("COALESCE(u.Fullname, 'Guest') AS customer_name, ") // ✅ fallback cho khách vãng lai
+                .append("o.total_import, o.total_sell, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name ")
+                .append("FROM `order` o ")
+                .append("LEFT JOIN `user` u ON o.customer_id = u.User_ID ")
+                .append("JOIN `order_status` os ON o.status_id = os.order_status_id ")
+                .append("LEFT JOIN `user` s ON o.shipper_id = s.User_ID ")
+                .append("WHERE 1=1 ");
 
         List<Object> params = new ArrayList<>();
 
         if (keyword != null && !keyword.trim().isEmpty()) {
-            String searchCondition = "AND (CAST(o.order_id AS CHAR) LIKE ? OR u.Fullname LIKE ? OR CAST(o.total_amount AS CHAR) LIKE ?) ";
+            String searchCondition = "AND (CAST(o.order_id AS CHAR) LIKE ? OR u.Fullname LIKE ?) ";
             countSql.append(searchCondition);
             dataSql.append(searchCondition);
             String likeKeyword = "%" + keyword + "%";
-            params.add(likeKeyword);
             params.add(likeKeyword);
             params.add(likeKeyword);
         }
@@ -82,7 +83,7 @@ public class OrderDAO extends BaseDao {
             params.add(statusId);
         }
 
-        String orderByColumnName = "";
+        String orderByColumnName;
         switch (sortField) {
             case "orderId":
                 orderByColumnName = "o.order_id";
@@ -93,8 +94,8 @@ public class OrderDAO extends BaseDao {
             case "customerName":
                 orderByColumnName = "u.Fullname";
                 break;
-            case "totalAmount":
-                orderByColumnName = "o.total_amount";
+            case "totalSell":
+                orderByColumnName = "o.total_sell";
                 break;
             case "statusName":
                 orderByColumnName = "os.status_name";
@@ -145,16 +146,19 @@ public class OrderDAO extends BaseDao {
             }
 
             rs = ps.executeQuery();
-
             while (rs.next()) {
+                String totalImportStr = rs.getString("total_import");
+                String totalSellStr = rs.getString("total_sell");
+
                 listOrders.add(new Order(
                         rs.getInt("order_id"),
                         rs.getString("order_date") != null ? rs.getString("order_date").trim() : null,
-                        rs.getInt("customer_id"),
+                        rs.getObject("customer_id") != null ? rs.getInt("customer_id") : -1,
                         rs.getString("customer_name"),
-                        null, // Customer Phone not available in this query, setting to null
-                        null, // Customer Address not available in this query, setting to null
-                        rs.getString("total_amount") != null ? rs.getString("total_amount").trim() : null,
+                        null,
+                        null,
+                        totalSellStr,
+                        totalImportStr,
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
@@ -171,6 +175,7 @@ public class OrderDAO extends BaseDao {
                 System.err.println("Error closing resources: " + e.getMessage());
             }
         }
+
         return listOrders;
     }
 
@@ -183,11 +188,15 @@ public class OrderDAO extends BaseDao {
      */
     public Order getOrderDetailById(int orderId) {
         Order order = null;
-        String sql = "SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, u.Phone AS customer_phone, u.Address AS customer_address, "
-                + "o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name, "
-                + "o.delivery_confirmation_image_path "
+        String sql = "SELECT o.order_id, o.order_date, o.customer_id, "
+                + "COALESCE(u.Fullname, o.customer_name) AS customer_name, "
+                + "COALESCE(u.Phone, o.customer_phone) AS customer_phone, "
+                + "COALESCE(u.Address, o.customer_address) AS customer_address, "
+                + "o.total_sell, o.total_import, "
+                + "o.status_id, os.status_name, "
+                + "o.shipper_id, s.Fullname AS shipper_name "
                 + "FROM `order` o "
-                + "JOIN `user` u ON o.customer_id = u.User_ID "
+                + "LEFT JOIN `user` u ON o.customer_id = u.User_ID "
                 + "JOIN `order_status` os ON o.status_id = os.order_status_id "
                 + "LEFT JOIN `user` s ON o.shipper_id = s.User_ID "
                 + "WHERE o.order_id = ?";
@@ -201,31 +210,30 @@ public class OrderDAO extends BaseDao {
             if (rs.next()) {
                 order = new Order(
                         rs.getInt("order_id"),
-                        rs.getString("order_date") != null ? rs.getString("order_date").trim() : null,
-                        rs.getInt("customer_id"),
+                        rs.getString("order_date"),
+                        rs.getObject("customer_id") != null ? rs.getInt("customer_id") : null,
                         rs.getString("customer_name"),
-                        rs.getString("customer_phone"), // Read customer phone
-                        rs.getString("customer_address"), // Read customer address
-                        rs.getString("total_amount") != null ? rs.getString("total_amount").trim() : null,
+                        rs.getString("customer_phone"),
+                        rs.getString("customer_address"),
+                        rs.getString("total_sell"),
+                        rs.getString("total_import"),
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
                         rs.getString("shipper_name")
                 );
-                 order.setDeliveryProofImage(rs.getString("delivery_confirmation_image_path"));
-                 System.out.println("DEBUG: Order = " + order);
-
             }
         } catch (SQLException e) {
-            System.err.println("SQL Error while getting order details (ID: " + orderId + "): " + e.getMessage());
+            System.err.println("SQL Error in getOrderDetailById: " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {
                 this.closeResources();
             } catch (Exception e) {
-                System.err.println("Error closing resources: " + e.getMessage());
+                System.err.println("Error closing resources in getOrderDetailById: " + e.getMessage());
             }
         }
+
         return order;
     }
 
@@ -240,12 +248,26 @@ public class OrderDAO extends BaseDao {
     public List<OrderDetail> getOrderItemsByOrderId(int orderId) {
         List<OrderDetail> orderItems = new ArrayList<>();
         // Modified SQL to join with bouquet_images to get image_url
-        String sql = "SELECT oi.order_item_id, oi.order_id, oi.bouquet_id, "
-                + "b.bouquet_name, bi.image_url, oi.quantity, oi.unit_price " // Changed from b.image_url to bi.image_url
-                + "FROM `order_item` oi "
-                + "JOIN `bouquet` b ON oi.bouquet_id = b.bouquet_id "
-                + "LEFT JOIN `bouquet_images` bi ON b.Bouquet_ID = bi.Bouquet_ID " // Added LEFT JOIN for bouquet_images
-                + "WHERE oi.order_id = ?";
+        String sql = "SELECT \n"
+                + "    oi.order_item_id,\n"
+                + "    oi.order_id,\n"
+                + "    oi.bouquet_id,\n"
+                + "    b.bouquet_name,\n"
+                + "    (\n"
+                + "      SELECT bi2.image_url\n"
+                + "      FROM bouquet_images bi2\n"
+                + "      WHERE bi2.bouquet_id = oi.bouquet_id\n"
+                + "      ORDER BY bi2.image_url ASC\n"
+                + "      LIMIT 1\n"
+                + "    ) AS image_url,\n"
+                + "    oi.quantity,\n"
+                + "    oi.unit_price,\n"
+                + "    oi.sellPrice,\n"
+                + "    oi.status\n"
+                + "FROM order_item oi\n"
+                + "JOIN bouquet b \n"
+                + "  ON oi.bouquet_id = b.bouquet_id\n"
+                + "WHERE oi.order_id = ?;";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -259,7 +281,9 @@ public class OrderDAO extends BaseDao {
                         rs.getString("bouquet_name"),
                         rs.getString("image_url"), // Map the image_url from bouquet_images
                         rs.getInt("quantity"),
-                        rs.getString("unit_price")
+                        rs.getString("unit_price"),
+                        rs.getInt("sellPrice"),
+                        rs.getString("status")
                 );
                 orderItems.add(item);
             }
@@ -285,19 +309,20 @@ public class OrderDAO extends BaseDao {
      * @param shipperId New shipper ID (can be null if not assigned).
      * @return true if update is successful, false otherwise.
      */
-    public boolean updateOrder(int orderId, String totalAmount, int statusId, Integer shipperId) {
-        String sql = "UPDATE `order` SET total_amount = ?, status_id = ?, shipper_id = ? WHERE order_id = ?";
+    public boolean updateOrder(int orderId, String total_import, String total_sell, int statusId, Integer shipperId) {
+        String sql = "UPDATE `order` SET total_import = ?, total_sell = ?, status_id = ?, shipper_id = ? WHERE order_id = ?";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
-            ps.setString(1, totalAmount);
-            ps.setInt(2, statusId);
+            ps.setString(1, total_import);
+            ps.setString(2, total_sell);
+            ps.setInt(3, statusId);
             if (shipperId == null) {
-                ps.setNull(3, java.sql.Types.INTEGER);
+                ps.setNull(4, java.sql.Types.INTEGER);
             } else {
-                ps.setInt(3, shipperId);
+                ps.setInt(4, shipperId);
             }
-            ps.setInt(4, orderId);
+            ps.setInt(5, orderId);
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
@@ -486,30 +511,37 @@ public class OrderDAO extends BaseDao {
      * @return The generated order_id if successful, -1 otherwise.
      */
     public int addOrder(Order order) {
-        // Updated SQL to include customer_phone and customer_address
-        String sql = "INSERT INTO `order` (order_date, customer_id, total_amount, status_id, shipper_id) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO `order` (order_date, customer_id, total_import, total_sell, status_id, shipper_id) "
+                + "VALUES (?, ?, ?, ?, ?, ?)";
         int generatedId = -1;
+
         try {
             connection = dbc.getConnection();
-            // Use Statement.RETURN_GENERATED_KEYS to get the auto-incremented ID
             ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+            int totalImport = Integer.parseInt(order.getTotalImport());
+            int totalSell = totalImport * 5;
+
             ps.setString(1, order.getOrderDate());
             ps.setInt(2, order.getCustomerId());
-            ps.setString(3, order.getTotalAmount()); // Store as String if DB column is VARCHAR/DECIMAL
-            ps.setInt(4, order.getStatusId());
+            ps.setInt(3, totalImport);
+            ps.setInt(4, totalSell);
+            ps.setInt(5, order.getStatusId());
+
             if (order.getShipperId() == null) {
-                ps.setNull(5, java.sql.Types.INTEGER);
+                ps.setNull(6, java.sql.Types.INTEGER);
             } else {
-                ps.setInt(5, order.getShipperId());
+                ps.setInt(6, order.getShipperId());
             }
 
             int rowsAffected = ps.executeUpdate();
             if (rowsAffected > 0) {
                 ResultSet rs = ps.getGeneratedKeys();
                 if (rs.next()) {
-                    generatedId = rs.getInt(1); // Get the auto-generated ID
+                    generatedId = rs.getInt(1);
                 }
             }
+
         } catch (SQLException e) {
             System.err.println("SQL Error while adding new order: " + e.getMessage());
             e.printStackTrace();
@@ -520,6 +552,7 @@ public class OrderDAO extends BaseDao {
                 System.err.println("Error closing resources after add operation: " + e.getMessage());
             }
         }
+
         return generatedId;
     }
 
@@ -533,14 +566,15 @@ public class OrderDAO extends BaseDao {
      * @return true if the order item is added successfully, false otherwise.
      */
     public boolean addOrderItem(OrderDetail orderItem) {
-        String sql = "INSERT INTO `order_item` (order_id, bouquet_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO `order_item` (order_id, bouquet_id, quantity, unit_price, sellPrice) VALUES (?, ?, ?, ?, ?)";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setInt(1, orderItem.getOrderId());
             ps.setInt(2, orderItem.getBouquetId());
             ps.setInt(3, orderItem.getQuantity());
-            ps.setString(4, orderItem.getUnitPrice()); // Ensure unitPrice is handled as String/VARCHAR
+            ps.setString(4, orderItem.getUnitPrice());
+            ps.setDouble(5, orderItem.getSellPrice());
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
@@ -565,7 +599,7 @@ public class OrderDAO extends BaseDao {
      * @return true if the update is successful, false otherwise.
      */
     public boolean updateTotalAmount(int orderId, String newTotalAmount) {
-        String sql = "UPDATE `order` SET total_amount = ? WHERE order_id = ?";
+        String sql = "UPDATE `order` SET total_import  = ? WHERE order_id = ?";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -598,80 +632,61 @@ public class OrderDAO extends BaseDao {
      */
     public List<Order> getOrdersByShipperIdAndStatuses(int shipperId, List<Integer> statusIds) {
         List<Order> orders = new ArrayList<>();
-
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, ");
-        sql.append("u.Phone AS customer_phone, u.Address AS customer_address, "); // ADDED: Select customer address
-        sql.append("o.total_amount, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name ");
-        sql.append("FROM `order` o ");
-        sql.append("JOIN `user` u ON o.customer_id = u.User_ID ");
-        sql.append("JOIN `order_status` os ON o.status_id = os.order_status_id ");
-        sql.append("LEFT JOIN `user` s ON o.shipper_id = s.User_ID ");
-        sql.append("WHERE o.shipper_id = ? "); // Primary filter for shipper ID
-
-        // Dynamically add placeholders for status IDs if provided
-        if (statusIds != null && !statusIds.isEmpty()) {
-            sql.append("AND o.status_id IN (");
-            for (int i = 0; i < statusIds.size(); i++) {
-                sql.append("?");
-                if (i < statusIds.size() - 1) {
-                    sql.append(", ");
-                }
-            }
-            sql.append(") ");
+        if (statusIds == null || statusIds.isEmpty()) {
+            return orders;
         }
-        sql.append("ORDER BY o.order_date DESC;"); // Order by date descending, thêm dấu chấm phẩy
 
-        // --- DEBUG LOG START ---
-        System.out.println("DEBUG (OrderDAO): Executing SQL Query: " + sql.toString());
-        System.out.println("DEBUG (OrderDAO): Parameters -> shipperId: " + shipperId + ", statusIds: " + statusIds);
-        // --- DEBUG LOG END ---
+        StringBuilder sql = new StringBuilder(
+                "SELECT o.order_id, o.order_date, o.customer_id, "
+                + "COALESCE(u.Fullname, o.customer_name) AS customer_name, "
+                + "COALESCE(u.Phone, o.customer_phone) AS customer_phone, "
+                + "COALESCE(u.Address, o.customer_address) AS customer_address, "
+                + "o.total_sell, o.total_import, o.status_id, os.status_name, "
+                + "o.shipper_id, s.Fullname AS shipper_name "
+                + "FROM `order` o "
+                + "LEFT JOIN `user` u ON o.customer_id = u.User_ID "
+                + "JOIN `order_status` os ON o.status_id = os.order_status_id "
+                + "LEFT JOIN `user` s ON o.shipper_id = s.User_ID "
+                + "WHERE o.shipper_id = ? AND o.status_id IN ("
+        );
+
+        for (int i = 0; i < statusIds.size(); i++) {
+            sql.append("?");
+            if (i < statusIds.size() - 1) {
+                sql.append(",");
+            }
+        }
+        sql.append(") ORDER BY o.order_date DESC");
 
         try {
             connection = dbc.getConnection();
-            if (connection == null) {
-                System.err.println("ERROR (OrderDAO): Database connection is NULL.");
-                return orders; // Return empty list if no connection
-            }
-
             ps = connection.prepareStatement(sql.toString());
-            int paramIndex = 1;
-            ps.setInt(paramIndex++, shipperId); // Set the shipperId parameter first
-
-            // Set dynamic statusId parameters
-            if (statusIds != null && !statusIds.isEmpty()) {
-                for (Integer statusId : statusIds) {
-                    ps.setInt(paramIndex++, statusId);
-                }
+            ps.setInt(1, shipperId);
+            for (int i = 0; i < statusIds.size(); i++) {
+                ps.setInt(i + 2, statusIds.get(i)); // i+2 because 1st param is shipperId
             }
 
             rs = ps.executeQuery();
-
             while (rs.next()) {
-                // Đọc shipper_id và shipper_name an toàn với nullable
-                Integer retrievedShipperId = (Integer) rs.getObject("shipper_id");
-                String retrievedShipperName = rs.getString("shipper_name");
-
-                orders.add(new Order(
+                Order order = new Order(
                         rs.getInt("order_id"),
-                        rs.getString("order_date") != null ? rs.getString("order_date").trim() : null,
-                        rs.getInt("customer_id"),
+                        rs.getString("order_date"),
+                        rs.getObject("customer_id") != null ? rs.getInt("customer_id") : null,
                         rs.getString("customer_name"),
-                        rs.getString("customer_phone"), // Read customer phone
-                        rs.getString("customer_address"), // ADDED: Read customer address
-                        rs.getString("total_amount"),
+                        rs.getString("customer_phone"),
+                        rs.getString("customer_address"),
+                        rs.getString("total_sell"),
+                        rs.getString("total_import"),
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
-                        retrievedShipperId,
-                        retrievedShipperName
-                ));
+                        rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
+                        rs.getString("shipper_name")
+                );
+                orders.add(order);
             }
-            // --- DEBUG LOG START ---
-            System.out.println("DEBUG (OrderDAO): Successfully retrieved " + orders.size() + " orders for shipper " + shipperId);
-            // --- DEBUG LOG END ---
         } catch (SQLException e) {
-            System.err.println("ERROR (OrderDAO): SQL Error while getting orders for shipper (ID: " + shipperId + "): " + e.getMessage());
-            e.printStackTrace(); // Print full stack trace for detailed debugging
+            System.err.println("getOrdersByShipperIdAndStatuses ERROR: " + e.getMessage());
+            e.printStackTrace();
         } finally {
             try {
                 this.closeResources();
@@ -679,6 +694,7 @@ public class OrderDAO extends BaseDao {
                 System.err.println("Error closing resources: " + e.getMessage());
             }
         }
+
         return orders;
     }
 
@@ -796,14 +812,12 @@ public class OrderDAO extends BaseDao {
      */
     public List<Bouquet> getAllBouquets() {
         List<Bouquet> bouquets = new ArrayList<>();
-        // Modified SQL query to select 'price' instead of 'current_price'
-        // Using LEFT JOIN to ensure all bouquets are returned even if they don't have an image in bouquet_images
-        // Adding MIN(bi.image_url) to resolve "only_full_group_by" issue and get one image_url per bouquet
         String sql = "SELECT\n"
                 + "    b.Bouquet_ID,\n"
                 + "    b.Bouquet_Name,\n"
                 + "    MIN(bi.image_url) AS image_url,\n" // Using MIN() to aggregate image_url
                 + "    b.Price,\n"
+                + "    b.sellPrice,\n"
                 + "    b.Description,\n"
                 + "    b.CID\n"
                 + "FROM\n"
@@ -817,11 +831,12 @@ public class OrderDAO extends BaseDao {
             rs = ps.executeQuery();
             while (rs.next()) {
                 Bouquet bouquet = new Bouquet();
-                bouquet.setBouquetId(rs.getInt("bouquet_id"));
-                bouquet.setBouquetName(rs.getString("bouquet_name"));
-                bouquet.setPrice(rs.getInt("price"));
+                bouquet.setBouquetId(rs.getInt("Bouquet_ID"));
+                bouquet.setBouquetName(rs.getString("Bouquet_Name"));
+                bouquet.setPrice(rs.getInt("Price"));
+                bouquet.setSellPrice(rs.getInt("sellPrice"));
                 bouquet.setDescription(rs.getString("Description"));
-                bouquet.setCid(rs.getInt("cid"));
+                bouquet.setCid(rs.getInt("CID"));
                 bouquets.add(bouquet);
             }
         } catch (SQLException e) {
@@ -894,8 +909,136 @@ public class OrderDAO extends BaseDao {
         return updated;
     }
 
+    public boolean updateTotalImportAndSell(int orderId, String totalImport, String totalSell) {
+        String sql = "UPDATE `order` SET total_import = ?, total_sell = ? WHERE order_id = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, totalImport);
+            ps.setString(2, totalSell);
+            ps.setInt(3, orderId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean updateTotalImport(int orderId, int totalImport) {
+        String sql = "UPDATE `order` SET total_import = ? WHERE order_id = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, totalImport);
+            ps.setInt(2, orderId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating total import: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public OrderItem getBouquetQuantityInOrder(int orderItemId, int orderId, int bouquetId) {
+        String sql = "SELECT\n"
+                + "  order_item_id,\n"
+                + "  order_id,\n"
+                + "  bouquet_id,\n"
+                + "  quantity,\n"
+                + "  sellPrice,   \n"
+                + "  status   \n"
+                + "FROM order_item\n"
+                + "WHERE order_item_id = ?\n"
+                + "AND order_id = ?\n"
+                + "AND bouquet_id = ?";
+        OrderItem item = null;
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            // Thiết lập tham số
+            ps.setInt(1, orderItemId);
+            ps.setInt(2, orderId);
+            ps.setInt(3, bouquetId);
+            rs = ps.executeQuery();
+            // Lấy kết quả
+            if (rs.next()) {
+                item = new OrderItem();
+                item.setOrderItemId(rs.getInt("order_item_id"));
+                item.setOrderId(rs.getInt("order_id"));
+                item.setBouquetId(rs.getInt("bouquet_id"));
+                item.setQuantity(rs.getInt("quantity"));
+                item.setUnitPrice(rs.getDouble("sellPrice"));
+                item.setStatus(rs.getString("status"));
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.err.println("Error closing resources: " + e.getMessage());
+            }
+        }
+        return item;
+    }
+
+    public void completeBouquetCreation(int orderItemId, int orderId, int bouquetId, int sellPrice) {
+        String sql = """
+        UPDATE order_item
+        SET 
+            status = 'done',
+            sellPrice = ?
+        WHERE
+            order_item_id = ?
+            AND order_id = ?
+            AND bouquet_id = ?;
+        """;
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, sellPrice);
+            ps.setInt(2, orderItemId);
+            ps.setInt(3, orderId);
+            ps.setInt(4, bouquetId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error updating order_item status: " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                e.printStackTrace(); // Ghi log lỗi đóng tài nguyên
+            }
+        }
+
+    }
+
+    public void updateOrderStatusAfterMakingBouquet(int orderId) {
+        String sql = "UPDATE la_fioreria.order o\n"
+                + "JOIN la_fioreria.order_status os ON o.status_id = os.order_status_id\n"
+                + "SET o.status_id = 3\n"
+                + "WHERE o.order_id = ?";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Error updating order_item status: " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                e.printStackTrace(); // Ghi log lỗi đóng tài nguyên
+            }
+        }
+    }
+
     public static void main(String[] args) {
         OrderDAO orderDAO = new OrderDAO();
-        orderDAO.getOrderDetailById(9);
+        System.out.println(orderDAO.getBouquetQuantityInOrder(2, 2, 3));
     }
 }

@@ -7,7 +7,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<fmt:setLocale value="vi_VN" />
 <!DOCTYPE html>
 <html>
     <head>
@@ -32,6 +33,12 @@
         <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-114-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="${pageContext.request.contextPath}/ZeShopper/images/ico/apple-touch-icon-57-precomposed.png">
+        <style>
+            .filter-btn {
+                display: flex;
+                gap: 10px;
+            }
+        </style>
     </head><!--/head-->
 
     <body>
@@ -42,219 +49,206 @@
                 <div class="row">
                     <div class="col-sm-3">
                         <div class="left-sidebar">
-                            <h2>Category</h2>
-                            <div class="panel-group category-products" id="accordian"><!--category-productsr-->
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#accordian" href="#sportswear">
-                                                <span class="badge pull-right"><i class="fa fa-plus"></i></span>
-                                                Sportswear
-                                            </a>
-                                        </h4>
-                                    </div>
-                                    <div id="sportswear" class="panel-collapse collapse">
-                                        <div class="panel-body">
-                                            <ul>
-                                                <li><a href="">Nike </a></li>
-                                                <li><a href="">Under Armour </a></li>
-                                                <li><a href="">Adidas </a></li>
-                                                <li><a href="">Puma</a></li>
-                                                <li><a href="">ASICS </a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#accordian" href="#mens">
-                                                <span class="badge pull-right"><i class="fa fa-plus"></i></span>
-                                                Mens
-                                            </a>
-                                        </h4>
-                                    </div>
-                                    <div id="mens" class="panel-collapse collapse">
-                                        <div class="panel-body">
-                                            <ul>
-                                                <li><a href="">Fendi</a></li>
-                                                <li><a href="">Guess</a></li>
-                                                <li><a href="">Valentino</a></li>
-                                                <li><a href="">Dior</a></li>
-                                                <li><a href="">Versace</a></li>
-                                                <li><a href="">Armani</a></li>
-                                                <li><a href="">Prada</a></li>
-                                                <li><a href="">Dolce and Gabbana</a></li>
-                                                <li><a href="">Chanel</a></li>
-                                                <li><a href="">Gucci</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
+                            <!-- Blog Categories -->
+                            <h2>Blog Categories</h2>
+                            <div class="panel-group category-products" id="accordian">
 
+                                <!-- All Categories Link -->
                                 <div class="panel panel-default">
                                     <div class="panel-heading">
                                         <h4 class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#accordian" href="#womens">
-                                                <span class="badge pull-right"><i class="fa fa-plus"></i></span>
-                                                Womens
+                                            <a href="blog?page=1" class="${empty param.categoryId ? 'active' : ''}">
+                                                All Categories
                                             </a>
                                         </h4>
                                     </div>
-                                    <div id="womens" class="panel-collapse collapse">
-                                        <div class="panel-body">
-                                            <ul>
-                                                <li><a href="">Fendi</a></li>
-                                                <li><a href="">Guess</a></li>
-                                                <li><a href="">Valentino</a></li>
-                                                <li><a href="">Dior</a></li>
-                                                <li><a href="">Versace</a></li>
-                                            </ul>
+                                </div>
+                                <c:forEach var="category" items="${cList}">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a href="blog?categoryId=${category.categoryId}&page=1">
+                                                    ${category.categoryName}
+                                                </a>
+                                            </h4>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Kids</a></h4>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Fashion</a></h4>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Households</a></h4>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Interiors</a></h4>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Clothing</a></h4>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Bags</a></h4>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><a href="#">Shoes</a></h4>
-                                    </div>
-                                </div>
+                                </c:forEach>
                             </div><!--/category-products-->
 
-                            <div class="brands_products"><!--brands_products-->
-                                <h2>Brands</h2>
-                                <div class="brands-name">
-                                    <ul class="nav nav-pills nav-stacked">
-                                        <li><a href=""> <span class="pull-right">(50)</span>Acne</a></li>
-                                        <li><a href=""> <span class="pull-right">(56)</span>Grüne Erde</a></li>
-                                        <li><a href=""> <span class="pull-right">(27)</span>Albiro</a></li>
-                                        <li><a href=""> <span class="pull-right">(32)</span>Ronhill</a></li>
-                                        <li><a href=""> <span class="pull-right">(5)</span>Oddmolly</a></li>
-                                        <li><a href=""> <span class="pull-right">(9)</span>Boudestijn</a></li>
-                                        <li><a href=""> <span class="pull-right">(4)</span>Rösch creative culture</a></li>
-                                    </ul>
-                                </div>
-                            </div><!--/brands_products-->
+                            <!-- Search and Filter -->
+                            <div class="search-filter">
+                                <h2>Search & Filter</h2>
+                                <form action="blog" method="get" class="well">
+                                    <div class="form-group">
+                                        <input type="text" name="search" class="form-control" 
+                                               placeholder="Search blogs..." value="${param.search}">
+                                    </div>
 
-                            <div class="price-range"><!--price-range-->
-                                <h2>Price Range</h2>
-                                <div class="well">
-                                    <input type="text" class="span2" value="" data-slider-min="0" data-slider-max="600" data-slider-step="5" data-slider-value="[250,450]" id="sl2" ><br />
-                                    <b>$ 0</b> <b class="pull-right">$ 600</b>
-                                </div>
-                            </div><!--/price-range-->
+                                    <div class="form-group">
+                                        <select name="sortBy" class="form-control">
+                                            <option value="created_at" ${param.sortBy == 'created_at' ? 'selected' : ''}>Date Created</option>
+                                            <option value="updated_at" ${param.sortBy == 'updated_at' ? 'selected' : ''}>Date Updated</option>
+                                            <option value="title" ${param.sortBy == 'title' ? 'selected' : ''}>Title</option>
+                                        </select>
+                                    </div>
 
-                            <div class="shipping text-center"><!--shipping-->
-                                <img src="${pageContext.request.contextPath}/ZeShopper/images/home/shipping.jpg" alt="" />
-                            </div><!--/shipping-->
+                                    <div class="form-group">
+                                        <select name="sort" class="form-control">
+                                            <option value="DESC" ${param.sort == 'DESC' ? 'selected' : ''}>Newest First</option>
+                                            <option value="ASC" ${param.sort == 'ASC' ? 'selected' : ''}>Oldest First</option>
+                                        </select>
+                                    </div>
+
+                                    <input type="hidden" name="categoryId" value="${param.categoryId}">
+                                    <input type="hidden" name="page" value="1">
+                                    <div class="filter-btn">
+                                        <button type="submit" class="btn btn-primary btn-block">Apply Filter</button>
+                                        <a class="btn btn-primary btn-block" href="${pageContext.request.contextPath}/blog">Clear Filter</a>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!--                            <div class="shipping text-center">shipping
+                                                            <img src="${pageContext.request.contextPath}/ZeShopper/images/home/shipping.jpg" alt="" />
+                                                        </div>/shipping-->
                         </div>
                     </div>
+
                     <div class="col-sm-9">
                         <div class="blog-post-area">
-                            <h2 class="title text-center">Latest From our Blog</h2>
-                            <div class="single-blog-post">
-                                <h3>Girls Pink T Shirt arrived in store</h3>
-                                <div class="post-meta">
-                                    <ul>
-                                        <li><i class="fa fa-user"></i> Mac Doe</li>
-                                        <li><i class="fa fa-clock-o"></i> 1:33 pm</li>
-                                        <li><i class="fa fa-calendar"></i> DEC 5, 2013</li>
+                            <h2 class="title text-center">
+                                <c:choose>
+                                    <c:when test="${not empty param.search}">
+                                        Search Results for "${param.search}"
+                                    </c:when>
+                                    <c:when test="${not empty selectedCategory}">
+                                        ${selectedCategory.name} Blogs
+                                    </c:when>
+                                    <c:otherwise>
+                                        Latest From our Blog
+                                    </c:otherwise>
+                                </c:choose>
+                                <small class="text-muted">(${totalCount} blog(s) found)</small>
+                            </h2>
+
+                            <!-- Check if blogs exist -->
+                            <c:choose>
+                                <c:when test="${not empty blogs}">
+                                    <!-- Loop through blogs -->
+                                    <c:forEach var="blog" items="${blogs}">
+                                        <div class="single-blog-post" style="margin-bottom: 20px; padding: 20px; border: solid 1px #cccccc; border-radius: 20px;">
+                                            <h2>
+                                                <c:choose>
+                                                    <c:when test="${fn:length(blog.title) > 50}">
+                                                        ${fn:substring(blog.title, 0, 50)}...
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        ${blog.title}
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </h2>
+                                            <div class="post-meta">
+                                                <ul>
+                                                    <li><i class="fa fa-user"></i> Author: ${blog.owner.fullname}</li>
+                                                    <li><i class="fa fa-calendar"></i> 
+                                                        <fmt:formatDate value="${blog.created_at}" pattern="MMM dd, yyyy" />
+                                                    </li>
+                                                    <li><i class="fa fa-clock-o"></i> 
+                                                        <fmt:formatDate value="${blog.created_at}" pattern="HH:mm" />
+                                                    </li>
+                                                </ul>
+                                            </div>
+
+                                            <!-- Blog Image -->
+                                            <c:if test="${not empty blog.img_url}">
+                                                <a href="${pageContext.request.contextPath}/blog/detail?bid=${blog.blogId}">
+                                                    <img src="${pageContext.request.contextPath}/upload/BlogIMG/${blog.img_url}" alt="${blog.title}" 
+                                                         style="max-width: 100%; height: 200px; object-fit: cover;">
+                                                </a>
+                                            </c:if>
+
+                                            <!-- Pre-context or excerpt -->
+                                            <p>
+                                                <c:choose>
+                                                    <c:when test="${not empty blog.pre_context}">
+                                                        <c:choose>
+                                                            <c:when test="${fn:length(blog.pre_context) > 120}">
+                                                                ${fn:substring(blog.pre_context, 0, 120)}...
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                ${blog.pre_context}
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <c:choose>
+                                                            <c:when test="${fn:length(blog.context) > 50}">
+                                                                ${fn:substring(blog.context, 0, 50)}...
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                ${blog.context}
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </p>
+
+                                            <a class="btn btn-primary" style="border-radius: 10px;" href="${pageContext.request.contextPath}/blog/detail?bid=${blog.blogId}">Read More</a>
+                                        </div>
+                                    </c:forEach>
+                                </c:when>
+                                <c:otherwise>
+                                    <!-- No blogs found -->
+                                    <div class="single-blog-post text-center">
+                                        <h3>No blogs found</h3>
+                                        <p>
+                                            <c:choose>
+                                                <c:when test="${not empty param.search}">
+                                                    No blogs match your search criteria. Try different keywords.
+                                                </c:when>
+                                                <c:otherwise>
+                                                    No blogs are available at the moment. Please check back later.
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </p>
+                                        <a href="blog" class="btn btn-primary">View All Blogs</a>
+                                    </div>
+                                </c:otherwise>
+                            </c:choose>
+
+                            <!-- Pagination -->
+                            <c:if test="${totalPages > 1}">
+                                <div class="pagination-area">
+                                    <ul class="pagination">
+                                        <!-- Previous Page -->
+                                        <c:if test="${currentPage > 1}">
+                                            <li>
+                                                <a href="blog?page=${currentPage - 1}&search=${param.search}&sortBy=${param.sortBy}&sort=${param.sort}&categoryId=${param.categoryId}">
+                                                    <i class="fa fa-angle-double-left"></i>
+                                                </a>
+                                            </li>
+                                        </c:if>
+
+                                        <!-- Page Numbers -->
+                                        <c:forEach var="i" begin="1" end="${totalPages}">
+                                            <li>
+                                                <a href="blog?page=${i}&search=${param.search}&sortBy=${param.sortBy}&sort=${param.sort}&categoryId=${param.categoryId}" 
+                                                   class="${i == currentPage ? 'active' : ''}">${i}</a>
+                                            </li>
+                                        </c:forEach>
+
+                                        <!-- Next Page -->
+                                        <c:if test="${currentPage < totalPages}">
+                                            <li>
+                                                <a href="blog?page=${currentPage + 1}&search=${param.search}&sortBy=${param.sortBy}&sort=${param.sort}&categoryId=${param.categoryId}">
+                                                    <i class="fa fa-angle-double-right"></i>
+                                                </a>
+                                            </li>
+                                        </c:if>
                                     </ul>
-                                    <span>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star-half-o"></i>
-                                    </span>
                                 </div>
-                                <a href="">
-                                    <img src="${pageContext.request.contextPath}/ZeShopper/images/blog/blog-one.jpg" alt="">
-                                </a>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-                                <a  class="btn btn-primary" href="">Read More</a>
-                            </div>
-                            <div class="single-blog-post">
-                                <h3>Girls Pink T Shirt arrived in store</h3>
-                                <div class="post-meta">
-                                    <ul>
-                                        <li><i class="fa fa-user"></i> Mac Doe</li>
-                                        <li><i class="fa fa-clock-o"></i> 1:33 pm</li>
-                                        <li><i class="fa fa-calendar"></i> DEC 5, 2013</li>
-                                    </ul>
-                                    <span>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star-half-o"></i>
-                                    </span>
-                                </div>
-                                <a href="">
-                                    <img src="${pageContext.request.contextPath}/ZeShopper/images/blog/blog-two.jpg" alt="">
-                                </a>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-                                <a  class="btn btn-primary" href="">Read More</a>
-                            </div>
-                            <div class="single-blog-post">
-                                <h3>Girls Pink T Shirt arrived in store</h3>
-                                <div class="post-meta">
-                                    <ul>
-                                        <li><i class="fa fa-user"></i> Mac Doe</li>
-                                        <li><i class="fa fa-clock-o"></i> 1:33 pm</li>
-                                        <li><i class="fa fa-calendar"></i> DEC 5, 2013</li>
-                                    </ul>
-                                    <span>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star-half-o"></i>
-                                    </span>
-                                </div>
-                                <a href="">
-                                    <img src="${pageContext.request.contextPath}/ZeShopper/images/blog/blog-three.jpg" alt="">
-                                </a>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-                                <a  class="btn btn-primary" href="">Read More</a>
-                            </div>
-                            <div class="pagination-area">
-                                <ul class="pagination">
-                                    <li><a href="" class="active">1</a></li>
-                                    <li><a href="">2</a></li>
-                                    <li><a href="">3</a></li>
-                                    <li><a href=""><i class="fa fa-angle-double-right"></i></a></li>
-                                </ul>
-                            </div>
+                            </c:if>
                         </div>
                     </div>
                 </div>
@@ -263,5 +257,7 @@
 
         <jsp:include page="/ZeShopper/footer.jsp"/>
 
+        <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.js"></script>
+        <script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
     </body>
 </html>

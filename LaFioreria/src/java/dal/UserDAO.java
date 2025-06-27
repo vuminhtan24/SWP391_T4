@@ -691,6 +691,24 @@ public class UserDAO extends BaseDao {
         }
     }
 
+    public int getRoleIdByUserId(int userId) {
+        int roleId = -1;
+        String sql = "SELECT Role FROM user WHERE User_ID = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, userId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                roleId = rs.getInt("Role");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Lỗi khi lấy Role theo User_ID: " + e.getMessage());
+        }
+        return roleId;
+    }
+
     public static void main(String[] args) {
 
         UserDAO ud = new UserDAO();
@@ -705,7 +723,9 @@ public class UserDAO extends BaseDao {
                 "123 Main St, Anytown",
                 8
         );
-        ud.insertNewUser(user1);
+//        ud.insertNewUser(user1);
+
+        System.out.println(ud.getUserByID(1));
 
     }
 

@@ -80,6 +80,13 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
                         <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-table me-2"></i>Repair Center</a>
+                            <div class="dropdown-menu bg-transparent border-0">
+                                <a href="${pageContext.request.contextPath}/repairOrders" class="dropdown-item">Repair Orders</a>
+                                <a href="${pageContext.request.contextPath}/repairHistory" class="dropdown-item">Repair History</a>
+                            </div>
+                        </div>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
@@ -148,15 +155,6 @@
                                 <input type="text" class="form-control" id="customerAddress" name="customerAddress"
                                        value="${not empty submittedCustomerAddress ? submittedCustomerAddress : ''}" readonly="">
                             </div>
-
-                            <%-- Total Amount is removed from here as it will be calculated from order items --%>
-                            <%--
-                            <div class="mb-3">
-                                <label for="totalAmount" class="form-label">Total Amount:</label>
-                                <input type="number" step="0.01" class="form-control" id="totalAmount" name="totalAmount"
-                                       value="${not empty submittedTotalAmount ? submittedTotalAmount : ''}" required placeholder="e.g., 100.00">
-                            </div>
-                            --%>
 
                             <div class="mb-3">
                                 <label for="statusId" class="form-label">Status:</label>

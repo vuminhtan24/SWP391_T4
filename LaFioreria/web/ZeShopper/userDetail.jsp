@@ -325,126 +325,85 @@
             </div><!--/header-bottom-->
         </header><!--/header-->
 
-        <div class="container user-detail-form">
-            <form action="${pageContext.request.contextPath}/viewuserdetailhome" method="POST" onsubmit="return confirm('Are you sure, Please thing again, you sure that you should UPDATE your information  ?');">
-                <table border="0">
+        <div class="container mt-5" style="max-width: 600px;">
+            <form action="${pageContext.request.contextPath}/viewuserdetailhome" method="POST"
+                  onsubmit="return confirm('Are you sure? Please think again before updating your information.');">
+                <input type="hidden" name="id" value="${userManager.userid}">
 
-                    <tbody>
-                        <tr>
-                            <td>
-                                <input type="hidden" name="id" class="form-control" placeholder="User ID" aria-label="Username"
-                                       aria-describedby="basic-addon1" value="${userManager.userid}" readonly="">
-                            </td>
-                        </tr>
-                        <c:if test="${not empty errorID}">
-                            <tr>
-                                <td colspan="2"><span style="color:red">${errorID}</span></td>
-                            </tr>
-                        </c:if> 
-
-                        <tr>
-                            <td>User Name: </td>
-                            <td>
-                                <input type="text" name="name" class="form-control" placeholder="Username" aria-label="Username"
-                                       aria-describedby="basic-addon1" value="${userManager.username}">
-                            </td>
-                        </tr>
-
-                        <c:if test="${not empty errorName}">
-                            <tr>
-                                <td colspan="2"><span style="color:red">${errorName}</span></td>
-                            </tr>
-                        </c:if>
-                        <tr>
-                            <td>Password: </td>
-                            <td>
-                                <input type="password" name="pass" class="form-control" placeholder="Password" aria-label="Username"
-                                       aria-describedby="basic-addon1" value="${userManager.password}">
-                            </td>
-                        </tr>
-                        <c:if test="${not empty errorPass}">
-                            <tr>
-                                <td colspan="2"><span style="color:red">${errorPass}</span></td>
-                            </tr>
-                        </c:if>
-                        <tr>
-                            <c:if test="${not empty passwordStrength}">
-                                <c:choose>
-                                    <c:when test="${passwordStrength == 'Mạnh'}">
-                                <div style="font-size: small; color: green;">
-                                    Mật khẩu: ${passwordStrength}
-                                </div>
-                            </c:when>
-                            <c:when test="${passwordStrength == 'Trung bình'}">
-                                <div style="font-size: small; color: orange;">
-                                    Mật khẩu: ${passwordStrength}
-                                </div>
-                            </c:when>
-                            <c:otherwise>
-                                <div style="font-size: small; color: red;">
-                                    Mật khẩu: ${passwordStrength}
-                                </div>
-                            </c:otherwise>
-                        </c:choose>
+                <!-- Username -->
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" name="name" class="form-control" id="username"
+                           placeholder="Username" value="${userManager.username}">
+                    <c:if test="${not empty errorName}">
+                        <small class="form-text text-danger">${errorName}</small>
                     </c:if>
-                    </tr>
-                    <tr>
-                        <td>Full Name: </td>
-                        <td>
-                            <input type="text" name="FullName" class="form-control" placeholder="Full Name" aria-label="Username"
-                                   aria-describedby="basic-addon1" value="${userManager.fullname}">
-                        </td>
+                </div>
 
-                    </tr>
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" name="pass" class="form-control" id="password"
+                           placeholder="Password" value="${userManager.password}">
+                    <c:if test="${not empty errorPass}">
+                        <small class="form-text text-danger">${errorPass}</small>
+                    </c:if>
+
+                    <c:if test="${not empty passwordStrength}">
+                        <small class="form-text"
+                               style="color: ${passwordStrength == 'Mạnh' ? 'green' : passwordStrength == 'Trung bình' ? 'orange' : 'red'};">
+                            Mật khẩu: ${passwordStrength}
+                        </small>
+                    </c:if>
+                </div>
+
+                <!-- Full Name -->
+                <div class="form-group">
+                    <label for="fullname">Full Name</label>
+                    <input type="text" name="FullName" class="form-control" id="fullname"
+                           placeholder="Full Name" value="${userManager.fullname}">
                     <c:if test="${not empty errorFullname}">
-                        <tr>
-                            <td colspan="2"><span style="color:red">${errorFullname}</span></td>
-                        </tr>
+                        <small class="form-text text-danger">${errorFullname}</small>
                     </c:if>
-                    <tr>
-                        <td>Email: </td>
-                        <td>
-                            <input type="text" class="form-control" placeholder="Email"
-                                   aria-label="Recipient's username" aria-describedby="basic-addon2" name="email" value="${userManager.email}">
-                        </td>
-                    </tr>
-                    <c:if test="${not empty errorEmail}">
-                        <tr>
-                            <td colspan="2"><span style="color:red">${errorEmail}</span></td>
-                        </tr>
-                    </c:if>
-                    <tr>
-                        <td>Phone Number: </td>
-                        <td>
-                            <input type="type" name="phone" class="form-control" placeholder="Phone Number" aria-label="Username"
-                                   aria-describedby="basic-addon1" value="${userManager.phone}">
-                        </td>
-                    </tr>
-                    <c:if test="${not empty errorPhone}">
-                        <tr>
-                            <td colspan="2"><span style="color:red">${errorPhone}</span></td>
-                        </tr>
-                    </c:if>
-                    <tr>
-                        <td>Address: </td>
-                        <td>
-                            <input type="type" name="address" class="form-control" placeholder="Address" aria-label="Username"
-                                   aria-describedby="basic-addon1" value="${userManager.address}">
-                        </td>
-                    </tr>
-                    <c:if test="${not empty errorAddress}">
-                        <tr>
-                            <td colspan="2"><span style="color:red">${errorAddress}</span></td>
-                        </tr>
-                    </c:if>
+                </div>
 
-                    <tr>
-                        <td><input  class="btn btn-primary"type="submit" name="updateform" value="UPDATE" ></td>
-                    </tr>
-                    </tbody>
-                </table>
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="text" name="email" class="form-control" id="email"
+                           placeholder="Email" value="${userManager.email}">
+                    <c:if test="${not empty errorEmail}">
+                        <small class="form-text text-danger">${errorEmail}</small>
+                    </c:if>
+                </div>
+
+                <!-- Phone -->
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="text" name="phone" class="form-control" id="phone"
+                           placeholder="Phone Number" value="${userManager.phone}">
+                    <c:if test="${not empty errorPhone}">
+                        <small class="form-text text-danger">${errorPhone}</small>
+                    </c:if>
+                </div>
+
+                <!-- Address -->
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <input type="text" name="address" class="form-control" id="address"
+                           placeholder="Address" value="${userManager.address}">
+                    <c:if test="${not empty errorAddress}">
+                        <small class="form-text text-danger">${errorAddress}</small>
+                    </c:if>
+                </div>
+
+                <!-- Submit -->
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary" name="updateform">UPDATE</button>
+                </div>
             </form>
         </div>
+
 
         <jsp:include page="/ZeShopper/footer.jsp"/>
 

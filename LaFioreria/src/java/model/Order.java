@@ -12,11 +12,12 @@ public class Order {
 
     private int orderId;
     private String orderDate;
-    private int customerId;
+    private Integer customerId;
     private String customerName;
     private String customerPhone;
     private String customerAddress;
-    private String totalAmount;
+    private String totalSell;
+    private String totalImport;
     private int statusId;
     private String statusName;
     private Integer shipperId;
@@ -29,8 +30,8 @@ public class Order {
     public Order() {
     }
 
-    public Order(int orderId, String orderDate, int customerId, String customerName,
-            String customerPhone, String customerAddress, String totalAmount, int statusId, String statusName,
+    public Order(int orderId, String orderDate, Integer customerId, String customerName,
+            String customerPhone, String customerAddress, String totalSell, String totalImport, int statusId, String statusName,
             Integer shipperId, String shipperName) {
         this.orderId = orderId;
         this.orderDate = orderDate;
@@ -38,32 +39,34 @@ public class Order {
         this.customerName = customerName;
         this.customerPhone = customerPhone;
         this.customerAddress = customerAddress;
-        this.totalAmount = totalAmount;
+        this.totalSell = totalSell;
+        this.totalImport = totalImport;
         this.statusId = statusId;
         this.statusName = statusName;
         this.shipperId = shipperId;
         this.shipperName = shipperName;
     }
 
-    public Order(int orderId, String orderDate, int customerId, String customerName,
-            String totalAmount, int statusId, String statusName,
+    public Order(int orderId, String orderDate, Integer customerId, String customerName,
+            String totalSell, String totalImport, int statusId, String statusName,
             Integer shipperId, String shipperName) {
         this.orderId = orderId;
         this.orderDate = orderDate;
         this.customerId = customerId;
         this.customerName = customerName;
-        this.totalAmount = totalAmount;
+        this.totalSell = totalSell;
+        this.totalImport = totalImport;
         this.statusId = statusId;
         this.statusName = statusName;
         this.shipperId = shipperId;
         this.shipperName = shipperName;
     }
 
-    public Order(int orderId, String orderDate, int customerId, String totalAmount, int statusId) {
+    public Order(int orderId, String orderDate, Integer customerId, String totalSell, int statusId) {
         this.orderId = orderId;
         this.orderDate = orderDate;
         this.customerId = customerId;
-        this.totalAmount = totalAmount;
+        this.totalSell = totalSell;
         this.statusId = statusId;
     }
 
@@ -83,16 +86,12 @@ public class Order {
         this.orderDate = orderDate;
     }
 
-    public int getCustomerId() {
+    public Integer getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(int customerId) {
+    public void setCustomerId(Integer customerId) {
         this.customerId = customerId;
-    }
-
-    public String getTotalAmount() {
-        return totalAmount;
     }
 
     public String getCustomerPhone() {
@@ -135,10 +134,6 @@ public class Order {
         this.customerAddress = customerAddress;
     }
 
-    public void setTotalAmount(String totalAmount) {
-        this.totalAmount = totalAmount;
-    }
-
     public int getStatusId() {
         return statusId;
     }
@@ -179,18 +174,25 @@ public class Order {
         this.shipperName = shipperName;
     }
 
+    public String getTotalSell() {
+        return totalSell;
+    }
+
+    public void setTotalSell(String totalSell) {
+        this.totalSell = totalSell;
+    }
+
+    public String getTotalImport() {
+        return totalImport;
+    }
+
+    public void setTotalImport(String totalImport) {
+        this.totalImport = totalImport;
+    }
+
     @Override
     public String toString() {
-        return "Order{"
-                + "orderId=" + orderId
-                + ", orderDate='" + orderDate + '\''
-                + ", customerId=" + customerId
-                + ", customerName='" + customerName + '\''
-                + ", totalAmount='" + totalAmount + '\''
-                + ", statusId=" + statusId
-                + ", statusName='" + statusName + '\''
-                + ", shipperId=" + shipperId
-                + ", shipperName='" + shipperName + '\''
-                + '}';
+        return "Order{" + "orderId=" + orderId + ", orderDate=" + orderDate + ", customerId=" + customerId + ", customerName=" + customerName + ", customerPhone=" + customerPhone + ", customerAddress=" + customerAddress + ", totalSell=" + totalSell + ", totalImport=" + totalImport + ", statusId=" + statusId + ", statusName=" + statusName + ", shipperId=" + shipperId + ", shipperName=" + shipperName + ", deliveryProofImage=" + deliveryProofImage + ", rejectImage=" + rejectImage + ", rejectReason=" + rejectReason + '}';
     }
+
 }

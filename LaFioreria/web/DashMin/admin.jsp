@@ -100,7 +100,13 @@
                         <a href="${pageContext.request.contextPath}/orderManagement" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Order</a>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
                         <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
-
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-table me-2"></i>Repair Center</a>
+                            <div class="dropdown-menu bg-transparent border-0">
+                                <a href="${pageContext.request.contextPath}/repairOrders" class="dropdown-item">Repair Orders</a>
+                                <a href="${pageContext.request.contextPath}/repairHistory" class="dropdown-item">Repair History</a>
+                            </div>
+                        </div>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
 
 
@@ -175,13 +181,16 @@
                         <div class="col-sm-12 col-xl-6">
                             <div class="bg-light text-center rounded p-4 h-100">
                                 <div class="stat mb-4" style="background:#f0f0f0;padding:15px;border-radius:8px;">
-                                    <h3><%= String.format("%,.0f", request.getAttribute("thisMonthRevenue")) %> VNĐ</h3>
-                                    <p>💰 Doanh thu tháng này</p>
+                                    <h6 class="mb-0">💰 Doanh thu tháng này</h3>
+                                        <a href="${pageContext.request.contextPath}/revenuebydateservlet">Show All</a>
                                 </div>
                                 <canvas id="thisMonthChart"
                                         data-labels='<%= request.getAttribute("thisMonthLabels") %>'
                                         data-values='<%= request.getAttribute("thisMonthValues") %>'
                                         style="width: 100%; height: 300px;"></canvas>
+                                <button onclick="downloadChartAsImage(window.thisMonthChart, 'thisMonthChart.png')">
+                                    📥 Tải PNG
+                                </button>
                             </div>
                         </div>
 
@@ -207,6 +216,10 @@
                             <div class="bg-light text-center rounded p-4 h-100">
                                 <h4 class="mb-3">1. Doanh thu & số đơn theo tháng – Năm <%= request.getAttribute("monthYear") %></h4>
                                 <canvas id="monthChart" style="width: 100%; height: 300px;"></canvas>
+
+                                <button onclick="downloadChartAsImage(window.statsChart, 'thongke_theothang.png')">
+                                    📥 Tải PNG
+                                </button>
                             </div>
                         </div>
 
@@ -214,7 +227,11 @@
                         <div class="col-sm-12 col-xl-6">
                             <div class="bg-light text-center rounded p-4 h-100">
                                 <h4 class="mb-3">2. Doanh thu & số đơn theo từng năm</h4>
+                                <a href="${pageContext.request.contextPath}/revenuealltimeservlet">Show All</a>
                                 <canvas id="yearChart" style="width: 100%; height: 300px;"></canvas>
+                                <button onclick="downloadChartAsImage(window.yearChart, 'yearChart.png')">
+                                    📥 Tải PNG
+                                </button>
                             </div>
                         </div>
 
@@ -223,6 +240,9 @@
                             <div class="bg-light text-center rounded p-4 h-100">
                                 <h4 class="mb-3">3. Doanh thu & số đơn theo thứ trong tuần</h4>
                                 <canvas id="weekdayChart" style="width: 100%; height: 300px;"></canvas>
+                                <button onclick="downloadChartAsImage(window.weekdayChart, 'weekdayChart.png')">
+                                    📥 Tải PNG
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -257,14 +277,18 @@
                                 data-orders='<%= request.getAttribute("ordersJson") %>'
                                 style="max-width:100%; height:300px;">
                         </canvas>
+                        <button onclick="downloadChartAsImage(window.statsChart, 'thongke_theothang.png')">
+                            📥 Tải PNG
+                        </button>
                     </div>
                 </div>
 
                 <!-- 📈 Doanh thu theo loại hoa (tháng này) -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded p-4">
-                        <h2 class="mb-4">🌸 Doanh thu các loại hoa (tháng này)</h2>
-
+                        <h2 class="mb-4">🌸 Flower sales (this month)</h2>
+                        <a href="${pageContext.request.contextPath}/flowerqualitystatsservlet">Show Quality flower State</a><br>
+                        <a href="${pageContext.request.contextPath}/flowerlossstats">Show loss flower</a>
                         <form method="get" action="${pageContext.request.contextPath}/DashMin/admin" class="mb-4">
                             <label>Chọn loại hoa:</label><br>
                             <c:forEach var="cat" items="${categoryList}">
@@ -278,6 +302,8 @@
                                 ${cat.categoryName} <br>
                             </c:forEach>
                             <button type="submit" class="btn btn-primary mt-2">Xem biểu đồ</button>
+                            📥 Tải PNG
+                            </button>
                         </form>
 
                         <c:if test="${not empty labelsJson}">
@@ -293,6 +319,9 @@
                                     </c:forEach>
                                     style="width:100%; height:300px;">
                             </canvas>
+                            <button onclick="downloadChartAsImage(window.categoryRevenueChart, 'categoryRevenueChart.png')">
+                                📥 Tải PNG
+                            </button>
                         </c:if>
                     </div>
                 </div>
@@ -312,6 +341,9 @@
                                         </c:forEach>]'
                                         style="width:100% !important; height:100% !important;">
                                 </canvas>
+                                <button onclick="downloadChartAsImage(window.statsChart, 'thongke_theothang.png')">
+                                    📥 Tải PNG
+                                </button>
                             </div>
                         </div>
                     </div>

@@ -17,7 +17,27 @@ import model.OrderItem;
  * @author Legion
  */
 public class CartDAO extends BaseDao {
-    
+
+    public static void main(String[] args) {
+        CartDAO cartDAO = new CartDAO();
+
+        Order guestOrder = new Order();
+        guestOrder.setOrderDate("2025-06-27");
+        guestOrder.setCustomerId(null);  // Không có customer ID => khách vãng lai
+        guestOrder.setCustomerName("Nguyễn Văn A");
+        guestOrder.setCustomerPhone("0901234567");
+        guestOrder.setCustomerAddress("123 Đường Láng, Đống Đa, Hà Nội");
+        guestOrder.setTotalSell("1200000");
+        guestOrder.setTotalImport("700000");
+
+        int generatedOrderId = cartDAO.insertOrder(guestOrder);
+        if (generatedOrderId != -1) {
+            System.out.println("Thêm đơn hàng KHÁCH VÃNG LAI thành công, order_id = " + generatedOrderId);
+        } else {
+            System.err.println("Thêm đơn hàng KHÁCH VÃNG LAI thất bại.");
+        }
+    }
+
     public CartDetail getCartItem(int customerId, int bouquetId) {
         String sql = "SELECT * FROM cartdetails WHERE customer_id = ? AND bouquet_id = ?";
         try {
@@ -40,11 +60,12 @@ public class CartDAO extends BaseDao {
             try {
                 this.closeResources();
             } catch (Exception e) {
+
             }
         }
         return null;
     }
-    
+
     public void updateQuantity(int customerId, int bouquetId, int quantity) {
         String sql = "UPDATE cartdetails SET quantity = ? WHERE customer_id = ? AND bouquet_id = ?";
         try {
@@ -63,7 +84,7 @@ public class CartDAO extends BaseDao {
             }
         }
     }
-    
+
     public void deleteItem(int customerId, int bouquetId) {
         String sql = "DELETE FROM cartdetails WHERE customer_id = ? AND bouquet_id = ?";
         try {
@@ -81,7 +102,7 @@ public class CartDAO extends BaseDao {
             }
         }
     }
-    
+
     public void insertItem(int customerId, int bouquetId, int quantity) {
         String sql = "INSERT INTO cartdetails (customer_id, bouquet_id, quantity) VALUES (?, ?, ?)";
         try {
@@ -100,17 +121,15 @@ public class CartDAO extends BaseDao {
             }
         }
     }
-    
+
     public List<CartDetail> getCartDetailsByCustomerId(int customerId) {
         List<CartDetail> list = new ArrayList<>();
         String sql = "SELECT \n"
                 + "    cd.cart_id, cd.customer_id, cd.bouquet_id, cd.quantity,\n"
-                + "    b.bouquet_name, b.description, b.cid, b.price,\n"
-                + "    bi.image_url\n"
+                + "    b.bouquet_name, b.description, b.cid, b.price, b.sellPrice\n"
                 + "FROM\n"
                 + "    cartdetails cd\n"
                 + "    JOIN bouquet b ON cd.bouquet_id = b.Bouquet_ID\n"
-                + "    JOIN bouquet_images bi ON bi.Bouquet_ID = b.Bouquet_ID\n"
                 + "WHERE\n"
                 + "    customer_id = ?";
         try {
@@ -121,20 +140,20 @@ public class CartDAO extends BaseDao {
             while (rs.next()) {
                 CartDetail cd = new CartDetail();
                 Bouquet b = new Bouquet();
-                
+
                 cd.setCartId(rs.getInt("cart_id"));
                 cd.setCustomerId(rs.getInt("customer_id"));
                 cd.setBouquetId(rs.getInt("bouquet_id"));
                 cd.setQuantity(rs.getInt("quantity"));
-                
+
                 b.setBouquetId(rs.getInt("bouquet_id"));
                 b.setBouquetName(rs.getString("bouquet_name"));
                 b.setDescription(rs.getString("description"));
                 b.setCid(rs.getInt("cid"));
                 b.setSellPrice(rs.getInt("sellPrice"));
-                
+
                 cd.setBouquet(b);
-                
+
                 list.add(cd);
             }
         } catch (SQLException e) {
@@ -147,11 +166,11 @@ public class CartDAO extends BaseDao {
         }
         return list;
     }
-    
+
     public Bouquet getBouquetById(int bouquetId) {
         String sql = """
         SELECT bouquet_id, bouquet_name,
-               description, image_url, cid, price
+               description, cid, price
         FROM bouquet
         WHERE bouquet_id = ?
     """;
@@ -180,32 +199,54 @@ public class CartDAO extends BaseDao {
         }
         return null;
     }
-    
+
     public int insertOrder(Order order) {
-        String sql = "INSERT INTO `order` (order_date, customer_id, total_amount, status_id) VALUES (?, ?, ?, ?)";
+        int orderId = -1;
+
+        String sql = "INSERT INTO `order` (order_date, customer_id, customer_name, customer_phone, customer_address, total_sell, total_import, status_id) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
         try {
             connection = dbc.getConnection();
-            ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+            ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
             ps.setString(1, order.getOrderDate());
-            ps.setInt(2, order.getCustomerId());
-            ps.setString(3, order.getTotalAmount());
-            ps.setInt(4, 1); // status_id = 1 (processing)
-            ps.executeUpdate();
-            rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                return rs.getInt(1);
+
+            if (order.getCustomerId() != null && order.getCustomerId() != -1) {
+                ps.setInt(2, order.getCustomerId());
+            } else {
+                ps.setNull(2, Types.INTEGER); // Khách vãng lai
             }
+
+            ps.setString(3, order.getCustomerName());
+            ps.setString(4, order.getCustomerPhone());
+            ps.setString(5, order.getCustomerAddress());
+            ps.setString(6, order.getTotalSell());
+            ps.setString(7, order.getTotalImport());
+            ps.setInt(8, 1);
+
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    orderId = rs.getInt(1);
+                }
+            }
+
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("insertOrder ERROR: " + e.getMessage());
         } finally {
             try {
-                this.closeResources();
+                closeResources();
             } catch (Exception e) {
+                System.err.println("Error closing resources: " + e.getMessage());
             }
         }
-        return -1;
+
+        return orderId;
     }
-    
+
     public void insertOrderItem(OrderItem item) {
         String sql = "INSERT INTO order_item (order_id, bouquet_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
         try {
@@ -225,7 +266,7 @@ public class CartDAO extends BaseDao {
             }
         }
     }
-    
+
     public void deleteCartByCustomerId(int customerId) {
         String sql = "DELETE FROM cartdetails WHERE customer_id = ?";
         try {
@@ -242,5 +283,5 @@ public class CartDAO extends BaseDao {
             }
         }
     }
-    
+
 }

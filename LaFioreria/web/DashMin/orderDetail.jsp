@@ -80,6 +80,13 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
                         <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-table me-2"></i>Repair Center</a>
+                            <div class="dropdown-menu bg-transparent border-0">
+                                <a href="${pageContext.request.contextPath}/repairOrders" class="dropdown-item">Repair Orders</a>
+                                <a href="${pageContext.request.contextPath}/repairHistory" class="dropdown-item">Repair History</a>
+                            </div>
+                        </div>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
@@ -129,7 +136,8 @@
                                     <p><strong>Customer Name:</strong> ${order.customerName}</p>
                                 </div>
                                 <div class="col-md-6">
-                                    <p><strong>Total Amount:</strong> ${order.totalAmount}</p>
+                                    <p><strong>Total Import:</strong> ${order.totalImport}</p>
+                                    <p><strong>Total Sell</strong> ${order.totalSell}</p>
                                     <p><strong>Status ID:</strong> ${order.statusId}</p>
                                     <p><strong>Status:</strong> ${order.statusName}</p>
                                     <p><strong>Shipper ID:</strong> ${order.shipperId != null ? order.shipperId : "Not Assigned"}</p>
@@ -153,6 +161,29 @@
                                 <h6 class="mb-3">Delivery Confirmation Image:</h6>
                                 <p>No delivery proof image available.</p>
                             </c:if>
+                            <!-- Reject Delivery Image -->
+                            <c:if test="${order.statusName == 'Cancelled' && not empty order.rejectImage}">
+                                <hr class="my-4">
+                                <h6 class="mb-3">Rejected Delivery Image:</h6>
+                                <div class="text-center">
+                                    <img
+                                        src="${pageContext.request.contextPath}${order.rejectImage}"
+                                        alt="Reject Image"
+                                        class="img-fluid bouquet-img mb-2"
+                                        style="width: 300px; height: 300px; object-fit: cover; border-radius: 8px;" />
+                                </div>
+                            </c:if>
+                            <c:if test="${order.statusName == 'Cancelled' && empty order.rejectImage}">
+                                <hr class="my-4">
+                                <h6 class="mb-3">Rejected Delivery Image:</h6>
+                                <p>No reject image available.</p>
+                            </c:if>
+                            <c:if test="${order.statusName == 'Cancelled' && not empty order.rejectReason}">
+                                <hr class="my-4">
+                                <h6 class="mb-3">Reason for Rejection:</h6>
+                                <p>${order.rejectReason}</p>
+                            </c:if>
+
                             <hr class="my-4">
                             <h6 class="mb-3">Purchased Products:</h6>
                             <c:if test="${empty orderItems}">
@@ -169,6 +200,9 @@
                                                 <th scope="col">Quantity</th>
                                                 <th scope="col">Unit Price</th>
                                                 <th scope="col">Subtotal</th>
+                                                <th scope="col">Sell Price</th>
+                                                <th scope="col">Status</th>
+                                                <th scope="col">Make Bouquet</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -178,7 +212,7 @@
                                                     <td>
                                                         <c:choose>
                                                             <c:when test="${not empty item.bouquetImage}">
-                                                                <img src="${item.bouquetImage}" 
+                                                                <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${item.bouquetImage}" 
                                                                      alt="${item.bouquetName}" style="width: 50px; height: 50px; object-fit: cover;">
                                                             </c:when>
                                                             <c:otherwise>
@@ -194,6 +228,15 @@
                                                         <fmt:parseNumber var="price" value="${item.unitPrice}" type="number" />
                                                         <fmt:formatNumber value="${qty * price}" type="number" maxFractionDigits="2" />
                                                     </td>
+                                                    <td>
+                                                        ${item.getSellPrice()}
+                                                    </td>
+                                                    <td>${item.getStatus()}</td>
+                                                    <td><button type="button"
+                                                                class="btn btn-edit"
+                                                                onclick="location.href = '${pageContext.request.contextPath}/makeBouquet?BouquetId=${item.getBouquetId()}&OrderId=${item.getOrderId()}&OrderItemID=${item.getOrderDetailId()}';">
+                                                            Make Bouquet
+                                                        </button></td>
                                                 </tr>
                                             </c:forEach>
                                         </tbody>
