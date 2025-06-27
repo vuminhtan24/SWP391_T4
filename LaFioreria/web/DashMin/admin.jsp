@@ -213,6 +213,9 @@
                             <div class="bg-light text-center rounded p-4 h-100">
                                 <h4 class="mb-3">1. Doanh thu & số đơn theo tháng – Năm <%= request.getAttribute("monthYear") %></h4>
                                 <canvas id="monthChart" style="width: 100%; height: 300px;"></canvas>
+                                <button onclick="downloadChartAsImage(window.statsChart, 'thongke_theothang.png')">
+                                    📥 Tải PNG
+                                </button>
                             </div>
                         </div>
 

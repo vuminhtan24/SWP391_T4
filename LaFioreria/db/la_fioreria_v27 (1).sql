@@ -2,9 +2,9 @@ CREATE DATABASE  IF NOT EXISTS `la_fioreria` /*!40100 DEFAULT CHARACTER SET utf8
 USE `la_fioreria`;
 -- MySQL dump 10.13  Distrib 8.0.42, for Win64 (x86_64)
 --
--- Host: localhost    Database: la_fioreria
+-- Host: 127.0.0.1    Database: la_fioreria
 -- ------------------------------------------------------
--- Server version	8.0.42
+-- Server version	9.3.0
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -226,6 +226,71 @@ INSERT INTO `contact` VALUES (1,'Tân Vũ','vuminhtan2004@gmail.com','lead','123
 UNLOCK TABLES;
 
 --
+-- Table structure for table `customer_info`
+--
+
+DROP TABLE IF EXISTS `customer_info`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `customer_info` (
+  `Customer_ID` int NOT NULL AUTO_INCREMENT,
+  `User_ID` int NOT NULL,
+  `Customer_Code` varchar(20) NOT NULL,
+  `Join_Date` date DEFAULT NULL,
+  `Loyalty_Point` int DEFAULT '0',
+  `Birthday` date DEFAULT NULL,
+  `Gender` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`Customer_ID`),
+  UNIQUE KEY `Customer_Code_UNIQUE` (`Customer_Code`),
+  KEY `FK_User_Customer_idx` (`User_ID`),
+  CONSTRAINT `FK_User_Customer` FOREIGN KEY (`User_ID`) REFERENCES `user` (`User_ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `customer_info`
+--
+
+LOCK TABLES `customer_info` WRITE;
+/*!40000 ALTER TABLE `customer_info` DISABLE KEYS */;
+INSERT INTO `customer_info` VALUES (1,7,'CUST007','2023-01-01',120,'2000-05-10','Female'),(2,8,'CUST008','2023-02-15',80,'1998-09-22','Female'),(3,12,'CUST012','2024-03-01',50,'2004-08-18','Male'),(4,13,'CUST013','2024-06-15',95,'2003-12-07','Male');
+/*!40000 ALTER TABLE `customer_info` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `employee_info`
+--
+
+DROP TABLE IF EXISTS `employee_info`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `employee_info` (
+  `Employee_ID` int NOT NULL AUTO_INCREMENT,
+  `User_ID` int NOT NULL,
+  `Employee_Code` varchar(20) NOT NULL,
+  `Contract_Type` varchar(50) DEFAULT NULL,
+  `Start_Date` date DEFAULT NULL,
+  `End_Date` date DEFAULT NULL,
+  `Department` varchar(50) DEFAULT NULL,
+  `Position` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`Employee_ID`),
+  UNIQUE KEY `Employee_Code_UNIQUE` (`Employee_Code`),
+  KEY `FK_User_Employee_idx` (`User_ID`),
+  CONSTRAINT `FK_User_Employee` FOREIGN KEY (`User_ID`) REFERENCES `user` (`User_ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `employee_info`
+--
+
+LOCK TABLES `employee_info` WRITE;
+/*!40000 ALTER TABLE `employee_info` DISABLE KEYS */;
+INSERT INTO `employee_info` VALUES (1,2,'EMP002','Full-time','2021-02-01','2026-02-01','Sales','Sales Manager'),(2,3,'EMP003','Part-time','2022-03-01',NULL,'Sales','Seller'),(3,4,'EMP004','Contract','2022-04-01','2024-12-31','Marketing','Marketer'),(4,5,'EMP005','Full-time','2021-05-01','2025-05-01','Warehouse','Warehouse Staff'),(5,11,'EMP011','Shipper','2023-06-01',NULL,'Logistics','Delivery Staff');
+/*!40000 ALTER TABLE `employee_info` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `flower_batch`
 --
 
@@ -259,6 +324,36 @@ LOCK TABLES `flower_batch` WRITE;
 /*!40000 ALTER TABLE `flower_batch` DISABLE KEYS */;
 INSERT INTO `flower_batch` VALUES (1,1,500,15000,'2025-07-01','2025-08-31',NULL,1,'fresh'),(2,2,300,35000,'2025-07-01','2025-08-25',NULL,1,'fresh'),(3,3,200,16000,'2025-07-01','2025-08-28',NULL,1,'fresh'),(4,4,100,55000,'2025-07-01','2025-08-30',NULL,2,'fresh'),(5,5,150,10000,'2025-07-01','2025-08-29',NULL,2,'fresh'),(6,6,400,7000,'2025-07-01','2025-07-05',NULL,1,'fresh'),(7,7,250,70000,'2025-07-01','2025-07-10',NULL,1,'fresh'),(8,8,350,40000,'2025-07-01','2025-07-03',NULL,2,'fresh'),(9,9,200,35000,'2025-07-01','2025-07-07',NULL,2,'fresh'),(10,10,500,20000,'2025-07-01','2025-07-08',NULL,1,'fresh'),(11,11,0,30000,'2025-07-01','2025-07-06',0,1,'fresh');
 /*!40000 ALTER TABLE `flower_batch` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `flower_discard`
+--
+
+DROP TABLE IF EXISTS `flower_discard`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `flower_discard` (
+  `discard_id` int NOT NULL AUTO_INCREMENT,
+  `batch_id` int NOT NULL,
+  `discard_date` date DEFAULT NULL,
+  `quantity` int DEFAULT NULL,
+  `reason` varchar(50) DEFAULT NULL,
+  `note` text,
+  PRIMARY KEY (`discard_id`),
+  KEY `batch_id_idx` (`batch_id`),
+  CONSTRAINT `fk_batch_id` FOREIGN KEY (`batch_id`) REFERENCES `flower_batch` (`batch_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `flower_discard`
+--
+
+LOCK TABLES `flower_discard` WRITE;
+/*!40000 ALTER TABLE `flower_discard` DISABLE KEYS */;
+INSERT INTO `flower_discard` VALUES (7,1,'2025-07-01',10,'Quá hạn','Quá hạn sử dụng'),(8,1,'2025-07-02',5,'Mốc','Bị mốc do độ ẩm'),(9,2,'2025-07-03',7,'Hỏng do nhiệt độ','Bảo quản không đúng cách'),(10,3,'2025-07-04',4,'Dập nát','Lỗi khi vận chuyển'),(11,4,'2025-08-01',8,'Quá hạn','Không bán kịp'),(12,5,'2025-08-02',2,'Mốc','Do kho lạnh bị hỏng');
+/*!40000 ALTER TABLE `flower_discard` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -723,39 +818,6 @@ INSERT INTO `warehouse` VALUES (1,'Main Warehouse','111 Warehouse St',5),(2,'Bac
 /*!40000 ALTER TABLE `warehouse` ENABLE KEYS */;
 UNLOCK TABLES;
 
-
-DROP TABLE IF EXISTS `flower_discard`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `flower_discard` (
-  `discard_id` INT NOT NULL AUTO_INCREMENT,
-  `batch_id` INT NOT NULL,
-  `discard_date` DATE,
-  `quantity` INT,
-  `reason` VARCHAR(50),  -- ví dụ: 'Hỏng do nhiệt độ', 'Mốc', 'Quá hạn', ...
-  `note` TEXT,
-  PRIMARY KEY (`discard_id`),
-  KEY `batch_id_idx` (`batch_id`),
-  CONSTRAINT `fk_batch_id` FOREIGN KEY (`batch_id`) REFERENCES `flower_batch` (`batch_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `flower_discard`
---
-
-LOCK TABLES `flower_discard` WRITE;
-/*!40000 ALTER TABLE `flower_discard` DISABLE KEYS */;
-INSERT INTO `flower_discard` (`batch_id`, `discard_date`, `quantity`, `reason`, `note`) VALUES
-(1, '2025-07-01', 10, 'Quá hạn', 'Quá hạn sử dụng'),
-(1, '2025-07-02', 5, 'Mốc', 'Bị mốc do độ ẩm'),
-(2, '2025-07-03', 7, 'Hỏng do nhiệt độ', 'Bảo quản không đúng cách'),
-(3, '2025-07-04', 4, 'Dập nát', 'Lỗi khi vận chuyển'),
-(4, '2025-08-01', 8, 'Quá hạn', 'Không bán kịp'),
-(5, '2025-08-02', 2, 'Mốc', 'Do kho lạnh bị hỏng');
-/*!40000 ALTER TABLE `flower_discard` ENABLE KEYS */;
-UNLOCK TABLES;
-
 --
 -- Dumping events for database 'la_fioreria'
 --
@@ -773,4 +835,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-25 15:46:33
+-- Dump completed on 2025-06-27  7:59:00

@@ -13,7 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import model.User;
-import model.UserManager;
 
 /**
  *
@@ -80,7 +79,6 @@ public class AddUserDetail extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -96,117 +94,125 @@ public class AddUserDetail extends HttpServlet {
 
         UserDAO ud = new UserDAO();
 
-        try {
-            if (!phone_Number.matches("^(0)\\d{9}$")) {
-                setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
-                request.setAttribute("errorPhone", "Phone number must be 10 digits and start with 0.");
-                request.setAttribute("roleNames", ud.getRoleNames());
-                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
-                return;
-            }
+        boolean hasError = false;
 
-// Kiểm tra số điện thoại đã tồn tại
-            if (ud.isPhoneExist(phone_Number)) {
-                setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
-                request.setAttribute("errorPhone", "Phone number already exists.");
-                request.setAttribute("roleNames", ud.getRoleNames());
-                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
-                return;
-            }
+        if (!name_raw.matches("^(?=.{2,50}$)(?! )[a-zA-Z]+(?: [a-zA-Z]+)*$")) {
+            request.setAttribute("errorName", "Name must not contain characters except letters and spaces, from 2 to 50 characters.");
+            hasError = true;
+        }
 
-            // Email validation
-            if (!email.matches("^[a-zA-Z0-9._%+-]{3,}@[a-zA-Z0-9-]{2,}\\.[a-zA-Z]{2,}$")) {
-                setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
-                request.setAttribute("errorEmail", "Email Invalid, Email form ...@...com/vn/..");
-                request.setAttribute("roleNames", ud.getRoleNames());
-                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
-                return;
-            }
+        final int MIN_LEN = 8;
+        final int MAX_LEN = 32;
 
-            // Password strength
-            if (password.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$")) {
-                passwordStrength = "Mạnh";
-            } else if (password.matches("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$")) {
-                passwordStrength = "Trung bình";
-            } else if (password.matches("^[a-zA-Z0-9]{7,}$")) {
-                passwordStrength = "Yếu";
+        if (password.length() < MIN_LEN || password.length() > MAX_LEN) {
+            request.setAttribute("error", "Password must be from " + MIN_LEN + " to " + MAX_LEN + " characters.");
+            hasError = true;
+        } else {
+            String strongRegex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?])[A-Za-z\\d!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?]{" + MIN_LEN + "," + MAX_LEN + "}$";
+            String mediumRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{" + MIN_LEN + "," + MAX_LEN + "}$";
+            String weakRegex = "^[A-Za-z\\d]{7," + MAX_LEN + "}$";
+
+            if (password.matches(strongRegex)) {
+                passwordStrength = "Strong";
+            } else if (password.matches(mediumRegex)) {
+                passwordStrength = "Medium";
+            } else if (password.matches(weakRegex)) {
+                passwordStrength = "Weak";
             } else {
-                setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
-                request.setAttribute("error", "Password không hợp lệ. Tối thiểu 7 ký tự.");
-                request.setAttribute("roleNames", ud.getRoleNames());
-                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
-                return;
+                request.setAttribute("error", "Password Invalid. Must contain letters, numbers (and special characters if needed) from " + MIN_LEN + " to " + MAX_LEN + " characters.");
+                hasError = true;
             }
-            request.setAttribute("passwordStrength", passwordStrength);
+        }
 
-            // Full name validation
-// Check Full Name
-            if (fullName == null || fullName.trim().isEmpty()) {
-                setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
-                request.setAttribute("errorFullname", "Full name is required.");
-                request.setAttribute("roleNames", ud.getRoleNames());
-                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
-                return;
-            }
+        request.setAttribute("passwordStrength", passwordStrength);
 
-            if (!fullName.matches("^(?!\\s)(?!.*\\s{2,})(?=.{4,50}$)[A-Za-zÀ-ỹà-ỹ\\s]+(?<!\\s)$")) {
-                setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
-                request.setAttribute("errorFullname", "Full name must be 4-50 characters, only letters, no digits, no double spaces.");
-                request.setAttribute("roleNames", ud.getRoleNames());
-                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
-                return;
-            }
+        if (fullName == null || fullName.trim().isEmpty()) {
+            request.setAttribute("errorFullname", "Full name is required.");
+            hasError = true;
+        } else if (!fullName.matches("^(?!\\s)(?!.*\\s{2,})(?=.{4,50}$)[A-Za-zÀ-ỹà-ỹ\\s]+(?<!\\s)$")) {
+            request.setAttribute("errorFullname", "Full name must be 4-50 characters, only letters, no digits, no double spaces.");
+            hasError = true;
+        }
 
-            // Name validation
-            if (!name_raw.matches("^(?=.{2,50}$)(?! )[a-zA-Z]+(?: [a-zA-Z]+)*$")) {
-                setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
-                request.setAttribute("errorName", "Name must not contain digits.");
-                request.setAttribute("roleNames", ud.getRoleNames());
-                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
-                return;
-            }
+        final int MAX_EMAIL_LEN = 100;
 
-            // Address validation
-            if (!Address.matches("^[a-zA-Z0-9\\s]+$")) {
-                setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
-                request.setAttribute("errorAddress", "Address must contain only letters, digits, and spaces.");
-                request.setAttribute("roleNames", ud.getRoleNames());
-                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
-                return;
-            }
+        String trimmedEmail = email.trim();
 
-            // Convert role text to number
-            int role = switch (role_raw) {
-                case "Admin" ->
-                    1;
-                case "Sales Manager" ->
-                    2;
-                case "Seller" ->
-                    3;
-                case "Marketer" ->
-                    4;
-                case "Warehouse Staff" ->
-                    5;
-                case "Guest" ->
-                    6;
-                case "Customer" ->
-                    7;
-                default ->
-                    0;
-            };
+        if (trimmedEmail.length() > MAX_EMAIL_LEN) {
+            request.setAttribute("errorEmail", "Email is too long. Max 100 characters.");
+            hasError = true;
 
-            // Tạo user và insert (không cần ID)
-            User u = new User(name_raw, password, fullName, email, phone_Number, Address, role);
-            ud.insertNewUser(u);
+        } else if (trimmedEmail.contains(" ")) {  // ⛔ Không chứa khoảng trắng
+            request.setAttribute("errorEmail", "Email cannot contain spaces.");
+            hasError = true;
 
-            response.sendRedirect("viewuserdetail");
+        } else if (!trimmedEmail.matches("^[a-zA-Z0-9._%+-]{3,64}@[a-zA-Z0-9-]{2,253}\\.[a-zA-Z]{2,}$")) {
+            request.setAttribute("errorEmail", "Email is invalid. Format: example@domain.com");
+            hasError = true;
+        }
 
-        } catch (ServletException | IOException e) {
+        if (!phone_Number.matches("^(0)\\d{9}$")) {
+            request.setAttribute("errorPhone", "Phone number must be 10 digits and start with 0.");
+            hasError = true;
+        } else if (ud.isPhoneExist(phone_Number)) {
+            request.setAttribute("errorPhone", "Phone number already exists.");
+            hasError = true;
+        }
+
+        final int MIN_ADDRESS_LEN = 5;
+        final int MAX_ADDRESS_LEN = 150;
+
+        String trimmedAddress = Address.trim();
+
+        if (trimmedAddress.isEmpty()) {
+            request.setAttribute("errorAddress", "Address cannot be empty or only spaces.");
+            hasError = true;
+
+        } else if (trimmedAddress.length() < MIN_ADDRESS_LEN || trimmedAddress.length() > MAX_ADDRESS_LEN) {
+            request.setAttribute("errorAddress",
+                    "Address must be between " + MIN_ADDRESS_LEN + " and " + MAX_ADDRESS_LEN + " characters.");
+            hasError = true;
+
+        } else if (trimmedAddress.contains("  ")) { // ⛔ chứa 2 khoảng trắng liên tiếp
+            request.setAttribute("errorAddress", "Address cannot contain consecutive spaces.");
+            hasError = true;
+
+        } else if (!trimmedAddress.matches("^[a-zA-Z0-9\\s,./\\-À-ỹà-ỹ]+$")) {
+            request.setAttribute("errorAddress",
+                    "Address must contain only letters, digits, spaces, and some common punctuation.");
+            hasError = true;
+        }
+
+        if (hasError) {
             setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
-            request.setAttribute("error", "An unexpected error occurred. Please try again.");
             request.setAttribute("roleNames", ud.getRoleNames());
             request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
+            return;
         }
+
+        int role = switch (role_raw) {
+            case "Admin" ->
+                1;
+            case "Sales Manager" ->
+                2;
+            case "Seller" ->
+                3;
+            case "Marketer" ->
+                4;
+            case "Warehouse Staff" ->
+                5;
+            case "Guest" ->
+                6;
+            case "Customer" ->
+                7;
+            default ->
+                0;
+        };
+
+        User u = new User(name_raw, password, fullName, email, phone_Number, Address, role);
+        ud.insertNewUser(u);
+
+        response.sendRedirect("viewuserdetail");
     }
 
     private void setAttributes(HttpServletRequest request, String name, String pass,

@@ -4,9 +4,9 @@
  */
 package testcode;
 
-import dal.UserDAO;
-import java.util.List;
-import model.UserManager;
+import dal.FlowerDAO;
+import dal.SalesDAO;
+import java.util.Map;
 
 /**
  *
@@ -15,28 +15,20 @@ import model.UserManager;
 public class TestUserDao {
 
     public static void main(String[] args) {
+        SalesDAO dao = new SalesDAO();
 
-        UserDAO ud = new UserDAO();
-//        List<Integer> lst = ud.getIds();
-//        for (int i = 0; i < lst.size(); i++) {
-//            Integer get = lst.get(i);
-//            System.out.println(get);
-//        }
-//        User u = new User(10, "Madara", "1234", "Uchiha Madara", "Madara@flower.com", "090111234", "konoha village", 2);
-//        ud.Update(u);
-//        ud.insertUser(u);
-//        UserManager um = ud.getUserById(10);
-//        System.out.println(um.toString());
-        List<UserManager> lst = ud.getSortedUsers(0,"","Fullname","desc");
-        for (UserManager userManager : lst) {
-            System.out.println(userManager.toString());
+        // Test 1: Tổng hợp tổn thất theo lý do
+        System.out.println("=== Tổng hợp tổn thất theo lý do ===");
+        Map<String, Integer> discardStats = dao.getDiscardReasonStats();
+        for (Map.Entry<String, Integer> entry : discardStats.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
         }
-//
-//    }
-//        List<Role> list = ud.getAllRole();
-//        for (Role role : list) {
-//            System.out.println(role.toString());
-//        }
 
+        // Test 2: So sánh nhập vs tổn thất
+        System.out.println("\n=== So sánh hoa nhập vs tổn thất ===");
+        Map<String, Integer> importVsWaste = dao.getTotalImportVsWaste();
+        for (Map.Entry<String, Integer> entry : importVsWaste.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
     }
 }

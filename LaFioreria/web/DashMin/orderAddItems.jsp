@@ -7,7 +7,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %> 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -73,7 +73,7 @@
                 newRow.innerHTML = `
                     <div class="col-md-6">
                         <label for="bouquetId_${itemCounter}" class="form-label visually-hidden">Bouquet:</label>
-                        <select class="form-select" id="bouquetId_${itemCounter}" name="bouquetId" required>
+                        <select class="form-select bouquet-select" id="bouquetId_${itemCounter}" name="bouquetId" required>
                             <option value="">-- Select Bouquet --</option>
                             <c:forEach var="bouquet" items="${allBouquets}">
                                 <option value="${bouquet.bouquetId}" data-price="${bouquet.price}" data-sellprice="${bouquet.sellPrice}">${bouquet.bouquetName} (Import: <fmt:formatNumber value="${bouquet.price}" pattern="#,##0" /> ₫ - Sell: <fmt:formatNumber value="${bouquet.sellPrice}" pattern="#,##0" /> ₫)</option>
@@ -89,19 +89,63 @@
                     </div>
                 `;
                 container.appendChild(newRow);
+
+                // Attach event listener to the new select element
+                newRow.querySelector('.bouquet-select').addEventListener('change', updateBouquetOptions);
+
                 itemCounter++;
+                updateBouquetOptions(); // Update options after adding a new row
             }
 
             // Function to remove a product item row
             function removeProductItemRow(button) {
                 button.closest('.product-item-row').remove();
+                updateBouquetOptions(); // Update options after removing a row
             }
 
-            // Initial row on page load
+            // Function to update disabled state of bouquet options across all select boxes
+            function updateBouquetOptions() {
+                const allSelects = document.querySelectorAll('.bouquet-select');
+                const selectedValues = new Set(); // To store currently selected bouquet IDs
+
+                // First, collect all selected values
+                allSelects.forEach(select => {
+                    if (select.value !== "") {
+                        selectedValues.add(select.value);
+                    }
+                });
+
+                // Then, iterate through all selects again to disable/enable options
+                allSelects.forEach(select => {
+                    Array.from(select.options).forEach(option => {
+                        // Enable all options first (except the empty one)
+                        if (option.value !== "") {
+                            option.disabled = false;
+                        }
+
+                        // If an option's value is in selectedValues AND it's not the current select's value, disable it
+                        if (option.value !== "" && selectedValues.has(option.value) && option.value !== select.value) {
+                            option.disabled = true;
+                        }
+                    });
+                });
+            }
+
+
+            // Initial setup on page load
             document.addEventListener('DOMContentLoaded', () => {
-                // Kiểm tra nếu không có dòng nào được tạo từ server-side rendering (khi có lỗi)
-                if (document.querySelectorAll('#productItemsContainer .product-item-row').length === 0) {
-                    addProductItemRow(); // Thêm một dòng ban đầu nếu chưa có
+                // Check if there are any rows rendered by server-side (e.g., after a validation error)
+                const existingRows = document.querySelectorAll('#productItemsContainer .product-item-row');
+                if (existingRows.length === 0) {
+                    addProductItemRow(); // Add one initial row if none exist
+                } else {
+                    // If rows exist from server-side, attach event listeners and update options
+                    existingRows.forEach(row => {
+                        row.querySelector('.bouquet-select').addEventListener('change', updateBouquetOptions);
+                    });
+                    // Set itemCounter based on existing rows
+                    itemCounter = existingRows.length;
+                    updateBouquetOptions(); // Initial update for server-side rendered rows
                 }
             });
         </script>
@@ -198,6 +242,18 @@
                         <div class="mb-3">
                             <p><strong>Order Date:</strong> ${order.orderDate}</p>
                             <p><strong>Customer:</strong> ${order.customerName}</p>
+                            <p>
+                                <strong>Current Total Import:</strong> 
+                                <span class="price-display">
+                                    <fmt:formatNumber value="${order.totalImport}" pattern="#,##0" /> ₫
+                                </span>
+                            </p>
+                            <p>
+                                <strong>Current Total Sell:</strong> 
+                                <span class="price-display">
+                                    <fmt:formatNumber value="${order.totalSell}" pattern="#,##0" /> ₫
+                                </span>
+                            </p>
                         </div>
                         
                         <hr>

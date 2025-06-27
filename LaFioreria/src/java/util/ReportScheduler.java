@@ -48,8 +48,7 @@ public class ReportScheduler {
                 System.out.println("✅ Đã gửi báo cáo tới: " + recipient);
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (MessagingException e) {
             System.out.println("❌ Gửi email thất bại.");
         }
     }

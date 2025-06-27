@@ -574,14 +574,15 @@ public class OrderDAO extends BaseDao {
      * @return true if the order item is added successfully, false otherwise.
      */
     public boolean addOrderItem(OrderDetail orderItem) {
-        String sql = "INSERT INTO `order_item` (order_id, bouquet_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO `order_item` (order_id, bouquet_id, quantity, unit_price, sellPrice) VALUES (?, ?, ?, ?, ?)";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setInt(1, orderItem.getOrderId());
             ps.setInt(2, orderItem.getBouquetId());
             ps.setInt(3, orderItem.getQuantity());
-            ps.setString(4, orderItem.getUnitPrice()); // Ensure unitPrice is handled as String/VARCHAR
+            ps.setString(4, orderItem.getUnitPrice());
+            ps.setDouble(5, orderItem.getSellPrice());
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
