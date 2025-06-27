@@ -4,6 +4,8 @@
  */
 package controller;
 
+import dal.CustomerDAO;
+import dal.EmployeeDAO;
 import dal.UserDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,7 +13,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDate;
 import java.util.List;
+import model.CustomerInfo;
+import model.EmployeeInfo;
 import model.User;
 import model.UserManager;
 
@@ -74,10 +79,20 @@ public class ViewUserDetail extends HttpServlet {
                 int id = Integer.parseInt(id_raw);
                 UserManager um = ud.getUserById(id);
                 request.setAttribute("userManager", um);
+
+                int roleId = ud.getRoleIdByUserId(id); // hoặc um.getRoleId()
+                if (roleId == 7) { // Customer
+                    CustomerDAO cd = new CustomerDAO();
+                    CustomerInfo ci = cd.getByUserId(id);
+                    request.setAttribute("customerInfo", ci);
+                } else if (roleId >= 1 && roleId <= 6 || roleId == 8) { // Nhân viên
+                    EmployeeDAO ed = new EmployeeDAO();
+                    EmployeeInfo ei = ed.getByUserId(id);
+                    request.setAttribute("employeeInfo", ei);
+                }
             } catch (NumberFormatException e) {
                 System.out.println(e);
             }
-
         }
 
         if (search_raw != null && !search_raw.isEmpty()) {
@@ -104,6 +119,15 @@ public class ViewUserDetail extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        String action = request.getParameter("ud");
+        System.out.println("ACTION RECEIVED = " + action); // log kiểm tra
+
+        if (action == null || !action.equals("UPDATE")) {
+            request.setAttribute("error", "Invalid action.");
+            request.getRequestDispatcher("/DashMin/viewUserDetail.jsp").forward(request, response);
+            return;
+        }
 
         String id_raw = request.getParameter("id");
         String name_raw = request.getParameter("name");
@@ -209,6 +233,56 @@ public class ViewUserDetail extends HttpServlet {
             // Không có lỗi thì update
             User u = new User(id, name_raw, password, fullName, email, phone_Number, Address, role);
             ud.Update(u);
+            // Phân loại xử lý bảng phụ theo role
+            if (role == 7) { // Customer
+                String customerCode = request.getParameter("customerCode");
+                String joinDate = request.getParameter("joinDate");
+                String loyaltyPoint_raw = request.getParameter("loyaltyPoint");
+                String birthday = request.getParameter("birthday");
+                String gender = request.getParameter("gender");
+
+                int loyaltyPoint = (loyaltyPoint_raw != null && !loyaltyPoint_raw.isEmpty())
+                        ? Integer.parseInt(loyaltyPoint_raw)
+                        : 0;
+
+// Dùng constructor đúng theo model
+                CustomerInfo customer = new CustomerInfo(id, customerCode, joinDate, loyaltyPoint, birthday, gender);
+
+                CustomerDAO cd = new CustomerDAO();
+                if (cd.exist(id)) {
+                    cd.update(customer);
+                } else {
+                    cd.insert(customer);
+                }
+
+            } else { // Nhân viên
+                String employeeCode = request.getParameter("employeeCode");
+                String contractType = request.getParameter("contractType");
+
+                String startDate_raw = request.getParameter("startDate");
+                String endDate_raw = request.getParameter("endDate");
+
+                LocalDate startDate = (startDate_raw != null && !startDate_raw.isEmpty())
+                        ? LocalDate.parse(startDate_raw)
+                        : null;
+                LocalDate endDate = (endDate_raw != null && !endDate_raw.isEmpty())
+                        ? LocalDate.parse(endDate_raw)
+                        : null;
+
+                String department = request.getParameter("department");
+                String position = request.getParameter("position");
+
+                EmployeeInfo employee = new EmployeeInfo(id, employeeCode, contractType,
+                        startDate, endDate, department, position);
+                EmployeeDAO ed = new EmployeeDAO();
+                if (ed.exist(id)) {
+                    ed.update(employee);
+                } else {
+                    ed.insert(employee);
+                }
+            }
+
+            // Sau khi cập nhật xong, redirect về lại trang chi tiết
             response.sendRedirect("viewuserdetail");
 
         } catch (NumberFormatException e) {
