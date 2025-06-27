@@ -12,7 +12,7 @@ public class Order {
 
     private int orderId;
     private String orderDate;
-    private int customerId;
+    private Integer customerId;
     private String customerName;
     private String customerPhone;
     private String customerAddress;
@@ -30,7 +30,7 @@ public class Order {
     public Order() {
     }
 
-    public Order(int orderId, String orderDate, int customerId, String customerName,
+    public Order(int orderId, String orderDate, Integer customerId, String customerName,
             String customerPhone, String customerAddress, String totalSell, String totalImport, int statusId, String statusName,
             Integer shipperId, String shipperName) {
         this.orderId = orderId;
@@ -47,7 +47,7 @@ public class Order {
         this.shipperName = shipperName;
     }
 
-    public Order(int orderId, String orderDate, int customerId, String customerName,
+    public Order(int orderId, String orderDate, Integer customerId, String customerName,
             String totalSell, String totalImport, int statusId, String statusName,
             Integer shipperId, String shipperName) {
         this.orderId = orderId;
@@ -62,7 +62,7 @@ public class Order {
         this.shipperName = shipperName;
     }
 
-    public Order(int orderId, String orderDate, int customerId, String totalSell, int statusId) {
+    public Order(int orderId, String orderDate, Integer customerId, String totalSell, int statusId) {
         this.orderId = orderId;
         this.orderDate = orderDate;
         this.customerId = customerId;
@@ -86,11 +86,11 @@ public class Order {
         this.orderDate = orderDate;
     }
 
-    public int getCustomerId() {
+    public Integer getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(int customerId) {
+    public void setCustomerId(Integer customerId) {
         this.customerId = customerId;
     }
 
@@ -133,8 +133,6 @@ public class Order {
     public void setCustomerAddress(String customerAddress) {
         this.customerAddress = customerAddress;
     }
-
-   
 
     public int getStatusId() {
         return statusId;
@@ -196,6 +194,5 @@ public class Order {
     public String toString() {
         return "Order{" + "orderId=" + orderId + ", orderDate=" + orderDate + ", customerId=" + customerId + ", customerName=" + customerName + ", customerPhone=" + customerPhone + ", customerAddress=" + customerAddress + ", totalSell=" + totalSell + ", totalImport=" + totalImport + ", statusId=" + statusId + ", statusName=" + statusName + ", shipperId=" + shipperId + ", shipperName=" + shipperName + ", deliveryProofImage=" + deliveryProofImage + ", rejectImage=" + rejectImage + ", rejectReason=" + rejectReason + '}';
     }
-
 
 }

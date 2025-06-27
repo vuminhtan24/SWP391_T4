@@ -50,17 +50,17 @@ public class OrderDAO extends BaseDao {
 
         StringBuilder countSql = new StringBuilder();
         countSql.append("SELECT COUNT(o.order_id) FROM `order` o ")
-                .append("JOIN `user` u ON o.customer_id = u.User_ID ")
+                .append("LEFT JOIN `user` u ON o.customer_id = u.User_ID ")
                 .append("JOIN `order_status` os ON o.status_id = os.order_status_id ")
                 .append("LEFT JOIN `user` s ON o.shipper_id = s.User_ID ")
                 .append("WHERE 1=1 ");
 
         StringBuilder dataSql = new StringBuilder();
-        dataSql.append("SELECT o.order_id, o.order_date, o.customer_id, u.Fullname AS customer_name, ")
-                // ✅ THAY ĐỔI: Thêm o.total_sell vào câu lệnh SELECT để lấy giá trị trực tiếp từ cột
+        dataSql.append("SELECT o.order_id, o.order_date, o.customer_id, ")
+                .append("COALESCE(u.Fullname, 'Guest') AS customer_name, ") // ✅ fallback cho khách vãng lai
                 .append("o.total_import, o.total_sell, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name ")
                 .append("FROM `order` o ")
-                .append("JOIN `user` u ON o.customer_id = u.User_ID ")
+                .append("LEFT JOIN `user` u ON o.customer_id = u.User_ID ")
                 .append("JOIN `order_status` os ON o.status_id = os.order_status_id ")
                 .append("LEFT JOIN `user` s ON o.shipper_id = s.User_ID ")
                 .append("WHERE 1=1 ");
@@ -95,7 +95,7 @@ public class OrderDAO extends BaseDao {
                 orderByColumnName = "u.Fullname";
                 break;
             case "totalSell":
-                orderByColumnName = "o.total_sell"; // ✅ THAY ĐỔI: Sắp xếp theo cột total_sell trực tiếp
+                orderByColumnName = "o.total_sell";
                 break;
             case "statusName":
                 orderByColumnName = "os.status_name";
@@ -147,20 +147,18 @@ public class OrderDAO extends BaseDao {
 
             rs = ps.executeQuery();
             while (rs.next()) {
-                // ✅ THAY ĐỔI: LẤY TRỰC TIẾP total_import và total_sell từ ResultSet
-                // KHÔNG còn nhân total_import với 5 nữa
                 String totalImportStr = rs.getString("total_import");
                 String totalSellStr = rs.getString("total_sell");
 
                 listOrders.add(new Order(
                         rs.getInt("order_id"),
                         rs.getString("order_date") != null ? rs.getString("order_date").trim() : null,
-                        rs.getInt("customer_id"),
+                        rs.getObject("customer_id") != null ? rs.getInt("customer_id") : -1,
                         rs.getString("customer_name"),
-                        null, // customerPhone không có trong select này, nên để null
-                        null, // customerAddress không có trong select này, nên để null
-                        totalSellStr, // Sử dụng giá trị totalSell trực tiếp từ DB
-                        totalImportStr, // Sử dụng giá trị totalImport trực tiếp từ DB
+                        null,
+                        null,
+                        totalSellStr,
+                        totalImportStr,
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
@@ -191,13 +189,14 @@ public class OrderDAO extends BaseDao {
     public Order getOrderDetailById(int orderId) {
         Order order = null;
         String sql = "SELECT o.order_id, o.order_date, o.customer_id, "
-                + "u.Fullname AS customer_name, u.Phone AS customer_phone, u.Address AS customer_address, "
-                // ✅ THAY ĐỔI: Thêm o.total_sell vào câu lệnh SELECT
-                + "o.total_import, o.total_sell, o.status_id, os.status_name, "
-                + "o.shipper_id, s.Fullname AS shipper_name, "
-                + "o.delivery_confirmation_image_path "
+                + "COALESCE(u.Fullname, 'Guest') AS customer_name, "
+                + "COALESCE(u.Phone, '') AS customer_phone, "
+                + "COALESCE(u.Address, '') AS customer_address, "
+                + "o.total_sell, o.total_import, "
+                + "o.status_id, os.status_name, "
+                + "o.shipper_id, s.Fullname AS shipper_name "
                 + "FROM `order` o "
-                + "JOIN `user` u ON o.customer_id = u.User_ID "
+                + "LEFT JOIN `user` u ON o.customer_id = u.User_ID "
                 + "JOIN `order_status` os ON o.status_id = os.order_status_id "
                 + "LEFT JOIN `user` s ON o.shipper_id = s.User_ID "
                 + "WHERE o.order_id = ?";
@@ -209,36 +208,29 @@ public class OrderDAO extends BaseDao {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                // ✅ THAY ĐỔI: LẤY TRỰC TIẾP total_import và total_sell từ ResultSet
-                // KHÔNG còn nhân total_import với 5 nữa
-                String totalImportStr = rs.getString("total_import");
-                String totalSellStr = rs.getString("total_sell");
-
                 order = new Order(
                         rs.getInt("order_id"),
-                        rs.getString("order_date") != null ? rs.getString("order_date").trim() : null,
-                        rs.getInt("customer_id"),
+                        rs.getString("order_date"),
+                        rs.getObject("customer_id") != null ? rs.getInt("customer_id") : 0,
                         rs.getString("customer_name"),
                         rs.getString("customer_phone"),
                         rs.getString("customer_address"),
-                        totalSellStr, // Sử dụng giá trị totalSell trực tiếp từ DB
-                        totalImportStr, // Sử dụng giá trị totalImport trực tiếp từ DB
+                        rs.getString("total_sell"),
+                        rs.getString("total_import"),
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
                         rs.getString("shipper_name")
                 );
-                order.setDeliveryProofImage(rs.getString("delivery_confirmation_image_path"));
-                System.out.println("DEBUG: Order = " + order);
             }
         } catch (SQLException e) {
-            System.err.println("SQL Error while getting order details (ID: " + orderId + "): " + e.getMessage());
+            System.err.println("SQL Error in getOrderDetailById: " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {
                 this.closeResources();
             } catch (Exception e) {
-                System.err.println("Error closing resources: " + e.getMessage());
+                System.err.println("Error closing resources in getOrderDetailById: " + e.getMessage());
             }
         }
 
@@ -647,7 +639,7 @@ public class OrderDAO extends BaseDao {
         sql.append("o.total_sell, o.status_id, os.status_name, ");
         sql.append("o.shipper_id, s.Fullname AS shipper_name ");
         sql.append("FROM `order` o ");
-        sql.append("JOIN `user` u ON o.customer_id = u.User_ID ");
+        sql.append("LEFT JOIN `user` u ON o.customer_id = u.User_ID ");
         sql.append("JOIN `order_status` os ON o.status_id = os.order_status_id ");
         sql.append("LEFT JOIN `user` s ON o.shipper_id = s.User_ID ");
         sql.append("WHERE o.shipper_id = ? ");
@@ -860,7 +852,7 @@ public class OrderDAO extends BaseDao {
                 bouquet.setBouquetId(rs.getInt("Bouquet_ID"));
                 bouquet.setBouquetName(rs.getString("Bouquet_Name"));
                 bouquet.setPrice(rs.getInt("Price"));
-                bouquet.setSellPrice(rs.getInt("sellPrice")); 
+                bouquet.setSellPrice(rs.getInt("sellPrice"));
                 bouquet.setDescription(rs.getString("Description"));
                 bouquet.setCid(rs.getInt("CID"));
                 bouquets.add(bouquet);
