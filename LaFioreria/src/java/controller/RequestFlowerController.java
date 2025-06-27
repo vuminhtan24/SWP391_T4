@@ -29,12 +29,14 @@ import dal.BouquetDAO;
 import dal.CategoryDAO;
 import dal.FlowerBatchDAO;
 import dal.FlowerTypeDAO;
+import dal.OrderDAO;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import model.BouquetImage;
 import model.FlowerBatch;
 import model.FlowerType;
+import model.RequestFlower;
 
 /**
  *
@@ -84,10 +86,27 @@ public class RequestFlowerController extends HttpServlet {
         FlowerBatchDAO fbdao = new FlowerBatchDAO();
         FlowerTypeDAO ftdao = new FlowerTypeDAO();
         CategoryDAO cdao = new CategoryDAO();
+        OrderDAO odao = new OrderDAO();
         List<Category> cAll = cdao.getBouquetCategory();
         List<FlowerBatch> allBatchs = fbdao.getAllFlowerBatches();
         List<FlowerType> allFlowers = ftdao.getAllFlowerTypes();
+        String orderIdStr = request.getParameter("orderId");
+        String orderItemIdStr = request.getParameter("orderItemId");
+        
+        int orderId = Integer.parseInt(orderIdStr);
+        int orderItemId = Integer.parseInt(orderItemIdStr);
+        
+        List<RequestFlower> listRequest = odao.getRequestFlowerByOrder(orderId, orderItemId);
+        for (RequestFlower requestFlower : listRequest) {
+            request.setAttribute("requestDate", requestFlower.getRequestCreationDate());
+            break;
+        }
+        
+        
         // 1. Tất cả hoa để đổ vào dropdown
+        request.setAttribute("orderId", orderId);
+        request.setAttribute("orderItemId", orderItemId);
+        request.setAttribute("listRequest", listRequest);
         request.setAttribute("cateBouquetHome", cAll);
         request.setAttribute("allBatchs", allBatchs);
         request.setAttribute("allFlowers", allFlowers);

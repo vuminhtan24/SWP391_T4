@@ -35,12 +35,14 @@ import dal.RawFlowerDAO;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import model.BouquetImage;
 import model.FlowerBatch;
 import model.FlowerType;
 import model.Order;
 import model.OrderDetail;
 import model.OrderItem;
+import model.RequestFlower;
 
 /**
  *
@@ -218,6 +220,8 @@ public class MakeBouquetByOrderController extends HttpServlet {
         int orderId;
         int bouquetId;
         int sellPrice;
+        
+        String action = request.getParameter("action");
 
         System.out.printf(">>> POST params: BouquetId=%s, OrderId=%s, OrderItemID=%s, orderSell=%s%n",
                 request.getParameter("BouquetId"),
@@ -263,7 +267,8 @@ public class MakeBouquetByOrderController extends HttpServlet {
         String[] flowerNeedStr = request.getParameterValues("flowerNeeded");
         String[] flowerIdStr = request.getParameterValues("flowerIds");
         String[] batchIdStr = request.getParameterValues("batchIds");
-
+        
+        if("confirm".equalsIgnoreCase(action)){
         if (flowerNeedStr != null && flowerIdStr != null && batchIdStr != null) {
             for (int i = 0; i < flowerNeedStr.length; i++) {
                 try {
@@ -287,8 +292,23 @@ public class MakeBouquetByOrderController extends HttpServlet {
 
         // Proceed with DAO operations if all parameters are valid
         oddao.completeBouquetCreation(orderItemId, orderId, bouquetId, sellPrice);
-
-        response.sendRedirect("/LaFioreria/orderDetail?orderId=" + orderId);
+        
+        
+            response.sendRedirect("/LaFioreria/orderDetail?orderId=" + orderId);
+        }else if("request".equalsIgnoreCase(action)){
+            if(flowerNeedStr != null && flowerIdStr != null){
+                for (int i = 0; i < flowerNeedStr.length; i++){
+                    int neededQuantity = Integer.parseInt(flowerNeedStr[i].trim());
+                    int flowerId = Integer.parseInt(flowerIdStr[i].trim());
+                    
+                    RequestFlower rf = new RequestFlower(orderId, orderItemId, flowerId, neededQuantity, null, null, null);
+                    oddao.addRequest(rf);
+                }
+            }
+            response.sendRedirect("/LaFioreria/requestFlower?orderId=" + orderId + "&orderItemId=" + orderItemId);
+            
+        }
+     
     }
 
     /**

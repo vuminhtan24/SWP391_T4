@@ -453,7 +453,7 @@
                                                             <div>
                                                                 <c:if test="${oi.status eq 'not done'}">
                                                                     <!-- Nút hoàn tất (ẩn mặc định) -->
-                                                                    <button id="btnCompleteBouquet" type="submit" style="
+                                                                    <button id="btnCompleteBouquet" type="submit" name="action" value="confirm" style="
                                                                             display: none;
                                                                             padding: 8px 16px;
                                                                             background-color: green;
@@ -463,19 +463,18 @@
                                                                             font-weight: bold;">
                                                                         Complete bouquet creation
                                                                     </button>
-
+                                                                    
                                                                     <!-- Nút yêu cầu thêm hoa (ẩn mặc định) -->
-                                                                    <a id="btnRequestFlower" href="${pageContext.request.contextPath}/requestFlower" style="
-                                                                       display: none;
-                                                                       padding: 8px 16px;
-                                                                       background-color: crimson;
-                                                                       color: white;
-                                                                       border: none;
-                                                                       border-radius: 4px;
-                                                                       font-weight: bold;
-                                                                       text-decoration: none;">
-                                                                        Request for more flower
-                                                                    </a>
+                                                                    <button id="btnRequestFlower" type="submit" name="action" value="request" style="
+                                                                            display: none;
+                                                                            padding: 8px 16px;
+                                                                            background-color: red;
+                                                                            color: white;
+                                                                            border: none;
+                                                                            border-radius: 4px;
+                                                                            font-weight: bold;">
+                                                                        Request more Flower
+                                                                    </button>
                                                                 </c:if>
 
 

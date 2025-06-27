@@ -9,10 +9,13 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import model.OrderItem;
 import model.OrderStatusCount;
+import model.RequestFlower;
 
 /**
  * Data Access Object (DAO) for Order related operations. Handles database
@@ -1055,8 +1058,74 @@ public class OrderDAO extends BaseDao {
         }
     }
 
+    public void addRequest(RequestFlower rf) {
+        String sql = "INSERT INTO `la_fioreria`.`requestflower`\n"
+                + "(`Order_ID`,\n"
+                + "`Order_Item_ID`,\n"
+                + "`Flower_ID`,\n"
+                + "`Quantity`,\n"
+                + "`Request_Creation_Date`)\n"
+                + "VALUES\n"
+                + "(?, ?, ?, ?, ?);";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, rf.getOrderId());
+            ps.setInt(2, rf.getOrderItemId());
+            ps.setInt(3, rf.getFlowerId());
+            ps.setInt(4, rf.getQuantity());
+            ps.setDate(5, java.sql.Date.valueOf(LocalDate.now()));
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                e.printStackTrace(); // Ghi log lỗi đóng tài nguyên
+            }
+        }
+    }
+
+    public List<RequestFlower> getRequestFlowerByOrder(int orderId, int orderItemId) {
+        List<RequestFlower> listRequest = new ArrayList<>();
+        String sql = "SELECT * FROM la_fioreria.requestflower\n"
+                + "WHERE Order_ID = ?\n"
+                + "AND Order_Item_ID = ?;";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            ps.setInt(2, orderItemId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int flowerId = rs.getInt("Flower_ID");
+                int quantity = rs.getInt("Quantity");
+                String status = rs.getString("Status");
+                LocalDate requestDate = rs.getDate("Request_Creation_Date").toLocalDate();
+                java.sql.Date sqlConfirmDate = rs.getDate("Request_Confirmation_Date");
+                LocalDate confirmDate = (sqlConfirmDate != null) ? sqlConfirmDate.toLocalDate() : null;
+
+                RequestFlower rf = new RequestFlower(orderId, orderItemId, flowerId, quantity, status, requestDate, confirmDate);
+                listRequest.add(rf);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+
+        return listRequest;
+    }
+
     public static void main(String[] args) {
         OrderDAO orderDAO = new OrderDAO();
-        System.out.println(orderDAO.getBouquetQuantityInOrder(2, 2, 3));
+        System.out.println(orderDAO.getRequestFlowerByOrder(15, 21));
     }
 }
