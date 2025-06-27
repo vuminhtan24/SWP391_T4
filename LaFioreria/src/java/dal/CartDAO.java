@@ -201,56 +201,50 @@ public class CartDAO extends BaseDao {
     }
 
     public int insertOrder(Order order) {
-        String sqlWithCustomer = "INSERT INTO `order` (order_date, customer_id, total_sell, total_import, status_id) VALUES (?, ?, ?, ?, ?)";
-        String sqlGuest = "INSERT INTO `order` (order_date, guest_name, guest_phone, guest_address, total_sell, total_import, status_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        int orderId = -1;
+
+        String sql = "INSERT INTO `order` (order_date, customer_id, customer_name, customer_phone, customer_address, total_sell, total_import, status_id) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try {
             connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
-            if (order.getCustomerId() != null) {
-                // 👉 KHÁCH ĐĂNG NHẬP
-                ps = connection.prepareStatement(sqlWithCustomer, PreparedStatement.RETURN_GENERATED_KEYS);
-                int index = 1;
-                ps.setString(index++, order.getOrderDate());
-                ps.setInt(index++, order.getCustomerId());
-                ps.setDouble(index++, Double.parseDouble(order.getTotalSell()));
-                ps.setDouble(index++, Double.parseDouble(order.getTotalImport()));
-                ps.setInt(index++, 1); // status_id = 1 (Pending)
+            ps.setString(1, order.getOrderDate());
 
+            if (order.getCustomerId() != null && order.getCustomerId() != -1) {
+                ps.setInt(2, order.getCustomerId());
             } else {
-                // 👉 KHÁCH VÃNG LAI
-                ps = connection.prepareStatement(sqlGuest, PreparedStatement.RETURN_GENERATED_KEYS);
-                int index = 1;
-                ps.setString(index++, order.getOrderDate());
-                ps.setString(index++, order.getCustomerName());
-                ps.setString(index++, order.getCustomerPhone());
-                ps.setString(index++, order.getCustomerAddress());
-                ps.setDouble(index++, Double.parseDouble(order.getTotalSell()));
-                ps.setDouble(index++, Double.parseDouble(order.getTotalImport()));
-                ps.setInt(index++, 1); // status_id = 1 (Pending)
+                ps.setNull(2, Types.INTEGER); // Khách vãng lai
             }
 
-            ps.executeUpdate();
-            rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                return rs.getInt(1); // Trả về order_id mới
+            ps.setString(3, order.getCustomerName());
+            ps.setString(4, order.getCustomerPhone());
+            ps.setString(5, order.getCustomerAddress());
+            ps.setString(6, order.getTotalSell());
+            ps.setString(7, order.getTotalImport());
+            ps.setInt(8, 1);
+
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    orderId = rs.getInt(1);
+                }
             }
 
         } catch (SQLException e) {
-            System.err.println("SQL Error in insertOrder: " + e.getMessage());
-            e.printStackTrace();
-        } catch (NumberFormatException e) {
-            System.err.println("Lỗi chuyển đổi số trong insertOrder: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("insertOrder ERROR: " + e.getMessage());
         } finally {
             try {
-                this.closeResources();
+                closeResources();
             } catch (Exception e) {
-                System.err.println("Error closing resources in insertOrder finally: " + e.getMessage());
+                System.err.println("Error closing resources: " + e.getMessage());
             }
         }
 
-        return -1; // Trả về -1 nếu insert thất bại
+        return orderId;
     }
 
     public void insertOrderItem(OrderItem item) {
