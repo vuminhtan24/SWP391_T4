@@ -189,9 +189,9 @@ public class OrderDAO extends BaseDao {
     public Order getOrderDetailById(int orderId) {
         Order order = null;
         String sql = "SELECT o.order_id, o.order_date, o.customer_id, "
-                + "COALESCE(u.Fullname, 'Guest') AS customer_name, "
-                + "COALESCE(u.Phone, '') AS customer_phone, "
-                + "COALESCE(u.Address, '') AS customer_address, "
+                + "COALESCE(u.Fullname, o.customer_name) AS customer_name, "
+                + "COALESCE(u.Phone, o.customer_phone) AS customer_phone, "
+                + "COALESCE(u.Address, o.customer_address) AS customer_address, "
                 + "o.total_sell, o.total_import, "
                 + "o.status_id, os.status_name, "
                 + "o.shipper_id, s.Fullname AS shipper_name "
@@ -211,7 +211,7 @@ public class OrderDAO extends BaseDao {
                 order = new Order(
                         rs.getInt("order_id"),
                         rs.getString("order_date"),
-                        rs.getObject("customer_id") != null ? rs.getInt("customer_id") : 0,
+                        rs.getObject("customer_id") != null ? rs.getInt("customer_id") : null,
                         rs.getString("customer_name"),
                         rs.getString("customer_phone"),
                         rs.getString("customer_address"),
@@ -632,78 +632,60 @@ public class OrderDAO extends BaseDao {
      */
     public List<Order> getOrdersByShipperIdAndStatuses(int shipperId, List<Integer> statusIds) {
         List<Order> orders = new ArrayList<>();
-
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT o.order_id, o.order_date, o.customer_id, ");
-        sql.append("u.Fullname AS customer_name, u.Phone AS customer_phone, u.Address AS customer_address, ");
-        sql.append("o.total_sell, o.status_id, os.status_name, ");
-        sql.append("o.shipper_id, s.Fullname AS shipper_name ");
-        sql.append("FROM `order` o ");
-        sql.append("LEFT JOIN `user` u ON o.customer_id = u.User_ID ");
-        sql.append("JOIN `order_status` os ON o.status_id = os.order_status_id ");
-        sql.append("LEFT JOIN `user` s ON o.shipper_id = s.User_ID ");
-        sql.append("WHERE o.shipper_id = ? ");
-
-        // Thêm điều kiện lọc statusId (nếu có)
-        if (statusIds != null && !statusIds.isEmpty()) {
-            sql.append("AND o.status_id IN (");
-            for (int i = 0; i < statusIds.size(); i++) {
-                sql.append("?");
-                if (i < statusIds.size() - 1) {
-                    sql.append(", ");
-                }
-            }
-            sql.append(") ");
+        if (statusIds == null || statusIds.isEmpty()) {
+            return orders;
         }
 
-        sql.append("ORDER BY o.order_date DESC;");
+        StringBuilder sql = new StringBuilder(
+                "SELECT o.order_id, o.order_date, o.customer_id, "
+                + "COALESCE(u.Fullname, o.customer_name) AS customer_name, "
+                + "COALESCE(u.Phone, o.customer_phone) AS customer_phone, "
+                + "COALESCE(u.Address, o.customer_address) AS customer_address, "
+                + "o.total_sell, o.total_import, o.status_id, os.status_name, "
+                + "o.shipper_id, s.Fullname AS shipper_name "
+                + "FROM `order` o "
+                + "LEFT JOIN `user` u ON o.customer_id = u.User_ID "
+                + "JOIN `order_status` os ON o.status_id = os.order_status_id "
+                + "LEFT JOIN `user` s ON o.shipper_id = s.User_ID "
+                + "WHERE o.shipper_id = ? AND o.status_id IN ("
+        );
 
-        // --- DEBUG ---
-        System.out.println("DEBUG SQL: " + sql);
-        System.out.println("DEBUG Params: shipperId = " + shipperId + ", statusIds = " + statusIds);
+        for (int i = 0; i < statusIds.size(); i++) {
+            sql.append("?");
+            if (i < statusIds.size() - 1) {
+                sql.append(",");
+            }
+        }
+        sql.append(") ORDER BY o.order_date DESC");
 
         try {
             connection = dbc.getConnection();
-            if (connection == null) {
-                System.err.println("ERROR: DB connection is NULL.");
-                return orders;
-            }
-
             ps = connection.prepareStatement(sql.toString());
-            int paramIndex = 1;
-            ps.setInt(paramIndex++, shipperId);
-            if (statusIds != null && !statusIds.isEmpty()) {
-                for (Integer statusId : statusIds) {
-                    ps.setInt(paramIndex++, statusId);
-                }
+            ps.setInt(1, shipperId);
+            for (int i = 0; i < statusIds.size(); i++) {
+                ps.setInt(i + 2, statusIds.get(i)); // i+2 because 1st param is shipperId
             }
 
             rs = ps.executeQuery();
             while (rs.next()) {
-                String totalSell = rs.getString("total_sell"); // Lấy tổng tiền shipper cần thu
-
-                Integer retrievedShipperId = (Integer) rs.getObject("shipper_id");
-                String retrievedShipperName = rs.getString("shipper_name");
-
-                orders.add(new Order(
+                Order order = new Order(
                         rs.getInt("order_id"),
-                        rs.getString("order_date") != null ? rs.getString("order_date").trim() : null,
-                        rs.getInt("customer_id"),
+                        rs.getString("order_date"),
+                        rs.getObject("customer_id") != null ? rs.getInt("customer_id") : null,
                         rs.getString("customer_name"),
                         rs.getString("customer_phone"),
                         rs.getString("customer_address"),
-                        totalSell, // ✅ Shipper cần biết totalSell
-                        null, // ❌ Không cần totalImport
+                        rs.getString("total_sell"),
+                        rs.getString("total_import"),
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
-                        retrievedShipperId,
-                        retrievedShipperName
-                ));
+                        rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
+                        rs.getString("shipper_name")
+                );
+                orders.add(order);
             }
-
-            System.out.println("DEBUG: Retrieved " + orders.size() + " orders for shipper ID " + shipperId);
         } catch (SQLException e) {
-            System.err.println("ERROR in getOrdersByShipperIdAndStatuses: " + e.getMessage());
+            System.err.println("getOrdersByShipperIdAndStatuses ERROR: " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {

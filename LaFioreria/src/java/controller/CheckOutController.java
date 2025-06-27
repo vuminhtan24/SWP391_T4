@@ -172,18 +172,16 @@ public class CheckOutController extends HttpServlet {
      */
     private void processOrder(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
-        int customerId = (currentUser != null) ? currentUser.getUserid() : -1; // Khách vãng lai có customerId = -1
+        int customerId = (currentUser != null) ? currentUser.getUserid() : -1; // Khách vãng lai = -1
 
         // Lấy thông tin từ form
-        String email = request.getParameter("email");
         String fullName = request.getParameter("fullName");
-        String addressLine = request.getParameter("addressLine");
+        String phoneNumber = request.getParameter("phoneNumber");
         String province = request.getParameter("province");
         String district = request.getParameter("district");
-        String ward = request.getParameter("ward");
-        String phoneNumber = request.getParameter("phoneNumber");
-        String notes = request.getParameter("notes");
-        String paymentMethod = request.getParameter("paymentMethod");
+
+        // Địa chỉ chỉ lấy district và province
+        String fullAddress = (district != null ? district : "") + (province != null ? " - " + province : "");
 
         String totalSellStr = request.getParameter("totalAmount");
         double actualTotalSell;
@@ -191,18 +189,19 @@ public class CheckOutController extends HttpServlet {
             actualTotalSell = Double.parseDouble(totalSellStr);
         } catch (NumberFormatException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"status\": \"error\", \"message\": \"Số tiền tổng cộng không hợp lệ.\"}");
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Tổng tiền không hợp lệ.\"}");
             return;
         }
 
-        String finalTotalSellToSave = Objects.equals(paymentMethod, "ewallet") ? "0" : String.valueOf(actualTotalSell);
-
         // Tạo đơn hàng
         Order order = new Order();
-        order.setCustomerId(customerId); // Cho phép null nếu khách vãng lai
+        order.setCustomerId(customerId == -1 ? null : customerId); // null nếu là khách vãng lai
+        order.setCustomerName(fullName);
+        order.setCustomerPhone(phoneNumber);
+        order.setCustomerAddress(fullAddress);
         order.setOrderDate(LocalDate.now().toString());
-        order.setTotalSell(finalTotalSellToSave);
-        order.setTotalImport(String.valueOf(actualTotalSell / 5)); // Giả định 20% là lợi nhuận
+        order.setTotalSell(String.valueOf(actualTotalSell));
+        order.setTotalImport(String.valueOf(actualTotalSell / 5)); // Giả định lợi nhuận 20%
         order.setStatusId(1); // Chờ xử lý
 
         CartDAO cartDAO = new CartDAO();
@@ -221,7 +220,7 @@ public class CheckOutController extends HttpServlet {
 
             if (cartItems == null || cartItems.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"status\": \"error\", \"message\": \"Giỏ hàng của bạn đang trống.\"}");
+                response.getWriter().write("{\"status\": \"error\", \"message\": \"Giỏ hàng trống.\"}");
                 return;
             }
 
@@ -252,7 +251,7 @@ public class CheckOutController extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"status\": \"error\", \"message\": \"Có lỗi xảy ra khi đặt hàng: " + e.getMessage() + "\"}");
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Có lỗi khi đặt hàng: " + e.getMessage() + "\"}");
         }
     }
 
