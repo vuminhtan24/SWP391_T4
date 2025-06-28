@@ -215,7 +215,7 @@ public class MakeBouquetByOrderController extends HttpServlet {
         String orderIdStr = request.getParameter("OrderId");
         String bouquetIdStr = request.getParameter("BouquetId");
         String sellPriceStr = request.getParameter("orderSell");
-
+        
         int orderItemId;
         int orderId;
         int bouquetId;
@@ -263,10 +263,32 @@ public class MakeBouquetByOrderController extends HttpServlet {
         }
         OrderDAO oddao = new OrderDAO();
         FlowerBatchDAO fbdao = new FlowerBatchDAO();
+        BouquetDAO bqdao = new BouquetDAO();
 
         String[] flowerNeedStr = request.getParameterValues("flowerNeeded");
         String[] flowerIdStr = request.getParameterValues("flowerIds");
         String[] batchIdStr = request.getParameterValues("batchIds");
+        
+        List<FlowerBatch> allBatchs = fbdao.getAllFlowerBatches();
+        List<BouquetRaw> bqRaws = bqdao.getFlowerBatchByBouquetID(bouquetId);
+        FlowerTypeDAO ftdao = new FlowerTypeDAO();
+        
+        OrderItem oi = oddao.getBouquetQuantityInOrder(orderItemId, orderId, bouquetId);
+        
+        boolean canMakeAll = true;
+
+        for (BouquetRaw flower : bqRaws) {
+            int needed = flower.getQuantity() * oi.getQuantity();
+            for (FlowerBatch allBatch : allBatchs) {
+                if (flower.getBatchId() == allBatch.getBatchId()) {
+                    if (allBatch.getQuantity() < needed) {
+                        canMakeAll = false;
+                        break;
+                    }
+                }
+            }
+        }
+        
         
         if("confirm".equalsIgnoreCase(action)){
         if (flowerNeedStr != null && flowerIdStr != null && batchIdStr != null) {

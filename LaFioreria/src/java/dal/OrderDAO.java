@@ -1071,6 +1071,31 @@ public class OrderDAO extends BaseDao {
         }
     }
 
+    public void updateRequestQuantity(int orderId, int orderItemId, int flowerId, int quantity) {
+        String sql = "UPDATE `la_fioreria`.`requestflower`\n"
+                + "SET\n"
+                + "`Quantity` = ?\n"
+                + "WHERE `Order_ID` = ? AND `Order_Item_ID` = ? AND `Flower_ID` = ?;";
+        
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, quantity);
+            ps.setInt(2, orderId);
+            ps.setInt(3, orderItemId);
+            ps.setInt(4, flowerId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println(e);
+        }finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                e.printStackTrace(); // Ghi log lỗi đóng tài nguyên
+            }
+        }
+    }
+
     public List<RequestFlower> getRequestFlowerByOrder(int orderId, int orderItemId) {
         List<RequestFlower> listRequest = new ArrayList<>();
         String sql = "SELECT * FROM la_fioreria.requestflower\n"

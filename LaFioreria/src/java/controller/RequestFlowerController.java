@@ -125,42 +125,39 @@ public class RequestFlowerController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String[] flowerIdsStr = request.getParameterValues("flowerIds");
-        String[] quantitiesStr = request.getParameterValues("quantities");
-
-        if (flowerIdsStr == null || quantitiesStr == null) {
-            request.setAttribute("error", "Please choose Flower and quantities");
-            doGet(request, response);
-            return;
-        }
+        String[] flowerRequestIdsStr = request.getParameterValues("flowerRequestIds");
+        String[] quantityRequestStr = request.getParameterValues("quantityRequest");
+        String[] flowerNeededIdsStr = request.getParameterValues("flowerNeededIds");
+        String[] quantityNeededStr = request.getParameterValues("quantityNeeded");
+        String action = request.getParameter("action");
+        String orderIdStr = request.getParameter("orderId");
+        String orderItemIdStr = request.getParameter("orderItemId");
         
-        boolean hasInvalid = false;
-        for (String flowerStr : flowerIdsStr) {
-            if("0".equals(flowerStr)){
-                hasInvalid = true;
-                break;
-            }
-        }
+        int orderId = Integer.parseInt(orderIdStr);
+        int orderItemId = Integer.parseInt(orderItemIdStr);
         
-        if(hasInvalid){
-            request.setAttribute("error", "Please choose Flower and quantities");
-            doGet(request, response);
-            return;
-        }
-
-        List<Integer> flowerIds = new ArrayList<>();
-        List<Integer> quantities = new ArrayList<>();
-
-        for (int i = 0; i < flowerIdsStr.length; i++) {
-            flowerIds.add(Integer.parseInt(flowerIdsStr[i]));
-            quantities.add(Integer.parseInt(quantitiesStr[i]));
-        }
-
-        request.setAttribute("flowerIds", flowerIds);
-        request.setAttribute("quantities", quantities);
+        OrderDAO odao = new OrderDAO();
         
-        request.getRequestDispatcher("./DashMin/blank.jsp").forward(request, response);
+        if("sendRequest".equalsIgnoreCase(action)){
+        if(flowerNeededIdsStr != null && quantityNeededStr != null && flowerRequestIdsStr != null && quantityRequestStr != null){
+            for (int i = 0; i < flowerRequestIdsStr.length; i++){
+                int flowerRequest = Integer.parseInt(flowerRequestIdsStr[i]);
+                int quantityRequest = Integer.parseInt(quantityRequestStr[i]);
+                int flowerNeeded = Integer.parseInt(flowerNeededIdsStr[i]);
+                int quantityNeeded = Integer.parseInt(quantityNeededStr[i]);
+                
+                if(flowerRequest < flowerNeeded){
+                    request.setAttribute("error", "Request number cannot lesser than needed number");
+                    doGet(request, response);
+                    return;
+            }else{
+                odao.updateRequestQuantity(orderId, orderItemId, flowerRequest, quantityRequest);
+        request.getRequestDispatcher("./DashMin/404.jsp").forward(request, response);
+                }
+        }
 
+    }
+        }
     }
 
     /**

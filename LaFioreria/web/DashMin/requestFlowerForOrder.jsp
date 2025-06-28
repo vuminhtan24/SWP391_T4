@@ -216,46 +216,48 @@
                                         <div class="row g-4">
                                             <!-- Cột trái: Order needs more flowers (40%) -->
                                             <div class="col-md-5">
-    <div class="border rounded bg-white px-3 py-2" style="width: 100%; display: inline-block;">
-        <!-- Header nhỏ gọn -->
-        <h6 class="fw-bold text-secondary mb-2" style="font-size: 1rem;">Order Needs More Flowers</h6>
+                                                <div class="border rounded bg-white px-3 py-2" style="width: 100%; display: inline-block;">
+                                                    <!-- Header nhỏ gọn -->
+                                                    <h6 class="fw-bold text-secondary mb-2" style="font-size: 1rem;">Order Needs More Flowers</h6>
 
-        <!-- Thông tin đơn hàng -->
-        <div class="mb-2 small text-muted" style="line-height: 1.4;">
-            <p class="mb-1"><strong>Order ID:</strong> ${orderId}</p>
-            <p class="mb-1"><strong>Order Item ID:</strong> ${orderItemId}</p>
-            <p class="mb-0"><strong>Request Date:</strong> ${requestDate}</p>
-        </div>
+                                                    <!-- Thông tin đơn hàng -->
+                                                    <div class="mb-2 small text-muted" style="line-height: 1.4;">
+                                                        <p class="mb-1"><strong>Order ID:</strong> ${orderId}</p>
+                                                        <input type="hidden" name="orderId" value="${orderId}">
+                                                        <p class="mb-1"><strong>Order Item ID:</strong> ${orderItemId}</p>
+                                                        <input type="hidden" name="orderItemId" value="${orderItemId}">
+                                                        <p class="mb-0"><strong>Request Date:</strong> ${requestDate}</p>
+                                                    </div>
 
-        <!-- Bảng hoa -->
-        <div class="table-responsive">
-            <table class="table table-bordered table-sm align-middle mb-0">
-                <thead class="table-light text-center" style="font-size: 0.9rem;">
-                    <tr>
-                        <th style="width: 70%;">Flower</th>
-                        <th style="width: 30%;">Needed</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <c:forEach var="item" items="${listRequest}">
-                        <tr style="font-size: 0.95rem;">
-                            <td>
-                                <c:forEach var="flower" items="${allFlowers}">
-                                    <c:if test="${item.flowerId eq flower.flowerId}">
-                                        ${flower.flowerName}
-                                    </c:if>
-                                </c:forEach>
-                            </td>
-                            <td class="text-center">${item.quantity}</td>
-                        </tr>
-                    </c:forEach>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-
+                                                    <!-- Bảng hoa -->
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered table-sm align-middle mb-0">
+                                                            <thead class="table-light text-center" style="font-size: 0.9rem;">
+                                                                <tr>
+                                                                    <th style="width: 70%;">Flower</th>
+                                                                    <th style="width: 30%;">Needed</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <c:forEach var="item" items="${listRequest}">
+                                                                    <tr style="font-size: 0.95rem;">
+                                                                        <td>
+                                                                            <c:forEach var="flower" items="${allFlowers}">
+                                                                                <c:if test="${item.flowerId eq flower.flowerId}">
+                                                                                    ${flower.flowerName}
+                                                                                </c:if>
+                                                                            </c:forEach>
+                                                                            <input type="hidden" name="flowerNeededIds" value="${item.getFlowerId()}">
+                                                                        </td>
+                                                                        <td class="text-center">${item.quantity}</td>
+                                                                        <input type="hidden" name="quantityNeeded" value="${item.quantity}">
+                                                                    </tr>
+                                                                </c:forEach>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
 
                                             <!-- Cột phải: Request Flower (60%) -->
                                             <div class="col-md-7">
@@ -269,14 +271,18 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <c:forEach var="af" items="${allFlowers}">
+                                                            <c:forEach var="item" items="${listRequest}">
                                                                 <tr>
                                                                     <td>
-                                                                        <input type="hidden" name="flowerIds" value="${af.flowerId}" />
-                                                                        <span>${af.flowerName}</span>
+                                                                        <c:forEach var="flower" items="${allFlowers}">
+                                                                            <c:if test="${item.flowerId eq flower.flowerId}">
+                                                                                ${flower.flowerName}
+                                                                            </c:if>
+                                                                        </c:forEach>
+                                                                        <input type="hidden" name="flowerRequestIds" value="${item.getFlowerId()}">
                                                                     </td>
                                                                     <td>
-                                                                        <input type="number" name="quantities" value="1" min="1" step="1"
+                                                                        <input type="number" name="quantityRequest" value="${item.quantity}" min="${item.quantity}" step="1"
                                                                                required class="form-control form-control-sm" />
                                                                     </td>
                                                                 </tr>
@@ -285,13 +291,14 @@
                                                     </table>
                                                 </div>
                                             </div>
+                                            
                                         </div>
                                         <!-- KẾT THÚC CHIA 2 CỘT -->
 
                                         <h6 class="text-danger mb-3">${requestScope.error}</h6>
 
                                         <div class="text-end">
-                                            <button type="submit" class="btn btn-success px-4">Send Request</button>
+                                            <button type="submit" name="action" value="sendRequest" class="btn btn-success px-4">Send Request</button>
                                         </div>
                                     </form>
                                 </div>
