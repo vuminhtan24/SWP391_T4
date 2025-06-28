@@ -126,7 +126,12 @@
                                 ${errorMessage}
                             </div>
                         </c:if>
-
+                        <c:if test="${not empty sessionScope.RequestSent}">
+                            <div class="alert alert-success" role="alert">
+                                ${sessionScope.RequestSent}
+                            </div>
+                            <c:remove var="RequestSent" scope="session" />
+                        </c:if>
                         <c:if test="${order != null}">
                             <div class="row">
                                 <div class="col-md-6">
