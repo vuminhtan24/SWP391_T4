@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import model.OrderItem;
 import model.OrderStatusCount;
+import model.RequestDisplay;
 import model.RequestFlower;
 
 /**
@@ -1076,7 +1077,7 @@ public class OrderDAO extends BaseDao {
                 + "SET\n"
                 + "`Quantity` = ?\n"
                 + "WHERE `Order_ID` = ? AND `Order_Item_ID` = ? AND `Flower_ID` = ?;";
-        
+
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -1087,7 +1088,7 @@ public class OrderDAO extends BaseDao {
             ps.executeUpdate();
         } catch (Exception e) {
             System.out.println(e);
-        }finally {
+        } finally {
             try {
                 this.closeResources();
             } catch (Exception e) {
@@ -1129,6 +1130,47 @@ public class OrderDAO extends BaseDao {
         }
 
         return listRequest;
+    }
+
+    public List<RequestDisplay> gettAllRequestList() {
+        List<RequestDisplay> list = new ArrayList<>();
+        
+        String sql = "SELECT \n"
+                + "    rf.Order_ID,\n"
+                + "    rf.Order_Item_ID,\n"
+                + "    GROUP_CONCAT(ft.Flower_Name SEPARATOR ', ') AS Flower_Names,\n"
+                + "    ANY_VALUE(rf.Request_Creation_Date) AS Request_Date,\n"
+                + "    ANY_VALUE(rf.Request_Confirmation_Date) AS Confirm_Date,\n"
+                + "    ANY_VALUE(rf.Status) AS Status\n"
+                + "FROM requestflower rf\n"
+                + "JOIN flower_type ft ON rf.Flower_ID = ft.Flower_ID\n"
+                + "GROUP BY rf.Order_ID, rf.Order_Item_ID;";
+        
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int orderId = rs.getInt("Order_ID");
+                int orderItemId = rs.getInt("Order_Item_ID");
+                String flowerNames = rs.getString("Flower_Names");
+                LocalDate requestDate = rs.getDate("Request_Date").toLocalDate();
+                java.sql.Date sqlConfirmDate = rs.getDate("Confirm_Date");
+                LocalDate confirmDate = (sqlConfirmDate != null) ? sqlConfirmDate.toLocalDate() : null;
+                String status = rs.getString("Status");
+                
+                RequestDisplay rd = new RequestDisplay(orderId, orderItemId, flowerNames, requestDate, confirmDate, status);
+                list.add(rd);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return list;
     }
 
     public static void main(String[] args) {
