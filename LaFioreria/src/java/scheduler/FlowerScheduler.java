@@ -29,7 +29,7 @@ public class FlowerScheduler extends BaseDao {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         // Chạy job mỗi 24 giờ (86400 giây)
-        scheduler.scheduleAtFixedRate(new FlowerScheduler()::checkFlowerBatches, 0, 3600, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(new FlowerScheduler()::checkFlowerBatches, 0, 46200, TimeUnit.SECONDS);
 
     }
 
@@ -105,6 +105,7 @@ public class FlowerScheduler extends BaseDao {
 
                         // Gửi email thông báo cho admin
                         sendEmailToAdmins(bouquetId, batchId);
+                        addNotification(bouquetId, batchId, "Giỏ hoa " + bouquetId + " cần sửa do lô hoa " + batchId + " gần hết hạn.");
                     } else {
                         System.out.println("Bỏ qua tạo yêu cầu sửa vì đã có yêu cầu pending cho bouquet_id=" + bouquetId + ", batch_id=" + batchId);
                     }
@@ -205,6 +206,7 @@ public class FlowerScheduler extends BaseDao {
             String flowerName = rs.getString("t.flower_name");
             System.out.println("Lô hoa " + batchId + " (" + flowerName + ") có số lượng thấp: " + quantity + " < 10");
             sendEmailToAdminsForStock(batchId, flowerId, flowerName, "low_quantity");
+            addNotification(-1, batchId, "Lô hoa " + batchId + " (" + flowerName + ") có số lượng thấp: " + quantity + ". Vui lòng nhập thêm.");
         }
 
         // Kiểm tra số lượng hoa cần so với tồn kho dựa trên câu lệnh SQL của bạn
@@ -240,6 +242,8 @@ public class FlowerScheduler extends BaseDao {
             System.out.println("Giỏ hoa " + bouquetName + " (ID: " + bouquetId + ") cần " + totalNeeded +
                               " hoa, tồn kho " + totalStock + ", chênh lệch " + diff);
             sendEmailToAdminsForStock(-1, -1, bouquetName, "low_stock");
+            addNotification(-1, -1, "Giỏ hoa " + bouquetName + " (ID: " + bouquetId + ") cần " + totalNeeded + 
+                           " hoa, tồn kho " + totalStock + ". Vui lòng nhập thêm lô hoa.");
         }
     }
     
@@ -315,6 +319,28 @@ public class FlowerScheduler extends BaseDao {
             e.printStackTrace();
         }     
         return emails;
+    }
+    
+    private void addNotification(int bouquetId, int batchId, String message) throws SQLException {
+        // Lấy user_id của admin (giả định lấy user_id đầu tiên làm đại diện)
+        String getAdminId = "SELECT user_id FROM user WHERE Role = 1 AND status = 'active' LIMIT 1";
+        ps = connection.prepareStatement(getAdminId);
+        rs = ps.executeQuery();
+        int userId = rs.next() ? rs.getInt("user_id") : -1;
+        rs.close();
+
+        if (userId != -1) {
+            String insertNotification = "INSERT INTO notifications (user_id, message, created_at, status) VALUES (?, ?, ?, ?)";
+            ps = connection.prepareStatement(insertNotification);
+            ps.setInt(1, userId);
+            ps.setString(2, message);
+            ps.setTimestamp(3, new java.sql.Timestamp(new Date().getTime()));
+            ps.setString(4, "unread");
+            ps.executeUpdate();
+            System.out.println("Đã thêm thông báo: " + message);
+        } else {
+            System.out.println("Không tìm thấy admin để thêm thông báo.");
+        }
     }
 
 }

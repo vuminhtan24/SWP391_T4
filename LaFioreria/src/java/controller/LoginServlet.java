@@ -131,7 +131,7 @@ public class LoginServlet extends HttpServlet {
         if (user != null) {
             HttpSession session = request.getSession();
             session.setAttribute("currentAcc", user);
-
+            session.setAttribute("userId", user.getUserid());
             if ("on".equals(remember)) {
                 Cookie emailCookie = new Cookie("userEmail", username);
                 emailCookie.setMaxAge(60 * 60 * 24 * 7); // 7 days
