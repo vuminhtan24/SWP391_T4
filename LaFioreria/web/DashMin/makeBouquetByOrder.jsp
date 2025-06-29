@@ -194,7 +194,6 @@
             <div class="content">
                 <jsp:include page="/DashMin/navbar.jsp"/> <!-- nav bar -->
 
-                <a href="${pageContext.request.contextPath}/viewBouquet" style="margin: 15px">Back to Bouquet List</a>
                 <!-- Blank Start -->
                 <form action="makeBouquet" method="post" enctype="multipart/form-data">
 
@@ -453,36 +452,31 @@
                                                             <!-- Bên phải: Nút hoặc Message -->
                                                             <div>
                                                                 <c:if test="${oi.status eq 'not done'}">
-                                                                    <c:choose>
-
-                                                                        <c:when test="${canMakeAll}">
-                                                                            <button type="submit" style="
-                                                                                    display: inline-block;
-                                                                                    padding: 8px 16px;
-                                                                                    background-color: green;
-                                                                                    color: white;
-                                                                                    border: none;
-                                                                                    border-radius: 4px;
-                                                                                    font-weight: bold;">
-                                                                                Complete bouquet creation
-                                                                            </button>
-                                                                        </c:when>
-
-                                                                        <c:otherwise>
-                                                                            <a href="${pageContext.request.contextPath}/DashMin/requestFlowerForOrder.jsp" style="
-                                                                               display: inline-block;
-                                                                               padding: 8px 16px;
-                                                                               background-color: crimson;
-                                                                               color: white;
-                                                                               border: none;
-                                                                               border-radius: 4px;
-                                                                               font-weight: bold;
-                                                                               text-decoration: none;">
-                                                                                Request for more flower
-                                                                            </a>
-                                                                        </c:otherwise>
-                                                                    </c:choose>
+                                                                    <!-- Nút hoàn tất (ẩn mặc định) -->
+                                                                    <button id="btnCompleteBouquet" type="submit" name="action" value="confirm" style="
+                                                                            display: none;
+                                                                            padding: 8px 16px;
+                                                                            background-color: green;
+                                                                            color: white;
+                                                                            border: none;
+                                                                            border-radius: 4px;
+                                                                            font-weight: bold;">
+                                                                        Complete bouquet creation
+                                                                    </button>
+                                                                    
+                                                                    <!-- Nút yêu cầu thêm hoa (ẩn mặc định) -->
+                                                                    <button id="btnRequestFlower" type="submit" name="action" value="request" style="
+                                                                            display: none;
+                                                                            padding: 8px 16px;
+                                                                            background-color: red;
+                                                                            color: white;
+                                                                            border: none;
+                                                                            border-radius: 4px;
+                                                                            font-weight: bold;">
+                                                                        Request more Flower
+                                                                    </button>
                                                                 </c:if>
+
 
                                                                 <c:if test="${oi.status eq 'done'}">
                                                                     <h6 style="
@@ -733,6 +727,28 @@
                                             stockStatus = 0;
                                             if (editBtn)
                                                 editBtn.style.display = 'inline-block';
+                                        }
+                                    }
+
+                                    const btnComplete = document.getElementById('btnCompleteBouquet');
+                                    const btnRequest = document.getElementById('btnRequestFlower');
+
+                                    if (ORDER_DONE) {
+                                        if (btnComplete)
+                                            btnComplete.style.display = 'none';
+                                        if (btnRequest)
+                                            btnRequest.style.display = 'none';
+                                    } else {
+                                        if (insufficientFlowers.length === 0) {
+                                            if (btnComplete)
+                                                btnComplete.style.display = 'inline-block';
+                                            if (btnRequest)
+                                                btnRequest.style.display = 'none';
+                                        } else {
+                                            if (btnComplete)
+                                                btnComplete.style.display = 'none';
+                                            if (btnRequest)
+                                                btnRequest.style.display = 'inline-block';
                                         }
                                     }
                                 }

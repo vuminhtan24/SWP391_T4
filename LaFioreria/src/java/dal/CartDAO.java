@@ -19,8 +19,23 @@ import model.OrderItem;
 public class CartDAO extends BaseDao {
 
     public static void main(String[] args) {
-        CartDAO cDao = new CartDAO();
-        System.out.println(cDao.getCartDetailsByCustomerId(13));
+        CartDAO cartDAO = new CartDAO();
+
+        Order guestOrder = new Order();
+        guestOrder.setOrderDate("2025-06-27");
+        guestOrder.setCustomerId(null);  // Không có customer ID => khách vãng lai
+        guestOrder.setCustomerName("Nguyễn Văn A");
+        guestOrder.setCustomerPhone("0901234567");
+        guestOrder.setCustomerAddress("123 Đường Láng, Đống Đa, Hà Nội");
+        guestOrder.setTotalSell("1200000");
+        guestOrder.setTotalImport("700000");
+
+        int generatedOrderId = cartDAO.insertOrder(guestOrder);
+        if (generatedOrderId != -1) {
+            System.out.println("Thêm đơn hàng KHÁCH VÃNG LAI thành công, order_id = " + generatedOrderId);
+        } else {
+            System.err.println("Thêm đơn hàng KHÁCH VÃNG LAI thất bại.");
+        }
     }
 
     public CartDetail getCartItem(int customerId, int bouquetId) {
@@ -186,44 +201,50 @@ public class CartDAO extends BaseDao {
     }
 
     public int insertOrder(Order order) {
-        // Câu lệnh SQL chỉ bao gồm các cột cơ bản và total_import
-        String sql = "INSERT INTO `order` ("
-                + "order_date, customer_id, total_sell, total_import, status_id"
-                + ") VALUES (?, ?, ?, ?, ?)";
+        int orderId = -1;
+
+        String sql = "INSERT INTO `order` (order_date, customer_id, customer_name, customer_phone, customer_address, total_sell, total_import, status_id) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try {
             connection = dbc.getConnection();
-            ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-            int paramIndex = 1;
+            ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
-            ps.setString(paramIndex++, order.getOrderDate());
-            ps.setInt(paramIndex++, order.getCustomerId());
+            ps.setString(1, order.getOrderDate());
 
-            // Chuyển đổi từ String sang Double để lưu vào DB (giả sử cột là kiểu số)
-            ps.setDouble(paramIndex++, Double.parseDouble(order.getTotalSell()));
-            ps.setDouble(paramIndex++, Double.parseDouble(order.getTotalImport()));
-
-            ps.setInt(paramIndex++, 1); // status_id = 1 (mặc định là "processing" hoặc "pending")
-
-            ps.executeUpdate();
-            rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                return rs.getInt(1);
+            if (order.getCustomerId() != null && order.getCustomerId() != -1) {
+                ps.setInt(2, order.getCustomerId());
+            } else {
+                ps.setNull(2, Types.INTEGER); // Khách vãng lai
             }
+
+            ps.setString(3, order.getCustomerName());
+            ps.setString(4, order.getCustomerPhone());
+            ps.setString(5, order.getCustomerAddress());
+            ps.setString(6, order.getTotalSell());
+            ps.setString(7, order.getTotalImport());
+            ps.setInt(8, 1);
+
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    orderId = rs.getInt(1);
+                }
+            }
+
         } catch (SQLException e) {
-            System.err.println("SQL Error in insertOrder: " + e.getMessage());
-            e.printStackTrace();
-        } catch (NumberFormatException e) {
-            System.err.println("Lỗi chuyển đổi chuỗi totalSell/totalImport sang Double trong insertOrder: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("insertOrder ERROR: " + e.getMessage());
         } finally {
             try {
-                this.closeResources();
+                closeResources();
             } catch (Exception e) {
-                System.err.println("Error closing resources in insertOrder finally: " + e.getMessage());
+                System.err.println("Error closing resources: " + e.getMessage());
             }
         }
-        return -1;
+
+        return orderId;
     }
 
     public void insertOrderItem(OrderItem item) {

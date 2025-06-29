@@ -172,89 +172,59 @@ public class CheckOutController extends HttpServlet {
      */
     private void processOrder(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
+        int customerId = (currentUser != null) ? currentUser.getUserid() : -1; // Khách vãng lai = -1
 
-        // Kiểm tra xem người dùng đã đăng nhập chưa
-        if (currentUser == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
-            response.getWriter().write("{\"status\": \"error\", \"message\": \"Bạn cần đăng nhập để đặt hàng.\"}");
-            return;
-        }
-
-        int customerId = currentUser.getUserid();
-
-        // Lấy thông tin từ request (AJAX POST)
-        // Các thông tin này sẽ KHÔNG được lưu vào bảng `order`
-        // trừ `totalSell`, `totalImport`, `customerId`, `orderDate`, `statusId`
-        // theo cấu trúc `CartDAO.insertOrder` gốc của bạn.
-        // Bạn có thể dùng chúng cho các mục đích khác (ví dụ: gửi email xác nhận)
-        // nhưng chúng sẽ không đi vào DB qua phương thức insertOrder này.
-        String email = request.getParameter("email");
+        // Lấy thông tin từ form
         String fullName = request.getParameter("fullName");
-        String addressLine = request.getParameter("addressLine");
+        String phoneNumber = request.getParameter("phoneNumber");
         String province = request.getParameter("province");
         String district = request.getParameter("district");
-        String ward = request.getParameter("ward");
-        String phoneNumber = request.getParameter("phoneNumber");
-        String notes = request.getParameter("notes");
-        String paymentMethod = request.getParameter("paymentMethod"); // Lấy phương thức thanh toán
 
-        // In các giá trị nhận được để debug (có thể bỏ comment để kiểm tra)
-        System.out.println("DEBUG: Payment Method nhận được: " + paymentMethod);
-        System.out.println("DEBUG: Full Name: " + fullName);
-        System.out.println("DEBUG: Phone Number: " + phoneNumber);
-        System.out.println("DEBUG: Address: " + addressLine + ", " + ward + ", " + district + ", " + province);
-        System.out.println("DEBUG: Notes: " + notes);
+        // Địa chỉ chỉ lấy district và province
+        String fullAddress = (district != null ? district : "") + (province != null ? " - " + province : "");
 
-        String totalSellStr = request.getParameter("totalAmount"); // Lấy tổng tiền bán từ client
-        double actualTotalSell; // Tổng tiền thực tế từ client
+        String totalSellStr = request.getParameter("totalAmount");
+        double actualTotalSell;
         try {
             actualTotalSell = Double.parseDouble(totalSellStr);
         } catch (NumberFormatException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"status\": \"error\", \"message\": \"Số tiền tổng cộng không hợp lệ.\"}");
-            System.err.println("Lỗi chuyển đổi totalAmount từ client: " + totalSellStr); // Debug
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Tổng tiền không hợp lệ.\"}");
             return;
         }
 
-        // Quyết định giá trị totalSell để lưu vào DB dựa trên paymentMethod
-        String finalTotalSellToSave;
-        // Sử dụng Objects.equals để tránh NullPointerException nếu paymentMethod là null
-        if (Objects.equals(paymentMethod, "ewallet")) {
-            finalTotalSellToSave = "0"; // Lưu 0đ nếu thanh toán bằng E-wallet
-            System.out.println("DEBUG: Phương thức E-wallet, totalSell sẽ là 0."); // Debug
-        } else { // Mặc định là COD hoặc các phương thức khác
-            finalTotalSellToSave = String.valueOf(actualTotalSell); // Lưu đầy đủ số tiền
-            System.out.println("DEBUG: Phương thức khác E-wallet, totalSell sẽ là: " + finalTotalSellToSave); // Debug
-        }
-
-        // Tạo đối tượng Order
+        // Tạo đơn hàng
         Order order = new Order();
-        order.setCustomerId(customerId);
-        order.setOrderDate(LocalDate.now().toString()); // Sử dụng ngày hiện tại
-        order.setTotalSell(finalTotalSellToSave);       // Sử dụng giá trị đã quyết định
-        order.setTotalImport(String.valueOf(actualTotalSell / 5)); // Giả định totalImport dựa trên actualTotalSell
-        order.setStatusId(1); // Mặc định trạng thái đơn hàng là 1 (chờ xử lý)
+        order.setCustomerId(customerId == -1 ? null : customerId); // null nếu là khách vãng lai
+        order.setCustomerName(fullName);
+        order.setCustomerPhone(phoneNumber);
+        order.setCustomerAddress(fullAddress);
+        order.setOrderDate(LocalDate.now().toString());
+        order.setTotalSell(String.valueOf(actualTotalSell));
+        order.setTotalImport(String.valueOf(actualTotalSell / 5)); // Giả định lợi nhuận 20%
+        order.setStatusId(1); // Chờ xử lý
 
-        // Không set các trường customerName, customerPhone, customerAddress, paymentMethod, notes vào Order object
-        // vì phương thức insertOrder trong CartDAO gốc của bạn không lưu chúng vào DB.
-        // Các thông tin này chỉ được truyền từ client và xử lý tại đây (nếu cần cho logic khác).
         CartDAO cartDAO = new CartDAO();
         try {
-            // 1. Chèn đơn hàng mới vào DB và lấy orderId được tạo tự động
             int orderId = cartDAO.insertOrder(order);
-
             if (orderId == -1) {
-                throw new Exception("Không thể tạo đơn hàng, insertOrder trả về -1.");
+                throw new Exception("Không thể tạo đơn hàng");
             }
-            System.out.println("DEBUG: Đơn hàng #" + orderId + " đã được tạo."); // Debug
 
-            // 2. Lấy danh sách các sản phẩm trong giỏ hàng của khách hàng
-            List<CartDetail> cartItems = cartDAO.getCartDetailsByCustomerId(customerId);
-            System.out.println("DEBUG: Số lượng sản phẩm trong giỏ hàng: " + cartItems.size()); // Debug
+            List<CartDetail> cartItems;
+            if (currentUser != null) {
+                cartItems = cartDAO.getCartDetailsByCustomerId(customerId);
+            } else {
+                cartItems = (List<CartDetail>) request.getSession().getAttribute("cart");
+            }
 
-            // 3. Chèn từng sản phẩm trong giỏ hàng vào bảng OrderItem
+            if (cartItems == null || cartItems.isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write("{\"status\": \"error\", \"message\": \"Giỏ hàng trống.\"}");
+                return;
+            }
+
             for (CartDetail cartItem : cartItems) {
-                // Đảm bảo rằng Bouquet và SellPrice đã được load vào CartDetail
                 if (cartItem.getBouquet() == null) {
                     BouquetDAO bouquetDAO = new BouquetDAO();
                     cartItem.setBouquet(bouquetDAO.getBouquetFullInfoById(cartItem.getBouquetId()));
@@ -264,24 +234,24 @@ public class CheckOutController extends HttpServlet {
                         orderId,
                         cartItem.getBouquetId(),
                         cartItem.getQuantity(),
-                        cartItem.getBouquet().getSellPrice() // Lấy đơn giá bán của sản phẩm
+                        cartItem.getBouquet().getSellPrice()
                 );
                 cartDAO.insertOrderItem(orderItem);
-                System.out.println("DEBUG: Đã thêm OrderItem cho Bouquet ID: " + cartItem.getBouquetId()); // Debug
             }
 
-            // 4. Xóa giỏ hàng của khách hàng sau khi đã đặt hàng thành công
-            cartDAO.deleteCartByCustomerId(customerId);
-            System.out.println("DEBUG: Giỏ hàng của khách hàng " + customerId + " đã được xóa."); // Debug
+            // Xoá giỏ hàng sau khi đặt
+            if (currentUser != null) {
+                cartDAO.deleteCartByCustomerId(customerId);
+            } else {
+                request.getSession().removeAttribute("cart");
+            }
 
-            // Gửi phản hồi thành công về client
-            response.getWriter().write("{\"status\": \"success\", \"message\": \"Đơn hàng của bạn đã được đặt thành công! Mã đơn hàng: " + orderId + "\"}");
+            response.getWriter().write("{\"status\": \"success\", \"message\": \"Đơn hàng đã được đặt thành công! Mã đơn hàng: " + orderId + "\"}");
 
         } catch (Exception e) {
-            System.err.println("Lỗi khi xử lý đặt hàng: " + e.getMessage());
-            e.printStackTrace(); // In stack trace để debug
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); // 500 Internal Server Error
-            response.getWriter().write("{\"status\": \"error\", \"message\": \"Có lỗi xảy ra khi đặt hàng: " + e.getMessage() + "\"}");
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Có lỗi khi đặt hàng: " + e.getMessage() + "\"}");
         }
     }
 
@@ -330,7 +300,7 @@ public class CheckOutController extends HttpServlet {
             return;
         }
 
-        int customerId = currentUser.getUserid();
+        Integer customerId = (currentUser == null) ? null : currentUser.getUserid();
         CartDAO dao = new CartDAO();
 
         try {

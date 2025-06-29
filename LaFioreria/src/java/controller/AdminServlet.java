@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import dal.DAOContact;
 import dal.OrderDAO;
 import dal.SalesDAO;
+import dal.NotificationDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -15,6 +16,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -27,6 +29,8 @@ import model.Contact;
 import model.OrderStatusCount;
 import model.SalesRecord;
 import model.StatResult;
+import model.Notification;
+import model.User;
 
 /**
  *
@@ -76,6 +80,26 @@ public class AdminServlet extends HttpServlet {
         DAOContact Dao = new DAOContact();
         List<Contact> contactList = Dao.getAllContacts();
         request.setAttribute("messages", contactList);
+        
+        // Thêm lấy danh sách thông báo
+        NotificationDAO notificationDAO = new NotificationDAO();
+        HttpSession session = request.getSession(false);
+        Integer userId = null;
+        if (session != null && session.getAttribute("currentAcc") != null) {
+            User user = (User) session.getAttribute("currentAcc");
+            userId = user.getUserid(); // Hoặc user.getUserId() tùy thuộc vào class User
+        }
+        List<Notification> notifications = new ArrayList<>(); // Giá trị mặc định
+        if (userId != null) {
+            try {
+                notifications = notificationDAO.getUnreadNotificationsByUser(userId);
+            } catch (Exception e) {
+                System.out.println("Error fetching unread notifications: " + e.getMessage());
+            }
+        } else {
+            System.out.println("userId is null, no notifications loaded.");
+        }
+        request.setAttribute("notifications", notifications);
 
         SalesDAO dao = new SalesDAO();
         Gson gson = new Gson();
