@@ -29,7 +29,7 @@ public class FlowerScheduler extends BaseDao {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         // Chạy job mỗi 24 giờ (86400 giây)
-        scheduler.scheduleAtFixedRate(new FlowerScheduler()::checkFlowerBatches, 0, 46200, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(new FlowerScheduler()::checkFlowerBatches, 0, 120, TimeUnit.SECONDS);
 
     }
 
@@ -191,25 +191,30 @@ public class FlowerScheduler extends BaseDao {
     }
     
     private void checkStockLevelsAndOrders() throws SQLException {
-        // Kiểm tra số lượng lô hoa trong flower_batch < 10
+        checkLowQuantityBatches();
+        checkOrdersVsStock();
+    }
+
+    private void checkLowQuantityBatches() throws SQLException {
         String checkLowQuantity = "SELECT b.batch_id, b.quantity, b.flower_id, t.flower_name " +
                                 "FROM flower_batch b " +
                                 "JOIN flower_type t ON t.flower_id = b.flower_id " +
                                 "WHERE b.quantity < 10 " +
                                 "ORDER BY b.batch_id, b.quantity, b.flower_id, t.flower_name";
-        ps = connection.prepareStatement(checkLowQuantity);
-        rs = ps.executeQuery();
-        while (rs.next()) {
-            int batchId = rs.getInt("b.batch_id");
-            int quantity = rs.getInt("b.quantity");
-            int flowerId = rs.getInt("b.flower_id");
-            String flowerName = rs.getString("t.flower_name");
-            System.out.println("Lô hoa " + batchId + " (" + flowerName + ") có số lượng thấp: " + quantity + " < 10");
-            sendEmailToAdminsForStock(batchId, flowerId, flowerName, "low_quantity");
-            addNotification(-1, batchId, "Lô hoa " + batchId + " (" + flowerName + ") có số lượng thấp: " + quantity + ". Vui lòng nhập thêm.");
+        try (PreparedStatement ps = connection.prepareStatement(checkLowQuantity); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                int batchId = rs.getInt("batch_id");
+                int quantity = rs.getInt("quantity");
+                int flowerId = rs.getInt("flower_id");
+                String flowerName = rs.getString("flower_name");
+                System.out.println("Lô hoa " + batchId + " (" + flowerName + ") có số lượng thấp: " + quantity + " < 10");
+                sendEmailToAdminsForStock(batchId, flowerId, flowerName, "low_quantity");
+                addNotification(-1, batchId, "Lô hoa " + batchId + " (" + flowerName + ") có số lượng thấp: " + quantity + ". Vui lòng nhập thêm.");
+            }
         }
+    }
 
-        // Kiểm tra số lượng hoa cần so với tồn kho dựa trên câu lệnh SQL của bạn
+    private void checkOrdersVsStock() throws SQLException {
         String checkOrdersVsStock = "SELECT b.Bouquet_ID, b.bouquet_name, need.total_needed, stock.total_stock, " +
                                    "(stock.total_stock - need.total_needed) AS diff " +
                                    "FROM bouquet b " +
@@ -231,19 +236,19 @@ public class FlowerScheduler extends BaseDao {
                                    "WHERE need.total_needed IS NOT NULL " +
                                    "HAVING diff < 0 " +
                                    "ORDER BY diff ASC";
-        ps = connection.prepareStatement(checkOrdersVsStock);
-        rs = ps.executeQuery();
-        while (rs.next()) {
-            int bouquetId = rs.getInt("Bouquet_ID");
-            String bouquetName = rs.getString("bouquet_name");
-            int totalNeeded = rs.getInt("total_needed");
-            int totalStock = rs.getInt("total_stock");
-            int diff = rs.getInt("diff");
-            System.out.println("Giỏ hoa " + bouquetName + " (ID: " + bouquetId + ") cần " + totalNeeded +
-                              " hoa, tồn kho " + totalStock + ", chênh lệch " + diff);
-            sendEmailToAdminsForStock(-1, -1, bouquetName, "low_stock");
-            addNotification(-1, -1, "Giỏ hoa " + bouquetName + " (ID: " + bouquetId + ") cần " + totalNeeded + 
-                           " hoa, tồn kho " + totalStock + ". Vui lòng nhập thêm lô hoa.");
+        try (PreparedStatement ps = connection.prepareStatement(checkOrdersVsStock); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                int bouquetId = rs.getInt("Bouquet_ID");
+                String bouquetName = rs.getString("bouquet_name");
+                int totalNeeded = rs.getInt("total_needed");
+                int totalStock = rs.getInt("total_stock");
+                int diff = rs.getInt("diff");
+                System.out.println("Giỏ hoa " + bouquetName + " (ID: " + bouquetId + ") cần " + totalNeeded
+                        + " hoa, tồn kho " + totalStock + ", chênh lệch " + diff);
+                sendEmailToAdminsForStock(-1, -1, bouquetName, "low_stock");
+                addNotification(-1, -1, "Giỏ hoa " + bouquetName + " (ID: " + bouquetId + ") cần " + totalNeeded
+                        + " hoa, tồn kho " + totalStock + ". Vui lòng nhập thêm lô hoa.");
+            }
         }
     }
     
