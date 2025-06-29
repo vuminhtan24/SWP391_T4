@@ -29,12 +29,16 @@ import dal.BouquetDAO;
 import dal.CategoryDAO;
 import dal.FlowerBatchDAO;
 import dal.FlowerTypeDAO;
+import dal.OrderDAO;
+import jakarta.servlet.http.HttpSession;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import javax.mail.Session;
 import model.BouquetImage;
 import model.FlowerBatch;
 import model.FlowerType;
+import model.RequestFlower;
 
 /**
  *
@@ -84,10 +88,26 @@ public class RequestFlowerController extends HttpServlet {
         FlowerBatchDAO fbdao = new FlowerBatchDAO();
         FlowerTypeDAO ftdao = new FlowerTypeDAO();
         CategoryDAO cdao = new CategoryDAO();
+        OrderDAO odao = new OrderDAO();
         List<Category> cAll = cdao.getBouquetCategory();
         List<FlowerBatch> allBatchs = fbdao.getAllFlowerBatches();
         List<FlowerType> allFlowers = ftdao.getAllFlowerTypes();
+        String orderIdStr = request.getParameter("orderId");
+        String orderItemIdStr = request.getParameter("orderItemId");
+
+        int orderId = Integer.parseInt(orderIdStr);
+        int orderItemId = Integer.parseInt(orderItemIdStr);
+
+        List<RequestFlower> listRequest = odao.getRequestFlowerByOrder(orderId, orderItemId);
+        for (RequestFlower requestFlower : listRequest) {
+            request.setAttribute("requestDate", requestFlower.getRequestCreationDate());
+            break;
+        }
+
         // 1. Tất cả hoa để đổ vào dropdown
+        request.setAttribute("orderId", orderId);
+        request.setAttribute("orderItemId", orderItemId);
+        request.setAttribute("listRequest", listRequest);
         request.setAttribute("cateBouquetHome", cAll);
         request.setAttribute("allBatchs", allBatchs);
         request.setAttribute("allFlowers", allFlowers);
@@ -106,42 +126,51 @@ public class RequestFlowerController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String[] flowerIdsStr = request.getParameterValues("flowerIds");
-        String[] quantitiesStr = request.getParameterValues("quantities");
+        try {
+            HttpSession session = request.getSession();
+            String[] flowerRequestIdsStr = request.getParameterValues("flowerRequestIds");
+            String[] quantityRequestStr = request.getParameterValues("quantityRequest");
+            String[] flowerNeededIdsStr = request.getParameterValues("flowerNeededIds");
+            String[] quantityNeededStr = request.getParameterValues("quantityNeeded");
+            String action = request.getParameter("action");
+            int orderId = Integer.parseInt(request.getParameter("orderId").trim());
+            int orderItemId = Integer.parseInt(request.getParameter("orderItemId").trim());
 
-        if (flowerIdsStr == null || quantitiesStr == null) {
-            request.setAttribute("error", "Please choose Flower and quantities");
-            doGet(request, response);
-            return;
-        }
-        
-        boolean hasInvalid = false;
-        for (String flowerStr : flowerIdsStr) {
-            if("0".equals(flowerStr)){
-                hasInvalid = true;
-                break;
+            OrderDAO odao = new OrderDAO();
+
+            if ("sendRequest".equalsIgnoreCase(action)) {
+                if (flowerNeededIdsStr != null && quantityNeededStr != null
+                        && flowerRequestIdsStr != null && quantityRequestStr != null) {
+
+                    int len = flowerRequestIdsStr.length;
+                    if (quantityRequestStr.length != len || flowerNeededIdsStr.length != len || quantityNeededStr.length != len) {
+                        request.setAttribute("error", "Invalid input: mismatched array lengths.");
+                        doGet(request, response);
+                        return;
+                    }
+
+                    for (int i = 0; i < len; i++) {
+                        int flowerRequest = Integer.parseInt(flowerRequestIdsStr[i].trim());
+                        int quantityRequest = Integer.parseInt(quantityRequestStr[i].trim());
+                        int flowerNeeded = Integer.parseInt(flowerNeededIdsStr[i].trim());
+                        int quantityNeeded = Integer.parseInt(quantityNeededStr[i].trim());
+
+                        if (flowerRequest < flowerNeeded) {
+                            request.setAttribute("error", "Request number cannot be less than needed number");
+                            doGet(request, response);
+                            return;
+                        }
+
+                        odao.updateRequestQuantity(orderId, orderItemId, flowerRequest, quantityRequest);
+                    }
+                    session.setAttribute("RequestSent", "You have successfully sent a request to add more flowers.");
+                    response.sendRedirect("/LaFioreria/orderDetail?orderId=" + orderId);
+                }
             }
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "Invalid number format.");
+            request.getRequestDispatcher("/errorPage.jsp").forward(request, response);
         }
-        
-        if(hasInvalid){
-            request.setAttribute("error", "Please choose Flower and quantities");
-            doGet(request, response);
-            return;
-        }
-
-        List<Integer> flowerIds = new ArrayList<>();
-        List<Integer> quantities = new ArrayList<>();
-
-        for (int i = 0; i < flowerIdsStr.length; i++) {
-            flowerIds.add(Integer.parseInt(flowerIdsStr[i]));
-            quantities.add(Integer.parseInt(quantitiesStr[i]));
-        }
-
-        request.setAttribute("flowerIds", flowerIds);
-        request.setAttribute("quantities", quantities);
-        
-        request.getRequestDispatcher("./DashMin/blank.jsp").forward(request, response);
-
     }
 
     /**

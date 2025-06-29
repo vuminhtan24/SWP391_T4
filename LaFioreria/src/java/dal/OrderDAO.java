@@ -9,10 +9,14 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import model.OrderItem;
 import model.OrderStatusCount;
+import model.RequestDisplay;
+import model.RequestFlower;
 
 /**
  * Data Access Object (DAO) for Order related operations. Handles database
@@ -1037,8 +1041,140 @@ public class OrderDAO extends BaseDao {
         }
     }
 
+    public void addRequest(RequestFlower rf) {
+        String sql = "INSERT INTO `la_fioreria`.`requestflower`\n"
+                + "(`Order_ID`,\n"
+                + "`Order_Item_ID`,\n"
+                + "`Flower_ID`,\n"
+                + "`Quantity`,\n"
+                + "`Request_Creation_Date`)\n"
+                + "VALUES\n"
+                + "(?, ?, ?, ?, ?);";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, rf.getOrderId());
+            ps.setInt(2, rf.getOrderItemId());
+            ps.setInt(3, rf.getFlowerId());
+            ps.setInt(4, rf.getQuantity());
+            ps.setDate(5, java.sql.Date.valueOf(LocalDate.now()));
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                e.printStackTrace(); // Ghi log lỗi đóng tài nguyên
+            }
+        }
+    }
+
+    public void updateRequestQuantity(int orderId, int orderItemId, int flowerId, int quantity) {
+        String sql = "UPDATE `la_fioreria`.`requestflower`\n"
+                + "SET\n"
+                + "`Quantity` = ?\n"
+                + "WHERE `Order_ID` = ? AND `Order_Item_ID` = ? AND `Flower_ID` = ?;";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, quantity);
+            ps.setInt(2, orderId);
+            ps.setInt(3, orderItemId);
+            ps.setInt(4, flowerId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                e.printStackTrace(); // Ghi log lỗi đóng tài nguyên
+            }
+        }
+    }
+
+    public List<RequestFlower> getRequestFlowerByOrder(int orderId, int orderItemId) {
+        List<RequestFlower> listRequest = new ArrayList<>();
+        String sql = "SELECT * FROM la_fioreria.requestflower\n"
+                + "WHERE Order_ID = ?\n"
+                + "AND Order_Item_ID = ?;";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            ps.setInt(2, orderItemId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int flowerId = rs.getInt("Flower_ID");
+                int quantity = rs.getInt("Quantity");
+                String status = rs.getString("Status");
+                LocalDate requestDate = rs.getDate("Request_Creation_Date").toLocalDate();
+                java.sql.Date sqlConfirmDate = rs.getDate("Request_Confirmation_Date");
+                LocalDate confirmDate = (sqlConfirmDate != null) ? sqlConfirmDate.toLocalDate() : null;
+
+                RequestFlower rf = new RequestFlower(orderId, orderItemId, flowerId, quantity, status, requestDate, confirmDate);
+                listRequest.add(rf);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+
+        return listRequest;
+    }
+
+    public List<RequestDisplay> gettAllRequestList() {
+        List<RequestDisplay> list = new ArrayList<>();
+        
+        String sql = "SELECT \n"
+                + "    rf.Order_ID,\n"
+                + "    rf.Order_Item_ID,\n"
+                + "    GROUP_CONCAT(ft.Flower_Name SEPARATOR ', ') AS Flower_Names,\n"
+                + "    ANY_VALUE(rf.Request_Creation_Date) AS Request_Date,\n"
+                + "    ANY_VALUE(rf.Request_Confirmation_Date) AS Confirm_Date,\n"
+                + "    ANY_VALUE(rf.Status) AS Status\n"
+                + "FROM requestflower rf\n"
+                + "JOIN flower_type ft ON rf.Flower_ID = ft.Flower_ID\n"
+                + "GROUP BY rf.Order_ID, rf.Order_Item_ID;";
+        
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int orderId = rs.getInt("Order_ID");
+                int orderItemId = rs.getInt("Order_Item_ID");
+                String flowerNames = rs.getString("Flower_Names");
+                LocalDate requestDate = rs.getDate("Request_Date").toLocalDate();
+                java.sql.Date sqlConfirmDate = rs.getDate("Confirm_Date");
+                LocalDate confirmDate = (sqlConfirmDate != null) ? sqlConfirmDate.toLocalDate() : null;
+                String status = rs.getString("Status");
+                
+                RequestDisplay rd = new RequestDisplay(orderId, orderItemId, flowerNames, requestDate, confirmDate, status);
+                list.add(rd);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return list;
+    }
+
     public static void main(String[] args) {
         OrderDAO orderDAO = new OrderDAO();
-        System.out.println(orderDAO.getBouquetQuantityInOrder(2, 2, 3));
+        System.out.println(orderDAO.getRequestFlowerByOrder(15, 21));
     }
 }

@@ -80,6 +80,9 @@ public class CustomerDAO extends BaseDao {
             ps.setString(5, c.getGender());
             ps.setInt(6, c.getUserId());
             ps.executeUpdate();
+            System.out.println("SQL: " + sql);
+            System.out.println("User_ID = " + c.getUserId());
+
         } catch (SQLException e) {
             System.out.println("Lỗi update (CustomerDAO): " + e.getMessage());
         }

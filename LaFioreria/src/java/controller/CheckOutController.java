@@ -173,15 +173,40 @@ public class CheckOutController extends HttpServlet {
     private void processOrder(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
         int customerId = (currentUser != null) ? currentUser.getUserid() : -1; // Khách vãng lai = -1
+        String paymentMethod = request.getParameter("paymentMethod");
 
         // Lấy thông tin từ form
         String fullName = request.getParameter("fullName");
         String phoneNumber = request.getParameter("phoneNumber");
+        String addressLine = request.getParameter("addressLine");
         String province = request.getParameter("province");
         String district = request.getParameter("district");
+        String ward = request.getParameter("ward");
 
         // Địa chỉ chỉ lấy district và province
-        String fullAddress = (district != null ? district : "") + (province != null ? " - " + province : "");
+        StringBuilder fullAddressBuilder = new StringBuilder();
+        if (addressLine != null && !addressLine.trim().isEmpty()) {
+            fullAddressBuilder.append(addressLine.trim());
+        }
+        if (ward != null && !ward.trim().isEmpty()) {
+            if (fullAddressBuilder.length() > 0) {
+                fullAddressBuilder.append(", ");
+            }
+            fullAddressBuilder.append(ward.trim());
+        }
+        if (district != null && !district.trim().isEmpty()) {
+            if (fullAddressBuilder.length() > 0) {
+                fullAddressBuilder.append(", ");
+            }
+            fullAddressBuilder.append(district.trim());
+        }
+        if (province != null && !province.trim().isEmpty()) {
+            if (fullAddressBuilder.length() > 0) {
+                fullAddressBuilder.append(", ");
+            }
+            fullAddressBuilder.append(province.trim());
+        }
+        String fullAddress = fullAddressBuilder.toString();
 
         String totalSellStr = request.getParameter("totalAmount");
         double actualTotalSell;
@@ -246,7 +271,11 @@ public class CheckOutController extends HttpServlet {
                 request.getSession().removeAttribute("cart");
             }
 
-            response.getWriter().write("{\"status\": \"success\", \"message\": \"Đơn hàng đã được đặt thành công! Mã đơn hàng: " + orderId + "\"}");
+            if ("vietqr".equals(paymentMethod)) {
+                response.getWriter().write("{\"status\": \"success\", \"orderId\": " + orderId + "}");
+            } else {
+                response.getWriter().write("{\"status\": \"success\", \"message\": \"Đơn hàng đã được đặt thành công! Mã đơn hàng: " + orderId + "\"}");
+            }
 
         } catch (Exception e) {
             e.printStackTrace();

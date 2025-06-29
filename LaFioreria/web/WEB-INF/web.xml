@@ -49,6 +49,10 @@
         <servlet-name>ConfirmDeliveryServlet</servlet-name>
         <servlet-class>controller.ConfirmDeliveryServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ConfirmVietQRPayment</servlet-name>
+        <servlet-class>controller.ConfirmVietQRPayment</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/LoginServlet</url-pattern>
@@ -104,7 +108,6 @@
         <url-pattern>/DeleteUserListServlet</url-pattern>
     </servlet-mapping>
     <!-- Admin -->
-
     <servlet-mapping>
         <servlet-name>AdminServlet</servlet-name>
         <url-pattern>/DashMin/admin</url-pattern>
@@ -247,10 +250,14 @@
         <servlet-name>ConfirmDeliveryServlet</servlet-name>
         <url-pattern>/ConfirmDeliveryServlet</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ConfirmVietQRPayment</servlet-name>
+        <url-pattern>/ConfirmVietQRPayment</url-pattern>
+    </servlet-mapping>
     <welcome-file-list>
         <welcome-file>home</welcome-file>
     </welcome-file-list>
     <listener>
-    <listener-class>scheduler.AppInitializer</listener-class>
+        <listener-class>scheduler.AppInitializer</listener-class>
     </listener>
 </web-app>

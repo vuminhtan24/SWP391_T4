@@ -39,6 +39,71 @@
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
+        <style>
+            .container {
+                margin: 20px auto 0 auto;
+                padding: 24px;
+                background-color: #f4f6f8;
+                border-radius: 12px;
+                font-family: 'Segoe UI', sans-serif;
+
+                max-width: calc(100% - 40px);
+                width: 100%;
+                box-sizing: border-box;
+
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+
+                height: 730px; /* ngăn scroll trang, đủ không gian */
+                overflow-y: auto;                /* bảng cuộn nếu quá cao */
+            }
+
+            .heading {
+                font-size: 18px;
+                font-weight: 600;
+                margin-bottom: 16px;
+                color: #222;
+            }
+
+            .styled-table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+                font-size: 14px;
+                background-color: #f9fbfc;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            }
+
+            .styled-table thead {
+                background-color: #f0f2f5;
+            }
+
+            .styled-table thead td {
+                font-weight: 600;
+                color: #444;
+                padding: 12px 16px;
+                border-bottom: 1px solid #e0e0e0;
+                text-align: left;
+            }
+
+            .styled-table tbody td {
+                padding: 12px 16px;
+                color: #333;
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .styled-table tbody tr:hover td {
+                background-color: #e9f3ff;
+                transition: background-color 0.2s ease;
+            }
+
+            .styled-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+        </style>
     </head>
 
     <body>
@@ -203,111 +268,48 @@
                 <!-- Navbar End -->
 
 
-                <!-- Request Flower Start -->
-                <div class="container-fluid pt-4 px-4">
-                    <div class="row vh-100 bg-light rounded align-items-center justify-content-center mx-0">
-                        <div class="col-12 d-flex justify-content-center">
-                            <div class="card shadow-sm border-0" style="width: 100%; max-width: 100%;">
-                                <div class="card-body px-4 py-4">
-                                    <form action="requestFlower" method="post">
-                                        <h5 class="text-center text-primary fw-bold mb-4">Request Flower</h5>
+                <!-- List Request Start -->
+                <div class="container">
+                    <h6 class="heading">List Request</h6>
 
-                                        <!-- BẮT ĐẦU CHIA 2 CỘT -->
-                                        <div class="row g-4">
-                                            <!-- Cột trái: Order needs more flowers (40%) -->
-                                            <div class="col-md-5">
-                                                <div class="border rounded bg-white px-3 py-2" style="width: 100%; display: inline-block;">
-                                                    <!-- Header nhỏ gọn -->
-                                                    <h6 class="fw-bold text-secondary mb-2" style="font-size: 1rem;">Order Needs More Flowers</h6>
-
-                                                    <!-- Thông tin đơn hàng -->
-                                                    <div class="mb-2 small text-muted" style="line-height: 1.4;">
-                                                        <p class="mb-1"><strong>Order ID:</strong> ${orderId}</p>
-                                                        <input type="hidden" name="orderId" value="${orderId}">
-                                                        <p class="mb-1"><strong>Order Item ID:</strong> ${orderItemId}</p>
-                                                        <input type="hidden" name="orderItemId" value="${orderItemId}">
-                                                        <p class="mb-0"><strong>Request Date:</strong> ${requestDate}</p>
-                                                    </div>
-
-                                                    <!-- Bảng hoa -->
-                                                    <div class="table-responsive">
-                                                        <table class="table table-bordered table-sm align-middle mb-0">
-                                                            <thead class="table-light text-center" style="font-size: 0.9rem;">
-                                                                <tr>
-                                                                    <th style="width: 70%;">Flower</th>
-                                                                    <th style="width: 30%;">Needed</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <c:forEach var="item" items="${listRequest}">
-                                                                    <tr style="font-size: 0.95rem;">
-                                                                        <td>
-                                                                            <c:forEach var="flower" items="${allFlowers}">
-                                                                                <c:if test="${item.flowerId eq flower.flowerId}">
-                                                                                    ${flower.flowerName}
-                                                                                </c:if>
-                                                                            </c:forEach>
-                                                                            <input type="hidden" name="flowerNeededIds" value="${item.getFlowerId()}">
-                                                                        </td>
-                                                                        <td class="text-center">${item.quantity}</td>
-                                                                        <input type="hidden" name="quantityNeeded" value="${item.quantity}">
-                                                                    </tr>
-                                                                </c:forEach>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Cột phải: Request Flower (60%) -->
-                                            <div class="col-md-7">
-                                                <h6 class="fw-bold text-secondary mb-3">Request Flower</h6>
-                                                <div class="table-responsive">
-                                                    <table id="flowerTable" class="table table-bordered align-middle mb-3">
-                                                        <thead class="table-dark text-center">
-                                                            <tr>
-                                                                <th style="width: 65%;">Flower</th>
-                                                                <th style="width: 35%;">Quantity</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <c:forEach var="item" items="${listRequest}">
-                                                                <tr>
-                                                                    <td>
-                                                                        <c:forEach var="flower" items="${allFlowers}">
-                                                                            <c:if test="${item.flowerId eq flower.flowerId}">
-                                                                                ${flower.flowerName}
-                                                                            </c:if>
-                                                                        </c:forEach>
-                                                                        <input type="hidden" name="flowerRequestIds" value="${item.getFlowerId()}">
-                                                                    </td>
-                                                                    <td>
-                                                                        <input type="number" name="quantityRequest" value="${item.quantity}" min="${item.quantity}" step="1"
-                                                                               required class="form-control form-control-sm" />
-                                                                    </td>
-                                                                </tr>
-                                                            </c:forEach>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                            
-                                        </div>
-                                        <!-- KẾT THÚC CHIA 2 CỘT -->
-
-                                        <h6 class="text-danger mb-3">${requestScope.error}</h6>
-
-                                        <div class="text-end">
-                                            <button type="submit" name="action" value="sendRequest" class="btn btn-success px-4">Send Request</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <td>Order ID</td>
+                                <td>Order Item ID</td>
+                                <td>Flower Names</td>
+                                <td>Request Date</td>
+                                <td>Confirmation Date</td>
+                                <td>Status</td>
+                                <td></td>
+                            </tr>
+                        </thead>  
+                        <tbody>
+                            <c:forEach var="item" items="${listRequest}">
+                                <tr>
+                                    <td>${item.orderId}</td>
+                                    <td>${item.orderItemId}</td>
+                                    <td>${item.flowerNames}</td>
+                                    <td>${item.requestDate}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${item.confirmDate == null}">
+                                                not confirm yet
+                                            </c:when>
+                                            <c:otherwise>
+                                                ${item.confirmDate}
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>${item.status}</td>
+                                    <td>Edit</td>
+                                </tr>  
+                            </c:forEach>
+                        </tbody>   
+                    </table>
                 </div>
 
-                <!-- Request Flower End -->
+                <!-- List Request End -->
 
 
                 <!-- Footer Start -->

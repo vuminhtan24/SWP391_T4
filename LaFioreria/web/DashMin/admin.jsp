@@ -105,6 +105,7 @@
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/repairOrders" class="dropdown-item">Repair Orders</a>
                                 <a href="${pageContext.request.contextPath}/repairHistory" class="dropdown-item">Repair History</a>
+                                <a href="${pageContext.request.contextPath}/listRequest" class="dropdown-item">List Request</a>
                             </div>
                         </div>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
@@ -188,9 +189,12 @@
                                         data-labels='<%= request.getAttribute("thisMonthLabels") %>'
                                         data-values='<%= request.getAttribute("thisMonthValues") %>'
                                         style="width: 100%; height: 300px;"></canvas>
-                                <button onclick="downloadChartAsImage(window.thisMonthChart, 'thisMonthChart.png')">
-                                    📥 Tải PNG
+                                <!-- Nút tải ảnh biểu đồ Doanh thu tháng này -->
+                                <button onclick="downloadChartAsImage(window.thisMonthRevenueChart, 'doanhthu_thangnay.png')"
+                                        class="btn btn-primary mt-3">
+                                    📥 Tải biểu đồ Doanh thu tháng này
                                 </button>
+
                             </div>
                         </div>
 
@@ -229,9 +233,12 @@
                                 <h4 class="mb-3">2. Doanh thu & số đơn theo từng năm</h4>
                                 <a href="${pageContext.request.contextPath}/revenuealltimeservlet">Show All</a>
                                 <canvas id="yearChart" style="width: 100%; height: 300px;"></canvas>
-                                <button onclick="downloadChartAsImage(window.yearChart, 'yearChart.png')">
-                                    📥 Tải PNG
+                                <!-- Nút tải biểu đồ theo năm -->
+                                <button onclick="downloadChartAsImage(window.yearStatsChart, 'doanhthu_nam.png')" 
+                                        class="btn btn-outline-success mt-3">
+                                    📥 Tải biểu đồ theo năm
                                 </button>
+
                             </div>
                         </div>
 
@@ -240,9 +247,12 @@
                             <div class="bg-light text-center rounded p-4 h-100">
                                 <h4 class="mb-3">3. Doanh thu & số đơn theo thứ trong tuần</h4>
                                 <canvas id="weekdayChart" style="width: 100%; height: 300px;"></canvas>
-                                <button onclick="downloadChartAsImage(window.weekdayChart, 'weekdayChart.png')">
-                                    📥 Tải PNG
+                                <!-- Nút tải biểu đồ theo thứ trong tuần -->
+                                <button onclick="downloadChartAsImage(window.weekdayStatsChart, 'doanhthu_trongtuan.png')" 
+                                        class="btn btn-outline-info mt-3">
+                                    📥 Tải biểu đồ theo thứ
                                 </button>
+
                             </div>
                         </div>
                     </div>
@@ -302,8 +312,7 @@
                                 ${cat.categoryName} <br>
                             </c:forEach>
                             <button type="submit" class="btn btn-primary mt-2">Xem biểu đồ</button>
-                            📥 Tải PNG
-                            </button>
+
                         </form>
 
                         <c:if test="${not empty labelsJson}">
@@ -319,9 +328,12 @@
                                     </c:forEach>
                                     style="width:100%; height:300px;">
                             </canvas>
-                            <button onclick="downloadChartAsImage(window.categoryRevenueChart, 'categoryRevenueChart.png')">
-                                📥 Tải PNG
+                            <!-- Nút tải biểu đồ doanh thu theo loại hoa -->
+                            <button onclick="downloadChartAsImage(window.categoryRevenueChart, 'doanhthu_theoloaihoa.png')" 
+                                    class="btn btn-outline-warning mt-3">
+                                📥 Tải biểu đồ theo loại hoa
                             </button>
+
                         </c:if>
                     </div>
                 </div>
@@ -341,9 +353,12 @@
                                         </c:forEach>]'
                                         style="width:100% !important; height:100% !important;">
                                 </canvas>
-                                <button onclick="downloadChartAsImage(window.statsChart, 'thongke_theothang.png')">
-                                    📥 Tải PNG
+                                <!-- Nút tải biểu đồ trạng thái đơn hàng -->
+                                <button onclick="downloadChartAsImage(window.orderStatusChart, 'donhang_theotrangthai.png')" 
+                                        class="btn btn-outline-dark mt-3">
+                                    📥 Tải biểu đồ đơn hàng theo trạng thái
                                 </button>
+
                             </div>
                         </div>
                     </div>
@@ -461,7 +476,19 @@
                                                 <h6 class="mb-0">${c.name}</h6>
                                                 <small><fmt:formatDate value="${c.createdAt}" pattern="HH:mm dd/MM/yyyy" /></small>
                                             </div>
-                                            <span>${c.message}</span>
+                                            <style>
+                                                .message-snippet {
+                                                    display: -webkit-box;
+                                                    -webkit-line-clamp: 1; /* số dòng muốn hiển thị */
+                                                    -webkit-box-orient: vertical;
+                                                    overflow: hidden;
+                                                    text-overflow: ellipsis;
+                                                    word-break: break-word;
+                                                    max-height: 1.2em; /* tương ứng với 1 dòng */
+                                                }
+                                            </style>
+
+                                            <span class="message-snippet">${c.message}</span>
                                         </div>
                                     </div>
                                 </c:forEach>

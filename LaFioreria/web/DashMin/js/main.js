@@ -108,14 +108,15 @@
         }
 
 // Biểu đồ tỉ lệ đơn hàng theo trạng thái (Donut chart)
-        if ($("#orderStatusChart").length) {
+        if (document.getElementById("orderStatusChart")) {
             const canvas = document.getElementById('orderStatusChart');
             const ctx = canvas.getContext('2d');
             const labels = JSON.parse(canvas.getAttribute('data-labels') || "[]");
             const data = JSON.parse(canvas.getAttribute('data-values') || "[]");
 
             if (labels.length && data.length) {
-                new Chart(ctx, {
+                // ✅ Gán vào biến toàn cục để có thể tải PNG
+                window.orderStatusChart = new Chart(ctx, {
                     type: 'doughnut',
                     data: {
                         labels: labels,
@@ -135,9 +136,24 @@
                             title: {
                                 display: true,
                                 text: 'Tỉ lệ đơn hàng theo trạng thái'
+                            },
+                            // ✅ Nền trắng cho ảnh PNG
+                            custom_canvas_background_color: {
+                                color: 'white'
                             }
                         }
-                    }
+                    },
+                    plugins: [{
+                            id: 'custom_canvas_background_color',
+                            beforeDraw: (chart) => {
+                                const ctx = chart.canvas.getContext('2d');
+                                ctx.save();
+                                ctx.globalCompositeOperation = 'destination-over';
+                                ctx.fillStyle = chart.config.options.plugins.custom_canvas_background_color.color || 'white';
+                                ctx.fillRect(0, 0, chart.width, chart.height);
+                                ctx.restore();
+                            }
+                        }]
                 });
             } else {
                 console.warn("Không có dữ liệu trạng thái đơn hàng.");
@@ -147,11 +163,15 @@
 
 
 
-        if (document.getElementById("thisMonthChart")) {
-            const labels = JSON.parse(document.getElementById("thisMonthChart").getAttribute("data-labels"));
-            const values = JSON.parse(document.getElementById("thisMonthChart").getAttribute("data-values"));
 
-            new Chart(document.getElementById("thisMonthChart"), {
+
+        if (document.getElementById("thisMonthChart")) {
+            const canvas = document.getElementById("thisMonthChart");
+            const labels = JSON.parse(canvas.getAttribute("data-labels"));
+            const values = JSON.parse(canvas.getAttribute("data-values"));
+
+            // ✅ Đặt vào biến toàn cục dễ nhớ
+            window.thisMonthRevenueChart = new Chart(canvas, {
                 type: 'bar',
                 data: {
                     labels: labels,
@@ -166,10 +186,30 @@
                 options: {
                     scales: {
                         y: {beginAtZero: true}
+                    },
+                    plugins: {
+                        custom_canvas_background_color: {
+                            color: 'white' // 🎯 Màu nền PNG mong muốn
+                        }
                     }
-                }
+
+                },
+                plugins: [{
+                        id: 'custom_canvas_background_color',
+                        beforeDraw: (chart) => {
+                            const ctx = chart.canvas.getContext('2d');
+                            ctx.save();
+                            ctx.globalCompositeOperation = 'destination-over';
+                            ctx.fillStyle = chart.config.options.plugins.custom_canvas_background_color.color || 'white';
+                            ctx.fillRect(0, 0, chart.width, chart.height);
+                            ctx.restore();
+                        }
+                    }]
+
+
             });
         }
+
 
         // Sales & Revenue Chart
         if ($("#salse-revenue").length) {
@@ -199,17 +239,25 @@
             });
         }
 
-        function renderChart(canvasId, labels, revenues, orders) {
+// ✅ Tạo biến toàn cục lưu biểu đồ theo id
+        window.chartInstances = window.chartInstances || {};
+
+        function renderChart(canvasId) {
             const ctx = document.getElementById(canvasId);
             if (!ctx)
                 return;
 
             try {
+                // ✅ Hủy biểu đồ cũ nếu đã tồn tại
+                if (window.chartInstances[canvasId]) {
+                    window.chartInstances[canvasId].destroy();
+                }
+
                 const parsedLabels = JSON.parse(ctx.getAttribute("data-labels"));
                 const parsedRevenues = JSON.parse(ctx.getAttribute("data-revenues"));
                 const parsedOrders = JSON.parse(ctx.getAttribute("data-orders"));
 
-                new Chart(ctx, {
+                const chartInstance = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: parsedLabels,
@@ -249,19 +297,40 @@
                                 grid: {drawOnChartArea: false},
                                 title: {display: true, text: 'Số đơn hàng'}
                             }
+                        },
+                        plugins: {
+                            custom_canvas_background_color: {
+                                color: 'white'
+                            }
                         }
-                    }
+                    },
+                    plugins: [{
+                            id: 'custom_canvas_background_color',
+                            beforeDraw: (chart) => {
+                                const ctx = chart.canvas.getContext('2d');
+                                ctx.save();
+                                ctx.globalCompositeOperation = 'destination-over';
+                                ctx.fillStyle = chart.config.options.plugins.custom_canvas_background_color.color || 'white';
+                                ctx.fillRect(0, 0, chart.width, chart.height);
+                                ctx.restore();
+                            }
+                        }]
                 });
+
+                // ✅ Lưu lại biểu đồ mới vào biến toàn cục
+                window.chartInstances[canvasId] = chartInstance;
+
             } catch (err) {
                 console.error("Error parsing chart data for " + canvasId, err);
             }
         }
 
+
 // Gọi khi DOM đã sẵn sàng
         $(document).ready(function () {
             renderChart("monthChart");
-            renderChart("yearChart");
-            renderChart("weekdayChart");
+//            renderChart("yearChart");
+//            renderChart("weekdayChart");
         });
 
 // 📊 Thống kê theo tháng trong năm
@@ -312,11 +381,167 @@
                             grid: {drawOnChartArea: false},
                             beginAtZero: true
                         }
+                    },
+                    plugins: {
+                        custom_canvas_background_color: {
+                            color: 'white' // 🎯 Màu nền PNG mong muốn
+                        }
                     }
-                }
+                },
+                plugins: [{
+                        id: 'custom_canvas_background_color',
+                        beforeDraw: (chart) => {
+                            const ctx = chart.canvas.getContext('2d');
+                            ctx.save();
+                            ctx.globalCompositeOperation = 'destination-over';
+                            ctx.fillStyle = chart.config.options.plugins.custom_canvas_background_color.color || 'white';
+                            ctx.fillRect(0, 0, chart.width, chart.height);
+                            ctx.restore();
+                        }
+                    }]
+
             });
         }
 
+
+// Biểu đồ: Doanh thu & số đơn theo từng năm
+        const yearChartElem = document.getElementById('yearChart');
+        if (yearChartElem) {
+            const labels = JSON.parse(yearChartElem.getAttribute('data-labels'));
+            const revenues = JSON.parse(yearChartElem.getAttribute('data-revenues'));
+            const orders = JSON.parse(yearChartElem.getAttribute('data-orders'));
+
+            // ✅ Gán vào biến toàn cục để tải PNG
+            window.yearStatsChart = new Chart(yearChartElem, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Doanh thu (VND)',
+                            data: revenues,
+                            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                            borderColor: 'rgb(75, 192, 192)',
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Số đơn hàng',
+                            data: orders,
+                            backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                            borderColor: 'rgb(255, 159, 64)',
+                            borderWidth: 1,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {mode: 'index', intersect: false},
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            beginAtZero: true,
+                            title: {display: true, text: 'Doanh thu (VND)'}
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            beginAtZero: true,
+                            grid: {drawOnChartArea: false},
+                            title: {display: true, text: 'Số đơn hàng'}
+                        }
+                    },
+                    plugins: {
+                        custom_canvas_background_color: {
+                            color: 'white' // 🎯 Màu nền PNG mong muốn
+                        }
+                    }
+                },
+                plugins: [{
+                        id: 'custom_canvas_background_color',
+                        beforeDraw: (chart) => {
+                            const ctx = chart.canvas.getContext('2d');
+                            ctx.save();
+                            ctx.globalCompositeOperation = 'destination-over';
+                            ctx.fillStyle = chart.config.options.plugins.custom_canvas_background_color.color || 'white';
+                            ctx.fillRect(0, 0, chart.width, chart.height);
+                            ctx.restore();
+                        }
+                    }]
+            });
+        }
+
+
+// Biểu đồ: Doanh thu & số đơn theo thứ trong tuần
+        const weekdayChartElem = document.getElementById('weekdayChart');
+        if (weekdayChartElem) {
+            const labels = JSON.parse(weekdayChartElem.getAttribute('data-labels'));
+            const revenues = JSON.parse(weekdayChartElem.getAttribute('data-revenues'));
+            const orders = JSON.parse(weekdayChartElem.getAttribute('data-orders'));
+
+            // ✅ Gán vào biến toàn cục để dùng nút tải PNG
+            window.weekdayStatsChart = new Chart(weekdayChartElem, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Doanh thu (VND)',
+                            data: revenues,
+                            backgroundColor: 'rgba(153, 102, 255, 0.6)',
+                            borderColor: 'rgb(153, 102, 255)',
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Số đơn hàng',
+                            data: orders,
+                            backgroundColor: 'rgba(255, 205, 86, 0.6)',
+                            borderColor: 'rgb(255, 205, 86)',
+                            borderWidth: 1,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {mode: 'index', intersect: false},
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            beginAtZero: true,
+                            title: {display: true, text: 'Doanh thu (VND)'}
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            beginAtZero: true,
+                            grid: {drawOnChartArea: false},
+                            title: {display: true, text: 'Số đơn hàng'}
+                        }
+                    },
+                    plugins: {
+                        custom_canvas_background_color: {
+                            color: 'white' // 🎯 Màu nền PNG mong muốn
+                        }
+                    }
+                },
+                plugins: [{
+                        id: 'custom_canvas_background_color',
+                        beforeDraw: (chart) => {
+                            const ctx = chart.canvas.getContext('2d');
+                            ctx.save();
+                            ctx.globalCompositeOperation = 'destination-over';
+                            ctx.fillStyle = chart.config.options.plugins.custom_canvas_background_color.color || 'white';
+                            ctx.fillRect(0, 0, chart.width, chart.height);
+                            ctx.restore();
+                        }
+                    }]
+            });
+        }
 
 
         // Line Chart
@@ -441,7 +666,8 @@
             });
 
             if (datasets.length > 0) {
-                new Chart(chart, {
+                // ✅ Gán biểu đồ vào biến toàn cục để có thể tải PNG
+                window.categoryRevenueChart = new Chart(chart, {
                     type: 'line',
                     data: {
                         labels: labels,
@@ -467,11 +693,28 @@
                                     text: 'Doanh thu (VNĐ)'
                                 }
                             }
+                        },
+                        plugins: {
+                            custom_canvas_background_color: {
+                                color: 'white' // 🎯 Màu nền PNG mong muốn
+                            }
                         }
-                    }
+                    },
+                    plugins: [{
+                            id: 'custom_canvas_background_color',
+                            beforeDraw: (chart) => {
+                                const ctx = chart.canvas.getContext('2d');
+                                ctx.save();
+                                ctx.globalCompositeOperation = 'destination-over';
+                                ctx.fillStyle = chart.config.options.plugins.custom_canvas_background_color.color || 'white';
+                                ctx.fillRect(0, 0, chart.width, chart.height);
+                                ctx.restore();
+                            }
+                        }]
                 });
             }
         }
+
 
         // Chart: Doanh thu toàn thời gian
         if (document.getElementById("allTimeChart")) {
