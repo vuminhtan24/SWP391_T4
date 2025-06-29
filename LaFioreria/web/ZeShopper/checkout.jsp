@@ -379,7 +379,7 @@
                             <label><input name="paymentMethod" type="radio" value="cod" id="payment-cod"> Cash on Delivery (COD)</label>
                         </span>
                         <span>
-                            <label><input name="paymentMethod" type="radio" value="ewallet" id="payment-ewallet"> E-wallet (e.g., MoMo, ZaloPay)</label>
+                            <label><input name="paymentMethod" type="radio" value="vietqr" id="payment-vietqr"> VietQR (Chuyển khoản bằng mã QR)</label>
                         </span>
                         <div class="error-message" id="payment-error"></div>
                     </div>
@@ -777,32 +777,29 @@
                                             $('#place-order-btn').prop('disabled', false).text('Place Order');
                                         }
                                     });
-                                } else if (paymentMethod === 'ewallet') {
-                                    // Xử lý khi chọn E-wallet (MoMo, ZaloPay)
-                                    showPopup('Chức năng thanh toán qua E-wallet (VNPAY) đang được phát triển. Vui lòng chọn COD hoặc thử lại sau.', 'error');
-                                    $('#place-order-btn').prop('disabled', false).text('Place Order');
-                                    // Trong tương lai, bạn sẽ thêm logic chuyển hướng đến VNPAY tại đây
-                                    /*
-                                     $.ajax({
-                                     url: '${pageContext.request.contextPath}/vnpay-payment-servlet', // Ví dụ URL cho VNPAY
-                                     type: 'POST',
-                                     data: orderData, // Gửi dữ liệu đơn hàng để tạo yêu cầu thanh toán
-                                     dataType: 'json',
-                                     success: function(response) {
-                                     if (response.status === "success" && response.vnpayUrl) {
-                                     window.location.href = response.vnpayUrl; // Chuyển hướng đến cổng VNPAY
-                                     } else {
-                                     showPopup(response.message || 'Không thể tạo yêu cầu thanh toán VNPAY.', 'error');
-                                     $('#place-order-btn').prop('disabled', false).text('Place Order');
-                                     }
-                                     },
-                                     error: function(jqXHR, textStatus, errorThrown) {
-                                     console.error("Lỗi AJAX khi chuẩn bị VNPAY: ", textStatus, errorThrown, jqXHR.responseText);
-                                     showPopup('Có lỗi xảy ra khi chuẩn bị thanh toán VNPAY. Vui lòng thử lại.', 'error');
-                                     $('#place-order-btn').prop('disabled', false).text('Place Order');
-                                     }
-                                     });
-                                     */
+                                } else if (paymentMethod === 'vietqr') {
+                                    // Tạo URL chứa orderId và amount (bạn có thể gọi AJAX để lấy orderId từ server nếu cần)
+                                    $.ajax({
+                                        url: '${pageContext.request.contextPath}/checkout',
+                                        type: 'POST',
+                                        data: orderData,
+                                        dataType: 'json',
+                                        success: function (response) {
+                                            if (response.status === "success" && response.orderId) {
+                                                // Chuyển hướng sang trang VietQR để khách thanh toán
+                                                const vietqrUrl = '${pageContext.request.contextPath}/ConfirmVietQRPayment?orderId=' + response.orderId + '&amount=' + totalAmount;
+                                                window.location.href = vietqrUrl;
+                                            } else {
+                                                showPopup(response.message || 'Không thể khởi tạo đơn hàng VietQR.', 'error');
+                                            }
+                                            $('#place-order-btn').prop('disabled', false).text('Place Order');
+                                        },
+                                        error: function (jqXHR, textStatus, errorThrown) {
+                                            console.error("Lỗi AJAX khi xử lý đơn hàng VietQR: ", textStatus, errorThrown, jqXHR.responseText);
+                                            showPopup('Có lỗi xảy ra khi xử lý thanh toán VietQR. Vui lòng thử lại.', 'error');
+                                            $('#place-order-btn').prop('disabled', false).text('Place Order');
+                                        }
+                                    });
                                 }
                             }
 
