@@ -8,6 +8,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page import="java.time.Year" %>
+<%@page import="model.StatResult"%>
+<%@page import="java.util.Map"%>
+<%@page import="java.util.List"%>
 
 <!DOCTYPE html>
 <html>
@@ -130,7 +133,98 @@
             <div class="content">
                 <jsp:include page="/DashMin/navbar.jsp"/> <!-- nav bar -->
 
+                <!-- 📈 Doanh thu theo loại hoa (tháng này) -->
+                <div class="container-fluid pt-4 px-4">
+                    <div class="bg-light rounded p-4">
+                        <h2 class="mb-4">🌸 Flower sales (this month)</h2>
+                        <div class="mb-3 d-flex gap-3 flex-wrap">
+                            <a href="${pageContext.request.contextPath}/flowerqualitystatsservlet" class="btn btn-outline-success">
+                                🌼 Quality Flower State
+                            </a>
+                            <a href="${pageContext.request.contextPath}/flowerlossstats" class="btn btn-outline-danger">
+                                💐 Loss Flower
+                            </a>
+                        </div>
 
+                        <form method="get" action="${pageContext.request.contextPath}/DashMin/admin" class="mb-4">
+                            <label class="mb-2 fw-bold">Chọn loại hoa:</label>
+                            <div class="row">
+                                <c:set var="noSelection" value="${empty paramValues.cid}" />
+                                <c:forEach var="cat" items="${categoryList}" varStatus="status">
+                                    <c:if test="${status.index % 2 == 0}">
+                                        <!-- Bắt đầu một hàng mới sau mỗi 2 phần tử -->
+                                        <div class="w-100"></div>
+                                    </c:if>
+                                    <div class="col-md-6 mb-2">
+                                        <c:set var="checked" value="false" />
+                                        <c:if test="${noSelection}">
+                                            <c:set var="checked" value="true" />
+                                        </c:if>
+                                        <c:forEach var="selected" items="${paramValues.cid}">
+                                            <c:if test="${selected == cat.categoryId}">
+                                                <c:set var="checked" value="true" />
+                                            </c:if>
+                                        </c:forEach>
+
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="cid" value="${cat.categoryId}"
+                                                   id="cat${cat.categoryId}"
+                                                   <c:if test="${checked}">checked</c:if> />
+                                            <label class="form-check-label" for="cat${cat.categoryId}">
+                                                ${cat.categoryName}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </c:forEach>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary mt-3">Xem biểu đồ</button>
+                        </form>
+
+
+                        <c:if test="${not empty labelsJson}">
+                            <canvas id="categoryRevenueChart"
+                                    data-labels='${labelsJson}'
+                                    data-categories='${categoryListJson}'
+                                    <c:forEach var="cat" items="${categoryList}">
+                                        <c:set var="dataKey" value="${cat.categoryName}_data"/>
+                                        <c:if test="${not empty requestScope[dataKey]}">
+                                            data-data_${cat.categoryName}='${requestScope[dataKey]}'
+                                        </c:if>
+
+                                    </c:forEach>
+                                    style="width:100%; height:300px;">
+                            </canvas>
+                            <!-- Nút tải biểu đồ doanh thu theo loại hoa -->
+                            <button onclick="downloadChartAsImage(window.categoryRevenueChart, 'doanhthu_theoloaihoa.png')" 
+                                    class="btn btn-outline-warning mt-3">
+                                📥 Tải biểu đồ theo loại hoa
+                            </button>
+
+                        </c:if>
+
+                    </div>
+                </div>
+
+                <div> 
+                    <button id="toggleBarChart" class="btn btn-outline-danger mb-2">
+                        📊 Hiện/Ẩn Biểu đồ Lý do lỗi
+                    </button>
+                    <canvas id="barByCategory"
+                            data-labels='${discardLabels}'
+                            data-values='${discardValues}'
+                            style="display: none;">
+                    </canvas>
+
+                    <button id="toggleLineChart" class="btn btn-outline-primary mb-2 mt-4">
+                        📈 Hiện/Ẩn Biểu đồ Hoa hết hạn
+                    </button>
+                    <canvas id="lineExpired"
+                            data-labels='${expiredLabels}'
+                            data-values='${expiredValues}'
+                            style="display: none; width:100%; height:300px;">
+                    </canvas>
+                </div>
                 <!-- Sale & Revenue Start -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="row g-4">
@@ -202,10 +296,15 @@
                         <div class="col-sm-12 col-xl-6">
                             <div class="bg-light text-center rounded p-4 h-100">
                                 <div class="d-flex align-items-center justify-content-between mb-4">
-                                    <h6 class="mb-0">Salse & Revenue</h6>
                                     <a href="#">Show All</a>
                                 </div>
-                                <canvas id="salse-revenue" style="width: 100%; height: 300px;"></canvas>
+                                <h4 class="mb-3">3. Doanh thu & số đơn theo thứ trong tuần</h4>
+                                <canvas id="weekdayChart" style="width: 100%; height: 300px;"></canvas>
+                                <!-- Nút tải biểu đồ theo thứ trong tuần -->
+                                <button onclick="downloadChartAsImage(window.weekdayStatsChart, 'doanhthu_trongtuan.png')" 
+                                        class="btn btn-outline-info mt-3">
+                                    📥 Tải biểu đồ theo thứ
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -243,18 +342,18 @@
                         </div>
 
                         <!-- 🗓️ Doanh thu theo thứ -->
-                        <div class="col-12">
-                            <div class="bg-light text-center rounded p-4 h-100">
-                                <h4 class="mb-3">3. Doanh thu & số đơn theo thứ trong tuần</h4>
-                                <canvas id="weekdayChart" style="width: 100%; height: 300px;"></canvas>
-                                <!-- Nút tải biểu đồ theo thứ trong tuần -->
-                                <button onclick="downloadChartAsImage(window.weekdayStatsChart, 'doanhthu_trongtuan.png')" 
-                                        class="btn btn-outline-info mt-3">
-                                    📥 Tải biểu đồ theo thứ
-                                </button>
-
-                            </div>
-                        </div>
+                        <!--                        <div class="col-12">
+                                                    <div class="bg-light text-center rounded p-4 h-100">
+                                                        <h4 class="mb-3">3. Doanh thu & số đơn theo thứ trong tuần</h4>
+                                                        <canvas id="weekdayChart" style="width: 100%; height: 300px;"></canvas>
+                                                         Nút tải biểu đồ theo thứ trong tuần 
+                                                        <button onclick="downloadChartAsImage(window.weekdayStatsChart, 'doanhthu_trongtuan.png')" 
+                                                                class="btn btn-outline-info mt-3">
+                                                            📥 Tải biểu đồ theo thứ
+                                                        </button>
+                        
+                                                    </div>
+                                                </div>-->
                     </div>
                 </div>
 
@@ -293,50 +392,7 @@
                     </div>
                 </div>
 
-                <!-- 📈 Doanh thu theo loại hoa (tháng này) -->
-                <div class="container-fluid pt-4 px-4">
-                    <div class="bg-light rounded p-4">
-                        <h2 class="mb-4">🌸 Flower sales (this month)</h2>
-                        <a href="${pageContext.request.contextPath}/flowerqualitystatsservlet">Show Quality flower State</a><br>
-                        <a href="${pageContext.request.contextPath}/flowerlossstats">Show loss flower</a>
-                        <form method="get" action="${pageContext.request.contextPath}/DashMin/admin" class="mb-4">
-                            <label>Chọn loại hoa:</label><br>
-                            <c:forEach var="cat" items="${categoryList}">
-                                <c:set var="checked" value="false" />
-                                <c:forEach var="selected" items="${paramValues.cid}">
-                                    <c:if test="${selected == cat.categoryId}">
-                                        <c:set var="checked" value="true" />
-                                    </c:if>
-                                </c:forEach>
-                                <input type="checkbox" name="cid" value="${cat.categoryId}" <c:if test="${checked}">checked</c:if> />
-                                ${cat.categoryName} <br>
-                            </c:forEach>
-                            <button type="submit" class="btn btn-primary mt-2">Xem biểu đồ</button>
 
-                        </form>
-
-                        <c:if test="${not empty labelsJson}">
-                            <canvas id="categoryRevenueChart"
-                                    data-labels='${labelsJson}'
-                                    data-categories='${categoryListJson}'
-                                    <c:forEach var="cat" items="${categoryList}">
-                                        <c:set var="dataKey" value="${cat.categoryName}_data"/>
-                                        <c:if test="${not empty requestScope[dataKey]}">
-                                            data-data_${cat.categoryName}='${requestScope[dataKey]}'
-                                        </c:if>
-
-                                    </c:forEach>
-                                    style="width:100%; height:300px;">
-                            </canvas>
-                            <!-- Nút tải biểu đồ doanh thu theo loại hoa -->
-                            <button onclick="downloadChartAsImage(window.categoryRevenueChart, 'doanhthu_theoloaihoa.png')" 
-                                    class="btn btn-outline-warning mt-3">
-                                📥 Tải biểu đồ theo loại hoa
-                            </button>
-
-                        </c:if>
-                    </div>
-                </div>
                 <c:if test="${not empty statusCounts}">
                     <div class="container-fluid pt-4 px-4">
                         <div class="bg-light rounded p-4">

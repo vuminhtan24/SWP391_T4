@@ -106,6 +106,122 @@
                 }
             });
         }
+        // ✅ Hàm an toàn để parse JSON
+        function safeParse(jsonStr) {
+            try {
+                return JSON.parse(jsonStr);
+            } catch (e) {
+                console.error("Lỗi khi phân tích JSON:", jsonStr, e);
+                return [];
+            }
+        }
+
+        // 📊 Toggle & vẽ biểu đồ cột: Lý do lỗi theo loại hoa
+        let barChartDrawn = false;
+        $("#toggleBarChart").click(function () {
+            const $barCanvas = $("#barByCategory");
+
+            $barCanvas.toggle();
+
+            if (!barChartDrawn && $barCanvas.is(":visible")) {
+                const labels = safeParse($barCanvas.attr("data-labels"));
+                const values = safeParse($barCanvas.attr("data-values"));
+
+                if (labels.length && values.length) {
+                    window.barByCategory = new Chart($barCanvas[0], {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                    label: 'Số lỗi',
+                                    data: values,
+                                    backgroundColor: '#f44336'
+                                }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {position: 'top'},
+                                title: {
+                                    display: true,
+                                    text: '📊 Lý do lỗi theo loại hoa'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Số lượng'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    barChartDrawn = true;
+                }
+            }
+        });
+
+        // 📈 Toggle & vẽ biểu đồ đường: Hoa hết hạn theo thời gian
+        let lineChartDrawn = false;
+        $("#toggleLineChart").click(function () {
+            const $lineCanvas = $("#lineExpired");
+
+            $lineCanvas.toggle();
+
+            if (!lineChartDrawn && $lineCanvas.is(":visible")) {
+                const labels = safeParse($lineCanvas.attr("data-labels"));
+                const values = safeParse($lineCanvas.attr("data-values"));
+
+                if (labels.length && values.length) {
+                    window.lineExpired = new Chart($lineCanvas[0], {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                    label: 'Hoa hết hạn',
+                                    data: values,
+                                    borderColor: 'blue',
+                                    backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                                    tension: 0.4,
+                                    fill: true
+                                }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {position: 'top'},
+                                title: {
+                                    display: true,
+                                    text: '📈 Hoa hết hạn theo thời gian'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Số lượng hoa'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Thời gian (tháng)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    lineChartDrawn = true;
+                }
+            }
+        });
+
+
+
+
 
 // Biểu đồ tỉ lệ đơn hàng theo trạng thái (Donut chart)
         if (document.getElementById("orderStatusChart")) {
