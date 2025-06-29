@@ -30,7 +30,6 @@ public class FlowerDAO extends BaseDao {
                 map.put(rs.getString("flower_name"), rs.getInt("count"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return map;
     }
@@ -72,7 +71,6 @@ public class FlowerDAO extends BaseDao {
             });
 
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return list;
     }
