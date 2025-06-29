@@ -476,7 +476,19 @@
                                                 <h6 class="mb-0">${c.name}</h6>
                                                 <small><fmt:formatDate value="${c.createdAt}" pattern="HH:mm dd/MM/yyyy" /></small>
                                             </div>
-                                            <span>${c.message}</span>
+                                            <style>
+                                                .message-snippet {
+                                                    display: -webkit-box;
+                                                    -webkit-line-clamp: 1; /* số dòng muốn hiển thị */
+                                                    -webkit-box-orient: vertical;
+                                                    overflow: hidden;
+                                                    text-overflow: ellipsis;
+                                                    word-break: break-word;
+                                                    max-height: 1.2em; /* tương ứng với 1 dòng */
+                                                }
+                                            </style>
+
+                                            <span class="message-snippet">${c.message}</span>
                                         </div>
                                     </div>
                                 </c:forEach>
