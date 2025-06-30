@@ -278,13 +278,13 @@ public class DAOAccount extends BaseDao {
 
     public static void main(String[] args) {
         User newUser = new User();
-        newUser.setUsername("quang");
+        newUser.setUsername("quangShipper");
         newUser.setPassword("123456"); // sẽ được băm bên trong DAO
-        newUser.setFullname("Quang Vũ");
+        newUser.setFullname("Vũ Quang");
         newUser.setEmail("quangvmhe181542@fpt.edu.vn");
         newUser.setPhone("0123456789");
-        newUser.setAddress("Đống Đa Hà NỘi");
-        newUser.setRole(2); // ví dụ: 0 = user, 1 = admin
+        newUser.setAddress("Hà Nội");
+        newUser.setRole(8); // ví dụ: 0 = user, 1 = admin
 
         // Gọi DAO để tạo tài khoản
         DAOAccount dao = new DAOAccount(); // đảm bảo constructor này không null dbc
