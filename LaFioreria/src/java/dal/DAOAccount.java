@@ -277,14 +277,24 @@ public class DAOAccount extends BaseDao {
     }
 
     public static void main(String[] args) {
-        String[] passwords = {
-        "admin123", "manager123", "seller123", "marketing1", 
-        "store123", "guest123", "cust123", "cust456"
-    };
+        User newUser = new User();
+        newUser.setUsername("quang");
+        newUser.setPassword("123456"); // sẽ được băm bên trong DAO
+        newUser.setFullname("Quang Vũ");
+        newUser.setEmail("quangvmhe181542@fpt.edu.vn");
+        newUser.setPhone("0123456789");
+        newUser.setAddress("Đống Đa Hà NỘi");
+        newUser.setRole(2); // ví dụ: 0 = user, 1 = admin
 
-    for (String pw : passwords) {
-        String hashed = BCrypt.hashpw(pw, BCrypt.gensalt());
-        System.out.println(pw + " -> " + hashed);
-    }
+        // Gọi DAO để tạo tài khoản
+        DAOAccount dao = new DAOAccount(); // đảm bảo constructor này không null dbc
+        boolean result = dao.createAccount(newUser);
+
+        // Kết quả
+        if (result) {
+            System.out.println("Tạo tài khoản thành công.");
+        } else {
+            System.out.println("Tạo tài khoản thất bại.");
+        }
     }
 }

@@ -11,7 +11,7 @@ import model.OrderStatus;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate; 
+import java.time.LocalDate;
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,14 +21,16 @@ import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Servlet for handling adding new orders (main order record).
+ *
  * @author VU MINH TAN
  */
 @WebServlet(name = "AddOrderServlet", urlPatterns = {"/addOrder"})
 public class AddOrderServlet extends HttpServlet {
 
     /**
-     * Handles the HTTP <code>GET</code> method.
-     * Displays the form for adding a new order.
+     * Handles the HTTP <code>GET</code> method. Displays the form for adding a
+     * new order.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -43,19 +45,20 @@ public class AddOrderServlet extends HttpServlet {
         OrderDAO orderDAO = new OrderDAO();
         List<User> customers = orderDAO.getAllCustomers();
         List<OrderStatus> statuses = orderDAO.getAllOrderStatuses();
-        List<User> shippers = orderDAO.getAllShippers(); 
+        List<User> shippers = orderDAO.getAllShippers();
 
         request.setAttribute("customers", customers);
         request.setAttribute("statuses", statuses);
         request.setAttribute("shippers", shippers);
-        request.setAttribute("currentDate", LocalDate.now().toString()); 
+        request.setAttribute("currentDate", LocalDate.now().toString());
 
         request.getRequestDispatcher("/DashMin/orderAdd.jsp").forward(request, response);
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
-     * Processes the submission of the new order form and redirects to add items.
+     * Handles the HTTP <code>POST</code> method. Processes the submission of
+     * the new order form and redirects to add items.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -71,6 +74,7 @@ public class AddOrderServlet extends HttpServlet {
         String customerIdParam = request.getParameter("customerId");
         String statusIdParam = request.getParameter("statusId");
         String shipperIdParam = request.getParameter("shipperId");
+        String paymentMethod = request.getParameter("paymentMethod");
 
         String errorMessage = null;
         int customerId = -1;
@@ -120,16 +124,17 @@ public class AddOrderServlet extends HttpServlet {
         // ✅ Tạo đơn hàng mới với totalImport = "0" (totalSell sẽ được tính trong DAO)
         OrderDAO orderDAO = new OrderDAO();
         Order newOrder = new Order(
-            0,
-            orderDate,
-            customerId,
-            null, null, null,
-            "0",        // totalSell chưa có
-            "0",        // totalImport ban đầu là 0
-            statusId,
-            null,
-            shipperId,
-            null
+                0,
+                orderDate,
+                customerId,
+                null, null, null,
+                "0", // totalSell chưa có
+                "0", // totalImport ban đầu là 0
+                statusId,
+                null,
+                shipperId,
+                null,
+                paymentMethod
         );
 
         int newOrderId = orderDAO.addOrder(newOrder);

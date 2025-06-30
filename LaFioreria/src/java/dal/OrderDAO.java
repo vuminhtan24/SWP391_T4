@@ -62,7 +62,7 @@ public class OrderDAO extends BaseDao {
         StringBuilder dataSql = new StringBuilder();
         dataSql.append("SELECT o.order_id, o.order_date, o.customer_id, ")
                 .append("COALESCE(u.Fullname, 'Guest') AS customer_name, ") // ✅ fallback cho khách vãng lai
-                .append("o.total_import, o.total_sell, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name ")
+                .append("o.total_import, o.total_sell, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name,o.payment_method ")
                 .append("FROM `order` o ")
                 .append("LEFT JOIN `user` u ON o.customer_id = u.User_ID ")
                 .append("JOIN `order_status` os ON o.status_id = os.order_status_id ")
@@ -166,7 +166,8 @@ public class OrderDAO extends BaseDao {
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
-                        rs.getString("shipper_name")
+                        rs.getString("shipper_name"),
+                        rs.getString("payment_method")
                 ));
             }
         } catch (SQLException e) {
@@ -198,7 +199,7 @@ public class OrderDAO extends BaseDao {
                 + "COALESCE(u.Address, o.customer_address) AS customer_address, "
                 + "o.total_sell, o.total_import, "
                 + "o.status_id, os.status_name, "
-                + "o.shipper_id, s.Fullname AS shipper_name "
+                + "o.shipper_id, s.Fullname AS shipper_name, o.payment_method "
                 + "FROM `order` o "
                 + "LEFT JOIN `user` u ON o.customer_id = u.User_ID "
                 + "JOIN `order_status` os ON o.status_id = os.order_status_id "
@@ -224,7 +225,8 @@ public class OrderDAO extends BaseDao {
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
-                        rs.getString("shipper_name")
+                        rs.getString("shipper_name"),
+                        rs.getString("payment_method")
                 );
             }
         } catch (SQLException e) {
@@ -515,8 +517,8 @@ public class OrderDAO extends BaseDao {
      * @return The generated order_id if successful, -1 otherwise.
      */
     public int addOrder(Order order) {
-        String sql = "INSERT INTO `order` (order_date, customer_id, total_import, total_sell, status_id, shipper_id) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO `order` (order_date, customer_id, total_import, total_sell, status_id, shipper_id, payment_method) "
+                + "VALUES (?, ?, ?, ?, ?, ?,?)";
         int generatedId = -1;
 
         try {
@@ -531,6 +533,7 @@ public class OrderDAO extends BaseDao {
             ps.setInt(3, totalImport);
             ps.setInt(4, totalSell);
             ps.setInt(5, order.getStatusId());
+            ps.setString(7, order.getPaymentMethod());
 
             if (order.getShipperId() == null) {
                 ps.setNull(6, java.sql.Types.INTEGER);
@@ -646,7 +649,7 @@ public class OrderDAO extends BaseDao {
                 + "COALESCE(u.Phone, o.customer_phone) AS customer_phone, "
                 + "COALESCE(u.Address, o.customer_address) AS customer_address, "
                 + "o.total_sell, o.total_import, o.status_id, os.status_name, "
-                + "o.shipper_id, s.Fullname AS shipper_name "
+                + "o.shipper_id, s.Fullname AS shipper_name, o.payment_method "
                 + "FROM `order` o "
                 + "LEFT JOIN `user` u ON o.customer_id = u.User_ID "
                 + "JOIN `order_status` os ON o.status_id = os.order_status_id "
@@ -684,7 +687,8 @@ public class OrderDAO extends BaseDao {
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
-                        rs.getString("shipper_name")
+                        rs.getString("shipper_name"),
+                        rs.getString("payment_method")
                 );
                 orders.add(order);
             }
@@ -1208,7 +1212,24 @@ public class OrderDAO extends BaseDao {
     }
 
     public static void main(String[] args) {
-        OrderDAO orderDAO = new OrderDAO();
-        System.out.println(orderDAO.getRequestFlowerByOrder(15, 21));
+        OrderDAO cartDAO = new OrderDAO();
+        
+        int testOrderId = 1; // 📝 Thay ID này bằng 1 ID tồn tại trong DB
+        Order order = cartDAO.getOrderDetailById(31);
+        
+        if (order != null) {
+            System.out.println("Thông tin đơn hàng:");
+            System.out.println("ID: " + order.getOrderId());
+            System.out.println("Ngày đặt: " + order.getOrderDate());
+            System.out.println("Khách hàng: " + order.getCustomerName());
+            System.out.println("SĐT: " + order.getCustomerPhone());
+            System.out.println("Địa chỉ: " + order.getCustomerAddress());
+            System.out.println("Tổng tiền: " + order.getTotalSell());
+            System.out.println("Phương thức thanh toán: " + order.getPaymentMethod());
+            System.out.println("Trạng thái: " + order.getStatusName());
+            System.out.println("Shipper: " + order.getShipperName());
+        } else {
+            System.out.println("Không tìm thấy đơn hàng với ID: " + testOrderId);
+        }
     }
 }
