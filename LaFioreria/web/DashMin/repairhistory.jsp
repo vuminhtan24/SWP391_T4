@@ -156,7 +156,7 @@
                                                 <td>
                                                     <c:if test="${not empty record.updatedAt}">
                                                         <fmt:parseDate value="${record.updatedAt}" pattern="yyyy-MM-dd HH:mm:ss" var="parsedDate"/>
-                                                        <fmt:formatDate value="${parsedDate}" pattern="dd/MM/yyyy HH:mm"/>
+                                                        <fmt:formatDate value="${parsedDate}" pattern="dd/MM/yyyy HH:mm" timeZone="Asia/Ho_Chi_Minh" />
                                                     </c:if>
                                                 </td>
                                             </tr>
