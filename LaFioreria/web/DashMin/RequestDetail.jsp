@@ -269,41 +269,40 @@
 
 
                 <!-- List Request Start -->
+                <a href="${pageContext.request.contextPath}/listRequest">Back to Request List</a>
                 <div class="container">
-                    <h6 class="heading">List Request</h6>
-
+                    <p>${sessionScope.message}</p>
+                    <h6 class="heading">Request Details</h6>
+                    <p>Order ID: ${orderId}</p>
+                    <p>Order Item ID: ${orderItemId}</p>
+                    <p>Request Date: ${requestDate}</p>
                     <table class="styled-table">
                         <thead>
                             <tr>
-                                <td>Order ID</td>
-                                <td>Order Item ID</td>
-                                <td>Flower Names</td>
-                                <td>Request Date</td>
-                                <td>Confirmation Date</td>
+                                <td>Flower ID</td>
+                                <td>Flower Name</td>
+                                <td>Request Quantity</td>
                                 <td>Status</td>
-                                <td></td>
+                                <td colspan="2">Action</td>
                             </tr>
                         </thead>  
                         <tbody>
-                            <c:forEach var="item" items="${listRequest}">
+                            <c:forEach var="item" items="${listFlower}">
+                                <c:forEach var="names" items="${listFlowerType}">
+                                    <c:if test="${item.getFlowerId() == names.getFlowerId()}">
                                 <tr>
-                                    <td>${item.orderId}</td>
-                                    <td>${item.orderItemId}</td>
-                                    <td>${item.flowerNames}</td>
-                                    <td>${item.requestDate}</td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${item.confirmDate == null}">
-                                                not confirm yet
-                                            </c:when>
-                                            <c:otherwise>
-                                                ${item.confirmDate}
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <td>${item.status}</td>
-                                    <td><a href="${pageContext.request.contextPath}/requestDetail?orderId=${item.orderId}&orderItemId=${item.orderItemId}">View Details</a></td>
+                                    <td>${item.getFlowerId()}</td>
+                                    <td>${names.getFlowerName()}</td>
+                                    <td>${item.getQuantity()}</td>
+                                    <td>${item.getStatus()}</td>
+                                    <td><button type="button"
+                                                onclick="location.href='${pageContext.request.contextPath}/add_batch?flower_id=${item.flowerId}'">
+                                            Add Flower
+                                        </button>
+                                        <button type="button">Reject</button></td>
                                 </tr>  
+                                    </c:if>
+                                </c:forEach>
                             </c:forEach>
                         </tbody>   
                     </table>

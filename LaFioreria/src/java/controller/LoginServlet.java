@@ -159,6 +159,8 @@ public class LoginServlet extends HttpServlet {
         switch (role) {
             case "Admin":
             case "Sales Manager":
+                response.sendRedirect(request.getContextPath() + "/DashMin/admin");
+                break;
             case "Seller":
             case "Marketer":
             case "Warehouse Staff":

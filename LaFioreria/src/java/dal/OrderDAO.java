@@ -1134,18 +1134,24 @@ public class OrderDAO extends BaseDao {
 
     public List<RequestDisplay> gettAllRequestList() {
         List<RequestDisplay> list = new ArrayList<>();
-        
+
         String sql = "SELECT \n"
                 + "    rf.Order_ID,\n"
                 + "    rf.Order_Item_ID,\n"
                 + "    GROUP_CONCAT(ft.Flower_Name SEPARATOR ', ') AS Flower_Names,\n"
                 + "    ANY_VALUE(rf.Request_Creation_Date) AS Request_Date,\n"
-                + "    ANY_VALUE(rf.Request_Confirmation_Date) AS Confirm_Date,\n"
-                + "    ANY_VALUE(rf.Status) AS Status\n"
+                + "    MAX(rf.Request_Confirmation_Date) AS Confirm_Date,\n"
+                + "    CASE\n"
+                + "    WHEN SUM(rf.Status = 'reject') > 0 THEN 'reject'\n"
+                + "    WHEN SUM(rf.Status = 'done') > 0 AND SUM(rf.Status = 'pending') > 0 THEN 'doing'\n"
+                + "    WHEN SUM(rf.Status = 'pending') > 0 THEN 'pending'\n"
+                + "    WHEN SUM(rf.Status = 'done') = COUNT(*) THEN 'done'\n"
+                + "    ELSE 'unknown'\n"
+                + "    END AS Status\n"
                 + "FROM requestflower rf\n"
                 + "JOIN flower_type ft ON rf.Flower_ID = ft.Flower_ID\n"
                 + "GROUP BY rf.Order_ID, rf.Order_Item_ID;";
-        
+
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -1158,7 +1164,7 @@ public class OrderDAO extends BaseDao {
                 java.sql.Date sqlConfirmDate = rs.getDate("Confirm_Date");
                 LocalDate confirmDate = (sqlConfirmDate != null) ? sqlConfirmDate.toLocalDate() : null;
                 String status = rs.getString("Status");
-                
+
                 RequestDisplay rd = new RequestDisplay(orderId, orderItemId, flowerNames, requestDate, confirmDate, status);
                 list.add(rd);
             }
@@ -1171,6 +1177,34 @@ public class OrderDAO extends BaseDao {
             }
         }
         return list;
+    }
+
+    public void confirmFlowerRequest(int orderId, int orderItemId, int flowerId) {
+        String sql = "UPDATE `la_fioreria`.`requestflower`\n"
+                + "SET\n"
+                + "`Status` = 'done',\n"
+                + "`Request_Confirmation_Date` = ?\n"
+                + "WHERE `Order_ID` = ? AND `Order_Item_ID` = ? AND `Flower_ID` = ?;";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+
+            // Gán các giá trị cho ? trong câu SQL
+            ps.setDate(1, new java.sql.Date(System.currentTimeMillis())); // Ngày hôm nay
+            ps.setInt(2, orderId);
+            ps.setInt(3, orderItemId);
+            ps.setInt(4, flowerId);
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error updating order_item status: " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                e.printStackTrace(); // Ghi log lỗi đóng tài nguyên
+            }
+        }
     }
 
     public static void main(String[] args) {
