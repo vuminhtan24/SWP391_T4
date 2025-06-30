@@ -12,7 +12,11 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 import dal.FlowerBatchDAO;
+import dal.OrderDAO;
 import dal.WarehouseDAO;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import model.RequestFlower;
 import model.Warehouse;
 import util.Validate;
 
@@ -21,6 +25,7 @@ import util.Validate;
  */
 @WebServlet(name = "AddBatch", urlPatterns = {"/add_batch"})
 public class AddBatch extends HttpServlet {
+
     private final FlowerBatchDAO fbDAO = new FlowerBatchDAO();
     private final WarehouseDAO whDAO = new WarehouseDAO();
 
@@ -28,7 +33,10 @@ public class AddBatch extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
+        OrderDAO odao = new OrderDAO();
+        Boolean addFlowerAgree = (Boolean) session.getAttribute("addFlowerAgree");
         try {
+
             // Get flower_id from URL parameter
             String flowerIdStr = request.getParameter("flower_id");
             System.out.println("AddBatch.doGet: Received flower_id = " + flowerIdStr); // Debug log
@@ -44,6 +52,23 @@ public class AddBatch extends HttpServlet {
                 session.setAttribute("error", "Flower ID must be positive.");
                 response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
                 return;
+            }
+            if (session.getAttribute("orderId") != null && session.getAttribute("orderItemId") != null) {
+                Integer orderId = (Integer) session.getAttribute("orderId");
+                Integer orderItemId = (Integer) session.getAttribute("orderItemId");
+                if (addFlowerAgree == true) {
+                    List<RequestFlower> listFlower = odao.getRequestFlowerByOrder(orderId, orderItemId);
+                    for (RequestFlower requestFlower : listFlower) {
+                        if (requestFlower.getOrderId() == orderId && requestFlower.getOrderItemId() == orderItemId && requestFlower.getFlowerId() == flowerId) {
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                            String todayStr = sdf.format(new Date());
+                            request.setAttribute("requestDate", todayStr);
+                            request.setAttribute("requestQuantity", requestFlower.getQuantity());
+                            request.setAttribute("orderId", orderId);
+                            request.setAttribute("orderItemId", orderItemId);
+                        }
+                    }
+                }
             }
 
             // Set flower_id for JSP
@@ -80,8 +105,9 @@ public class AddBatch extends HttpServlet {
             String quantityStr = request.getParameter("quantity");
             String holdStr = request.getParameter("hold");
             String warehouseIdStr = request.getParameter("warehouse_id");
+            String action = request.getParameter("action");
 
-            // Validate each field using Validate class
+            // Validate inputs
             String flowerIdError = Validate.validateNumber(flowerIdStr, "Flower ID");
             String unitPriceError = Validate.validateNumberWithRange(unitPriceStr, "Unit Price", 0, Integer.MAX_VALUE);
             String importDateError = Validate.validateDate(importDate, "Import Date");
@@ -90,9 +116,8 @@ public class AddBatch extends HttpServlet {
             String holdError = Validate.validateNumberWithRange(holdStr, "Hold", 0, Integer.MAX_VALUE);
             String warehouseIdError = Validate.validateWarehouseId(warehouseIdStr, whDAO);
 
-            // Check for validation errors
-            if (flowerIdError != null || unitPriceError != null || importDateError != null ||
-                expirationDateError != null || quantityError != null || holdError != null || warehouseIdError != null) {
+            if (flowerIdError != null || unitPriceError != null || importDateError != null
+                    || expirationDateError != null || quantityError != null || holdError != null || warehouseIdError != null) {
                 // Retain form data
                 request.setAttribute("flowerId", flowerIdStr);
                 request.setAttribute("unit_price", unitPriceStr);
@@ -111,33 +136,51 @@ public class AddBatch extends HttpServlet {
                 request.setAttribute("holdError", holdError);
                 request.setAttribute("warehouseIdError", warehouseIdError);
 
-                // Reload warehouses
+                // Reload warehouse list
                 List<Warehouse> warehouses = whDAO.getAllWarehouse();
-                session.setAttribute("listW", warehouses); // Cập nhật session
+                session.setAttribute("listW", warehouses);
 
-                // Forward back to add_batch.jsp with errors
+                // Forward back with errors
                 request.getRequestDispatcher("/DashMin/addbatch.jsp").forward(request, response);
                 return;
             }
 
-            // Parse validated inputs
+            // Parse and insert
             int flowerId = Integer.parseInt(flowerIdStr);
             int unitPrice = Integer.parseInt(unitPriceStr);
             int quantity = Integer.parseInt(quantityStr);
             int hold = Integer.parseInt(holdStr);
             int warehouseId = Integer.parseInt(warehouseIdStr);
-            String status = "fresh"; // Default status
+            String status = "fresh";
 
-            // Call DAO to add flower batch
+            // Add flower batch
             fbDAO.addFlowerBatch(flowerId, unitPrice, importDate, expirationDate, quantity, hold, warehouseId, status);
 
-            // Set success message and redirect to flower details
+            // Remove session flag if exists
+            Boolean addFlowerAgree = (Boolean) session.getAttribute("addFlowerAgree");
+            session.removeAttribute("addFlowerAgree");
             session.setAttribute("message", "Flower batch added successfully!");
-            response.sendRedirect(request.getContextPath() + "/rawFlowerDetails?flower_id=" + flowerId);
+
+            if ("addbatch".equalsIgnoreCase(action) && Boolean.TRUE.equals(addFlowerAgree)) {
+                if (session.getAttribute("orderId") != null && session.getAttribute("orderItemId") != null) {
+                    Integer orderId = (Integer) session.getAttribute("orderId");
+                    Integer orderItemId = (Integer) session.getAttribute("orderItemId");
+                    OrderDAO odao = new OrderDAO();
+                    odao.confirmFlowerRequest(orderId, orderItemId, flowerId);
+                    session.removeAttribute("orderId");
+                    session.removeAttribute("orderItemId");
+                    response.sendRedirect(request.getContextPath() + "/requestDetail?orderId="+orderId+"&orderItemId="+orderItemId);
+                }
+            } else {
+                // Trường hợp thông thường → chuyển về rawFlowerDetails
+                response.sendRedirect(request.getContextPath() + "/rawFlowerDetails?flower_id=" + flowerId);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "An error occurred while adding the flower batch: " + e.getMessage());
-            // Retain form data
+
+            // Retain form data on error
             request.setAttribute("flowerId", request.getParameter("flower_id"));
             request.setAttribute("unit_price", request.getParameter("unit_price"));
             request.setAttribute("import_date", request.getParameter("import_date"));
@@ -145,9 +188,11 @@ public class AddBatch extends HttpServlet {
             request.setAttribute("quantity", request.getParameter("quantity"));
             request.setAttribute("hold", request.getParameter("hold"));
             request.setAttribute("warehouse_id", request.getParameter("warehouse_id"));
-            // Reload warehouses
+
+            // Reload warehouse list
             List<Warehouse> warehouses = whDAO.getAllWarehouse();
             session.setAttribute("listW", warehouses);
+
             request.getRequestDispatcher("/DashMin/addbatch.jsp").forward(request, response);
         }
     }

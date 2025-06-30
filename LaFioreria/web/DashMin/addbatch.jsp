@@ -89,7 +89,7 @@
         <div class="container-fluid position-relative bg-white d-flex p-0">
             <div class="content">
                 <h1 class="h2">Add Flower Batch</h1>
-
+                <input type="hidden" name="addFlowerAgree" value="${sessionScope.addFlowerAgree}">
                 <!-- Display general error message -->
                 <c:if test="${not empty error}">
                     <div class="general-error">${error}</div>
@@ -97,38 +97,88 @@
 
                 <form action="${pageContext.request.contextPath}/add_batch" method="post">
                     <input type="hidden" name="flower_id" value="${flowerId}">
-                    <div class="mb-3">
-                        <label for="unit_price" class="form-label">Unit Price (VND)</label>
-                        <input type="number" id="unit_price" name="unit_price" class="form-control" 
-                               value="${unit_price}" required min="0" step="1">
-                        <c:if test="${not empty unitPriceError}">
-                            <div class="error">${unitPriceError}</div>
-                        </c:if>
-                    </div>
-                    <div class="mb-3">
-                        <label for="import_date" class="form-label">Import Date</label>
-                        <input type="date" id="import_date" name="import_date" class="form-control" 
-                               value="${import_date}" required>
-                        <c:if test="${not empty importDateError}">
-                            <div class="error">${importDateError}</div>
-                        </c:if>
-                    </div>
-                    <div class="mb-3">
-                        <label for="expiration_date" class="form-label">Expiration Date</label>
-                        <input type="date" id="expiration_date" name="expiration_date" class="form-control" 
-                               value="${expiration_date}" required>
-                        <c:if test="${not empty expirationDateError}">
-                            <div class="error">${expirationDateError}</div>
-                        </c:if>
-                    </div>
-                    <div class="mb-3">
-                        <label for="quantity" class="form-label">Quantity</label>
-                        <input type="number" id="quantity" name="quantity" class="form-control" 
-                               value="${quantity}" required min="0" step="1">
-                        <c:if test="${not empty quantityError}">
-                            <div class="error">${quantityError}</div>
-                        </c:if>
-                    </div>
+
+                    <c:choose>
+
+                        <c:when test="${sessionScope.addFlowerAgree eq true}">
+                            <div class="mb-3">
+                                <label for="unit_price" class="form-label">Unit Price (VND)</label>
+                                <input type="number" id="unit_price" name="unit_price" class="form-control" 
+                                       value="${unit_price}" required min="0" step="1">
+                                <c:if test="${not empty unitPriceError}">
+                                    <div class="error">${unitPriceError}</div>
+                                </c:if>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="import_date" class="form-label">Import Date</label>
+                                <input type="date" id="import_date" name="import_date" class="form-control" 
+                                       value="${requestDate}" required>
+                                <c:if test="${not empty importDateError}">
+                                    <div class="error">${importDateError}</div>
+                                </c:if>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="expiration_date" class="form-label">Expiration Date</label>
+                                <input type="date" id="expiration_date" name="expiration_date" class="form-control" 
+                                       value="${expiration_date}" required>
+                                <c:if test="${not empty expirationDateError}">
+                                    <div class="error">${expirationDateError}</div>
+                                </c:if>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label">Quantity</label>
+                                <input type="number" id="quantity" name="quantity" class="form-control" 
+                                       value="${requestQuantity}" required min="${requestQuantity}" step="1">
+                                <c:if test="${not empty quantityError}">
+                                    <div class="error">${quantityError}</div>
+                                </c:if>
+                            </div>
+                        </c:when>
+
+
+                        <c:otherwise>
+                            <div class="mb-3">
+                                <label for="unit_price" class="form-label">Unit Price (VND)</label>
+                                <input type="number" id="unit_price" name="unit_price" class="form-control" 
+                                       value="${unit_price}" required min="0" step="1">
+                                <c:if test="${not empty unitPriceError}">
+                                    <div class="error">${unitPriceError}</div>
+                                </c:if>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="import_date" class="form-label">Import Date</label>
+                                <input type="date" id="import_date" name="import_date" class="form-control" 
+                                       value="${import_date}" required>
+                                <c:if test="${not empty importDateError}">
+                                    <div class="error">${importDateError}</div>
+                                </c:if>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="expiration_date" class="form-label">Expiration Date</label>
+                                <input type="date" id="expiration_date" name="expiration_date" class="form-control" 
+                                       value="${expiration_date}" required>
+                                <c:if test="${not empty expirationDateError}">
+                                    <div class="error">${expirationDateError}</div>
+                                </c:if>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label">Quantity</label>
+                                <input type="number" id="quantity" name="quantity" class="form-control" 
+                                       value="${quantity}" required min="0" step="1">
+                                <c:if test="${not empty quantityError}">
+                                    <div class="error">${quantityError}</div>
+                                </c:if>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
+
+
                     <div class="mb-3">
                         <label for="hold" class="form-label">Hold</label>
                         <input type="number" id="hold" name="hold" class="form-control" 
@@ -137,13 +187,15 @@
                             <div class="error">${holdError}</div>
                         </c:if>
                     </div>
+
                     <div class="mb-3">
                         <label for="warehouse_id" class="form-label">Warehouse</label>
                         <select id="warehouse_id" name="warehouse_id" class="form-select" required>
                             <option value="">Select Warehouse</option>
                             <c:if test="${not empty sessionScope.listW}">
                                 <c:forEach var="warehouse" items="${sessionScope.listW}">
-                                    <option value="${warehouse.warehouseId}" ${warehouse.warehouseId == warehouse_id ? 'selected' : ''}>
+                                    <option value="${warehouse.warehouseId}" 
+                                            ${warehouse.warehouseId == warehouse_id ? 'selected' : ''}>
                                         ${warehouse.name}
                                     </option>
                                 </c:forEach>
@@ -155,13 +207,21 @@
                         <c:if test="${not empty warehouseIdError}">
                             <div class="error">${warehouseIdError}</div>
                         </c:if>
-                    </div>   
+                    </div>
+
                     <div class="d-flex justify-content-center gap-3">
-                        <button type="submit" class="btn btn-primary">Add Batch</button>
-                        <a href="${pageContext.request.contextPath}/rawFlowerDetails?flower_id=${flowerId}" 
-                           class="btn btn-secondary">Cancel</a>
+                        <button type="submit" name="action" value="addbatch" class="btn btn-primary">Add Batch</button>
+                            <c:choose>
+                                <c:when test="${sessionScope.addFlowerAgree eq true}">
+                                    <a href="${pageContext.request.contextPath}/requestDetail?orderId=${orderId}&orderItemId=${orderItemId}" class="btn btn-secondary">Cancel</a>
+                                </c:when>
+                                <c:otherwise>
+                                    <a href="${pageContext.request.contextPath}/rawFlowerDetails?flower_id=${flowerId}" class="btn btn-secondary">Cancel</a>
+                                </c:otherwise>
+                            </c:choose>
                     </div>
                 </form>
+
             </div>
         </div>
 
