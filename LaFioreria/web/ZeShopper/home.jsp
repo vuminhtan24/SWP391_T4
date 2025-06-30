@@ -123,121 +123,112 @@
                 color: #aaa;
                 transition: color 0.2s;
             }
-            .productinfo {
-                min-height: 400px; /* chỉnh tùy theo độ dài nội dung */
+            .most-sell-container {
+                position: relative;
+                margin-top: 20px;
+                padding: 0 40px;
+            }
+
+            .most-sell-row {
+                display: flex;
+                overflow-x: auto;
+                gap: 16px;
+                scroll-behavior: smooth;
+                padding: 10px 0;
+                height: auto;
+            }
+
+            .most-sell-item {
+                flex: 0 0 250px;
+                box-sizing: border-box;
                 display: flex;
                 flex-direction: column;
-                justify-content: space-between;
-            }
-
-            .productinfo img {
-                height: 200px;
-                object-fit: cover;
-            }
-
-            .single-products {
-                height: 100%;
+                height: auto;
             }
 
             .product-image-wrapper {
-                border: 1px solid #f0f0f0;
-                padding: 10px;
-                height: 100%;
-            }
-
-            .close-btn:hover {
-                color: #000;
-            }
-
-            @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                }
-                to {
-                    opacity: 1;
-                }
-            }
-            @keyframes scaleUp {
-                from {
-                    transform: scale(0.95);
-                    opacity: 0;
-                }
-                to {
-                    transform: scale(1);
-                    opacity: 1;
-                }
-            }
-
-            .success-toast {
-                display: none;
-                position: fixed;
-                bottom: 30px;
-                right: 30px;
-                background-color: #4CAF50;
-                color: white;
-                padding: 16px 24px;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                height: auto;
+                padding: 12px;
+                border: 1px solid #eee;
                 border-radius: 8px;
-                box-shadow: 0 0 10px rgba(0,0,0,0.2);
-                font-size: 16px;
-                z-index: 9999;
-                animation: fadein 0.5s;
+                background-color: #fff;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+                transition: transform 0.2s ease;
             }
 
-            @keyframes fadein {
-                from {
-                    opacity: 0;
-                    bottom: 10px;
-                }
-                to {
-                    opacity: 1;
-                    bottom: 30px;
-                }
-            }
-            .productinfo {
-                min-height: 400px; /* chỉnh tùy theo độ dài nội dung */
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
+            .product-image-wrapper:hover {
+                transform: translateY(-4px);
             }
 
             .productinfo img {
-                height: 200px;
+                width: 100%;
+                height: 180px;
                 object-fit: cover;
+                border-radius: 6px;
+                margin-bottom: 10px;
             }
 
-            .single-products {
-                height: 100%;
+            .productinfo h2 {
+                font-size: 16px;
+                margin-bottom: 8px;
+                color: #333;
+                font-weight: 600;
             }
 
-            .product-image-wrapper {
-                border: 1px solid #f0f0f0;
-                padding: 10px;
-                height: 100%;
+            .productinfo p {
+                font-size: 14px;
+                color: #777;
+                margin-bottom: 10px;
             }
 
-            .category-button {
-                background: none;       /* Bỏ màu nền */
-                border: none;           /* Bỏ viền */
-                padding: 0;             /* Bỏ khoảng đệm */
-                margin: 0;              /* Bỏ margin */
-                font: inherit;          /* Kế thừa toàn bộ font-family/ font-size/ font-weight từ h4 */
-                color: inherit;         /* Kế thừa màu chữ từ h4 */
-                cursor: pointer;        /* Vẫn hiện con trỏ tay khi hover */
-                text-align: inherit;    /* Kế thừa canh lề (nếu cần) */
-                display: inline;        /* Giữ nguyên kiểu inline để không giãn block */
-                text-decoration: none;  /* Bỏ gạch chân (nếu có) */
+            .productinfo button.add-to-cart {
+                background-color: #28a745;
+                color: white;
+                border: none;
+                padding: 8px 14px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: background-color 0.2s;
             }
 
-            .category-button:hover {
-                text-decoration: underline; /* Hoặc đổi màu, tuỳ thích */
+            .productinfo button.add-to-cart:hover {
+                background-color: #218838;
             }
 
-            /* Chỉ ví dụ highlight category đang chọn */
-            .selected-category h4 .category-button {
+            .most-sell-arrow {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                background: transparent;      /* Bỏ nền */
+                color: #333;                  /* Màu chữ chính */
+                border: none;                 /* Bỏ viền */
+                padding: 0 8px;               /* Nhỏ gọn ngang */
+                font-size: 22px;              /* Cỡ chữ vừa phải */
                 font-weight: bold;
-                color: #d35400;
+                cursor: pointer;
+                z-index: 10;
+                line-height: 1;
             }
+
+            .most-sell-arrow:hover {
+                color: orange;                /* Đổi màu khi hover */
+            }
+
+            .most-sell-arrow.left {
+                left: -5px;                   /* Căn chỉnh vị trí trái */
+            }
+
+            .most-sell-arrow.right {
+                right: -5px;                  /* Căn chỉnh vị trí phải */
+            }
+
         </style>
+
     </head><!--/head-->
     <body>
         <jsp:include page="/ZeShopper/header.jsp"/>
@@ -349,7 +340,7 @@
                         <div class="left-sidebar">
                             <div class="container" style="margin-bottom: 20px;">
                                 <!-- Dòng chứa các category -->
-                                 <div class="row" style="
+                                <div class="row" style="
                                      display: flex;
                                      flex-wrap: wrap;
                                      justify-content: flex-start;
@@ -379,20 +370,14 @@
                                         <!-- Mỗi category chiếm 3/12 = 4 cột trên màn hình md+, 6/12 = 2 cột trên xs -->
                                         <div class="col-xs-6 col-sm-3 text-center mb-4">
                                             <!-- Link dẫn tới trang xử lý danh mục, truyền categoryId -->
-                                            <a href="${pageContext.request.contextPath}/product?categoryId=${category.categoryId}" class="text-decoration-none">
-                                                <!-- Ảnh category -->
-                                                <img 
-                                                    src="#" 
-                                                    alt="${category.categoryName}" 
-                                                    class="img-responsive center-block" 
-                                                    style="max-width:100%; height:auto; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+                                            <a href="${pageContext.request.contextPath}/product?categoryId=${category.categoryId}" class="text-decoration-none">                                             
                                                 <!-- Tên category -->
-                                                <h5 class="mt-2" style="color:#555;">${category.categoryName}</h5>
+                                                <h5 class="mt-2" style="color:#555; font-size: large;">${category.categoryName}</h5>
                                             </a>
                                         </div>
                                     </c:forEach>
                                 </div>
-                                
+
                                 <!-- Dòng chứa các Flower -->
                                 <div class="row" style="
                                      display: flex;
@@ -434,10 +419,10 @@
                                             text-align: center;
                                             display: ${status.index < 5 ? 'block' : 'none'};
                                             ">
-                                            <a href="${pageContext.request.contextPath}/product?flowerID=${flower.getRawId()}" class="text-decoration-none">
+                                            <a href="${pageContext.request.contextPath}/product?flowerID=${flower.getFlowerId()}" class="text-decoration-none">
                                                 <img
-                                                    src="${flower.getImageUrl()}"
-                                                    alt="${flower.getRawName()}"
+                                                    src="${pageContext.request.contextPath}/upload/FlowerIMG/${flower.getImage()}"
+                                                    alt="${flower.getFlowerName()}"
                                                     style="
                                                     width: 150px;
                                                     height: 150px;
@@ -448,7 +433,7 @@
                                                     margin: 0 auto 8px;
                                                     ">
                                                 <h5 style="color: #555; margin: 0;">
-                                                    ${flower.getRawName()}
+                                                    ${flower.getFlowerName()}
                                                 </h5>
                                             </a>
                                         </div>
@@ -489,214 +474,223 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Price range -->    
-                            <!--                                <h2 style="text-align: center;">Price Range</h2>   
-                                                            <div style="text-align: center; padding: 20px; border: 1px solid #ccc; border-radius: 10px;">
-                                                                 Min 
-                                                                <label for="minPrice" style="display: block; margin-bottom: 5px;">Min Price</label>
-                                                                <input
-                                                                    type="range"
-                                                                    id="minPrice"
-                                                                    name="minPrice"
-                                                                    min="0"
-                                                                    max="2000000"
-                                                                    step="1000"
-                                                                    value="${minPrice != null ? minPrice : 0}"
-                                                                    oninput="this.nextElementSibling.value = this.value"
-                                                                    style="width: 80%; accent-color: orange; margin-bottom: 5px;"
-                                                                    >
-                                                                <output style="display: block; margin-bottom: 15px;">${minPrice != null ? minPrice : 0}</output>
-                            
-                                                                 Max 
-                                                                <label for="maxPrice" style="display: block; margin-bottom: 5px;">Max Price</label>
-                                                                <input
-                                                                    type="range"
-                                                                    id="maxPrice"
-                                                                    name="maxPrice"
-                                                                    min="0"
-                                                                    max="2000000"
-                                                                    step="1000"
-                                                                    value="${maxPrice != null ? maxPrice : 2000000}"
-                                                                    oninput="this.nextElementSibling.value = this.value"
-                                                                    style="width: 80%; accent-color: orange; margin-bottom: 5px;"
-                                                                    >
-                                                                <output style="display: block; margin-bottom: 20px;"> ${maxPrice != null ? maxPrice : 2000000}</output>
-                            
-                                                                 Error Message 
-                                                                <div id="error" style="color: red; margin-bottom: 10px;"></div>
-                            
-                                                                 Submit 
-                                                                <input
-                                                                    type="submit"
-                                                                    value="Submit"
-                                                                    style="background-color: orange; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;"
-                                                                    >                                 
-                                                                 Price range end 
-                                                                </form>
-                                                            </div>-->
-
                         </div>
-                    </div>
+                        <!-- Popup giữ nguyên chức năng -->
+                        <div id="popup" class="popup-overlay" style="display:none;">
+                            <div class="popup-content">
+                                <span class="close-btn" onclick="closePopup()">&times;</span>
+                                <form id="addToCartForm">
+                                    <h3 id="popup-name"></h3>
+                                    <img id="popup-image" src="" alt="" class="popup-img">
+                                    <p id="popup-price" class="popup-price"></p>
+                                    <p id="popup-description" class="popup-description"></p>
+                                    <label class="popup-label">Quantity:</label>
+                                    <input id="popup-quantity" type="number" name="quantity" value="1" min="1" required class="popup-input">
+                                    <input type="hidden" name="bouquetId" id="popup-id">
+                                    <div class="popup-buttons">
+                                        <button type="submit" class="popup-btn">Add to Cart</button>
+                                        <button type="button" onclick="closePopup()" class="popup-btn cancel">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
 
-                    <!--                        <div class="col-sm-9 padding-right">
-                                                <div class="features_items">features_items
-                                                    <h2 class="title text-center">Features Items</h2>
-                    
-                    <c:forEach items="${requestScope.listBouquetHome}" var="lb" begin="0" end="5">
-                        <div class="col-sm-4">
-                            <div class="product-image-wrapper">
-                                <div class="single-products">
-                                    <div class="productinfo text-center">
-                                        <img src="#" alt="" />
-                                        <h2><a href="${pageContext.request.contextPath}/productDetail?id=${lb.getBouquetId()}">${lb.getBouquetName()}</a></h2>
-                                        <p>Price: ${lb.getPrice()}</p>
-                                        <button 
-                                            class="btn btn-default add-to-cart" 
-                                            onclick="openPopup(
-                                                            '${lb.getBouquetId()}',
-                                                            '${lb.getBouquetName()}',
-                                                            '#',
-                                                            '${lb.getPrice()}'
-                                                            )">
-                                            <i class="fa fa-shopping-cart"></i> Add to cart
-                                        </button>
+                        <!-- Most Sell -->
+                        <div>
+                            <div class="col-sm-3">
+                                <div class="left-sidebar">
+                                    <div class="container" style="margin-bottom: 20px;">
+                                        <div class="most-sell-container">
+                                            <div style="
+                                                 display: flex;
+                                                 align-items: center;
+                                                 width: 100%;
+                                                 margin-bottom: 16px;
+                                                 ">
+                                                <hr style="flex:1; border:0; border-top:1px solid #ccc; margin:0;" />
+                                                <i class="fa fa-star" aria-hidden="true" style="margin:0 8px; color:#888;"></i>
+                                                <span style="
+                                                      font-size: 20px;
+                                                      font-weight: bold;
+                                                      color: #444;
+                                                      text-transform: uppercase;
+                                                      ">
+                                                    Most Product Sell
+                                                </span>
+                                                <hr style="flex:1; border:0; border-top:1px solid #ccc; margin:0;" />
+                                            </div>
+
+                                            <!-- Mũi tên điều hướng -->
+                                            <button class="most-sell-arrow left" onclick="scrollMostSell(-1)">&#10094;</button>
+                                            <button class="most-sell-arrow right" onclick="scrollMostSell(1)">&#10095;</button>
+
+                                            <!-- Danh sách sản phẩm Most Sell -->
+                                            <div class="most-sell-row" id="mostSellRow">
+                                                <c:forEach items="${requestScope.listMostSellBouquet}" var="lb">
+                                                    <div class="most-sell-item">
+                                                        <div class="product-image-wrapper">
+                                                            <div class="single-products">
+                                                                <div class="productinfo text-center">
+                                                                    <c:set var="imageShown" value="false" />
+                                                                    <c:forEach items="${images}" var="img">
+                                                                        <c:if test="${!imageShown and lb.getBouquetId() == img.getbouquetId()}">
+                                                                            <img
+                                                                                src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}"
+                                                                                alt="${lb.getBouquetName()}"
+                                                                                style="width: 100%; height: 180px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;" />
+                                                                            <c:set var="imageShown" value="true" />
+                                                                        </c:if>
+                                                                    </c:forEach>
+
+                                                                    <h2 style="font-size: 16px; margin-bottom: 8px;">
+                                                                        <a href="${pageContext.request.contextPath}/productDetail?id=${lb.getBouquetId()}"
+                                                                           style="color: #333; text-decoration: none;">
+                                                                            ${lb.getBouquetName()}
+                                                                        </a>
+                                                                    </h2>
+
+                                                                    <p style="margin-bottom: 10px;">Price: ${lb.getSellPrice()} VND</p>
+
+                                                                    <button type="button"
+                                                                            class="btn btn-default add-to-cart"
+                                                                            <c:forEach items="${images}" var="cimg">
+                                                                                <c:if test="${lb.getBouquetId() == cimg.getbouquetId()}">
+                                                                                    onclick="openPopup(
+                                                                                                    '${lb.getBouquetId()}',
+                                                                                                    '${lb.getBouquetName()}',
+                                                                                                    '${pageContext.request.contextPath}/upload/BouquetIMG/${cimg.getImage_url()}',
+                                                                                                                    '${lb.getPrice()}')"
+                                                                                </c:if>
+                                                                            </c:forEach>
+                                                                            style="background-color: #5cb85c; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">
+                                                                        <i class="fa fa-shopping-cart" aria-hidden="true"></i> Add to cart
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </c:forEach>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </c:forEach>
-
-                </div>
-
-            </div>  -->
-
-                        <!--<a href="${pageContext.request.contextPath}/product" class="active" style="margin-left: 700px; font-size: 15px; text-decoration: underline; margin-bottom: 10px;">View more Products&nbsp;&rarr;</a>-->
-
-                </div><!--features_items-->
-                <!--                    <div id="popup" class="popup-overlay" style="display:none;">
-                                        <div class="popup-content">
-                                            <span class="close-btn" onclick="closePopup()">&times;</span>
-                                            <form id="addToCartForm">
-                                                <h3 id="popup-name"></h3>
-                                                <img id="popup-image" src="" alt="" class="popup-img">
-                                                <p id="popup-price" class="popup-price"></p>
-                                                <p id="popup-description" class="popup-description"></p>
-                
-                                                <label class="popup-label">Quantity:</label>
-                                                <input id="popup-quantity" type="number" name="quantity" value="1" min="1" required class="popup-input">
-                
-                                                <input type="hidden" name="bouquetId" id="popup-id">
-                                                <div class="popup-buttons">
-                                                    <button type="submit" class="popup-btn">Add to Cart</button>
-                                                    <button type="button" onclick="closePopup()" class="popup-btn cancel">Cancel</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>-->
-        </div>
-        <!--                    </div>
-                            </div>-->
-    </section>
-
-    <jsp:include page="/ZeShopper/footer.jsp"/>
+                    </div>
+                </div>    
+            </section>
 
 
-    <!--<div id="success-popup" class="success-toast">Added to cart successfully!</div>-->
+            <jsp:include page="/ZeShopper/footer.jsp"/>
+            <div id="success-popup" class="success-toast">Added to cart successfully!</div>
 
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var btnMore = document.getElementById('viewMoreFlowers');
+                    var btnLess = document.getElementById('showLessFlowers');
+                    var items = document.querySelectorAll('.flower-item');
 
-    <!--                <script>
-                        function openPopup(id, name, imageUrl, price, description) {
-                            document.getElementById("popup-id").value = id;
-                            document.getElementById("popup-name").textContent = name;
-                            document.getElementById("popup-image").src = imageUrl;
-                            document.getElementById("popup-price").textContent = "Price: " + price;
-                            document.getElementById("popup-description").textContent = description;
-                            document.getElementById("popup").style.display = "flex";
-                        }
-    
-                        function closePopup() {
-                            document.getElementById("popup").style.display = "none";
-                            document.getElementById("popup-quantity").value = 1;
-                        }
-                    </script>-->
+                    // Hiển thị toàn bộ
+                    btnMore.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        items.forEach(function (el) {
+                            el.style.display = 'block';
+                        });
+                        btnMore.style.display = 'none';
+                        btnLess.style.display = 'inline-block';
+                    });
 
-
-    <script>
-//                    document.getElementById("addToCartForm").addEventListener("submit", function (e) {
-//                        e.preventDefault(); // Ngăn form reload
-//
-//                        const bouquetId = document.getElementById("popup-id").value;
-//                        const quantity = document.getElementById("popup-quantity").value;
-//
-//                        const formData = new URLSearchParams();
-//                        formData.append("action", "add");
-//                        formData.append("bouquetId", bouquetId);
-//                        formData.append("quantity", quantity);
-//
-//                        fetch("ZeShopper/cart", {
-//                            method: "POST",
-//                            headers: {
-//                                "Content-Type": "application/x-www-form-urlencoded"
-//                            },
-//                            body: formData.toString()
-//                        })
-//                                .then(res => res.json())
-//                                .then(data => {
-//                                    if (data.status === "added") {
-//                                        closePopup(); // Đóng popup sau khi thêm
-//
-//                                        showSuccessPopup("Added to cart successfully!");
-//                                    } else {
-//                                        alert("Error: " + data.status);
-//                                    }
-//                                })
-//                                .catch(err => {
-//                                    console.error("Error adding to cart:", err);
-//                                    alert("Something went wrong.");
-//                                });
-//                    });
-//
-//                    function showSuccessPopup(message) {
-//                        const successBox = document.getElementById("success-popup");
-//                        successBox.innerText = message;
-//                        successBox.style.display = "block";
-//
-//                        // Ẩn sau 3 giây
-//                        setTimeout(() => {
-//                            successBox.style.display = "none";
-//                        }, 3000);
-//                    }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            var btnMore = document.getElementById('viewMoreFlowers');
-            var btnLess = document.getElementById('showLessFlowers');
-            var items = document.querySelectorAll('.flower-item');
-
-            // Hiển thị toàn bộ
-            btnMore.addEventListener('click', function (e) {
-                e.preventDefault();
-                items.forEach(function (el) {
-                    el.style.display = 'block';
+                    // Thu gọn lại 5 đầu
+                    btnLess.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        items.forEach(function (el) {
+                            var idx = parseInt(el.getAttribute('data-index'), 10);
+                            el.style.display = (idx < 5 ? 'block' : 'none');
+                        });
+                        btnLess.style.display = 'none';
+                        btnMore.style.display = 'inline-block';
+                        // scroll lên đầu grid nếu cần
+                        // btnMore.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    });
                 });
-                btnMore.style.display = 'none';
-                btnLess.style.display = 'inline-block';
-            });
+            </script>
 
-            // Thu gọn lại 5 đầu
-            btnLess.addEventListener('click', function (e) {
-                e.preventDefault();
-                items.forEach(function (el) {
-                    var idx = parseInt(el.getAttribute('data-index'), 10);
-                    el.style.display = (idx < 5 ? 'block' : 'none');
+            <script>
+                function openPopup(id, name, imageUrl, price, description) {
+                    document.getElementById("popup-id").value = id;
+                    document.getElementById("popup-name").textContent = name;
+                    document.getElementById("popup-image").src = imageUrl;
+                    document.getElementById("popup-price").textContent = "Price: " + price + " VND";
+                    document.getElementById("popup-description").textContent = description;
+                    document.getElementById("popup").style.display = "flex";
+                }
+
+                function closePopup() {
+                    document.getElementById("popup").style.display = "none";
+                    document.getElementById("popup-quantity").value = 1;
+                }
+            </script>
+            <script>
+                document.getElementById("addToCartForm").addEventListener("submit", function (e) {
+                    e.preventDefault(); // Ngăn form reload
+
+                    const bouquetId = document.getElementById("popup-id").value;
+                    const quantity = document.getElementById("popup-quantity").value;
+
+                    const formData = new URLSearchParams();
+                    formData.append("action", "add");
+                    formData.append("bouquetId", bouquetId);
+                    formData.append("quantity", quantity);
+
+                    for (const [key, value] of formData.entries()) {
+                        console.log(key, `:`, value);
+                    }
+
+                    fetch("${pageContext.request.contextPath}/ZeShopper/cart", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: formData.toString()
+                    })
+                            .then(res => res.json())
+                            .then(data => {
+                                console.log(data)
+                                if (data.status === "added") {
+                                    closePopup(); // Đóng popup sau khi thêm
+
+                                    showSuccessPopup("Added to cart successfully!");
+                                } else {
+                                    alert("Error: " + data.status);
+                                }
+                            })
+                            .catch(err => {
+                                console.error("Error adding to cart:", err);
+                                alert("Something went wrong.");
+                            });
                 });
-                btnLess.style.display = 'none';
-                btnMore.style.display = 'inline-block';
-                // scroll lên đầu grid nếu cần
-                // btnMore.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            });
-        });
-    </script>
 
-</body>
+                function showSuccessPopup(message) {
+                    const successBox = document.getElementById("success-popup");
+                    successBox.innerText = message;
+                    successBox.style.display = "block";
+
+                    // Ẩn sau 3 giây
+                    setTimeout(() => {
+                        successBox.style.display = "none";
+                    }, 3000);
+                }
+            </script>
+            <script>
+                function scrollMostSell(direction) {
+                    const row = document.getElementById('mostSellRow');
+                    const scrollAmount = 270; // bằng độ rộng mỗi item + gap
+                    row.scrollBy({
+                        left: direction * scrollAmount,
+                        behavior: 'smooth'
+                    });
+                }
+            </script>
+
+    </body>
 </html>

@@ -433,7 +433,7 @@
 
                                                             <!-- Giá (màu xám) -->
                                                             <p class="product-card__price">
-                                                                Price: ${lb.getPrice()} VND
+                                                                Price: ${lb.getSellPrice()} VND
                                                             </p>
 
                                                             <!-- Nút Add to cart (full-width) -->

@@ -1136,29 +1136,67 @@ public class OrderDAO extends BaseDao {
         return listRequest;
     }
 
-    public List<RequestDisplay> gettAllRequestList() {
+    public List<RequestDisplay> gettAllRequestList(String flowerName, Date requesFlowerDate, Date confirmRequestDate, String status) {
         List<RequestDisplay> list = new ArrayList<>();
 
-        String sql = "SELECT \n"
+        StringBuilder sql = new StringBuilder(
+                "SELECT \n"
                 + "    rf.Order_ID,\n"
                 + "    rf.Order_Item_ID,\n"
                 + "    GROUP_CONCAT(ft.Flower_Name SEPARATOR ', ') AS Flower_Names,\n"
                 + "    ANY_VALUE(rf.Request_Creation_Date) AS Request_Date,\n"
                 + "    MAX(rf.Request_Confirmation_Date) AS Confirm_Date,\n"
                 + "    CASE\n"
-                + "    WHEN SUM(rf.Status = 'reject') > 0 THEN 'reject'\n"
-                + "    WHEN SUM(rf.Status = 'done') > 0 AND SUM(rf.Status = 'pending') > 0 THEN 'doing'\n"
-                + "    WHEN SUM(rf.Status = 'pending') > 0 THEN 'pending'\n"
-                + "    WHEN SUM(rf.Status = 'done') = COUNT(*) THEN 'done'\n"
-                + "    ELSE 'unknown'\n"
+                + "        WHEN SUM(rf.Status = 'reject') > 0 THEN 'reject'\n"
+                + "        WHEN SUM(rf.Status = 'done') > 0 AND SUM(rf.Status = 'pending') > 0 THEN 'doing'\n"
+                + "        WHEN SUM(rf.Status = 'pending') > 0 THEN 'pending'\n"
+                + "        WHEN SUM(rf.Status = 'done') = COUNT(*) THEN 'done'\n"
+                + "        ELSE 'unknown'\n"
                 + "    END AS Status\n"
                 + "FROM requestflower rf\n"
-                + "JOIN flower_type ft ON rf.Flower_ID = ft.Flower_ID\n"
-                + "GROUP BY rf.Order_ID, rf.Order_Item_ID;";
+                + "JOIN flower_type ft ON rf.Flower_ID = ft.Flower_ID"
+        );
+
+        // Build dynamic WHERE clause
+        List<String> conditions = new ArrayList<>();
+        if (flowerName != null && !flowerName.trim().isEmpty()) {
+            conditions.add("ft.Flower_Name LIKE ?");
+        }
+        if (requesFlowerDate != null) {
+            conditions.add("rf.Request_Creation_Date = ?");
+        }
+        if (confirmRequestDate != null) {
+            conditions.add("rf.Request_Confirmation_Date = ?");
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            conditions.add("rf.Status = ?");
+        }
+
+        if (!conditions.isEmpty()) {
+            sql.append(" WHERE ").append(String.join(" AND ", conditions));
+        }
+
+        sql.append(" GROUP BY rf.Order_ID, rf.Order_Item_ID;");
 
         try {
             connection = dbc.getConnection();
-            ps = connection.prepareStatement(sql);
+            ps = connection.prepareStatement(sql.toString());
+
+            // Set parameters
+            int paramIndex = 1;
+            if (flowerName != null && !flowerName.trim().isEmpty()) {
+                ps.setString(paramIndex++, "%" + flowerName + "%");
+            }
+            if (requesFlowerDate != null) {
+                ps.setDate(paramIndex++, new java.sql.Date(requesFlowerDate.getTime()));
+            }
+            if (confirmRequestDate != null) {
+                ps.setDate(paramIndex++, new java.sql.Date(confirmRequestDate.getTime()));
+            }
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(paramIndex++, status);
+            }
+
             rs = ps.executeQuery();
             while (rs.next()) {
                 int orderId = rs.getInt("Order_ID");
@@ -1167,9 +1205,9 @@ public class OrderDAO extends BaseDao {
                 LocalDate requestDate = rs.getDate("Request_Date").toLocalDate();
                 java.sql.Date sqlConfirmDate = rs.getDate("Confirm_Date");
                 LocalDate confirmDate = (sqlConfirmDate != null) ? sqlConfirmDate.toLocalDate() : null;
-                String status = rs.getString("Status");
+                String resultStatus = rs.getString("Status");
 
-                RequestDisplay rd = new RequestDisplay(orderId, orderItemId, flowerNames, requestDate, confirmDate, status);
+                RequestDisplay rd = new RequestDisplay(orderId, orderItemId, flowerNames, requestDate, confirmDate, resultStatus);
                 list.add(rd);
             }
         } catch (SQLException e) {
@@ -1180,6 +1218,7 @@ public class OrderDAO extends BaseDao {
             } catch (Exception e) {
             }
         }
+
         return list;
     }
 

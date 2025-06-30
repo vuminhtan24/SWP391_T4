@@ -6,6 +6,7 @@ package controller;
 
 import dal.BouquetDAO;
 import dal.CategoryDAO;
+import dal.FlowerTypeDAO;
 import dal.RawFlowerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -17,7 +18,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import model.Bouquet;
+import model.BouquetImage;
 import model.Category;
+import model.FlowerType;
 import model.RawFlower;
 
 /**
@@ -67,18 +70,23 @@ public class HomeController extends HttpServlet {
             throws ServletException, IOException {
         List<Bouquet> listBouquet = new ArrayList<>();
         List<Category> listCategoryBQ = new ArrayList<>();
-        List<RawFlower> listFlower = new ArrayList<>();
+        List<FlowerType> listFlower = new ArrayList<>();
+        List<Bouquet> listMostSellBouquet = new ArrayList<>();
         
         BouquetDAO bdao = new BouquetDAO();
         CategoryDAO cdao = new CategoryDAO();
-        RawFlowerDAO fdao = new RawFlowerDAO();
+        FlowerTypeDAO fdao = new FlowerTypeDAO();
 
-        listFlower = fdao.getAll();
+        listFlower = fdao.getAllFlowerTypes();
         request.setAttribute("listFlowerHome", listFlower);
 
         listBouquet = bdao.getAll();
         listCategoryBQ = cdao.getBouquetCategory();
-
+        listMostSellBouquet = bdao.getMostSellBouquet();
+        List<BouquetImage> images = bdao.getAllBouquetImage();
+        
+        request.setAttribute("images", images);
+        request.setAttribute("listMostSellBouquet", listMostSellBouquet);
         request.setAttribute("listBouquetHome", listBouquet);
         request.setAttribute("cateBouquetHome", listCategoryBQ);
         request.getRequestDispatcher("./ZeShopper/home.jsp").forward(request, response);
