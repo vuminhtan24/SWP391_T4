@@ -71,7 +71,7 @@
                                 <div class="dropdown-item text-center">Không có thông báo mới</div>
                             </c:when>
                             <c:otherwise>
-                                <c:forEach var="notification" items="${notifications}">
+                                <c:forEach var="notification" items="${notifications}" begin="0" end="5">
                                     <a href="#" class="dropdown-item" onclick="markAsRead(${notification.notificationId})">
                                         <div class="d-flex align-items-center">
                                             <div class="ms-2">
@@ -82,9 +82,9 @@
                                     </a>
                                     <hr class="dropdown-divider">
                                 </c:forEach>
+                                <a href="${pageContext.request.contextPath}/notification" class="dropdown-item text-center">Xem tất cả thông báo</a>
                             </c:otherwise>
                         </c:choose>
-                        <a href="${pageContext.request.contextPath}/notification" class="dropdown-item text-center">Xem tất cả thông báo</a>
                     </div>
                 </div>
                 <div class="nav-item dropdown">
