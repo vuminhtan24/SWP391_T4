@@ -504,11 +504,37 @@ public class BouquetDAO extends BaseDao {
     }
 
     public boolean isFlowerInBouquet(int flowerId) {
-        String sql = "SELECT COUNT(*) FROM bouquet_raw WHERE raw_id = ?"; // Giả định bảng trung gian
+        String sql = "SELECT COUNT(*) \n"
+                + "FROM bouquet_raw b\n"
+                + "JOIN flower_batch f ON f.batch_id = b.batch_id\n"
+                + "WHERE f.flower_id = ?;"; // Giả định bảng trung gian
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setInt(1, flowerId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("BouquetDAO: Error in isFlowerInBouquet - " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return false;
+    }
+    
+    public boolean isBatchInBouquet(int batchId) {
+        String sql = "SELECT COUNT(*) \n"
+                + "FROM bouquet_raw \n"
+                + "WHERE batch_id = ?;"; // Giả định bảng trung gian
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, batchId);
             rs = ps.executeQuery();
             while (rs.next()) {
                 return rs.getInt(1) > 0;
@@ -570,6 +596,7 @@ public class BouquetDAO extends BaseDao {
         List<BouquetImage> big = dao.getBouquetImage(5);
 //        System.out.println(big);
         System.out.println(dao.getBouquetFullInfoById(1));
+        System.out.println(dao.isFlowerInBouquet(1));
 
     }
 

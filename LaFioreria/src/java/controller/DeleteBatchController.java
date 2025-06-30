@@ -3,6 +3,7 @@
  */
 package controller;
 
+import dal.BouquetDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -35,6 +36,14 @@ public class DeleteBatchController extends HttpServlet {
             int batchId = Integer.parseInt(batchIdStr);
             int flowerId = Integer.parseInt(flowerIdStr);
 
+            // Kiểm tra xem loại hoa có trong giỏ hoa không
+            BouquetDAO bouquetDAO = new BouquetDAO(); // Giả định có DAO cho bouquet
+            if (bouquetDAO.isBatchInBouquet(batchId)) {
+                session.setAttribute("error", "Cannot delete this batch. It is used in one or more bouquets. Please remove it from all bouquets first.");
+                response.sendRedirect(request.getContextPath() + "/rawFlowerDetails?flower_id=" + flowerId);
+                return;
+            }
+            
             // Call DAO to delete flower batch
             FlowerBatchDAO fbDAO = new FlowerBatchDAO();
             fbDAO.deleteFlowerBatch(batchId);
