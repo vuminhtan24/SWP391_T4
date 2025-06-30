@@ -1,18 +1,18 @@
-/*
- * Click nbproject/project.properties to edit this template
- */
 package controller;
 
 import dal.FlowerBatchDAO;
+import dal.WarehouseDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import model.FlowerBatch;
+import model.Warehouse;
 
 /**
  * Servlet để lấy danh sách lô hoa theo loại hoa dựa trên ID và render bảng.
@@ -20,23 +20,14 @@ import model.FlowerBatch;
 @WebServlet(name = "BatchController", urlPatterns = {"/batch"})
 public class BatchController extends HttpServlet {
 
-    /**
-     * Xử lý HTTP <code>GET</code> để lấy danh sách lô hoa và chuyển tiếp đến JSP fragment.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException nếu xảy ra lỗi servlet
-     * @throws IOException nếu xảy ra lỗi I/O
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try {
-            // Log để debug
             System.out.println("BatchController: Processing request for flower_id");
 
-            // Lấy tham số flower_id từ request
+            // Lấy tham số flower_id
             String flowerIdStr = request.getParameter("flower_id");
             if (flowerIdStr == null || flowerIdStr.trim().isEmpty()) {
                 request.setAttribute("error", "ID loại hoa không được cung cấp.");
@@ -44,7 +35,7 @@ public class BatchController extends HttpServlet {
                 return;
             }
 
-            // Chuyển đổi flower_id thành số nguyên
+            // Chuyển đổi flower_id
             int flowerId;
             try {
                 flowerId = Integer.parseInt(flowerIdStr);
@@ -57,7 +48,7 @@ public class BatchController extends HttpServlet {
                 return;
             }
 
-            // Get sort parameters
+            // Lấy tham số sort
             String sortField = request.getParameter("sortField");
             String sortDir = request.getParameter("sortDir");
             if (sortField == null || !sortField.matches("batchId|unitPrice|importDate|expirationDate|quantity")) {
@@ -67,11 +58,61 @@ public class BatchController extends HttpServlet {
                 sortDir = "asc";
             }
 
-            // Lấy danh sách lô hoa theo flower_id
+            // Lấy tham số lọc
+            String warehouseFilter = request.getParameter("warehouseFilter");
+            String statusFilter = request.getParameter("statusFilter");
+
+            // Kiểm tra tham số lọc
+            boolean hasWarehouse = (warehouseFilter != null && !warehouseFilter.trim().isEmpty());
+            boolean hasStatus = (statusFilter != null && !statusFilter.trim().isEmpty());
+
+            // Log để debug
+            System.out.println("Received flower_id: " + flowerId);
+            System.out.println("Received warehouseFilter: " + warehouseFilter);
+            System.out.println("Received statusFilter: " + statusFilter);
+
+            // Lấy danh sách lô hoa
             FlowerBatchDAO fbDAO = new FlowerBatchDAO();
             List<FlowerBatch> flowerBatches = fbDAO.getFlowerBatchesByFlowerId(flowerId);
 
-            // Sorting
+            System.out.println("Before filtering, size: " + flowerBatches.size());
+
+            // Lọc danh sách
+            if (hasWarehouse || hasStatus) {
+                String searchWarehouse = hasWarehouse ? warehouseFilter.trim() : null;
+                String searchStatus = hasStatus ? statusFilter.trim() : null;
+
+                flowerBatches = flowerBatches.stream()
+                        .filter(b -> {
+                            boolean matchWarehouse = !hasWarehouse || (b.getWarehouse() != null && b.getWarehouse().getName() != null
+                                    && b.getWarehouse().getName().equalsIgnoreCase(searchWarehouse));
+                            boolean matchStatus = !hasStatus || (b.getStatus() != null && b.getStatus().equalsIgnoreCase(searchStatus));
+                            return matchWarehouse && matchStatus;
+                        })
+                        .toList();
+                System.out.println("After filtering, size: " + flowerBatches.size());
+            }
+
+            // Phân trang
+            int pageSize = 6; // Số lô hoa mỗi trang
+            int currentPage = 1;
+            String pageParam = request.getParameter("page");
+            if (pageParam != null) {
+                try {
+                    currentPage = Integer.parseInt(pageParam);
+                } catch (NumberFormatException e) {
+                    currentPage = 1;
+                }
+            }
+
+            int totalItems = flowerBatches.size();
+            int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+
+            int start = (currentPage - 1) * pageSize;
+            int end = Math.min(start + pageSize, totalItems);
+            List<FlowerBatch> batchPage = totalItems > 0 ? flowerBatches.subList(start, end) : new ArrayList<>();
+
+            // Sắp xếp
             Comparator<FlowerBatch> cmp;
             switch (sortField) {
                 case "unitPrice":
@@ -93,31 +134,35 @@ public class BatchController extends HttpServlet {
             if ("desc".equalsIgnoreCase(sortDir)) {
                 cmp = cmp.reversed();
             }
-            flowerBatches.sort(cmp);
+            flowerBatches = flowerBatches.stream().sorted(cmp).toList();
+            batchPage = totalItems > 0 ? flowerBatches.subList(start, end) : new ArrayList<>();
+
+            // Lấy danh sách kho từ WarehouseDAO
+            WarehouseDAO warehouseDAO = new WarehouseDAO();
+            List<Warehouse> warehouses = warehouseDAO.getAllWarehouse();
+            if (warehouses == null || warehouses.isEmpty()) {
+                System.out.println("No warehouses found.");
+            }
 
             // Đặt thuộc tính cho JSP
-            request.setAttribute("flowerBatches", flowerBatches);
+            request.setAttribute("flowerBatches", batchPage);
+            request.setAttribute("warehouses", warehouses);
             request.setAttribute("sortField", sortField);
             request.setAttribute("sortDir", sortDir);
+            request.setAttribute("warehouseFilter", warehouseFilter);
+            request.setAttribute("statusFilter", statusFilter);
+            request.setAttribute("currentPage", currentPage);
+            request.setAttribute("totalPages", totalPages);
 
-            // Chuyển tiếp đến JSP fragment
+            // Chuyển tiếp đến JSP
             request.getRequestDispatcher("DashMin/flowerbatch.jsp").forward(request, response);
         } catch (Exception e) {
-            // Log lỗi chi tiết
             e.printStackTrace();
             request.setAttribute("error", "Đã xảy ra lỗi khi lấy danh sách lô hoa: " + e.getMessage());
             request.getRequestDispatcher("DashMin/flowerbatch.jsp").forward(request, response);
         }
     }
 
-    /**
-     * Xử lý HTTP <code>POST</code>. Hiện tại không hỗ trợ POST.
-     *
-     * @param request  servlet request
-     * @param response servlet response
-     * @throws ServletException nếu xảy ra lỗi servlet
-     * @throws IOException      nếu xảy ra lỗi I/O
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -126,13 +171,8 @@ public class BatchController extends HttpServlet {
                 "Phương thức POST không được hỗ trợ cho danh sách lô hoa.");
     }
 
-    /**
-     * Trả về mô tả ngắn của servlet.
-     *
-     * @return Chuỗi chứa mô tả servlet
-     */
     @Override
     public String getServletInfo() {
-        return "Servlet để lấy danh sách lô hoa theo loại hoa dựa trên ID với chức năng sắp xếp.";
+        return "Servlet để lấy danh sách lô hoa theo loại hoa dựa trên ID với chức năng sắp xếp và lọc.";
     }
 }

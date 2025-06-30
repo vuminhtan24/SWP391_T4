@@ -316,6 +316,14 @@
                                             <td>${order.statusName}</td>
                                             <td>${order.shipperName != null ? order.shipperName : "Not Assigned"}</td>
                                             <td>
+                                                <c:choose>
+                                                    <c:when test="${order.paymentMethod == 'vietqr'}">Banking</c:when>
+                                                    <c:when test="${order.paymentMethod == 'cod'}">COD</c:when>
+                                                    <c:otherwise>Null</c:otherwise>
+                                                </c:choose>
+                                            </td>
+
+                                            <td>
                                                 <a class="btn btn-sm btn-primary"
                                                    href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}">Details</a>
                                                 <a class="btn btn-sm btn-info"

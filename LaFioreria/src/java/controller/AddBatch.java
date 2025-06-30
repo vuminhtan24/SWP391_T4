@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import dal.FlowerBatchDAO;
 import dal.OrderDAO;
@@ -115,9 +116,29 @@ public class AddBatch extends HttpServlet {
             String quantityError = Validate.validateNumberWithRange(quantityStr, "Quantity", 0, Integer.MAX_VALUE);
             String holdError = Validate.validateNumberWithRange(holdStr, "Hold", 0, Integer.MAX_VALUE);
             String warehouseIdError = Validate.validateWarehouseId(warehouseIdStr, whDAO);
+            // Check date relationship (import_date <= expiration_date)
+            String dateRelationError = null;
+            if (importDateError == null && expirationDateError == null) {
+                try {
+                    LocalDate importLocalDate = LocalDate.parse(importDate);
+                    LocalDate expirationLocalDate = LocalDate.parse(expirationDate);
+                    LocalDate today = LocalDate.now();
 
-            if (flowerIdError != null || unitPriceError != null || importDateError != null
-                    || expirationDateError != null || quantityError != null || holdError != null || warehouseIdError != null) {
+                    // Ngày nhập < hôm nay → lỗi
+                    if (importLocalDate.isBefore(today)) {
+                        dateRelationError = "Ngày nhập không được ở quá khứ.";
+                    } else if (!importLocalDate.isBefore(expirationLocalDate)) {
+                        dateRelationError = "Ngày nhập phải nhỏ hơn ngày hết hạn.";
+                    }
+                } catch (Exception e) {
+                    dateRelationError = "Lỗi định dạng ngày. Vui lòng kiểm tra lại.";
+                }
+            }
+
+            // Check for validation errors
+            if (flowerIdError != null || unitPriceError != null || importDateError != null ||
+                expirationDateError != null || quantityError != null || holdError != null ||
+                warehouseIdError != null || dateRelationError != null) {
                 // Retain form data
                 request.setAttribute("flowerId", flowerIdStr);
                 request.setAttribute("unit_price", unitPriceStr);
@@ -135,6 +156,7 @@ public class AddBatch extends HttpServlet {
                 request.setAttribute("quantityError", quantityError);
                 request.setAttribute("holdError", holdError);
                 request.setAttribute("warehouseIdError", warehouseIdError);
+                request.setAttribute("dateRelationError", dateRelationError);
 
                 // Reload warehouse list
                 List<Warehouse> warehouses = whDAO.getAllWarehouse();

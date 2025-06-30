@@ -59,6 +59,11 @@ public class UpdateRawFlower extends HttpServlet {
             // Validate các field
             String flowerNameError = Validate.validateLength(flowerName, "Tên loại hoa", 1, 45);
             String imageError = null;
+            
+            FlowerTypeDAO ftDAO = new FlowerTypeDAO();
+            if (flowerNameError == null && ftDAO.isFlowerNameExists(flowerName)) {
+                flowerNameError = "Flower type name already exists.";
+            }
 
             // Validate file ảnh nếu có upload
             if (filePart != null && filePart.getSize() > 0) {
@@ -81,7 +86,6 @@ public class UpdateRawFlower extends HttpServlet {
                 request.setAttribute("imageError", imageError);
                 request.setAttribute("showErrorPopup", true);
 
-                FlowerTypeDAO ftDAO = new FlowerTypeDAO();
                 request.setAttribute("item", ftDAO.getFlowerTypeById(Integer.parseInt(flowerIdStr)));
                 request.getRequestDispatcher("DashMin/updaterawflower.jsp").forward(request, response);
                 return;
@@ -97,7 +101,6 @@ public class UpdateRawFlower extends HttpServlet {
             int flowerId = Integer.parseInt(flowerIdStr);
 
             // Lấy thông tin hiện tại của FlowerType để giữ giá trị active
-            FlowerTypeDAO ftDAO = new FlowerTypeDAO();
             FlowerType currentFlowerType = ftDAO.getFlowerTypeById(flowerId);
             if (currentFlowerType == null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy loại hoa với ID " + flowerId);

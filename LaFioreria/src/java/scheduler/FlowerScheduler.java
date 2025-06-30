@@ -17,6 +17,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class FlowerScheduler extends BaseDao {
+
     public static void main(String[] args) {
         FlowerScheduler job = new FlowerScheduler();
 
@@ -29,7 +30,7 @@ public class FlowerScheduler extends BaseDao {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         // Chạy job mỗi 24 giờ (86400 giây)
-        scheduler.scheduleAtFixedRate(new FlowerScheduler()::checkFlowerBatches, 0, 120, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(new FlowerScheduler()::checkFlowerBatches, 0, 43200, TimeUnit.SECONDS);
 
     }
 
@@ -59,58 +60,60 @@ public class FlowerScheduler extends BaseDao {
 
             // 3. Tìm lô hoa gần hết hạn
             String findNearExpired = "SELECT batch_id, flower_id FROM flower_batch WHERE status = 'near_expired'";
-            ps = connection.prepareStatement(findNearExpired);
-            rs = ps.executeQuery();
+            try (PreparedStatement nearExpiredPs = connection.prepareStatement(findNearExpired); ResultSet nearExpiredRs = nearExpiredPs.executeQuery()) {
+                while (nearExpiredRs.next()) {
+                    int batchId = nearExpiredRs.getInt("batch_id"); // Sửa rs thành nearExpiredRs
+                    int flowerId = nearExpiredRs.getInt("flower_id");
+                    System.out.println("Lô hoa gần hết hạn: batch_id=" + batchId);
 
-            while (rs.next()) {
-                int batchId = rs.getInt("batch_id");
-                int flowerId = rs.getInt("flower_id");
-                System.out.println("Lô hoa gần hết hạn: batch_id=" + batchId);
+                    // 4. Tìm giỏ hoa chứa lô hoa gần hết hạn
+                    String findBouquets = "SELECT bouquet_id FROM bouquet_raw WHERE batch_id = ?";
+                    try (PreparedStatement bouquetsPs = connection.prepareStatement(findBouquets)) {
+                        bouquetsPs.setInt(1, batchId);
+                        try (ResultSet bouquetRs = bouquetsPs.executeQuery()) {
+                            while (bouquetRs.next()) {
+                                int bouquetId = bouquetRs.getInt("bouquet_id");
+                                System.out.println("Giỏ hoa " + bouquetId + " cần sửa vì chứa lô hoa: " + batchId);
 
-                // 4. Tìm giỏ hoa chứa lô hoa gần hết hạn
-                String findBouquets = "SELECT bouquet_id FROM bouquet_raw WHERE batch_id = ?";
-                ps = connection.prepareStatement(findBouquets);
-                ps.setInt(1, batchId);
-                ResultSet bouquetRs = ps.executeQuery();
+                                // 5. Cập nhật trạng thái giỏ hoa
+                                String updateBouquet = "UPDATE bouquet SET status = 'needs_repair' WHERE Bouquet_ID = ?";
+                                try (PreparedStatement updateBouquetPs = connection.prepareStatement(updateBouquet)) {
+                                    updateBouquetPs.setInt(1, bouquetId);
+                                    updateBouquetPs.executeUpdate();
+                                }
 
-                while (bouquetRs.next()) {
-                    int bouquetId = bouquetRs.getInt("bouquet_id");
-                    System.out.println("Giỏ hoa " + bouquetId + " cần sửa vì chứa lô hoa: " + batchId);
+                                // 6. Kiểm tra xem đã có yêu cầu pending chưa
+                                String checkExistingOrder = "SELECT COUNT(*) FROM repair_orders WHERE bouquet_id = ? AND batch_id = ? AND status = 'pending'";
+                                try (PreparedStatement checkOrderPs = connection.prepareStatement(checkExistingOrder)) {
+                                    checkOrderPs.setInt(1, bouquetId);
+                                    checkOrderPs.setInt(2, batchId);
+                                    try (ResultSet checkRs = checkOrderPs.executeQuery()) {
+                                        checkRs.next();
+                                        int count = checkRs.getInt(1);
 
-                    // 5. Cập nhật trạng thái giỏ hoa
-                    String updateBouquet = "UPDATE bouquet SET status = 'needs_repair' WHERE Bouquet_ID = ?";
-                    ps = connection.prepareStatement(updateBouquet);
-                    ps.setInt(1, bouquetId);
-                    ps.executeUpdate();
+                                        if (count == 0) {
+                                            // Tạo lệnh sửa mới
+                                            String insertRepairOrder = "INSERT INTO repair_orders (bouquet_id, batch_id, reason) VALUES (?, ?, ?)";
+                                            try (PreparedStatement insertOrderPs = connection.prepareStatement(insertRepairOrder)) {
+                                                insertOrderPs.setInt(1, bouquetId);
+                                                insertOrderPs.setInt(2, batchId);
+                                                insertOrderPs.setString(3, "Giỏ hoa chứa lô hoa gần hết hạn: batch_id=" + batchId);
+                                                insertOrderPs.executeUpdate();
+                                                System.out.println("Đã tạo yêu cầu sửa mới cho bouquet_id=" + bouquetId + ", batch_id=" + batchId);
 
-                    // 6. Kiểm tra xem đã có yêu cầu pending chưa
-                    String checkExistingOrder = "SELECT COUNT(*) FROM repair_orders WHERE bouquet_id = ? AND batch_id = ? AND status = 'pending'";
-                    ps = connection.prepareStatement(checkExistingOrder);
-                    ps.setInt(1, bouquetId);
-                    ps.setInt(2, batchId);
-                    ResultSet checkRs = ps.executeQuery();
-                    checkRs.next();
-                    int count = checkRs.getInt(1);
-                    checkRs.close();
-
-                    if (count == 0) {
-                        // Tạo lệnh sửa mới
-                        String insertRepairOrder = "INSERT INTO repair_orders (bouquet_id, batch_id, reason) VALUES (?, ?, ?)";
-                        ps = connection.prepareStatement(insertRepairOrder);
-                        ps.setInt(1, bouquetId);
-                        ps.setInt(2, batchId);
-                        ps.setString(3, "Giỏ hoa chứa lô hoa gần hết hạn: batch_id=" + batchId);
-                        ps.executeUpdate();
-                        System.out.println("Đã tạo yêu cầu sửa mới cho bouquet_id=" + bouquetId + ", batch_id=" + batchId);
-
-                        // Gửi email thông báo cho admin
-                        sendEmailToAdmins(bouquetId, batchId);
-                        addNotification(bouquetId, batchId, "Giỏ hoa " + bouquetId + " cần sửa do lô hoa " + batchId + " gần hết hạn.");
-                    } else {
-                        System.out.println("Bỏ qua tạo yêu cầu sửa vì đã có yêu cầu pending cho bouquet_id=" + bouquetId + ", batch_id=" + batchId);
+                                                // Gửi email thông báo cho admin
+                                                sendEmailToAdmins(bouquetId, batchId);
+                                                addNotification(bouquetId, batchId, "Giỏ hoa " + bouquetId + " cần sửa do lô hoa " + batchId + " gần hết hạn.");
+                                            }
+                                        } else {
+                                            System.out.println("Bỏ qua tạo yêu cầu sửa vì đã có yêu cầu pending cho bouquet_id=" + bouquetId + ", batch_id=" + batchId);
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-                bouquetRs.close();
             }
 
             // 7. Cập nhật trạng thái lô hoa còn lại
@@ -119,10 +122,10 @@ public class FlowerScheduler extends BaseDao {
             ps.setString(1, currentDate);
             int freshRows = ps.executeUpdate();
             System.out.println("Đã cập nhật " + freshRows + " lô hoa thành fresh.");
-            
+
             // 8. Kiểm tra số lượng lô hoa và đơn hàng
             checkStockLevelsAndOrders();
-            
+
             System.out.println("Hoàn thành kiểm tra trạng thái lô hoa.");
         } catch (SQLException e) {
             System.err.println("SQLException: " + e.getMessage());
@@ -172,14 +175,14 @@ public class FlowerScheduler extends BaseDao {
                 message.setFrom(new InternetAddress(from));
                 message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
                 message.setSubject("Yêu cầu sửa giỏ hoa: Bouquet ID " + bouquetId);
-                message.setText("Kính gửi Admin,\n\n" +
-                        "Một yêu cầu sửa giỏ hoa đã được tạo:\n" +
-                        "- Giỏ hoa ID: " + bouquetId + "\n" +
-                        "- Lô hoa ID: " + batchId + "\n" +
-                        "- Lý do: Giỏ hoa chứa lô hoa gần hết hạn\n" +
-                        "- Thời gian: " + new Date() + "\n\n" +
-                        "Vui lòng kiểm tra và xử lý.\n" +
-                        "Trân trọng,\nHệ thống La Fioreria");
+                message.setText("Kính gửi Admin,\n\n"
+                        + "Một yêu cầu sửa giỏ hoa đã được tạo:\n"
+                        + "- Giỏ hoa ID: " + bouquetId + "\n"
+                        + "- Lô hoa ID: " + batchId + "\n"
+                        + "- Lý do: Giỏ hoa chứa lô hoa gần hết hạn\n"
+                        + "- Thời gian: " + new Date() + "\n\n"
+                        + "Vui lòng kiểm tra và xử lý.\n"
+                        + "Trân trọng,\nHệ thống La Fioreria");
 
                 Transport.send(message);
                 System.out.println("Đã gửi email thông báo đến: " + to);
@@ -189,18 +192,18 @@ public class FlowerScheduler extends BaseDao {
             }
         }
     }
-    
+
     private void checkStockLevelsAndOrders() throws SQLException {
         checkLowQuantityBatches();
         checkOrdersVsStock();
     }
 
     private void checkLowQuantityBatches() throws SQLException {
-        String checkLowQuantity = "SELECT b.batch_id, b.quantity, b.flower_id, t.flower_name " +
-                                "FROM flower_batch b " +
-                                "JOIN flower_type t ON t.flower_id = b.flower_id " +
-                                "WHERE b.quantity < 10 " +
-                                "ORDER BY b.batch_id, b.quantity, b.flower_id, t.flower_name";
+        String checkLowQuantity = "SELECT b.batch_id, b.quantity, b.flower_id, t.flower_name "
+                + "FROM flower_batch b "
+                + "JOIN flower_type t ON t.flower_id = b.flower_id "
+                + "WHERE b.quantity < 10 "
+                + "ORDER BY b.batch_id, b.quantity, b.flower_id, t.flower_name";
         try (PreparedStatement ps = connection.prepareStatement(checkLowQuantity); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 int batchId = rs.getInt("batch_id");
@@ -215,27 +218,27 @@ public class FlowerScheduler extends BaseDao {
     }
 
     private void checkOrdersVsStock() throws SQLException {
-        String checkOrdersVsStock = "SELECT b.Bouquet_ID, b.bouquet_name, need.total_needed, stock.total_stock, " +
-                                   "(stock.total_stock - need.total_needed) AS diff " +
-                                   "FROM bouquet b " +
-                                   "LEFT JOIN ( " +
-                                   "    SELECT oi.bouquet_id, SUM(oi.quantity * br.quantity) AS total_needed " +
-                                   "    FROM la_fioreria.order_item oi " +
-                                   "    JOIN bouquet_raw br ON oi.bouquet_id = br.bouquet_id " +
-                                   "    JOIN la_fioreria.`order` o ON oi.order_id = o.order_id " +
-                                   "    JOIN order_status s ON o.status_id = s.order_status_id " +
-                                   "    WHERE s.status_name = 'pending' " +
-                                   "    GROUP BY oi.bouquet_id " +
-                                   ") AS need ON need.bouquet_id = b.Bouquet_ID " +
-                                   "LEFT JOIN ( " +
-                                   "    SELECT br.bouquet_id, SUM(fb.quantity) AS total_stock " +
-                                   "    FROM bouquet_raw br " +
-                                   "    JOIN flower_batch fb ON fb.batch_id = br.batch_id " +
-                                   "    GROUP BY br.bouquet_id " +
-                                   ") AS stock ON stock.bouquet_id = b.Bouquet_ID " +
-                                   "WHERE need.total_needed IS NOT NULL " +
-                                   "HAVING diff < 0 " +
-                                   "ORDER BY diff ASC";
+        String checkOrdersVsStock = "SELECT b.Bouquet_ID, b.bouquet_name, need.total_needed, stock.total_stock, "
+                + "(stock.total_stock - need.total_needed) AS diff "
+                + "FROM bouquet b "
+                + "LEFT JOIN ( "
+                + "    SELECT oi.bouquet_id, SUM(oi.quantity * br.quantity) AS total_needed "
+                + "    FROM la_fioreria.order_item oi "
+                + "    JOIN bouquet_raw br ON oi.bouquet_id = br.bouquet_id "
+                + "    JOIN la_fioreria.`order` o ON oi.order_id = o.order_id "
+                + "    JOIN order_status s ON o.status_id = s.order_status_id "
+                + "    WHERE s.status_name = 'pending' "
+                + "    GROUP BY oi.bouquet_id "
+                + ") AS need ON need.bouquet_id = b.Bouquet_ID "
+                + "LEFT JOIN ( "
+                + "    SELECT br.bouquet_id, SUM(fb.quantity) AS total_stock "
+                + "    FROM bouquet_raw br "
+                + "    JOIN flower_batch fb ON fb.batch_id = br.batch_id "
+                + "    GROUP BY br.bouquet_id "
+                + ") AS stock ON stock.bouquet_id = b.Bouquet_ID "
+                + "WHERE need.total_needed IS NOT NULL "
+                + "HAVING diff < 0 "
+                + "ORDER BY diff ASC";
         try (PreparedStatement ps = connection.prepareStatement(checkOrdersVsStock); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 int bouquetId = rs.getInt("Bouquet_ID");
@@ -251,7 +254,7 @@ public class FlowerScheduler extends BaseDao {
             }
         }
     }
-    
+
     private void sendEmailToAdminsForStock(int batchId, int flowerId, String name, String reasonType) {
         String from = "hoang.trungkien2110@gmail.com";
         String password = "jnto tzhj pvvd fvfm";
@@ -279,14 +282,14 @@ public class FlowerScheduler extends BaseDao {
         String subject = "Yêu cầu nhập thêm lô hoa";
         String body = "Kính gửi Admin,\n\n";
         if ("low_quantity".equals(reasonType)) {
-            body += "Lô hoa ID " + batchId + " (" + name + ") có số lượng thấp.\n" +
-                    "Vui lòng nhập thêm lô hoa cho loại hoa ID " + flowerId + ".\n";
+            body += "Lô hoa ID " + batchId + " (" + name + ") có số lượng thấp.\n"
+                    + "Vui lòng nhập thêm lô hoa cho loại hoa ID " + flowerId + ".\n";
         } else if ("low_stock".equals(reasonType)) {
-            body += "Giỏ hoa " + name + " cần " + (reasonType.equals("low_stock") ? "thêm hoa" : "") + " vì số lượng đơn hàng vượt tồn kho.\n" +
-                    "Vui lòng nhập thêm lô hoa để đáp ứng nhu cầu.\n";
+            body += "Giỏ hoa " + name + " cần " + (reasonType.equals("low_stock") ? "thêm hoa" : "") + " vì số lượng đơn hàng vượt tồn kho.\n"
+                    + "Vui lòng nhập thêm lô hoa để đáp ứng nhu cầu.\n";
         }
-        body += "- Thời gian: " + new Date() + "\n\n" +
-                "Trân trọng,\nHệ thống La Fioreria";
+        body += "- Thời gian: " + new Date() + "\n\n"
+                + "Trân trọng,\nHệ thống La Fioreria";
 
         for (String to : adminEmails) {
             try {
@@ -308,7 +311,7 @@ public class FlowerScheduler extends BaseDao {
     private List<String> getAdminEmails() {
         List<String> emails = new ArrayList<>();
         String sql = "SELECT Email FROM user WHERE Role = 1 AND status = 'active'";
-        
+
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -322,10 +325,10 @@ public class FlowerScheduler extends BaseDao {
         } catch (SQLException e) {
             System.err.println("Lỗi lấy email admin: " + e.getMessage());
             e.printStackTrace();
-        }     
+        }
         return emails;
     }
-    
+
     private void addNotification(int bouquetId, int batchId, String message) throws SQLException {
         // Lấy user_id của admin (giả định lấy user_id đầu tiên làm đại diện)
         String getAdminId = "SELECT user_id FROM user WHERE Role = 1 AND status = 'active' LIMIT 1";
