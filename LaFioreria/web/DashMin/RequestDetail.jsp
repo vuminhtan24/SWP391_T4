@@ -156,6 +156,7 @@
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/repairOrders" class="dropdown-item">Repair Orders</a>
                                 <a href="${pageContext.request.contextPath}/repairHistory" class="dropdown-item">Repair History</a>
+                                <a href="${pageContext.request.contextPath}/listRequest" class="dropdown-item">List Request</a>
                             </div>
                         </div>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
@@ -271,7 +272,6 @@
                 <!-- List Request Start -->
                 <a href="${pageContext.request.contextPath}/listRequest">Back to Request List</a>
                 <div class="container">
-                    <p>${sessionScope.message}</p>
                     <h6 class="heading">Request Details</h6>
                     <p>Order ID: ${orderId}</p>
                     <p>Order Item ID: ${orderItemId}</p>
@@ -290,22 +290,42 @@
                             <c:forEach var="item" items="${listFlower}">
                                 <c:forEach var="names" items="${listFlowerType}">
                                     <c:if test="${item.getFlowerId() == names.getFlowerId()}">
-                                <tr>
-                                    <td>${item.getFlowerId()}</td>
-                                    <td>${names.getFlowerName()}</td>
-                                    <td>${item.getQuantity()}</td>
-                                    <td>${item.getStatus()}</td>
-                                    <td><button type="button"
-                                                onclick="location.href='${pageContext.request.contextPath}/add_batch?flower_id=${item.flowerId}'">
-                                            Add Flower
-                                        </button>
-                                        <button type="button">Reject</button></td>
-                                </tr>  
+                                        <tr>
+                                            <td>${item.getFlowerId()}</td>
+                                            <td>${names.getFlowerName()}</td>
+                                            <td>${item.getQuantity()}</td>
+                                            <td>${item.getStatus()}</td>
+                                            <td colspan="2">
+                                                <c:choose>
+                                                    <c:when test="${item.getStatus() == 'pending'}">
+                                                        <button type="button"
+                                                                onclick="location.href = '${pageContext.request.contextPath}/add_batch?flower_id=${item.flowerId}'"
+                                                                style="padding: 8px 16px; background-color: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
+                                                            Add Flower
+                                                        </button>
+
+                                                        <button type="button"
+                                                                style="padding: 8px 16px; background-color: #d32f2f; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; margin-left: 10px;">
+                                                            Reject
+                                                        </button>
+                                                    </c:when>
+
+                                                    <c:when test="${item.getStatus() == 'done'}">
+                                                        <span style="color: green; font-weight: bold;">You have complete this request</span>
+                                                    </c:when>
+
+                                                    <c:when test="${item.getStatus() == 'reject'}">
+                                                        <span style="color: red; font-weight: bold;">You have reject this request</span>
+                                                    </c:when>
+                                                </c:choose>
+                                            </td>
+                                        </tr>  
                                     </c:if>
                                 </c:forEach>
                             </c:forEach>
                         </tbody>   
                     </table>
+
                 </div>
 
                 <!-- List Request End -->
