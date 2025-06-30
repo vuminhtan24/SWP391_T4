@@ -203,9 +203,8 @@ public class CartDAO extends BaseDao {
     public int insertOrder(Order order) {
         int orderId = -1;
 
-        String sql = "INSERT INTO `order` (order_date, customer_id, customer_name, customer_phone, customer_address, total_sell, total_import, status_id) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
+        String sql = "INSERT INTO `order` (order_date, customer_id, customer_name, customer_phone, customer_address, total_sell, total_import, status_id, payment_method) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -224,6 +223,7 @@ public class CartDAO extends BaseDao {
             ps.setString(6, order.getTotalSell());
             ps.setString(7, order.getTotalImport());
             ps.setInt(8, 1);
+            ps.setString(9, order.getPaymentMethod());
 
             int rowsAffected = ps.executeUpdate();
 
