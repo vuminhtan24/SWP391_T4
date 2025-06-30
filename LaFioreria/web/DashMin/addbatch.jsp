@@ -120,6 +120,9 @@
                         <c:if test="${not empty expirationDateError}">
                             <div class="error">${expirationDateError}</div>
                         </c:if>
+                        <c:if test="${not empty dateRelationError}">
+                            <div class="error">${dateRelationError}</div>
+                        </c:if>
                     </div>
                     <div class="mb-3">
                         <label for="quantity" class="form-label">Quantity</label>
