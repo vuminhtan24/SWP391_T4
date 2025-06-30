@@ -122,8 +122,13 @@ public class UpdateBatchController extends HttpServlet {
                 try {
                     LocalDate importLocalDate = LocalDate.parse(importDate);
                     LocalDate expirationLocalDate = LocalDate.parse(expirationDate);
-                    if (importLocalDate.isAfter(expirationLocalDate)) {
-                        dateRelationError = "Ngày nhập phải nhỏ hơn hoặc bằng ngày hết hạn.";
+                    LocalDate today = LocalDate.now();
+
+                    // Ngày nhập < hôm nay → lỗi
+                    if (importLocalDate.isBefore(today)) {
+                        dateRelationError = "Ngày nhập không được ở quá khứ.";
+                    } else if (!importLocalDate.isBefore(expirationLocalDate)) {
+                        dateRelationError = "Ngày nhập phải nhỏ hơn ngày hết hạn.";
                     }
                 } catch (Exception e) {
                     dateRelationError = "Lỗi định dạng ngày. Vui lòng kiểm tra lại.";
