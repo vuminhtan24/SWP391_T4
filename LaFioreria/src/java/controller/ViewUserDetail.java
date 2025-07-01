@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import model.CustomerInfo;
 import model.EmployeeInfo;
@@ -121,159 +122,146 @@ public class ViewUserDetail extends HttpServlet {
             throws ServletException, IOException {
 
         String action = request.getParameter("ud");
-        System.out.println("ACTION RECEIVED = " + action); // log kiểm tra
+        System.out.println("ACTION RECEIVED = " + action);
 
         if (action == null || !action.equals("UPDATE")) {
             request.setAttribute("error", "Invalid action.");
-            request.getRequestDispatcher("/DashMin/viewUserDetail.jsp").forward(request, response);
+            request.getRequestDispatcher("DashMin/viewuserdetail.jsp").forward(request, response);
             return;
         }
 
+        // Lấy thông tin chung
         String id_raw = request.getParameter("id");
         String name_raw = request.getParameter("name");
         String password = request.getParameter("pass");
         String fullName = request.getParameter("FullName");
         String email = request.getParameter("email");
-        String phone_Number = request.getParameter("phone");
-        String Address = request.getParameter("address");
+        String phone = request.getParameter("phone");
+        String address = request.getParameter("address");
         String role_raw = request.getParameter("option");
+
+        // Thông tin phụ
+        String customerCode = request.getParameter("customerCode");
+        String joinDate = request.getParameter("joinDate");
+        String loyaltyPoint_raw = request.getParameter("loyaltyPoint");
+        String birthday = request.getParameter("birthday");
+        String gender = request.getParameter("gender");
+        String employeeCode = request.getParameter("employeeCode");
+        String contractType = request.getParameter("contractType");
+        String startDate_raw = request.getParameter("startDate");
+        String endDate_raw = request.getParameter("endDate");
+        String department = request.getParameter("department");
+        String position = request.getParameter("position");
 
         UserDAO ud = new UserDAO();
 
         try {
             int id = Integer.parseInt(id_raw);
-
             int role = 0;
-            switch (role_raw) {
-                case "Admin" ->
-                    role = 1;
-                case "Sales Manager" ->
-                    role = 2;
-                case "Seller" ->
-                    role = 3;
-                case "Marketer" ->
-                    role = 4;
-                case "Warehouse Staff" ->
-                    role = 5;
-                case "Guest" ->
-                    role = 6;
-                case "Customer" ->
-                    role = 7;
+            if (role_raw != null) {
+                role = switch (role_raw) {
+                    case "Admin" ->
+                        1;
+                    case "Sales Manager" ->
+                        2;
+                    case "Seller" ->
+                        3;
+                    case "Marketer" ->
+                        4;
+                    case "Warehouse Staff" ->
+                        5;
+                    case "Guest" ->
+                        6;
+                    case "Customer" ->
+                        7;
+                    default ->
+                        0;
+                };
             }
 
             boolean hasError = false;
 
             if (id <= 0) {
-                request.setAttribute("errorID", "ID must be a natural number greater than 0.");
+                request.setAttribute("errorID", "ID must be greater than 0.");
                 hasError = true;
             }
 
-            if (!phone_Number.matches("^(0)\\d{9}$")) {
-                request.setAttribute("errorPhone", "Phone must be 10 digits and start with 0.");
-                hasError = true;
-            }
-
-            if (!email.matches("^[a-zA-Z0-9._%+-]{3,}@[a-zA-Z0-9-]{2,}\\.[a-zA-Z]{2,}$")) {
-                request.setAttribute("errorEmail", "Email Invalid, Email form ...@...com/vn/..");
+            if (name_raw == null || !name_raw.matches("^[a-zA-Z0-9]{4,20}$")) {
+                request.setAttribute("errorName", "Name must be 4-20 alphanumeric characters.");
                 hasError = true;
             }
 
             String passwordStrength = "";
-            if (password.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$")) {
-                passwordStrength = "Mạnh";
-            } else if (password.matches("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$")) {
-                passwordStrength = "Trung bình";
-            } else if (password.matches("^[a-zA-Z0-9]{7,}$")) {
-                passwordStrength = "Yếu";
-            } else {
-                request.setAttribute("errorPass", "Password không hợp lệ. Tối thiểu 7 ký tự.");
+            if (password == null || !password.matches("^\\S{8,20}$")) {
+                request.setAttribute("errorPass", "Password must be 8-20 characters long and no spaces.");
                 hasError = true;
+            } else {
+                if (password.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,20}$")) {
+                    passwordStrength = "Strong";
+                } else if (password.matches("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,20}$")) {
+                    passwordStrength = "Medium";
+                } else {
+                    passwordStrength = "Weak";
+                }
             }
             request.setAttribute("passwordStrength", passwordStrength);
 
-            if (!fullName.matches("^[a-zA-Z\\s]{4,}$")) {
-                request.setAttribute("errorFullname", "Full name must be at least 4 characters and contain no digits.");
+            if (fullName == null || !fullName.matches("^(?!.*\\s{2})(?!\\s)(?!.*\\s$)[a-zA-ZÀ-ỹ\\s]{4,50}$")) {
+                request.setAttribute("errorFullname", "Full name must be 4-50 letters only, no double spaces.");
                 hasError = true;
             }
 
-            if (!name_raw.matches("^[a-zA-Z\\s]+$")) {
-                request.setAttribute("errorName", "Name must not contain digits.");
+            if (email == null || !email.matches("^(?=.{6,50}$)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z]{2,}$")) {
+                request.setAttribute("errorEmail", "Invalid email format.");
                 hasError = true;
             }
 
-            if (!Address.matches("^[a-zA-Z0-9\\s]+$")) {
-                request.setAttribute("errorAddress", "Address must contain only letters, digits, and spaces.");
+            if (phone == null || !phone.matches("^(03|05|07|08|09)\\d{8}$")) {
+                request.setAttribute("errorPhone", "Phone must be 10 digits starting with 03, 05, 07, 08, or 09.");
                 hasError = true;
             }
 
-            // Nếu có lỗi thì forward về lại trang edituserdetail.jsp
+            if (address == null || !address.matches("^(?!\\s)(?!.*\\s{2,})[a-zA-ZÀ-ỹ0-9,./\\-\\s]{5,100}(?<!\\s)$")) {
+                request.setAttribute("errorAddress", "Invalid address format.");
+                hasError = true;
+            }
+
             if (hasError) {
-                // Gán lại userManager để giữ dữ liệu form khi có lỗi
-                UserManager um = new UserManager();
-                um.setUserid(Integer.parseInt(id_raw));
-                um.setUsername(name_raw);
-                um.setPassword(password);
-                um.setFullname(fullName);
-                um.setEmail(email);
-                um.setPhone(phone_Number);
-                um.setAddress(Address);
-                um.setRole(role_raw); // Nếu role_raw là String, hoặc bạn có thể chuyển sang int như trước
+                // Gửi lại dữ liệu cho người dùng
+                request.setAttribute("userManager", new UserManager(id, name_raw, password, fullName, email, phone, address, role_raw));
 
-                request.setAttribute("userManager", um);  // Đây là bước quan trọng
+                if (role == 7) {
+                    int loyaltyPoint = parseIntSafe(loyaltyPoint_raw);
+                    CustomerInfo ci = new CustomerInfo(id, customerCode, joinDate, loyaltyPoint, birthday, gender);
+                    request.setAttribute("customerInfo", ci);
+                } else {
+                    LocalDate startDate = parseDateSafe(startDate_raw);
+                    LocalDate endDate = parseDateSafe(endDate_raw);
+                    EmployeeInfo ei = new EmployeeInfo(id, employeeCode, contractType, startDate, endDate, department, position);
+                    request.setAttribute("employeeInfo", ei);
+                }
 
-                // Truyền lại roleNames để dropdown hiển thị
-                List<String> roleNames = ud.getRoleNames();
-                request.setAttribute("roleNames", roleNames);
-
-                // Gửi lại trang với thông tin lỗi và dữ liệu form đã nhập
-                request.getRequestDispatcher("ZeShopper/viewUserDetail.jsp").forward(request, response);
+                request.setAttribute("roleNames", ud.getRoleNames());
+                request.getRequestDispatcher("DashMin/viewuserdetail.jsp").forward(request, response);
                 return;
             }
 
-            // Không có lỗi thì update
-            User u = new User(id, name_raw, password, fullName, email, phone_Number, Address, role);
-            ud.Update(u);
-            // Phân loại xử lý bảng phụ theo role
-            if (role == 7) { // Customer
-                String customerCode = request.getParameter("customerCode");
-                String joinDate = request.getParameter("joinDate");
-                String loyaltyPoint_raw = request.getParameter("loyaltyPoint");
-                String birthday = request.getParameter("birthday");
-                String gender = request.getParameter("gender");
+            User user = new User(id, name_raw, password, fullName, email, phone, address, role);
+            ud.Update(user);
 
-                int loyaltyPoint = (loyaltyPoint_raw != null && !loyaltyPoint_raw.isEmpty())
-                        ? Integer.parseInt(loyaltyPoint_raw)
-                        : 0;
-
-// Dùng constructor đúng theo model
+            if (role == 7) {
+                int loyaltyPoint = parseIntSafe(loyaltyPoint_raw);
                 CustomerInfo customer = new CustomerInfo(id, customerCode, joinDate, loyaltyPoint, birthday, gender);
-
                 CustomerDAO cd = new CustomerDAO();
                 if (cd.exist(id)) {
                     cd.update(customer);
                 } else {
                     cd.insert(customer);
                 }
-
-            } else { // Nhân viên
-                String employeeCode = request.getParameter("employeeCode");
-                String contractType = request.getParameter("contractType");
-
-                String startDate_raw = request.getParameter("startDate");
-                String endDate_raw = request.getParameter("endDate");
-
-                LocalDate startDate = (startDate_raw != null && !startDate_raw.isEmpty())
-                        ? LocalDate.parse(startDate_raw)
-                        : null;
-                LocalDate endDate = (endDate_raw != null && !endDate_raw.isEmpty())
-                        ? LocalDate.parse(endDate_raw)
-                        : null;
-
-                String department = request.getParameter("department");
-                String position = request.getParameter("position");
-
-                EmployeeInfo employee = new EmployeeInfo(id, employeeCode, contractType,
-                        startDate, endDate, department, position);
+            } else {
+                LocalDate startDate = parseDateSafe(startDate_raw);
+                LocalDate endDate = parseDateSafe(endDate_raw);
+                EmployeeInfo employee = new EmployeeInfo(id, employeeCode, contractType, startDate, endDate, department, position);
                 EmployeeDAO ed = new EmployeeDAO();
                 if (ed.exist(id)) {
                     ed.update(employee);
@@ -282,18 +270,29 @@ public class ViewUserDetail extends HttpServlet {
                 }
             }
 
-            // Sau khi cập nhật xong, redirect về lại trang chi tiết
             response.sendRedirect("viewuserdetail");
 
         } catch (NumberFormatException e) {
-            System.out.println("Lỗi định dạng ID: " + e.getMessage());
-
+            System.out.println("ID format error: " + e.getMessage());
             request.setAttribute("error", "Invalid input format.");
-
-            List<String> roleNames = ud.getRoleNames();
-            request.setAttribute("roleNames", roleNames);
-
+            request.setAttribute("roleNames", ud.getRoleNames());
             request.getRequestDispatcher("DashMin/viewuserdetail.jsp").forward(request, response);
+        }
+    }
+
+    private int parseIntSafe(String raw) {
+        try {
+            return (raw != null && !raw.isEmpty()) ? Integer.parseInt(raw) : 0;
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private LocalDate parseDateSafe(String raw) {
+        try {
+            return (raw != null && !raw.isEmpty()) ? LocalDate.parse(raw) : null;
+        } catch (DateTimeParseException e) {
+            return null;
         }
     }
 

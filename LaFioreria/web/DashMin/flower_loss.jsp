@@ -1,11 +1,17 @@
 <%-- 
-    Document   : blank
-    Created on : May 19, 2025, 2:34:20 PM
+    Document   : admin
+    Created on : May 19, 2025, 2:39:53 PM
     Author     : ADMIN
 --%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ page import="java.time.Year" %>
+<%@page import="model.StatResult"%>
+<%@page import="java.util.Map"%>
+<%@page import="java.util.List"%>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -16,7 +22,7 @@
         <meta content="" name="description">
 
         <!-- Favicon -->
-        <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
+        <link href="img/favicon.ico" rel="icon">
 
         <!-- Google Web Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,9 +33,12 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
-        <!-- Libraries Stylesheet -->
-        <link href="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-        <link href="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+        <!-- ✅ CDN: Owl Carousel Stylesheet -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+
+        <!-- ✅ CDN: Tempus Dominus Stylesheet -->
+        <link href="https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
 
         <!-- Customized Bootstrap Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/bootstrap.min.css" rel="stylesheet">
@@ -38,7 +47,18 @@
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
     </head>
 
+
     <body>
+        <%@ page import="model.User" %>
+        <%
+            User acc = (User) session.getAttribute("currentAcc");
+            if (acc == null || acc.getRole() != 1) {
+                response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet");
+                return;
+            }
+        %>
+
+
         <div class="container-fluid position-relative bg-white d-flex p-0">
             <!-- Spinner Start -->
             <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
@@ -52,16 +72,16 @@
             <!-- Sidebar Start -->
             <div class="sidebar pe-4 pb-3">
                 <nav class="navbar bg-light navbar-light">
-                    <a href="${pageContext.request.contextPath}/DashMin/admin.jsp" class="navbar-brand mx-4 mb-3">
-                        <h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>DASHMIN</h3>
+                    <a href="${pageContext.request.contextPath}/DashMin/admin" class="navbar-brand mx-4 mb-3">
+                        <h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>Lafioreria</h3>
                     </a>
                     <div class="d-flex align-items-center ms-4 mb-4">
                         <div class="position-relative">
-                            <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                            <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
                             <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
                         </div>
                         <div class="ms-3">
-                            <h6 class="mb-0">Jhon Doe</h6>
+                            <h6 class="mb-0">${sessionScope.currentAcc.username}</h6>
                             <span>Admin</span>
                         </div>
                     </div>
@@ -92,6 +112,8 @@
                             </div>
                         </div>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
+
+
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
@@ -103,7 +125,6 @@
                         </div>
                     </div>
                 </nav>
-                </nav>
             </div>
             <!-- Sidebar End -->
 
@@ -112,65 +133,52 @@
             <div class="content">
                 <jsp:include page="/DashMin/navbar.jsp"/> <!-- nav bar -->
 
-                <!-- Table Start -->
-                <div class="row">
-                    <div class="col-sm-12 col-xl-12">
-                        <div class="bg-light rounded h-100 p-4">
-                            <h6 class="mb-4">User Messages List</h6>
+                <!-- 📈 Doanh thu theo loại hoa (tháng này) -->
+                <div class="container-fluid pt-4 px-4">
+                    <div class="bg-white rounded shadow p-4">
+                        <h2 class="mb-5 text-center text-primary fw-bold">🌸 Monthly Flower Sales Overview</h2>
 
-                            <c:if test="${empty contactList}">
-                                <p>No user messages found.</p>
-                            </c:if>
+                        <div class="row g-4">
+                            <!-- Error Reason Chart Card -->
+                            <div class="col-md-6">
+                                <div class="card border-danger shadow-sm h-100">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title text-danger mb-3">📊 Error Reasons by Category</h5>
+                                        <button id="toggleBarChart" class="btn btn-danger mb-3">
+                                            🔁 Toggle Chart
+                                        </button>
+                                        <canvas id="barByCategory"
+                                                data-labels='${discardLabels}'
+                                                data-values='${discardValues}'
+                                                style="display: none; width:100%; max-height:300px;">
+                                        </canvas>
+                                    </div>
+                                </div>
+                            </div>
 
-                            <c:if test="${not empty contactList}">
-                                <table class="table table-striped table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Name</th>
-                                            <th>Email</th>
-                                            <th>Subject</th>
-                                            <th>Message</th>
-                                            <th>Created At</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <c:forEach var="msg" items="${contactList}">
-                                            <tr>
-                                                <td>${msg.id}</td>
-                                                <td>${msg.name}</td>
-                                                <td>${msg.email}</td>
-                                                <td>${msg.subject}</td>
-                                                <td>
-                                                    <c:choose>
-                                                        <c:when test="${fn:length(msg.message) > 100}">
-                                                            <span id="msg-short-${msg.id}">${fn:substring(msg.message, 0, 80)}...</span>
-                                                            <span id="msg-full-${msg.id}" style="display:none; white-space: pre-wrap; word-break: break-word; max-width: 600px;">
-                                                                ${msg.message}
-                                                            </span>
-
-                                                            <br/>
-                                                            <button class="btn btn-sm btn-primary mt-1" onclick="toggleMessage('${msg.id}')">Show all</button>
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <pre style="white-space: pre-wrap;">${msg.message}</pre>
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </td>
-
-                                                <td>${msg.createdAt}</td>
-                                            </tr>
-                                        </c:forEach>
-                                    </tbody>
-                                </table>
-                            </c:if>
+                            <!-- Expired Flower Chart Card -->
+                            <div class="col-md-6">
+                                <div class="card border-primary shadow-sm h-100">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title text-primary mb-3">📈 Expired Flowers Over Time</h5>
+                                        <button id="toggleLineChart" class="btn btn-primary mb-3">
+                                            🔁 Toggle Chart
+                                        </button>
+                                        <canvas id="lineExpired"
+                                                data-labels='${expiredLabels}'
+                                                data-values='${expiredValues}'
+                                                style="display: none; width:100%; max-height:300px;">
+                                        </canvas>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
 
-                <!-- Blank End -->
 
+                <!-- Sales Chart End -->
 
                 <!-- Footer Start -->
                 <div class="container-fluid pt-4 px-4">
@@ -195,38 +203,44 @@
             <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
         </div>
 
-        <!-- JavaScript Libraries -->
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+        <!-- Bootstrap -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <!-- Waypoints -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
+
+        <!-- Easing -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+
+        <!-- Owl Carousel -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
+        <!-- Moment + Tempus Dominus -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/js/tempusdominus-bootstrap-4.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+        <!-- Gán dữ liệu vào canvas qua data-attributes để JS đọc -->
+        <script>
+            document.getElementById("monthChart").setAttribute("data-labels", '<%= request.getAttribute("monthLabels") %>');
+            document.getElementById("monthChart").setAttribute("data-revenues", '<%= request.getAttribute("monthRevenues") %>');
+            document.getElementById("monthChart").setAttribute("data-orders", '<%= request.getAttribute("monthOrders") %>');
+
+            document.getElementById("yearChart").setAttribute("data-labels", '<%= request.getAttribute("yearLabels") %>');
+            document.getElementById("yearChart").setAttribute("data-revenues", '<%= request.getAttribute("yearRevenues") %>');
+            document.getElementById("yearChart").setAttribute("data-orders", '<%= request.getAttribute("yearOrders") %>');
+
+            document.getElementById("weekdayChart").setAttribute("data-labels", '<%= request.getAttribute("weekdayLabels") %>');
+            document.getElementById("weekdayChart").setAttribute("data-revenues", '<%= request.getAttribute("weekdayRevenues") %>');
+            document.getElementById("weekdayChart").setAttribute("data-orders", '<%= request.getAttribute("weekdayOrders") %>');
+        </script>
         <!-- Template Javascript -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
-        <script>
-                                                                function toggleMessage(id) {
-                                                                    const shortEl = document.getElementById('msg-short-' + id);
-                                                                    const fullEl = document.getElementById('msg-full-' + id);
-                                                                    const btn = event.target; // current button
-
-                                                                    if (shortEl.style.display === 'none') {
-                                                                        // display 
-                                                                        shortEl.style.display = 'inline';
-                                                                        fullEl.style.display = 'none';
-                                                                        btn.textContent = 'Show all';
-                                                                    } else {
-                                                                        // display full message
-                                                                        shortEl.style.display = 'none';
-                                                                        fullEl.style.display = 'inline';
-                                                                        btn.textContent = 'Show less';
-                                                                    }
-                                                                }
-        </script>
-
     </body>
 </html>

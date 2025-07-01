@@ -103,6 +103,60 @@
             .styled-table tbody tr:last-child td {
                 border-bottom: none;
             }
+
+            .filter-form {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            .filter-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                align-items: flex-end;
+            }
+
+            .filter-item {
+                display: flex;
+                flex-direction: column;
+                min-width: 200px;
+            }
+
+            .filter-item label {
+                font-weight: bold;
+                margin-bottom: 4px;
+            }
+
+            .filter-item input,
+            .filter-item select {
+                padding: 6px 8px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+            .button-row {
+                margin-top: 15px;
+                display: flex;
+                gap: 12px;
+            }
+
+            .button-row button {
+                padding: 8px 16px;
+                border: none;
+                background-color: #1976d2;
+                color: white;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            .button-row button[type="button"] {
+                background-color: #757575;
+            }
+
+            .button-row button:hover {
+                opacity: 0.9;
+            }
+
         </style>
     </head>
 
@@ -156,6 +210,7 @@
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/repairOrders" class="dropdown-item">Repair Orders</a>
                                 <a href="${pageContext.request.contextPath}/repairHistory" class="dropdown-item">Repair History</a>
+                                <a href="${pageContext.request.contextPath}/listRequest" class="dropdown-item">List Request</a>
                             </div>
                         </div>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
@@ -267,9 +322,64 @@
                 </nav>
                 <!-- Navbar End -->
 
-
                 <!-- List Request Start -->
                 <div class="container">
+
+                    <!-- Form Search, Filter -->
+                    <form action="listRequest" method="get" class="filter-form">
+                        <div class="filter-row">
+                            <!-- Flower Name -->
+                            <div class="filter-item">
+                                <label for="flowerNameSearch">Flower Name:</label>
+                                <input type="text" 
+                                       name="flowerNameSearch"
+                                       id="flowerNameSearch"
+                                       placeholder="Enter Flower Name"
+                                       value="${param.flowerNameSearch != null ? param.flowerNameSearch : ''}" />
+                            </div>
+
+                            <!-- Request Date -->
+                            <div class="filter-item">
+                                <label for="requestDate">Request Date:</label>
+                                <input type="date" 
+                                       name="requestDate" 
+                                       id="requestDate"
+                                       value="${param.requestDate != null ? param.requestDate : ''}" />
+                            </div>
+
+                            <!-- Confirm Date -->
+                            <div class="filter-item">
+                                <label for="confirmDate">Confirm Date:</label>
+                                <input type="date" 
+                                       name="confirmDate" 
+                                       id="confirmDate"
+                                       value="${param.confirmDate != null ? param.confirmDate : ''}" />
+                            </div>
+
+                            <!-- Status Dropdown -->
+                            <div class="filter-item">
+                                <label for="status">Status:</label>
+                                <select name="status" id="status">
+                                    <option value="" ${empty param.status ? 'selected' : ''}>Default</option>
+                                    <option value="pending" ${param.status == 'pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="doing" ${param.status == 'doing' ? 'selected' : ''}>Doing</option>
+                                    <option value="done" ${param.status == 'done' ? 'selected' : ''}>Done</option>
+                                    <option value="reject" ${param.status == 'reject' ? 'selected' : ''}>Reject</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Button Row -->
+                        <div class="button-row">
+                            <button type="submit">Search / Filter</button>
+                            <a href="${pageContext.request.contextPath}/listRequest">
+                                <button type="button">Reset</button>
+                            </a>
+                        </div>
+                    </form>
+                    <!-- End Form -->
+
+
                     <h6 class="heading">List Request</h6>
 
                     <table class="styled-table">

@@ -26,6 +26,7 @@ public class Order {
     private String rejectImage;
     private String rejectReason;
     private String paymentMethod;
+    private java.sql.Timestamp createdAt;
 
     // Constructors
     public Order() {
@@ -78,6 +79,14 @@ public class Order {
 
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public java.sql.Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(java.sql.Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 
     public int getOrderId() {

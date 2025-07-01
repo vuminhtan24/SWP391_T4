@@ -8,6 +8,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page import="java.time.Year" %>
+<%@page import="model.StatResult"%>
+<%@page import="java.util.Map"%>
+<%@page import="java.util.List"%>
 
 <!DOCTYPE html>
 <html>
@@ -38,10 +41,10 @@
         <link href="https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
 
         <!-- Customized Bootstrap Stylesheet -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/DashMin/css/bootstrap.min.css" rel="stylesheet">
 
         <!-- Template Stylesheet -->
-        <link href="css/style.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
     </head>
 
 
@@ -130,6 +133,78 @@
             <div class="content">
                 <jsp:include page="/DashMin/navbar.jsp"/> <!-- nav bar -->
 
+                <!-- 📈 Doanh thu theo loại hoa (tháng này) -->
+                <div class="container-fluid pt-4 px-4">
+                    <div class="bg-light rounded p-4">
+                        <h2 class="mb-4">🌸 Flower sales (this month)</h2>
+                        <div class="mb-3 d-flex gap-3 flex-wrap">
+                            <a href="${pageContext.request.contextPath}/flowerqualitystatsservlet" class="btn btn-outline-success">
+                                🌼 Quality Flower State
+                            </a>
+                            <a href="${pageContext.request.contextPath}/flowerlossstats" class="btn btn-outline-danger">
+                                💐 Loss Flower
+                            </a>
+                        </div>
+
+                        <form method="get" action="${pageContext.request.contextPath}/DashMin/admin" class="mb-4">
+                            <label class="mb-2 fw-bold">Select flower type:</label>
+                            <div class="row">
+                                <c:set var="noSelection" value="${empty paramValues.cid}" />
+                                <c:forEach var="cat" items="${categoryList}" varStatus="status">
+                                    <c:if test="${status.index % 2 == 0}">
+                                        <!-- Bắt đầu một hàng mới sau mỗi 2 phần tử -->
+                                        <div class="w-100"></div>
+                                    </c:if>
+                                    <div class="col-md-6 mb-2">
+                                        <c:set var="checked" value="false" />
+                                        <c:if test="${noSelection}">
+                                            <c:set var="checked" value="true" />
+                                        </c:if>
+                                        <c:forEach var="selected" items="${paramValues.cid}">
+                                            <c:if test="${selected == cat.categoryId}">
+                                                <c:set var="checked" value="true" />
+                                            </c:if>
+                                        </c:forEach>
+
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="cid" value="${cat.categoryId}"
+                                                   id="cat${cat.categoryId}"
+                                                   <c:if test="${checked}">checked</c:if> />
+                                            <label class="form-check-label" for="cat${cat.categoryId}">
+                                                ${cat.categoryName}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </c:forEach>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary mt-3">View chart</button>
+                        </form>
+
+
+                        <c:if test="${not empty labelsJson}">
+                            <canvas id="categoryRevenueChart"
+                                    data-labels='${labelsJson}'
+                                    data-categories='${categoryListJson}'
+                                    <c:forEach var="cat" items="${categoryList}">
+                                        <c:set var="dataKey" value="${cat.categoryName}_data"/>
+                                        <c:if test="${not empty requestScope[dataKey]}">
+                                            data-data_${cat.categoryName}='${requestScope[dataKey]}'
+                                        </c:if>
+
+                                    </c:forEach>
+                                    style="width:100%; height:300px;">
+                            </canvas>
+                            <!-- Nút tải biểu đồ doanh thu theo loại hoa -->
+                            <button onclick="downloadChartAsImage(window.categoryRevenueChart, 'category_revenue.png')" 
+                                    class="btn btn-outline-primary mt-3">
+                                📥 Download by Category
+                            </button>
+
+                        </c:if>
+
+                    </div>
+                </div>
 
                 <!-- Sale & Revenue Start -->
                 <div class="container-fluid pt-4 px-4">
@@ -181,18 +256,18 @@
                         <!-- Doanh thu tháng này -->
                         <div class="col-sm-12 col-xl-6">
                             <div class="bg-light text-center rounded p-4 h-100">
-                                <div class="stat mb-4" style="background:#f0f0f0;padding:15px;border-radius:8px;">
-                                    <h6 class="mb-0">💰 Doanh thu tháng này</h3>
-                                        <a href="${pageContext.request.contextPath}/revenuebydateservlet">Show All</a>
-                                </div>
+
+                                <h4 class="mb-0">💰 Revenue this month</h4>
+                                <a href="${pageContext.request.contextPath}/revenuebydateservlet">Show All</a>
+
                                 <canvas id="thisMonthChart"
                                         data-labels='<%= request.getAttribute("thisMonthLabels") %>'
                                         data-values='<%= request.getAttribute("thisMonthValues") %>'
                                         style="width: 100%; height: 300px;"></canvas>
                                 <!-- Nút tải ảnh biểu đồ Doanh thu tháng này -->
-                                <button onclick="downloadChartAsImage(window.thisMonthRevenueChart, 'doanhthu_thangnay.png')"
-                                        class="btn btn-primary mt-3">
-                                    📥 Tải biểu đồ Doanh thu tháng này
+                                <button onclick="downloadChartAsImage(window.thisMonthRevenueChart, 'monthly_revenue.png')"
+                                        class="btn btn-outline-primary mt-3">
+                                    📥 Download This Month
                                 </button>
 
                             </div>
@@ -201,11 +276,13 @@
                         <!-- Salse & Revenue -->
                         <div class="col-sm-12 col-xl-6">
                             <div class="bg-light text-center rounded p-4 h-100">
-                                <div class="d-flex align-items-center justify-content-between mb-4">
-                                    <h6 class="mb-0">Salse & Revenue</h6>
-                                    <a href="#">Show All</a>
-                                </div>
-                                <canvas id="salse-revenue" style="width: 100%; height: 300px;"></canvas>
+                                <h4 class="mb-3">3. Revenue and number of orders by day of the week</h4>
+                                <canvas id="weekdayChart" style="width: 100%; height: 300px;"></canvas>
+                                <!-- Nút tải biểu đồ theo thứ trong tuần -->
+                                <button onclick="downloadChartAsImage(window.weekdayStatsChart, 'weekday_revenue.png')" 
+                                        class="btn btn-outline-primary mt-3">
+                                    📥 Download by Weekday
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -218,11 +295,12 @@
                         <!-- 📆 Doanh thu theo tháng -->
                         <div class="col-sm-12 col-xl-6">
                             <div class="bg-light text-center rounded p-4 h-100">
-                                <h4 class="mb-3">1. Doanh thu & số đơn theo tháng – Năm <%= request.getAttribute("monthYear") %></h4>
+                                <h4 class="mb-3">1. Revenue and number of orders by month – Year <%= request.getAttribute("monthYear") %></h4>
                                 <canvas id="monthChart" style="width: 100%; height: 300px;"></canvas>
 
-                                <button onclick="downloadChartAsImage(window.statsChart, 'thongke_theothang.png')">
-                                    📥 Tải PNG
+                                <button onclick="downloadChartAsImage(window.statsChart, 'monthly_stats.png')"
+                                        class="btn btn-outline-primary mt-3">
+                                    📥 Download Monthly Stats
                                 </button>
                             </div>
                         </div>
@@ -230,38 +308,38 @@
                         <!-- 📅 Doanh thu theo năm -->
                         <div class="col-sm-12 col-xl-6">
                             <div class="bg-light text-center rounded p-4 h-100">
-                                <h4 class="mb-3">2. Doanh thu & số đơn theo từng năm</h4>
+                                <h4 class="mb-3">2. Revenue and number of orders by year</h4>
                                 <a href="${pageContext.request.contextPath}/revenuealltimeservlet">Show All</a>
                                 <canvas id="yearChart" style="width: 100%; height: 300px;"></canvas>
                                 <!-- Nút tải biểu đồ theo năm -->
-                                <button onclick="downloadChartAsImage(window.yearStatsChart, 'doanhthu_nam.png')" 
-                                        class="btn btn-outline-success mt-3">
-                                    📥 Tải biểu đồ theo năm
+                                <button onclick="downloadChartAsImage(window.yearStatsChart, 'yearly_revenue.png')" 
+                                        class="btn btn-outline-primary mt-3">
+                                    📥 Download by Year
                                 </button>
 
                             </div>
                         </div>
 
                         <!-- 🗓️ Doanh thu theo thứ -->
-                        <div class="col-12">
-                            <div class="bg-light text-center rounded p-4 h-100">
-                                <h4 class="mb-3">3. Doanh thu & số đơn theo thứ trong tuần</h4>
-                                <canvas id="weekdayChart" style="width: 100%; height: 300px;"></canvas>
-                                <!-- Nút tải biểu đồ theo thứ trong tuần -->
-                                <button onclick="downloadChartAsImage(window.weekdayStatsChart, 'doanhthu_trongtuan.png')" 
-                                        class="btn btn-outline-info mt-3">
-                                    📥 Tải biểu đồ theo thứ
-                                </button>
-
-                            </div>
-                        </div>
+                        <!--                        <div class="col-12">
+                                                    <div class="bg-light text-center rounded p-4 h-100">
+                                                        <h4 class="mb-3">3. Doanh thu & số đơn theo thứ trong tuần</h4>
+                                                        <canvas id="weekdayChart" style="width: 100%; height: 300px;"></canvas>
+                                                         Nút tải biểu đồ theo thứ trong tuần 
+                                                        <button onclick="downloadChartAsImage(window.weekdayStatsChart, 'doanhthu_trongtuan.png')" 
+                                                                class="btn btn-outline-info mt-3">
+                                                            📥 Tải biểu đồ theo thứ
+                                                        </button>
+                        
+                                                    </div>
+                                                </div>-->
                     </div>
                 </div>
 
                 <!-- 📊 Thống kê theo tháng trong năm -->
                 <div class="container-fluid pt-4 px-4">
                     <div class="bg-light rounded p-4">
-                        <h2 class="mb-4">📊 Thống kê theo tháng trong năm</h2>
+                        <h2 class="mb-4">📊 Statistics by month of the year</h2>
 
                         <!-- 🔽 Chọn năm -->
                         <form method="get" action="${pageContext.request.contextPath}/DashMin/admin" class="mb-4">
@@ -272,12 +350,12 @@
                                     int selectedYear = (int) request.getAttribute("selectedYear");
                                     for (int y = currentYear - 5; y <= currentYear + 1; y++) {
                                 %>
-                                <option value="<%= y %>" <%= (y == selectedYear ? "selected" : "") %>>Năm <%= y %></option>
+                                <option value="<%= y %>" <%= (y == selectedYear ? "selected" : "") %>>Year <%= y %></option>
                                 <%
                                     }
                                 %>
                             </select>
-                            <button type="submit" class="btn btn-primary">Xem</button>
+                            <button type="submit" class="btn btn-primary">View</button>
                         </form>
 
                         <!-- ✅ Biểu đồ kép: Doanh thu và Đơn hàng -->
@@ -287,84 +365,41 @@
                                 data-orders='<%= request.getAttribute("ordersJson") %>'
                                 style="max-width:100%; height:300px;">
                         </canvas>
-                        <button onclick="downloadChartAsImage(window.statsChart, 'thongke_theothang.png')">
-                            📥 Tải PNG
+                        <button onclick="downloadChartAsImage(window.statsChart, 'monthly_stats.png')"
+                                class="btn btn-outline-primary mt-3">
+                            📥 Download Monthly Stats
                         </button>
                     </div>
                 </div>
 
-                <!-- 📈 Doanh thu theo loại hoa (tháng này) -->
-                <div class="container-fluid pt-4 px-4">
-                    <div class="bg-light rounded p-4">
-                        <h2 class="mb-4">🌸 Flower sales (this month)</h2>
-                        <a href="${pageContext.request.contextPath}/flowerqualitystatsservlet">Show Quality flower State</a><br>
-                        <a href="${pageContext.request.contextPath}/flowerlossstats">Show loss flower</a>
-                        <form method="get" action="${pageContext.request.contextPath}/DashMin/admin" class="mb-4">
-                            <label>Chọn loại hoa:</label><br>
-                            <c:forEach var="cat" items="${categoryList}">
-                                <c:set var="checked" value="false" />
-                                <c:forEach var="selected" items="${paramValues.cid}">
-                                    <c:if test="${selected == cat.categoryId}">
-                                        <c:set var="checked" value="true" />
-                                    </c:if>
-                                </c:forEach>
-                                <input type="checkbox" name="cid" value="${cat.categoryId}" <c:if test="${checked}">checked</c:if> />
-                                ${cat.categoryName} <br>
-                            </c:forEach>
-                            <button type="submit" class="btn btn-primary mt-2">Xem biểu đồ</button>
 
-                        </form>
-
-                        <c:if test="${not empty labelsJson}">
-                            <canvas id="categoryRevenueChart"
-                                    data-labels='${labelsJson}'
-                                    data-categories='${categoryListJson}'
-                                    <c:forEach var="cat" items="${categoryList}">
-                                        <c:set var="dataKey" value="${cat.categoryName}_data"/>
-                                        <c:if test="${not empty requestScope[dataKey]}">
-                                            data-data_${cat.categoryName}='${requestScope[dataKey]}'
-                                        </c:if>
-
-                                    </c:forEach>
-                                    style="width:100%; height:300px;">
-                            </canvas>
-                            <!-- Nút tải biểu đồ doanh thu theo loại hoa -->
-                            <button onclick="downloadChartAsImage(window.categoryRevenueChart, 'doanhthu_theoloaihoa.png')" 
-                                    class="btn btn-outline-warning mt-3">
-                                📥 Tải biểu đồ theo loại hoa
-                            </button>
-
-                        </c:if>
-                    </div>
-                </div>
                 <c:if test="${not empty statusCounts}">
                     <div class="container-fluid pt-4 px-4">
-                        <div class="bg-light rounded p-4">
-                            <h2 class="mb-4">📊 Tỉ lệ đơn hàng theo trạng thái</h2>
+                        <div class="bg-light rounded p-4 shadow-sm">
+                            <h2 class="mb-4 text-center">📊 Order Rate by Status</h2>
 
-                            <!-- Bọc canvas trong một div cố định kích thước -->
-                            <div style="width: 300px; height: 300px; margin: auto;">
-                                <canvas id="orderStatusChart"
-                                        data-labels='[<c:forEach var="s" items="${statusCounts}" varStatus="loop">
-                                            "${s.statusName}"<c:if test="${!loop.last}">,</c:if>
-                                        </c:forEach>]'
-                                        data-values='[<c:forEach var="s" items="${statusCounts}" varStatus="loop">
-                                            ${s.total}<c:if test="${!loop.last}">,</c:if>
-                                        </c:forEach>]'
-                                        style="width:100% !important; height:100% !important;">
-                                </canvas>
-                                <!-- Nút tải biểu đồ trạng thái đơn hàng -->
-                                <button onclick="downloadChartAsImage(window.orderStatusChart, 'donhang_theotrangthai.png')" 
-                                        class="btn btn-outline-dark mt-3">
-                                    📥 Tải biểu đồ đơn hàng theo trạng thái
-                                </button>
+                            <!-- Card chứa biểu đồ -->
+                            <div class="card mx-auto" style="max-width: 400px;">
+                                <div class="card-body d-flex flex-column align-items-center">
+                                    <canvas id="orderStatusChart"
+                                            data-labels='[<c:forEach var="s" items="${statusCounts}" varStatus="loop">
+                                                "${s.statusName}"<c:if test="${!loop.last}">,</c:if>
+                                            </c:forEach>]'
+                                            data-values='[<c:forEach var="s" items="${statusCounts}" varStatus="loop">
+                                                ${s.total}<c:if test="${!loop.last}">,</c:if>
+                                            </c:forEach>]'
+                                            style="width: 100%; height: auto; max-height: 300px;">
+                                    </canvas>
 
+                                    <button onclick="downloadChartAsImage(window.orderStatusChart, 'order_status.png')" 
+                                            class="btn btn-outline-primary mt-4 w-100">
+                                        📥 Download Order Status
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </c:if>
-
-
 
 
                 <!-- Sales Chart End -->
@@ -375,26 +410,36 @@
                     <div class="bg-light text-center rounded p-4">
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <h6 class="mb-0">Recent Salse</h6>
-                            <a href="">Show All</a>
                         </div>
                         <div class="table-responsive">
-                            <h3 class="mt-4">🧾 Bảng chi tiết đơn hàng trong tháng</h3>
+                            <h3 class="mt-4">🧾 Order Details This Month</h3>
+                            <form method="get" action="${pageContext.request.contextPath}/DashMin/admin">
+                                <label for="filter">Filter by:</label>
+                                <select name="filter" id="filter" onchange="this.form.submit()">
+                                    <option value="week" ${param.filter == 'week' ? 'selected' : ''}>This week</option>
+                                    <option value="month" ${param.filter == 'month' ? 'selected' : ''}>This month</option>
+                                    <option value="year" ${param.filter == 'year' ? 'selected' : ''}>This year</option>
+                                    <option value="all" ${param.filter == 'all' ? 'selected' : ''}>All</option>
+                                </select>
+
+                            </form>
                             <table border="1" cellspacing="0" cellpadding="8" class="table table-bordered table-striped">
                                 <thead>
                                     <tr style="background-color: #f0f0f0;">
                                         <th>Order ID</th>
-                                        <th>Ngày đặt</th>
-                                        <th>Khách hàng</th>
-                                        <th>Sản phẩm</th>
-                                        <th>Loại</th>
-                                        <th>Số lượng</th>
-                                        <th>Đơn giá</th>
-                                        <th>Tổng</th>
-                                        <th>Trạng thái</th>
+                                        <th>Order Date</th>
+                                        <th>Customer</th>
+                                        <th>Product</th>
+                                        <th>Category</th>
+                                        <th>Quantity</th>
+                                        <th>Unit Price</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
-                                    <c:forEach var="r" items="${salesList}">
+                                    <c:forEach var="r" items="${salesListfilter}">
                                         <tr>
                                             <td>${r.orderID}</td>
                                             <td>${r.orderDate}</td>
@@ -411,46 +456,7 @@
                             </table>
                         </div>
                     </div>
-                    <form method="get" action="${pageContext.request.contextPath}/DashMin/admin">
-                        <label for="filter">Lọc theo:</label>
-                        <select name="filter" id="filter" onchange="this.form.submit()">
-                            <option value="week" ${param.filter == 'week' ? 'selected' : ''}>Tuần này</option>
-                            <option value="month" ${param.filter == 'month' ? 'selected' : ''}>Tháng này</option>
-                            <option value="year" ${param.filter == 'year' ? 'selected' : ''}>Năm nay</option>
-                            <option value="all" ${param.filter == 'all' ? 'selected' : ''}>Tất cả</option>
-                        </select>
 
-                    </form>
-                    <table border="1" cellspacing="0" cellpadding="8" class="table table-bordered table-striped">
-                        <thead>
-                            <tr style="background-color: #f0f0f0;">
-                                <th>Order ID</th>
-                                <th>Ngày đặt</th>
-                                <th>Khách hàng</th>
-                                <th>Sản phẩm</th>
-                                <th>Loại</th>
-                                <th>Số lượng</th>
-                                <th>Đơn giá</th>
-                                <th>Tổng</th>
-                                <th>Trạng thái</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="r" items="${salesListfilter}">
-                                <tr>
-                                    <td>${r.orderID}</td>
-                                    <td>${r.orderDate}</td>
-                                    <td>${r.customerName}</td>
-                                    <td>${r.productName}</td>
-                                    <td>${r.categoryName}</td>
-                                    <td>${r.quantity}</td>
-                                    <td>${r.unitPrice}</td>
-                                    <td>${r.totalPrice}</td>
-                                    <td>${r.status}</td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
                 </div>
 
 
@@ -613,19 +619,19 @@
 
         <!-- Gán dữ liệu vào canvas qua data-attributes để JS đọc -->
         <script>
-                            document.getElementById("monthChart").setAttribute("data-labels", '<%= request.getAttribute("monthLabels") %>');
-                            document.getElementById("monthChart").setAttribute("data-revenues", '<%= request.getAttribute("monthRevenues") %>');
-                            document.getElementById("monthChart").setAttribute("data-orders", '<%= request.getAttribute("monthOrders") %>');
+                                    document.getElementById("monthChart").setAttribute("data-labels", '<%= request.getAttribute("monthLabels") %>');
+                                    document.getElementById("monthChart").setAttribute("data-revenues", '<%= request.getAttribute("monthRevenues") %>');
+                                    document.getElementById("monthChart").setAttribute("data-orders", '<%= request.getAttribute("monthOrders") %>');
 
-                            document.getElementById("yearChart").setAttribute("data-labels", '<%= request.getAttribute("yearLabels") %>');
-                            document.getElementById("yearChart").setAttribute("data-revenues", '<%= request.getAttribute("yearRevenues") %>');
-                            document.getElementById("yearChart").setAttribute("data-orders", '<%= request.getAttribute("yearOrders") %>');
+                                    document.getElementById("yearChart").setAttribute("data-labels", '<%= request.getAttribute("yearLabels") %>');
+                                    document.getElementById("yearChart").setAttribute("data-revenues", '<%= request.getAttribute("yearRevenues") %>');
+                                    document.getElementById("yearChart").setAttribute("data-orders", '<%= request.getAttribute("yearOrders") %>');
 
-                            document.getElementById("weekdayChart").setAttribute("data-labels", '<%= request.getAttribute("weekdayLabels") %>');
-                            document.getElementById("weekdayChart").setAttribute("data-revenues", '<%= request.getAttribute("weekdayRevenues") %>');
-                            document.getElementById("weekdayChart").setAttribute("data-orders", '<%= request.getAttribute("weekdayOrders") %>');
+                                    document.getElementById("weekdayChart").setAttribute("data-labels", '<%= request.getAttribute("weekdayLabels") %>');
+                                    document.getElementById("weekdayChart").setAttribute("data-revenues", '<%= request.getAttribute("weekdayRevenues") %>');
+                                    document.getElementById("weekdayChart").setAttribute("data-orders", '<%= request.getAttribute("weekdayOrders") %>');
         </script>
         <!-- Template Javascript -->
-        <script src="js/main.js"></script>
+        <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
     </body>
 </html>

@@ -138,7 +138,7 @@ public class LoginServlet extends HttpServlet {
                 response.addCookie(emailCookie);
             }
             
-            String role = daoAcc.getRoleNameById(user.getRole());
+            String role = daoAcc.getRoleNameById(user.getRole());            
             redirectBasedOnRole(request, response, role); // Call helper method for redirection
 
         } else {
@@ -158,8 +158,10 @@ public class LoginServlet extends HttpServlet {
     private void redirectBasedOnRole(HttpServletRequest request, HttpServletResponse response, String role) throws IOException {
         switch (role) {
             case "Admin":
-            case "Sales Manager":
                 response.sendRedirect(request.getContextPath() + "/DashMin/admin");
+                break;
+            case "Sales Manager":
+                response.sendRedirect(request.getContextPath() + "/saleManagerDashboard");
                 break;
             case "Seller":
             case "Marketer":

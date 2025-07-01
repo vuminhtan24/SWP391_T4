@@ -331,21 +331,25 @@ public class FlowerScheduler extends BaseDao {
 
     private void addNotification(int bouquetId, int batchId, String message) throws SQLException {
         // Lấy user_id của admin (giả định lấy user_id đầu tiên làm đại diện)
-        String getAdminId = "SELECT user_id FROM user WHERE Role = 1 AND status = 'active' LIMIT 1";
+        String getAdminId = "SELECT user_id FROM user WHERE Role = 1 AND status = 'active'";
         ps = connection.prepareStatement(getAdminId);
         rs = ps.executeQuery();
-        int userId = rs.next() ? rs.getInt("user_id") : -1;
+        String insertNotification = "INSERT INTO notifications (user_id, message, created_at, status) VALUES (?, ?, ?, ?)";
+        PreparedStatement insertPs = connection.prepareStatement(insertNotification);
+        boolean anyInserted = false;
+        while (rs.next()) {
+            int userId = rs.getInt("user_id");
+            insertPs.setInt(1, userId);
+            insertPs.setString(2, message);
+            insertPs.setTimestamp(3, new java.sql.Timestamp(new Date().getTime()));
+            insertPs.setString(4, "unread");
+            insertPs.executeUpdate();
+            anyInserted = true;
+        }
         rs.close();
-
-        if (userId != -1) {
-            String insertNotification = "INSERT INTO notifications (user_id, message, created_at, status) VALUES (?, ?, ?, ?)";
-            ps = connection.prepareStatement(insertNotification);
-            ps.setInt(1, userId);
-            ps.setString(2, message);
-            ps.setTimestamp(3, new java.sql.Timestamp(new Date().getTime()));
-            ps.setString(4, "unread");
-            ps.executeUpdate();
-            System.out.println("Đã thêm thông báo: " + message);
+        insertPs.close();
+        if (anyInserted) {
+            System.out.println("Đã thêm thông báo cho tất cả admin.");
         } else {
             System.out.println("Không tìm thấy admin để thêm thông báo.");
         }

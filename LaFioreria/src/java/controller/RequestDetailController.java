@@ -93,7 +93,7 @@ public class RequestDetailController extends HttpServlet {
         int orderItemId = Integer.parseInt(orderItemIdStr);
         OrderDAO odao = new OrderDAO();
         FlowerTypeDAO ftdao = new FlowerTypeDAO();
-        List<RequestDisplay> listRequest = odao.gettAllRequestList();
+        List<RequestDisplay> listRequest = odao.gettAllRequestList(null, null, null, null);
         List<RequestFlower> listFlower = odao.getRequestFlowerByOrder(orderId, orderItemId);
         List<FlowerType> listFlowerType = ftdao.getAllFlowerTypes();
         
