@@ -143,7 +143,7 @@ public class AdminServlet extends HttpServlet {
         List<StatResult> filteredYears = new ArrayList<>();
         for (StatResult stat : allYears) {
             String label = stat.getLabel();
-            int year = Integer.parseInt(label.replace("Năm ", "").trim());
+            int year = Integer.parseInt(label.replace("Year ", "").trim());
             if (year >= fromYear && year <= toYear) {
                 filteredYears.add(stat);
             }

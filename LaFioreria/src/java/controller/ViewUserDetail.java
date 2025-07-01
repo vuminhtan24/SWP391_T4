@@ -125,7 +125,7 @@ public class ViewUserDetail extends HttpServlet {
 
         if (action == null || !action.equals("UPDATE")) {
             request.setAttribute("error", "Invalid action.");
-            request.getRequestDispatcher("/DashMin/viewUserDetail.jsp").forward(request, response);
+            request.getRequestDispatcher("DashMin/viewUserDetail.jsp").forward(request, response);
             return;
         }
 
@@ -226,7 +226,7 @@ public class ViewUserDetail extends HttpServlet {
                 request.setAttribute("roleNames", roleNames);
 
                 // Gửi lại trang với thông tin lỗi và dữ liệu form đã nhập
-                request.getRequestDispatcher("ZeShopper/viewUserDetail.jsp").forward(request, response);
+                request.getRequestDispatcher("DashMin/viewUserDetail.jsp").forward(request, response);
                 return;
             }
 
