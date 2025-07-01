@@ -4,10 +4,8 @@
  */
 package controller;
 
-import dal.BouquetDAO;
-import dal.CategoryDAO;
-import dal.FlowerTypeDAO;
-import dal.RawFlowerDAO;
+import dal.OrderDAO;
+import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -15,20 +13,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
-import model.Bouquet;
-import model.BouquetImage;
-import model.Category;
-import model.FlowerType;
-import model.RawFlower;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
- * @author ADMIN
+ * @author VU MINH TAN
  */
-@WebServlet(name = "HomeController", urlPatterns = {"/home"})
-public class HomeController extends HttpServlet {
+public class ConfirmVietQRPayment extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -47,10 +38,10 @@ public class HomeController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet HomeController</title>");
+            out.println("<title>Servlet ConfirmVietQRPayment</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet HomeController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ConfirmVietQRPayment at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -68,29 +59,39 @@ public class HomeController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Bouquet> listBouquet = new ArrayList<>();
-        List<Category> listCategoryBQ = new ArrayList<>();
-        List<FlowerType> listFlower = new ArrayList<>();
-        List<Bouquet> listMostSellBouquet = new ArrayList<>();
-        
-        BouquetDAO bdao = new BouquetDAO();
-        CategoryDAO cdao = new CategoryDAO();
-        FlowerTypeDAO fdao = new FlowerTypeDAO();
+        // Lấy thông tin từ request (gửi từ CheckoutController)
+        String orderId = request.getParameter("orderId");
+        String amountStr = request.getParameter("amount");
 
-        listFlower = fdao.getAllFlowerTypes();
-        request.setAttribute("listFlowerHome", listFlower);
+        // Nếu thiếu thông tin thì redirect về checkout
+        if (orderId == null || amountStr == null) {
+            response.sendRedirect("checkout.jsp");
+            return;
+        }
 
-        listBouquet = bdao.getAll();
-        listCategoryBQ = cdao.getBouquetCategory();
-        listMostSellBouquet = bdao.getMostSellBouquet();
-        List<BouquetImage> images = bdao.getAllBouquetImage();
-        
-        request.setAttribute("images", images);
-        request.setAttribute("listMostSellBouquet", listMostSellBouquet);
-        request.setAttribute("listBouquetHome", listBouquet);
-        request.setAttribute("cateBouquetHome", listCategoryBQ);
-        request.getRequestDispatcher("./ZeShopper/home.jsp").forward(request, response);
+        // Parse số tiền
+        int amount = 0;
+        try {
+            amount = Integer.parseInt(amountStr);
+        } catch (NumberFormatException e) {
+            response.sendRedirect("checkout.jsp");
+            return;
+        }
 
+        // Lấy thông tin khách hàng
+        HttpSession session = request.getSession();
+        Object user = session.getAttribute("user"); // nếu có
+
+        if (user != null) {
+            request.setAttribute("user", user);
+        }
+
+        // Đẩy thông tin sang vietqr.jsp
+        request.setAttribute("orderId", orderId);
+        request.setAttribute("amount", amount);
+
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/ZeShopper/vietqr.jsp");
+        dispatcher.forward(request, response);
     }
 
     /**
@@ -104,7 +105,20 @@ public class HomeController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        int orderId = Integer.parseInt(request.getParameter("orderId"));
+
+        try {
+             OrderDAO orderDAO = new OrderDAO();
+             orderDAO.updateOrderStatus(orderId, 1);
+
+            System.out.println("Đơn hàng " + orderId + " đã được khách xác nhận chuyển khoản.");
+
+            response.sendRedirect("/LaFioreria/ZeShopper/thanks-you.jsp?orderId=" + orderId);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect("error.jsp");
+        }
     }
 
     /**

@@ -173,6 +173,7 @@ public class CheckOutController extends HttpServlet {
     private void processOrder(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
         int customerId = (currentUser != null) ? currentUser.getUserid() : -1; // Khách vãng lai = -1
+        String paymentMethod = request.getParameter("paymentMethod");
 
         // Lấy thông tin từ form
         String fullName = request.getParameter("fullName");
@@ -226,6 +227,7 @@ public class CheckOutController extends HttpServlet {
         order.setOrderDate(LocalDate.now().toString());
         order.setTotalSell(String.valueOf(actualTotalSell));
         order.setTotalImport(String.valueOf(actualTotalSell / 5)); // Giả định lợi nhuận 20%
+        order.setPaymentMethod(paymentMethod);
         order.setStatusId(1); // Chờ xử lý
 
         CartDAO cartDAO = new CartDAO();
@@ -270,7 +272,11 @@ public class CheckOutController extends HttpServlet {
                 request.getSession().removeAttribute("cart");
             }
 
-            response.getWriter().write("{\"status\": \"success\", \"message\": \"Đơn hàng đã được đặt thành công! Mã đơn hàng: " + orderId + "\"}");
+            if ("vietqr".equals(paymentMethod)) {
+                response.getWriter().write("{\"status\": \"success\", \"orderId\": " + orderId + "}");
+            } else {
+                response.getWriter().write("{\"status\": \"success\", \"message\": \"Đơn hàng đã được đặt thành công! Mã đơn hàng: " + orderId + "\"}");
+            }
 
         } catch (Exception e) {
             e.printStackTrace();

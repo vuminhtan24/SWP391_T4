@@ -39,6 +39,71 @@
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
+        <style>
+            .container {
+                margin: 20px auto 0 auto;
+                padding: 24px;
+                background-color: #f4f6f8;
+                border-radius: 12px;
+                font-family: 'Segoe UI', sans-serif;
+
+                max-width: calc(100% - 40px);
+                width: 100%;
+                box-sizing: border-box;
+
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+
+                height: 730px; /* ngăn scroll trang, đủ không gian */
+                overflow-y: auto;                /* bảng cuộn nếu quá cao */
+            }
+
+            .heading {
+                font-size: 18px;
+                font-weight: 600;
+                margin-bottom: 16px;
+                color: #222;
+            }
+
+            .styled-table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+                font-size: 14px;
+                background-color: #f9fbfc;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            }
+
+            .styled-table thead {
+                background-color: #f0f2f5;
+            }
+
+            .styled-table thead td {
+                font-weight: 600;
+                color: #444;
+                padding: 12px 16px;
+                border-bottom: 1px solid #e0e0e0;
+                text-align: left;
+            }
+
+            .styled-table tbody td {
+                padding: 12px 16px;
+                color: #333;
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .styled-table tbody tr:hover td {
+                background-color: #e9f3ff;
+                transition: background-color 0.2s ease;
+            }
+
+            .styled-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+        </style>
     </head>
 
     <body>
@@ -53,7 +118,7 @@
 
 
             <!-- Sidebar Start -->
-           <div class="sidebar pe-4 pb-3">
+            <div class="sidebar pe-4 pb-3">
                 <nav class="navbar bg-light navbar-light">
                     <a href="${pageContext.request.contextPath}/DashMin/admin.jsp" class="navbar-brand mx-4 mb-3">
                         <h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>DASHMIN</h3>
@@ -229,111 +294,66 @@
                 <!-- Navbar End -->
 
 
-                <!-- Request Flower Start -->
-                <div class="container-fluid pt-4 px-4">
-                    <div class="row vh-100 bg-light rounded align-items-center justify-content-center mx-0">
-                        <div class="col-12 d-flex justify-content-center">
-                            <div class="card shadow-sm border-0" style="width: 100%; max-width: 100%;">
-                                <div class="card-body px-4 py-4">
-                                    <form action="requestFlower" method="post">
-                                        <h5 class="text-center text-primary fw-bold mb-4">Request Flower</h5>
+                <!-- List Request Start -->
+                <a href="${pageContext.request.contextPath}/listRequest">Back to Request List</a>
+                <div class="container">
+                    <h6 class="heading">Request Details</h6>
+                    <p>Order ID: ${orderId}</p>
+                    <p>Order Item ID: ${orderItemId}</p>
+                    <p>Request Date: ${requestDate}</p>
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <td>Flower ID</td>
+                                <td>Flower Name</td>
+                                <td>Request Quantity</td>
+                                <td>Status</td>
+                                <td colspan="2">Action</td>
+                            </tr>
+                        </thead>  
+                        <tbody>
+                            <c:forEach var="item" items="${listFlower}">
+                                <c:forEach var="names" items="${listFlowerType}">
+                                    <c:if test="${item.getFlowerId() == names.getFlowerId()}">
+                                        <tr>
+                                            <td>${item.getFlowerId()}</td>
+                                            <td>${names.getFlowerName()}</td>
+                                            <td>${item.getQuantity()}</td>
+                                            <td>${item.getStatus()}</td>
+                                            <td colspan="2">
+                                                <c:choose>
+                                                    <c:when test="${item.getStatus() == 'pending'}">
+                                                        <button type="button"
+                                                                onclick="location.href = '${pageContext.request.contextPath}/add_batch?flower_id=${item.flowerId}'"
+                                                                style="padding: 8px 16px; background-color: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
+                                                            Add Flower
+                                                        </button>
 
-                                        <!-- BẮT ĐẦU CHIA 2 CỘT -->
-                                        <div class="row g-4">
-                                            <!-- Cột trái: Order needs more flowers (40%) -->
-                                            <div class="col-md-5">
-                                                <div class="border rounded bg-white px-3 py-2" style="width: 100%; display: inline-block;">
-                                                    <!-- Header nhỏ gọn -->
-                                                    <h6 class="fw-bold text-secondary mb-2" style="font-size: 1rem;">Order Needs More Flowers</h6>
+                                                        <button type="button"
+                                                                style="padding: 8px 16px; background-color: #d32f2f; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; margin-left: 10px;">
+                                                            Reject
+                                                        </button>
+                                                    </c:when>
 
-                                                    <!-- Thông tin đơn hàng -->
-                                                    <div class="mb-2 small text-muted" style="line-height: 1.4;">
-                                                        <p class="mb-1"><strong>Order ID:</strong> ${orderId}</p>
-                                                        <input type="hidden" name="orderId" value="${orderId}">
-                                                        <p class="mb-1"><strong>Order Item ID:</strong> ${orderItemId}</p>
-                                                        <input type="hidden" name="orderItemId" value="${orderItemId}">
-                                                        <p class="mb-0"><strong>Request Date:</strong> ${requestDate}</p>
-                                                    </div>
+                                                    <c:when test="${item.getStatus() == 'done'}">
+                                                        <span style="color: green; font-weight: bold;">You have complete this request</span>
+                                                    </c:when>
 
-                                                    <!-- Bảng hoa -->
-                                                    <div class="table-responsive">
-                                                        <table class="table table-bordered table-sm align-middle mb-0">
-                                                            <thead class="table-light text-center" style="font-size: 0.9rem;">
-                                                                <tr>
-                                                                    <th style="width: 70%;">Flower</th>
-                                                                    <th style="width: 30%;">Needed</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <c:forEach var="item" items="${listRequest}">
-                                                                    <tr style="font-size: 0.95rem;">
-                                                                        <td>
-                                                                            <c:forEach var="flower" items="${allFlowers}">
-                                                                                <c:if test="${item.flowerId eq flower.flowerId}">
-                                                                                    ${flower.flowerName}
-                                                                                </c:if>
-                                                                            </c:forEach>
-                                                                            <input type="hidden" name="flowerNeededIds" value="${item.getFlowerId()}">
-                                                                        </td>
-                                                                        <td class="text-center">${item.quantity}</td>
-                                                                        <input type="hidden" name="quantityNeeded" value="${item.quantity}">
-                                                                    </tr>
-                                                                </c:forEach>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                    <c:when test="${item.getStatus() == 'reject'}">
+                                                        <span style="color: red; font-weight: bold;">You have reject this request</span>
+                                                    </c:when>
+                                                </c:choose>
+                                            </td>
+                                        </tr>  
+                                    </c:if>
+                                </c:forEach>
+                            </c:forEach>
+                        </tbody>   
+                    </table>
 
-                                            <!-- Cột phải: Request Flower (60%) -->
-                                            <div class="col-md-7">
-                                                <h6 class="fw-bold text-secondary mb-3">Request Flower</h6>
-                                                <div class="table-responsive">
-                                                    <table id="flowerTable" class="table table-bordered align-middle mb-3">
-                                                        <thead class="table-dark text-center">
-                                                            <tr>
-                                                                <th style="width: 65%;">Flower</th>
-                                                                <th style="width: 35%;">Quantity</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <c:forEach var="item" items="${listRequest}">
-                                                                <tr>
-                                                                    <td>
-                                                                        <c:forEach var="flower" items="${allFlowers}">
-                                                                            <c:if test="${item.flowerId eq flower.flowerId}">
-                                                                                ${flower.flowerName}
-                                                                            </c:if>
-                                                                        </c:forEach>
-                                                                        <input type="hidden" name="flowerRequestIds" value="${item.getFlowerId()}">
-                                                                    </td>
-                                                                    <td>
-                                                                        <input type="number" name="quantityRequest" value="${item.quantity}" min="${item.quantity}" step="1"
-                                                                               required class="form-control form-control-sm" />
-                                                                    </td>
-                                                                </tr>
-                                                            </c:forEach>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                            
-                                        </div>
-                                        <!-- KẾT THÚC CHIA 2 CỘT -->
-
-                                        <h6 class="text-danger mb-3">${requestScope.error}</h6>
-
-                                        <div class="text-end">
-                                            <button type="submit" name="action" value="sendRequest" class="btn btn-success px-4">Send Request</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Request Flower End -->
+                <!-- List Request End -->
 
 
                 <!-- Footer Start -->

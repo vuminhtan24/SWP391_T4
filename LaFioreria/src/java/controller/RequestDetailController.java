@@ -4,31 +4,47 @@
  */
 package controller;
 
-import dal.BouquetDAO;
-import dal.CategoryDAO;
-import dal.FlowerTypeDAO;
-import dal.RawFlowerDAO;
+import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
-import model.Bouquet;
-import model.BouquetImage;
-import model.Category;
-import model.FlowerType;
-import model.RawFlower;
+import jakarta.servlet.http.Part;
 
+import model.Bouquet;
+import model.Category;
+import model.BouquetRaw;
+import dal.BouquetDAO;
+import dal.CategoryDAO;
+import dal.FlowerBatchDAO;
+import dal.FlowerTypeDAO;
+import dal.OrderDAO;
+import jakarta.servlet.http.HttpSession;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import javax.mail.Session;
+import model.BouquetImage;
+import model.FlowerBatch;
+import model.FlowerType;
+import model.RequestDisplay;
+import model.RequestFlower;
 /**
  *
  * @author ADMIN
  */
-@WebServlet(name = "HomeController", urlPatterns = {"/home"})
-public class HomeController extends HttpServlet {
+@WebServlet(name = "RequestDetailController", urlPatterns = {"/requestDetail"})
+public class RequestDetailController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -47,10 +63,10 @@ public class HomeController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet HomeController</title>");
+            out.println("<title>Servlet RequestDetailController</title>");            
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet HomeController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet RequestDetailController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -68,29 +84,32 @@ public class HomeController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Bouquet> listBouquet = new ArrayList<>();
-        List<Category> listCategoryBQ = new ArrayList<>();
-        List<FlowerType> listFlower = new ArrayList<>();
-        List<Bouquet> listMostSellBouquet = new ArrayList<>();
+        HttpSession session = request.getSession();
         
-        BouquetDAO bdao = new BouquetDAO();
-        CategoryDAO cdao = new CategoryDAO();
-        FlowerTypeDAO fdao = new FlowerTypeDAO();
-
-        listFlower = fdao.getAllFlowerTypes();
-        request.setAttribute("listFlowerHome", listFlower);
-
-        listBouquet = bdao.getAll();
-        listCategoryBQ = cdao.getBouquetCategory();
-        listMostSellBouquet = bdao.getMostSellBouquet();
-        List<BouquetImage> images = bdao.getAllBouquetImage();
+        String orderIdStr = request.getParameter("orderId");
+        String orderItemIdStr = request.getParameter("orderItemId");
+        String action = request.getParameter("action");
+        int orderId = Integer.parseInt(orderIdStr);
+        int orderItemId = Integer.parseInt(orderItemIdStr);
+        OrderDAO odao = new OrderDAO();
+        FlowerTypeDAO ftdao = new FlowerTypeDAO();
+        List<RequestDisplay> listRequest = odao.gettAllRequestList(null, null, null, null);
+        List<RequestFlower> listFlower = odao.getRequestFlowerByOrder(orderId, orderItemId);
+        List<FlowerType> listFlowerType = ftdao.getAllFlowerTypes();
         
-        request.setAttribute("images", images);
-        request.setAttribute("listMostSellBouquet", listMostSellBouquet);
-        request.setAttribute("listBouquetHome", listBouquet);
-        request.setAttribute("cateBouquetHome", listCategoryBQ);
-        request.getRequestDispatcher("./ZeShopper/home.jsp").forward(request, response);
-
+        for (RequestDisplay requestDisplay : listRequest) {
+            if(requestDisplay.getOrderId() == orderId && requestDisplay.getOrderItemId() == orderItemId){
+                request.setAttribute("requestDate", requestDisplay.getRequestDate());
+            }
+        }
+        
+        request.setAttribute("listRequest", listRequest);
+        request.setAttribute("listFlower", listFlower);
+        request.setAttribute("listFlowerType", listFlowerType);
+        session.setAttribute("orderId", orderId);
+        session.setAttribute("orderItemId", orderItemId);
+        session.setAttribute("addFlowerAgree", true);
+        request.getRequestDispatcher("./DashMin/RequestDetail.jsp").forward(request, response);
     }
 
     /**
