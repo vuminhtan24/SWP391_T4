@@ -96,6 +96,7 @@ public class ProductDetailController extends HttpServlet {
             }
         }
         
+        request.setAttribute("bouquetAvailable", bqdao.bouquetAvailable(id));
         request.setAttribute("allImage", allImage);
         request.setAttribute("allBatchs", allBatchs);
         request.setAttribute("images", images);
