@@ -89,7 +89,7 @@
         <div class="container-fluid position-relative bg-white d-flex p-0">
             <div class="content">
                 <h1 class="h2">Add Flower Batch</h1>
-
+                <input type="hidden" name="addFlowerAgree" value="${sessionScope.addFlowerAgree}">
                 <!-- Display general error message -->
                 <c:if test="${not empty error}">
                     <div class="general-error">${error}</div>
@@ -120,6 +120,9 @@
                         <c:if test="${not empty expirationDateError}">
                             <div class="error">${expirationDateError}</div>
                         </c:if>
+                        <c:if test="${not empty dateRelationError}">
+                            <div class="error">${dateRelationError}</div>
+                        </c:if>
                     </div>
                     <div class="mb-3">
                         <label for="quantity" class="form-label">Quantity</label>
@@ -137,13 +140,15 @@
                             <div class="error">${holdError}</div>
                         </c:if>
                     </div>
+
                     <div class="mb-3">
                         <label for="warehouse_id" class="form-label">Warehouse</label>
                         <select id="warehouse_id" name="warehouse_id" class="form-select" required>
                             <option value="">Select Warehouse</option>
                             <c:if test="${not empty sessionScope.listW}">
                                 <c:forEach var="warehouse" items="${sessionScope.listW}">
-                                    <option value="${warehouse.warehouseId}" ${warehouse.warehouseId == warehouse_id ? 'selected' : ''}>
+                                    <option value="${warehouse.warehouseId}" 
+                                            ${warehouse.warehouseId == warehouse_id ? 'selected' : ''}>
                                         ${warehouse.name}
                                     </option>
                                 </c:forEach>
@@ -155,13 +160,21 @@
                         <c:if test="${not empty warehouseIdError}">
                             <div class="error">${warehouseIdError}</div>
                         </c:if>
-                    </div>   
+                    </div>
+
                     <div class="d-flex justify-content-center gap-3">
-                        <button type="submit" class="btn btn-primary">Add Batch</button>
-                        <a href="${pageContext.request.contextPath}/rawFlowerDetails?flower_id=${flowerId}" 
-                           class="btn btn-secondary">Cancel</a>
+                        <button type="submit" name="action" value="addbatch" class="btn btn-primary">Add Batch</button>
+                            <c:choose>
+                                <c:when test="${sessionScope.addFlowerAgree eq true}">
+                                    <a href="${pageContext.request.contextPath}/requestDetail?orderId=${orderId}&orderItemId=${orderItemId}" class="btn btn-secondary">Cancel</a>
+                                </c:when>
+                                <c:otherwise>
+                                    <a href="${pageContext.request.contextPath}/rawFlowerDetails?flower_id=${flowerId}" class="btn btn-secondary">Cancel</a>
+                                </c:otherwise>
+                            </c:choose>
                     </div>
                 </form>
+
             </div>
         </div>
 

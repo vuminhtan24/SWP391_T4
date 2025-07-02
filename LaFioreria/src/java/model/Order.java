@@ -25,6 +25,8 @@ public class Order {
     private String deliveryProofImage;
     private String rejectImage;
     private String rejectReason;
+    private String paymentMethod;
+    private java.sql.Timestamp createdAt;
 
     // Constructors
     public Order() {
@@ -32,7 +34,7 @@ public class Order {
 
     public Order(int orderId, String orderDate, Integer customerId, String customerName,
             String customerPhone, String customerAddress, String totalSell, String totalImport, int statusId, String statusName,
-            Integer shipperId, String shipperName) {
+            Integer shipperId, String shipperName, String paymentMethod) {
         this.orderId = orderId;
         this.orderDate = orderDate;
         this.customerId = customerId;
@@ -45,6 +47,7 @@ public class Order {
         this.statusName = statusName;
         this.shipperId = shipperId;
         this.shipperName = shipperName;
+        this.paymentMethod = paymentMethod;
     }
 
     public Order(int orderId, String orderDate, Integer customerId, String customerName,
@@ -68,6 +71,22 @@ public class Order {
         this.customerId = customerId;
         this.totalSell = totalSell;
         this.statusId = statusId;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public java.sql.Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(java.sql.Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 
     public int getOrderId() {

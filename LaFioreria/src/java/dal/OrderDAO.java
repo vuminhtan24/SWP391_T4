@@ -62,7 +62,7 @@ public class OrderDAO extends BaseDao {
         StringBuilder dataSql = new StringBuilder();
         dataSql.append("SELECT o.order_id, o.order_date, o.customer_id, ")
                 .append("COALESCE(u.Fullname, 'Guest') AS customer_name, ") // ✅ fallback cho khách vãng lai
-                .append("o.total_import, o.total_sell, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name ")
+                .append("o.total_import, o.total_sell, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name,o.payment_method ")
                 .append("FROM `order` o ")
                 .append("LEFT JOIN `user` u ON o.customer_id = u.User_ID ")
                 .append("JOIN `order_status` os ON o.status_id = os.order_status_id ")
@@ -166,7 +166,8 @@ public class OrderDAO extends BaseDao {
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
-                        rs.getString("shipper_name")
+                        rs.getString("shipper_name"),
+                        rs.getString("payment_method")
                 ));
             }
         } catch (SQLException e) {
@@ -198,7 +199,7 @@ public class OrderDAO extends BaseDao {
                 + "COALESCE(u.Address, o.customer_address) AS customer_address, "
                 + "o.total_sell, o.total_import, "
                 + "o.status_id, os.status_name, "
-                + "o.shipper_id, s.Fullname AS shipper_name "
+                + "o.shipper_id, s.Fullname AS shipper_name, o.payment_method "
                 + "FROM `order` o "
                 + "LEFT JOIN `user` u ON o.customer_id = u.User_ID "
                 + "JOIN `order_status` os ON o.status_id = os.order_status_id "
@@ -224,7 +225,8 @@ public class OrderDAO extends BaseDao {
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
-                        rs.getString("shipper_name")
+                        rs.getString("shipper_name"),
+                        rs.getString("payment_method")
                 );
             }
         } catch (SQLException e) {
@@ -515,8 +517,8 @@ public class OrderDAO extends BaseDao {
      * @return The generated order_id if successful, -1 otherwise.
      */
     public int addOrder(Order order) {
-        String sql = "INSERT INTO `order` (order_date, customer_id, total_import, total_sell, status_id, shipper_id) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO `order` (order_date, customer_id, total_import, total_sell, status_id, shipper_id, payment_method) "
+                + "VALUES (?, ?, ?, ?, ?, ?,?)";
         int generatedId = -1;
 
         try {
@@ -531,6 +533,7 @@ public class OrderDAO extends BaseDao {
             ps.setInt(3, totalImport);
             ps.setInt(4, totalSell);
             ps.setInt(5, order.getStatusId());
+            ps.setString(7, order.getPaymentMethod());
 
             if (order.getShipperId() == null) {
                 ps.setNull(6, java.sql.Types.INTEGER);
@@ -646,7 +649,7 @@ public class OrderDAO extends BaseDao {
                 + "COALESCE(u.Phone, o.customer_phone) AS customer_phone, "
                 + "COALESCE(u.Address, o.customer_address) AS customer_address, "
                 + "o.total_sell, o.total_import, o.status_id, os.status_name, "
-                + "o.shipper_id, s.Fullname AS shipper_name "
+                + "o.shipper_id, s.Fullname AS shipper_name, o.payment_method "
                 + "FROM `order` o "
                 + "LEFT JOIN `user` u ON o.customer_id = u.User_ID "
                 + "JOIN `order_status` os ON o.status_id = os.order_status_id "
@@ -684,7 +687,8 @@ public class OrderDAO extends BaseDao {
                         rs.getInt("status_id"),
                         rs.getString("status_name"),
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
-                        rs.getString("shipper_name")
+                        rs.getString("shipper_name"),
+                        rs.getString("payment_method")
                 );
                 orders.add(order);
             }
@@ -1132,23 +1136,67 @@ public class OrderDAO extends BaseDao {
         return listRequest;
     }
 
-    public List<RequestDisplay> gettAllRequestList() {
+    public List<RequestDisplay> gettAllRequestList(String flowerName, Date requesFlowerDate, Date confirmRequestDate, String status) {
         List<RequestDisplay> list = new ArrayList<>();
-        
-        String sql = "SELECT \n"
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT \n"
                 + "    rf.Order_ID,\n"
                 + "    rf.Order_Item_ID,\n"
                 + "    GROUP_CONCAT(ft.Flower_Name SEPARATOR ', ') AS Flower_Names,\n"
                 + "    ANY_VALUE(rf.Request_Creation_Date) AS Request_Date,\n"
-                + "    ANY_VALUE(rf.Request_Confirmation_Date) AS Confirm_Date,\n"
-                + "    ANY_VALUE(rf.Status) AS Status\n"
+                + "    MAX(rf.Request_Confirmation_Date) AS Confirm_Date,\n"
+                + "    CASE\n"
+                + "        WHEN SUM(rf.Status = 'reject') > 0 THEN 'reject'\n"
+                + "        WHEN SUM(rf.Status = 'done') > 0 AND SUM(rf.Status = 'pending') > 0 THEN 'doing'\n"
+                + "        WHEN SUM(rf.Status = 'pending') > 0 THEN 'pending'\n"
+                + "        WHEN SUM(rf.Status = 'done') = COUNT(*) THEN 'done'\n"
+                + "        ELSE 'unknown'\n"
+                + "    END AS Status\n"
                 + "FROM requestflower rf\n"
-                + "JOIN flower_type ft ON rf.Flower_ID = ft.Flower_ID\n"
-                + "GROUP BY rf.Order_ID, rf.Order_Item_ID;";
-        
+                + "JOIN flower_type ft ON rf.Flower_ID = ft.Flower_ID"
+        );
+
+        // Build dynamic WHERE clause
+        List<String> conditions = new ArrayList<>();
+        if (flowerName != null && !flowerName.trim().isEmpty()) {
+            conditions.add("ft.Flower_Name LIKE ?");
+        }
+        if (requesFlowerDate != null) {
+            conditions.add("rf.Request_Creation_Date = ?");
+        }
+        if (confirmRequestDate != null) {
+            conditions.add("rf.Request_Confirmation_Date = ?");
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            conditions.add("rf.Status = ?");
+        }
+
+        if (!conditions.isEmpty()) {
+            sql.append(" WHERE ").append(String.join(" AND ", conditions));
+        }
+
+        sql.append(" GROUP BY rf.Order_ID, rf.Order_Item_ID;");
+
         try {
             connection = dbc.getConnection();
-            ps = connection.prepareStatement(sql);
+            ps = connection.prepareStatement(sql.toString());
+
+            // Set parameters
+            int paramIndex = 1;
+            if (flowerName != null && !flowerName.trim().isEmpty()) {
+                ps.setString(paramIndex++, "%" + flowerName + "%");
+            }
+            if (requesFlowerDate != null) {
+                ps.setDate(paramIndex++, new java.sql.Date(requesFlowerDate.getTime()));
+            }
+            if (confirmRequestDate != null) {
+                ps.setDate(paramIndex++, new java.sql.Date(confirmRequestDate.getTime()));
+            }
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(paramIndex++, status);
+            }
+
             rs = ps.executeQuery();
             while (rs.next()) {
                 int orderId = rs.getInt("Order_ID");
@@ -1157,9 +1205,9 @@ public class OrderDAO extends BaseDao {
                 LocalDate requestDate = rs.getDate("Request_Date").toLocalDate();
                 java.sql.Date sqlConfirmDate = rs.getDate("Confirm_Date");
                 LocalDate confirmDate = (sqlConfirmDate != null) ? sqlConfirmDate.toLocalDate() : null;
-                String status = rs.getString("Status");
-                
-                RequestDisplay rd = new RequestDisplay(orderId, orderItemId, flowerNames, requestDate, confirmDate, status);
+                String resultStatus = rs.getString("Status");
+
+                RequestDisplay rd = new RequestDisplay(orderId, orderItemId, flowerNames, requestDate, confirmDate, resultStatus);
                 list.add(rd);
             }
         } catch (SQLException e) {
@@ -1170,11 +1218,57 @@ public class OrderDAO extends BaseDao {
             } catch (Exception e) {
             }
         }
+
         return list;
     }
 
+    public void confirmFlowerRequest(int orderId, int orderItemId, int flowerId) {
+        String sql = "UPDATE `la_fioreria`.`requestflower`\n"
+                + "SET\n"
+                + "`Status` = 'done',\n"
+                + "`Request_Confirmation_Date` = ?\n"
+                + "WHERE `Order_ID` = ? AND `Order_Item_ID` = ? AND `Flower_ID` = ?;";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+
+            // Gán các giá trị cho ? trong câu SQL
+            ps.setDate(1, new java.sql.Date(System.currentTimeMillis())); // Ngày hôm nay
+            ps.setInt(2, orderId);
+            ps.setInt(3, orderItemId);
+            ps.setInt(4, flowerId);
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error updating order_item status: " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                e.printStackTrace(); // Ghi log lỗi đóng tài nguyên
+            }
+        }
+    }
+
     public static void main(String[] args) {
-        OrderDAO orderDAO = new OrderDAO();
-        System.out.println(orderDAO.getRequestFlowerByOrder(15, 21));
+        OrderDAO cartDAO = new OrderDAO();
+        
+        int testOrderId = 1; // 📝 Thay ID này bằng 1 ID tồn tại trong DB
+        Order order = cartDAO.getOrderDetailById(31);
+        
+        if (order != null) {
+            System.out.println("Thông tin đơn hàng:");
+            System.out.println("ID: " + order.getOrderId());
+            System.out.println("Ngày đặt: " + order.getOrderDate());
+            System.out.println("Khách hàng: " + order.getCustomerName());
+            System.out.println("SĐT: " + order.getCustomerPhone());
+            System.out.println("Địa chỉ: " + order.getCustomerAddress());
+            System.out.println("Tổng tiền: " + order.getTotalSell());
+            System.out.println("Phương thức thanh toán: " + order.getPaymentMethod());
+            System.out.println("Trạng thái: " + order.getStatusName());
+            System.out.println("Shipper: " + order.getShipperName());
+        } else {
+            System.out.println("Không tìm thấy đơn hàng với ID: " + testOrderId);
+        }
     }
 }

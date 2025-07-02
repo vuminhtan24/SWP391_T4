@@ -3,7 +3,6 @@
     Created on : Jun 18, 2025, 8:17:24 PM
     Author     : Admin
 --%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
@@ -108,6 +107,9 @@
                         <c:if test="${not empty expirationDateError}">
                             <div class="error">${expirationDateError}</div>
                         </c:if>
+                        <c:if test="${not empty dateRelationError}">
+                            <div class="error">${dateRelationError}</div>
+                        </c:if>
                     </div>
                     <div class="mb-3">
                         <label for="quantity" class="form-label">Quantity</label>
@@ -132,7 +134,7 @@
                             <c:if test="${not empty sessionScope.listW}">
                                 <c:forEach var="w" items="${sessionScope.listW}">
                                     <option value="${w.warehouseId}" 
-                                            ${warehouseId != null ? (warehouseId == w.warehouseId ? 'selected' : '') : (item.warehouse.warehouseId == w.warehouseId ? 'selected' : '')}>
+                                            ${not empty warehouse_id && w.warehouseId == warehouse_id ? 'selected' : (item.warehouse.warehouseId == w.warehouseId ? 'selected' : '')}>
                                         ${w.name}
                                     </option>
                                 </c:forEach>
@@ -152,8 +154,16 @@
                     </div>    
                     <div class="d-flex justify-content-center gap-3">
                         <button type="submit" class="btn btn-primary">Update Batch</button>
-                        <a href="${pageContext.request.contextPath}/rawFlowerDetails?flower_id=${item.flowerId}" 
-                           class="btn btn-secondary">Cancel</a>
+                        <c:choose>
+                            <c:when test="${not empty item.flowerId}">
+                                <a href="${pageContext.request.contextPath}/rawFlowerDetails?flower_id=${item.flowerId}" 
+                                   class="btn btn-secondary">Cancel</a>
+                            </c:when>
+                            <c:otherwise>
+                                <a href="${pageContext.request.contextPath}/DashMin/rawflower2" 
+                                   class="btn btn-secondary">Cancel</a>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </form>
             </div>

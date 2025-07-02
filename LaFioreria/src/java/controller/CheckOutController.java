@@ -227,6 +227,7 @@ public class CheckOutController extends HttpServlet {
         order.setOrderDate(LocalDate.now().toString());
         order.setTotalSell(String.valueOf(actualTotalSell));
         order.setTotalImport(String.valueOf(actualTotalSell / 5)); // Giả định lợi nhuận 20%
+        order.setPaymentMethod(paymentMethod);
         order.setStatusId(1); // Chờ xử lý
 
         CartDAO cartDAO = new CartDAO();

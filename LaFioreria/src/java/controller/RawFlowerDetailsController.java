@@ -1,6 +1,3 @@
-/*
- * Click nbproject/project.properties to edit this template
- */
 package controller;
 
 import dal.FlowerTypeDAO;
@@ -25,36 +22,34 @@ import model.Warehouse;
 @WebServlet(name = "RawFlowerDetailsController", urlPatterns = {"/rawFlowerDetails"})
 public class RawFlowerDetailsController extends HttpServlet {
 
-    /**
-     * Xử lý HTTP <code>GET</code> để hiển thị chi tiết nguyên liệu.
-     *
-     * @param request  servlet request
-     * @param response servlet response
-     * @throws ServletException nếu xảy ra lỗi liên quan đến servlet
-     * @throws IOException      nếu xảy ra lỗi I/O
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try {
-            // Get flower_id parameter from request
+            // Log để debug
+            System.out.println("RawFlowerDetailsController: Processing request");
+
+            // Lấy tham số flower_id
             String flowerIdStr = request.getParameter("flower_id");
             if (flowerIdStr == null || flowerIdStr.trim().isEmpty()) {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Flower type ID not provided.");
                 return;
             }
 
-            // Convert flower_id to integer
+            // Chuyển đổi flower_id
             int flowerId;
             try {
                 flowerId = Integer.parseInt(flowerIdStr);
+                if (flowerId <= 0) {
+                    throw new NumberFormatException("ID loại hoa phải là số dương.");
+                }
             } catch (NumberFormatException e) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid flower type ID.");
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid flower type ID: " + e.getMessage());
                 return;
             }
 
-            // Get sort parameters
+            // Lấy tham số sort
             String sortField = request.getParameter("sortField");
             String sortDir = request.getParameter("sortDir");
             if (sortField == null || !sortField.matches("batchId|unitPrice|importDate|expirationDate|quantity")) {
@@ -64,37 +59,69 @@ public class RawFlowerDetailsController extends HttpServlet {
                 sortDir = "asc";
             }
 
-            // Get warehouse filter
+            // Lấy tham số lọc
             String warehouseFilter = request.getParameter("warehouseFilter");
-            if (warehouseFilter != null) {
-                warehouseFilter = warehouseFilter.trim(); // Gán một lần và không thay đổi sau đó
-            } else {
-                warehouseFilter = ""; // Gán mặc định nếu null
-            }
+            String statusFilter = request.getParameter("statusFilter");
 
-            // Initialize DAO and get flower type details
+            // Kiểm tra tham số lọc
+            boolean hasWarehouse = (warehouseFilter != null && !warehouseFilter.trim().isEmpty());
+            boolean hasStatus = (statusFilter != null && !statusFilter.trim().isEmpty());
+
+            // Log để debug
+            System.out.println("Received flower_id: " + flowerId);
+            System.out.println("Received warehouseFilter: " + warehouseFilter);
+            System.out.println("Received statusFilter: " + statusFilter);
+
+            // Lấy chi tiết loại hoa
             FlowerTypeDAO ftDAO = new FlowerTypeDAO();
             FlowerType flowerType = ftDAO.getFlowerTypeById(flowerId);
-            
+            if (flowerType == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Flower type with ID " + flowerId + " not found.");
+                return;
+            }
+
+            // Lấy danh sách lô hoa
             FlowerBatchDAO fbDAO = new FlowerBatchDAO();
             List<FlowerBatch> flowerBatches = fbDAO.getFlowerBatchesByFlowerId(flowerId);
 
-            // Filter by warehouse if specified
-            if (warehouseFilter != null && !warehouseFilter.trim().isEmpty()) {
-                String filter = warehouseFilter.trim();
-                flowerBatches.removeIf(batch -> {
-                    if (batch == null) {
-                        return true; // hoặc false nếu muốn giữ batch null
-                    }
-                    Warehouse w = batch.getWarehouse();
-                    if (w == null || w.getName() == null) {
-                        return true;
-                    }
-                    return !filter.equals(w.getName().trim());
-                });
+            System.out.println("Before filtering, size: " + flowerBatches.size());
+
+            // Lọc danh sách
+            if (hasWarehouse || hasStatus) {
+                String searchWarehouse = hasWarehouse ? warehouseFilter.trim() : null;
+                String searchStatus = hasStatus ? statusFilter.trim() : null;
+
+                flowerBatches = flowerBatches.stream()
+                        .filter(b -> {
+                            boolean matchWarehouse = !hasWarehouse || (b.getWarehouse() != null && b.getWarehouse().getName() != null
+                                    && b.getWarehouse().getName().equalsIgnoreCase(searchWarehouse));
+                            boolean matchStatus = !hasStatus || (b.getStatus() != null && b.getStatus().equalsIgnoreCase(searchStatus));
+                            return matchWarehouse && matchStatus;
+                        })
+                        .toList();
+                System.out.println("After filtering, size: " + flowerBatches.size());
             }
 
-            // Sorting
+            // Phân trang
+            int pageSize = 6; // Số lô hoa mỗi trang
+            int currentPage = 1;
+            String pageParam = request.getParameter("page");
+            if (pageParam != null) {
+                try {
+                    currentPage = Integer.parseInt(pageParam);
+                } catch (NumberFormatException e) {
+                    currentPage = 1;
+                }
+            }
+
+            int totalItems = flowerBatches.size();
+            int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+
+            int start = (currentPage - 1) * pageSize;
+            int end = Math.min(start + pageSize, totalItems);
+            List<FlowerBatch> batchPage = totalItems > 0 ? flowerBatches.subList(start, end) : new ArrayList<>();
+
+            // Sắp xếp
             Comparator<FlowerBatch> cmp;
             switch (sortField) {
                 case "unitPrice":
@@ -116,41 +143,36 @@ public class RawFlowerDetailsController extends HttpServlet {
             if ("desc".equalsIgnoreCase(sortDir)) {
                 cmp = cmp.reversed();
             }
-            flowerBatches.sort(cmp);
+            flowerBatches = flowerBatches.stream().sorted(cmp).toList();
+            batchPage = totalItems > 0 ? flowerBatches.subList(start, end) : new ArrayList<>();
 
-            // Get list of warehouses from DAO
+            // Lấy danh sách kho
             WarehouseDAO whDAO = new WarehouseDAO();
             List<Warehouse> warehouses = whDAO.getAllWarehouse();
-
-            // Check if flower type exists
-            if (flowerType == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Flower type with ID " + flowerId + " not found.");
-                return;
+            if (warehouses == null || warehouses.isEmpty()) {
+                System.out.println("No warehouses found.");
             }
 
-            // Set attributes for JSP
+            // Đặt thuộc tính cho JSP
             request.setAttribute("item", flowerType);
-            request.setAttribute("flowerBatches", flowerBatches);
+            request.setAttribute("flowerBatches", batchPage);
+            request.setAttribute("warehouses", warehouses);
             request.setAttribute("sortField", sortField);
             request.setAttribute("sortDir", sortDir);
-            request.setAttribute("warehouses", warehouses);
+            request.setAttribute("warehouseFilter", warehouseFilter);
+            request.setAttribute("statusFilter", statusFilter);
+            request.setAttribute("currentPage", currentPage);
+            request.setAttribute("totalPages", totalPages);
 
-            // Forward to JSP for displaying details
+            // Chuyển tiếp đến rawflowerdetails.jsp
             request.getRequestDispatcher("DashMin/rawflowerdetails.jsp").forward(request, response);
         } catch (Exception e) {
+            e.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
                     "An error occurred while retrieving flower type details: " + e.getMessage());
         }
     }
 
-    /**
-     * Handles HTTP <code>POST</code>. Currently does not support updating flower type details.
-     *
-     * @param request  servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -159,13 +181,8 @@ public class RawFlowerDetailsController extends HttpServlet {
                 "POST method is not supported for flower type details.");
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
-        return "Servlet to display detailed information of a flower type based on ID with batch sorting and warehouse filtering.";
+        return "Servlet to display detailed information of a flower type based on ID with batch sorting and filtering.";
     }
 }

@@ -97,10 +97,16 @@ public class EditCategoryController extends HttpServlet {
             String descriptionError = null;
             CategoryDAO cdao = new CategoryDAO();
             Category oldCategory = cdao.getCategoryById(id);
-            if (description != null && !description.trim().isEmpty() && !description.trim().equals(oldCategory.getDescription())) {
-                descriptionError = Validate.validateDescription(description);
-            }
+            if (description != null && !description.trim().isEmpty()) {
+                if (!description.trim().equals(oldCategory.getDescription())) {
+                    descriptionError = Validate.validateDescription(description);
+                }
 
+                // Chỉ kiểm tra độ dài nếu không có lỗi từ bước trên
+                if (descriptionError == null) {
+                    descriptionError = Validate.validateLength(description, "Description", 1, 255);
+                }
+            }
             System.out.println("Validation - categoryNameError: " + categoryNameError + ", descriptionError: " + descriptionError);
 
             request.setAttribute("categoryId", id);

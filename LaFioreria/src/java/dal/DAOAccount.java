@@ -91,41 +91,41 @@ public class DAOAccount extends BaseDao {
         return false;
     }
 
-   public User validate(String username, String inputPassword) {
-    String sql = "SELECT * FROM la_fioreria.user WHERE username = ?";
-    try {
-        connection = dbc.getConnection();
-        ps = connection.prepareStatement(sql);
-        ps.setString(1, username);
-        rs = ps.executeQuery();
-        if (rs.next()) {
-            String hashedPasswordFromDB = rs.getString("password").trim();
-            
-            // So sánh mật khẩu người dùng nhập với mật khẩu đã mã hóa trong DB
-            if (BCrypt.checkpw(inputPassword, hashedPasswordFromDB)) {
-                return new User(
-                    rs.getInt("User_ID"),
-                    rs.getString("username").trim(),
-                    rs.getString("password").trim(), // hoặc hashedPasswordFromDB
-                    rs.getString("fullname").trim(),
-                    rs.getString("email").trim(),
-                    rs.getString("phone").trim(),
-                    rs.getString("address").trim(),
-                    rs.getInt("Role")
-                );
+    public User validate(String username, String inputPassword) {
+        String sql = "SELECT * FROM la_fioreria.user WHERE username = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, username);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                String hashedPasswordFromDB = rs.getString("password").trim();
+
+                // So sánh mật khẩu người dùng nhập với mật khẩu đã mã hóa trong DB
+                if (BCrypt.checkpw(inputPassword, hashedPasswordFromDB)) {
+                    return new User(
+                            rs.getInt("User_ID"),
+                            rs.getString("username").trim(),
+                            rs.getString("password").trim(), // hoặc hashedPasswordFromDB
+                            rs.getString("fullname").trim(),
+                            rs.getString("email").trim(),
+                            rs.getString("phone").trim(),
+                            rs.getString("address").trim(),
+                            rs.getInt("Role")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                // ignore
             }
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    } finally {
-        try {
-            this.closeResources();
-        } catch (Exception e) {
-            // ignore
-        }
+        return null;
     }
-    return null;
-}
 
     public User getAccountById(int userId) {
         String sql = "SELECT * FROM la_fioreria.user WHERE User_ID = ?";
@@ -276,15 +276,43 @@ public class DAOAccount extends BaseDao {
         return false;
     }
 
-    public static void main(String[] args) {
-        String[] passwords = {
-        "admin123", "manager123", "seller123", "marketing1", 
-        "store123", "guest123", "cust123", "cust456"
-    };
-
-    for (String pw : passwords) {
-        String hashed = BCrypt.hashpw(pw, BCrypt.gensalt());
-        System.out.println(pw + " -> " + hashed);
+    public boolean updatePasswordById(int userId, String hashedPassword) {
+        String sql = "UPDATE la_fioreria.user SET password = ? WHERE User_ID = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, hashedPassword);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return false;
     }
+
+    public static void main(String[] args) {
+        User newUser = new User();
+        newUser.setUsername("quangShipper");
+        newUser.setPassword("123456"); // sẽ được băm bên trong DAO
+        newUser.setFullname("Vũ Quang");
+        newUser.setEmail("quangvmhe181542@fpt.edu.vn");
+        newUser.setPhone("0123456789");
+        newUser.setAddress("Hà Nội");
+        newUser.setRole(8); // ví dụ: 0 = user, 1 = admin
+
+        // Gọi DAO để tạo tài khoản
+        DAOAccount dao = new DAOAccount(); // đảm bảo constructor này không null dbc
+        boolean result = dao.createAccount(newUser);
+
+        // Kết quả
+        if (result) {
+            System.out.println("Tạo tài khoản thành công.");
+        } else {
+            System.out.println("Tạo tài khoản thất bại.");
+        }
     }
 }

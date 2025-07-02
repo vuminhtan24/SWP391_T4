@@ -4,6 +4,7 @@ import constant.IConstant;
 import dal.WarehouseDAO;
 import jakarta.servlet.http.Part;
 import java.sql.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import model.Warehouse;
@@ -127,25 +128,21 @@ public class Validate {
     }
 
     // Kiểm tra warehouseId
-    public static String validateWarehouseId(String warehouseIdStr, WarehouseDAO wh) {
-        String error = validateNumber(warehouseIdStr, "Warehouse ID");
-        if (error != null) {
-            return error;
+    public static String validateWarehouseId(String warehouseIdStr, WarehouseDAO whDAO) {
+        if (warehouseIdStr == null || warehouseIdStr.trim().isEmpty()) {
+            return "Warehouse ID is required.";
         }
         try {
             int warehouseId = Integer.parseInt(warehouseIdStr);
-            if (warehouseId <= 0) {
-                return "Warehouse ID must be a positive integer.";
+            List<Warehouse> warehouses = whDAO.getAllWarehouse();
+            boolean exists = warehouses.stream().anyMatch(w -> w.getWarehouseId() == warehouseId);
+            if (!exists) {
+                return "Invalid warehouse ID.";
             }
-            // Kiểm tra warehouseId có tồn tại không
-            Warehouse warehouse = wh.getWarehouseById(warehouseId);
-            if (warehouse == null) {
-                return "Warehouse ID does not exist.";
-            }
+            return null;
         } catch (NumberFormatException e) {
             return "Warehouse ID must be a valid number.";
         }
-        return null; // Hợp lệ
     }
     
     // Kiểm tra description (không giới hạn độ dài, thêm nhiều ký tự đặc biệt)

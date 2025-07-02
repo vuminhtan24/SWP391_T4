@@ -256,6 +256,7 @@
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/repairOrders" class="dropdown-item">Repair Orders</a>
                                 <a href="${pageContext.request.contextPath}/repairHistory" class="dropdown-item">Repair History</a>
+                                <a href="${pageContext.request.contextPath}/listRequest" class="dropdown-item">List Request</a>
                             </div>
                         </div>
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>

@@ -28,41 +28,58 @@ public class UpdateBatchController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         FlowerBatchDAO fbDAO = new FlowerBatchDAO();
+        HttpSession session = request.getSession();
         try {
             // Get batch_id from URL parameter
             String batchIdStr = request.getParameter("batch_id");
+            System.out.println("UpdateBatchController.doGet: batch_id=" + batchIdStr); // Debug log
             if (batchIdStr == null || batchIdStr.trim().isEmpty()) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Batch ID is required.");
+                session.setAttribute("error", "Batch ID is required.");
+                response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
                 return;
             }
 
             int batchId = Integer.parseInt(batchIdStr);
+            if (batchId <= 0) {
+                session.setAttribute("error", "Batch ID must be positive.");
+                response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
+                return;
+            }
+
             FlowerBatch flowerBatch = fbDAO.getFlowerBatchById(batchId);
-            if (flowerBatch == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Batch with ID " + batchId + " not found.");
+            if (flowerBatch == null || flowerBatch.getFlowerId() <= 0) {
+                session.setAttribute("error", "Batch with ID " + batchId + " not found or invalid flower ID.");
+                response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
                 return;
             }
 
             // Set flower batch for JSP
             request.setAttribute("item", flowerBatch);
+            System.out.println("UpdateBatchController.doGet: flowerId=" + flowerBatch.getFlowerId()); // Debug log
 
             // Get list of warehouses for the form
             WarehouseDAO whDAO = new WarehouseDAO();
             List<Warehouse> warehouses = whDAO.getAllWarehouse();
-            if (warehouses == null) {
-                System.out.println("Warehouses is null");
+            if (warehouses == null || warehouses.isEmpty()) {
+                System.out.println("Warehouses is null or empty");
+                session.setAttribute("error", "No warehouses available.");
+                response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
+                return;
             } else {
                 warehouses.forEach(w -> System.out.println("Warehouse ID: " + w.getWarehouseId() + ", Name: " + w.getName()));
             }
-            request.getSession().setAttribute("listW", warehouses); // Lưu vào session
+            session.setAttribute("listW", warehouses); // Lưu vào session
 
             // Forward to updatebatch.jsp
             request.getRequestDispatcher("/DashMin/updatebatch.jsp").forward(request, response);
         } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid batch ID.");
+            System.out.println("UpdateBatchController.doGet: Invalid batch ID - " + e.getMessage());
+            session.setAttribute("error", "Invalid batch ID.");
+            response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred: " + e.getMessage());
+            session.setAttribute("error", "An error occurred: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
         }
     }
 
@@ -81,6 +98,15 @@ public class UpdateBatchController extends HttpServlet {
             String holdStr = request.getParameter("hold");
             String warehouseIdStr = request.getParameter("warehouse_id");
 
+            // Debug log
+            System.out.println("UpdateBatchController.doPost: batch_id=" + batchIdStr +
+                    ", unit_price=" + unitPriceStr +
+                    ", import_date=" + importDate +
+                    ", expiration_date=" + expirationDate +
+                    ", quantity=" + quantityStr +
+                    ", hold=" + holdStr +
+                    ", warehouse_id=" + warehouseIdStr);
+
             // Validate each field using Validate class
             String batchIdError = Validate.validateNumber(batchIdStr, "Batch ID");
             String unitPriceError = Validate.validateNumberWithRange(unitPriceStr, "Unit Price", 0, Integer.MAX_VALUE);
@@ -90,9 +116,39 @@ public class UpdateBatchController extends HttpServlet {
             String holdError = Validate.validateNumberWithRange(holdStr, "Hold", 0, Integer.MAX_VALUE);
             String warehouseIdError = Validate.validateWarehouseId(warehouseIdStr, new WarehouseDAO());
 
+            // Check date relationship (import_date <= expiration_date)
+            String dateRelationError = null;
+            if (importDateError == null && expirationDateError == null) {
+                try {
+                    LocalDate importLocalDate = LocalDate.parse(importDate);
+                    LocalDate expirationLocalDate = LocalDate.parse(expirationDate);
+                    LocalDate today = LocalDate.now();
+
+                    // Ngày nhập < hôm nay → lỗi
+                    if (importLocalDate.isBefore(today)) {
+                        dateRelationError = "Ngày nhập không được ở quá khứ.";
+                    } else if (!importLocalDate.isBefore(expirationLocalDate)) {
+                        dateRelationError = "Ngày nhập phải nhỏ hơn ngày hết hạn.";
+                    }
+                } catch (Exception e) {
+                    dateRelationError = "Lỗi định dạng ngày. Vui lòng kiểm tra lại.";
+                }
+            }
+
+            // Debug log for validation errors
+            System.out.println("Validation errors: batchIdError=" + batchIdError +
+                    ", unitPriceError=" + unitPriceError +
+                    ", importDateError=" + importDateError +
+                    ", expirationDateError=" + expirationDateError +
+                    ", quantityError=" + quantityError +
+                    ", holdError=" + holdError +
+                    ", warehouseIdError=" + warehouseIdError +
+                    ", dateRelationError=" + dateRelationError);
+
             // Check for validation errors
             if (batchIdError != null || unitPriceError != null || importDateError != null ||
-                expirationDateError != null || quantityError != null || holdError != null || warehouseIdError != null) {
+                expirationDateError != null || quantityError != null || holdError != null ||
+                warehouseIdError != null || dateRelationError != null) {
                 // Retain form data
                 request.setAttribute("batch_id", batchIdStr);
                 request.setAttribute("unit_price", unitPriceStr);
@@ -110,11 +166,21 @@ public class UpdateBatchController extends HttpServlet {
                 request.setAttribute("quantityError", quantityError);
                 request.setAttribute("holdError", holdError);
                 request.setAttribute("warehouseIdError", warehouseIdError);
+                request.setAttribute("dateRelationError", dateRelationError);
+
+                // Set flower batch for JSP to retain status and other fields
+                int batchId = batchIdStr != null && !batchIdStr.trim().isEmpty() ? Integer.parseInt(batchIdStr) : 0;
+                FlowerBatch flowerBatch = fbDAO.getFlowerBatchById(batchId);
+                if (flowerBatch != null) {
+                    request.setAttribute("item", flowerBatch);
+                } else {
+                    request.setAttribute("error", "Batch with ID " + batchId + " not found.");
+                }
 
                 // Get list of warehouses for the form
                 WarehouseDAO whDAO = new WarehouseDAO();
                 List<Warehouse> warehouses = whDAO.getAllWarehouse();
-                request.getSession().setAttribute("listW", warehouses); // Cập nhật session
+                session.setAttribute("listW", warehouses); // Cập nhật session
 
                 // Forward back to updatebatch.jsp with errors
                 request.getRequestDispatcher("/DashMin/updatebatch.jsp").forward(request, response);
@@ -141,10 +207,40 @@ public class UpdateBatchController extends HttpServlet {
             // Set success message and redirect to flower details
             session.setAttribute("message", "Flower batch updated successfully!");
             String flowerId = request.getParameter("flower_id");
+            if (flowerId == null || flowerId.trim().isEmpty()) {
+                // Fallback: Get flowerId from FlowerBatch
+                FlowerBatch flowerBatch = fbDAO.getFlowerBatchById(batchId);
+                flowerId = String.valueOf(flowerBatch.getFlowerId());
+            }
             response.sendRedirect(request.getContextPath() + "/rawFlowerDetails?flower_id=" + flowerId);
         } catch (NumberFormatException e) {
             e.printStackTrace();
             request.setAttribute("error", "Invalid numeric input: " + e.getMessage());
+            // Retain form data
+            request.setAttribute("batch_id", request.getParameter("batch_id"));
+            request.setAttribute("unit_price", request.getParameter("unit_price"));
+            request.setAttribute("import_date", request.getParameter("import_date"));
+            request.setAttribute("expiration_date", request.getParameter("expiration_date"));
+            request.setAttribute("quantity", request.getParameter("quantity"));
+            request.setAttribute("hold", request.getParameter("hold"));
+            request.setAttribute("warehouse_id", request.getParameter("warehouse_id"));
+            // Set flower batch for JSP
+            String batchIdStr = request.getParameter("batch_id");
+            if (batchIdStr != null && !batchIdStr.trim().isEmpty()) {
+                try {
+                    int batchId = Integer.parseInt(batchIdStr);
+                    FlowerBatch flowerBatch = fbDAO.getFlowerBatchById(batchId);
+                    if (flowerBatch != null) {
+                        request.setAttribute("item", flowerBatch);
+                    }
+                } catch (NumberFormatException ex) {
+                    // Ignore if batchIdStr is invalid
+                }
+            }
+            // Get list of warehouses
+            WarehouseDAO whDAO = new WarehouseDAO();
+            List<Warehouse> warehouses = whDAO.getAllWarehouse();
+            session.setAttribute("listW", warehouses);
             request.getRequestDispatcher("/DashMin/updatebatch.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -157,10 +253,23 @@ public class UpdateBatchController extends HttpServlet {
             request.setAttribute("quantity", request.getParameter("quantity"));
             request.setAttribute("hold", request.getParameter("hold"));
             request.setAttribute("warehouse_id", request.getParameter("warehouse_id"));
+            // Set flower batch for JSP
+            String batchIdStr = request.getParameter("batch_id");
+            if (batchIdStr != null && !batchIdStr.trim().isEmpty()) {
+                try {
+                    int batchId = Integer.parseInt(batchIdStr);
+                    FlowerBatch flowerBatch = fbDAO.getFlowerBatchById(batchId);
+                    if (flowerBatch != null) {
+                        request.setAttribute("item", flowerBatch);
+                    }
+                } catch (NumberFormatException ex) {
+                    // Ignore if batchIdStr is invalid
+                }
+            }
             // Get list of warehouses
             WarehouseDAO whDAO = new WarehouseDAO();
             List<Warehouse> warehouses = whDAO.getAllWarehouse();
-            request.getSession().setAttribute("listW", warehouses);
+            session.setAttribute("listW", warehouses);
             request.getRequestDispatcher("/DashMin/updatebatch.jsp").forward(request, response);
         }
     }

@@ -33,6 +33,8 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.mail.Session;
 import model.BouquetImage;
 import model.FlowerBatch;
@@ -64,7 +66,7 @@ public class ListRequestController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ListRequestController</title>");            
+            out.println("<title>Servlet ListRequestController</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet ListRequestController at " + request.getContextPath() + "</h1>");
@@ -86,8 +88,40 @@ public class ListRequestController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         OrderDAO odao = new OrderDAO();
-        List<RequestDisplay> listRequest = odao.gettAllRequestList();
-        
+
+// Lấy tham số từ request
+        String flowerNameSearch = request.getParameter("flowerNameSearch");
+        String requestDateStr = request.getParameter("requestDate");
+        String confirmDateStr = request.getParameter("confirmDate");
+        String status = request.getParameter("status");
+
+// Khởi tạo biến ngày
+        Date requestDate = null;
+        Date confirmDate = null;
+
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+            if (requestDateStr != null && !requestDateStr.isEmpty()) {
+                requestDate = sdf.parse(requestDateStr);
+            }
+            if (confirmDateStr != null && !confirmDateStr.isEmpty()) {
+                confirmDate = sdf.parse(confirmDateStr);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace(); // Có thể log lỗi hoặc hiển thị thông báo người dùng
+        }
+
+// Gọi DAO với tham số lọc
+        List<RequestDisplay> listRequest = odao.gettAllRequestList(
+                flowerNameSearch,
+                requestDate,
+                confirmDate,
+                (status != null && !status.trim().isEmpty()) ? status : null
+        );
+
+// Truyền dữ liệu sang JSP
         request.setAttribute("listRequest", listRequest);
         request.getRequestDispatcher("./DashMin/listRequest.jsp").forward(request, response);
     }

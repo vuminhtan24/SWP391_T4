@@ -6,6 +6,7 @@ package controller;
 
 import com.google.gson.Gson;
 import dal.DAOContact;
+import dal.FlowerDAO;
 import dal.OrderDAO;
 import dal.SalesDAO;
 import dal.NotificationDAO;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 import model.Category;
 import model.Contact;
 import model.OrderStatusCount;
@@ -80,7 +82,7 @@ public class AdminServlet extends HttpServlet {
         DAOContact Dao = new DAOContact();
         List<Contact> contactList = Dao.getAllContacts();
         request.setAttribute("messages", contactList);
-        
+
         // Thêm lấy danh sách thông báo
         NotificationDAO notificationDAO = new NotificationDAO();
         HttpSession session = request.getSession(false);
@@ -141,7 +143,7 @@ public class AdminServlet extends HttpServlet {
         List<StatResult> filteredYears = new ArrayList<>();
         for (StatResult stat : allYears) {
             String label = stat.getLabel();
-            int year = Integer.parseInt(label.replace("Năm ", "").trim());
+            int year = Integer.parseInt(label.replace("Year ", "").trim());
             if (year >= fromYear && year <= toYear) {
                 filteredYears.add(stat);
             }
@@ -245,6 +247,22 @@ public class AdminServlet extends HttpServlet {
 
         List<OrderStatusCount> statusCounts = oDAO.getOrderStatusCounts();
         request.setAttribute("statusCounts", statusCounts);
+
+        FlowerDAO flower_dao = new FlowerDAO();
+        Map<String, Integer> discardReasonByCategory = flower_dao.getDiscardReasonByFlowerType();
+        List<StatResult> expiredByMonthAndCategory = flower_dao.getExpiredFlowerByMonthAndCategory();
+
+// ⚙️ Dữ liệu cho biểu đồ cột: Lỗi theo loại hoa
+        request.setAttribute("discardLabels", gson.toJson(discardReasonByCategory.keySet()));
+        request.setAttribute("discardValues", gson.toJson(discardReasonByCategory.values()));
+
+// ⚙️ Dữ liệu cho biểu đồ đường: Hoa hết hạn theo tháng
+        request.setAttribute("expiredLabels", gson.toJson(
+                expiredByMonthAndCategory.stream().map(StatResult::getLabel).collect(Collectors.toList())
+        ));
+        request.setAttribute("expiredValues", gson.toJson(
+                expiredByMonthAndCategory.stream().map(StatResult::getValue).collect(Collectors.toList())
+        ));
 
         request.getRequestDispatcher("/DashMin/admin.jsp").forward(request, response);
     }

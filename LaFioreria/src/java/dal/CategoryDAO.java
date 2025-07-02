@@ -86,7 +86,7 @@ public class CategoryDAO extends BaseDao {
         }
         return null;
     }
-    
+
     public String getCategoryDesByBouquet(int bqId) {
         String sql = "SELECT c.description FROM la_fioreria.category c JOIN la_fioreria.bouquet b ON b.cid = c.category_id WHERE b.Bouquet_ID = ?";
         try {
@@ -221,8 +221,8 @@ public class CategoryDAO extends BaseDao {
         }
         return false;
     }
-    
-    private boolean isCategoryNameExists(String categoryName, int excludeCategoryId) {
+
+    public boolean isCategoryNameExists(String categoryName, int excludeCategoryId) {
         String sql = "SELECT COUNT(*) FROM la_fioreria.category WHERE category_name = ? AND category_id != ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, categoryName);
@@ -239,6 +239,29 @@ public class CategoryDAO extends BaseDao {
             try {
                 this.closeResources();
             } catch (Exception e) {
+            }
+        }
+        return false;
+    }
+
+    public boolean isCategoryNameExists(String categoryName) {
+        String sql = "SELECT COUNT(*) FROM la_fioreria.category WHERE category_name = ?";
+        try {
+            connection = dbc.getConnection(); // Khởi tạo kết nối
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, categoryName);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in isCategoryNameExists: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources(); // Đóng tài nguyên
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         return false;

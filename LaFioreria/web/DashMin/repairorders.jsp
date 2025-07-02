@@ -193,7 +193,7 @@
                                                 <td>${order.reason}</td>
                                                 <td>
                                                     <fmt:parseDate value="${order.createdAt}" pattern="yyyy-MM-dd HH:mm:ss" var="parsedDate"/>
-                                                    <fmt:formatDate value="${parsedDate}" pattern="dd/MM/yyyy HH:mm"/>
+                                                    <fmt:formatDate value="${parsedDate}" pattern="dd/MM/yyyy HH:mm" timeZone="Asia/Ho_Chi_Minh" />
                                                 </td>
                                                 <td>${order.status}</td>
                                                 <td>

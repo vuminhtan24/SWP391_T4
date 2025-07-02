@@ -68,6 +68,29 @@ public class CustomerDAO extends BaseDao {
         }
     }
 
+    public int getLatestInsertedUserId() {
+        int userId = -1;
+        String sql = "SELECT MAX(User_ID) FROM la_fioreria.user";
+
+        try {
+            connection = dbc.getConnection();  // dbc là đối tượng DatabaseContext hoặc tương đương
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                userId = rs.getInt(1);  // Lấy giá trị MAX(User_ID)
+            }
+        } catch (SQLException e) {
+        } finally {
+            try {
+                closeResources();  // Nếu bạn có phương thức đóng kết nối
+            } catch (Exception e) {
+            }
+        }
+
+        return userId;
+    }
+
     public void update(CustomerInfo c) {
         String sql = "UPDATE customer_info SET Customer_Code = ?, Join_Date = ?, Loyalty_Point = ?, Birthday = ?, Gender = ? WHERE User_ID = ?";
         try {

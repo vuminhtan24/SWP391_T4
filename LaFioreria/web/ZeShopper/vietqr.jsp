@@ -34,6 +34,35 @@
 
                 <img class="mb-4" src="https://img.vietqr.io/image/<%=bankCode%>-<%=accountNumber%>-compact2.png?amount=<%=amount%>&addInfo=ORDER<%=orderId%>&accountName=<%=accountName%>"
                      alt="QR Code chuyển khoản" width="300" />
+                <c:if test="${not empty remainingTime}">
+                    <div class="alert alert-warning mt-3">
+                        Vui lòng xác nhận chuyển khoản trong vòng <span id="countdown"></span>.
+                    </div>
+
+                    <script>
+                        var remainingTime = ${remainingTime};
+                        var countdownEl = document.getElementById("countdown");
+
+                        function updateCountdown() {
+                            if (remainingTime <= 0) {
+                                countdownEl.innerText = "Hết thời gian!";
+                                const form = document.querySelector("form");
+                                form.querySelector("button").disabled = true;
+                                form.classList.add("d-none");
+                                return;
+                            }
+
+                            var minutes = Math.floor(remainingTime / 60000);
+                            var seconds = Math.floor((remainingTime % 60000) / 1000);
+                            countdownEl.innerText = minutes + " phút " + seconds + " giây";
+                            remainingTime -= 1000;
+                        }
+
+                        updateCountdown();
+                        setInterval(updateCountdown, 1000);
+                    </script>
+                </c:if>
+
 
                 <form action="ConfirmVietQRPayment" method="post">
                     <input type="hidden" name="orderId" value="<%=orderId%>" />

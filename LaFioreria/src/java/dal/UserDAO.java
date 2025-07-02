@@ -605,6 +605,23 @@ public class UserDAO extends BaseDao {
         }
     }
 
+    public int getLatestInsertedUserId() throws Exception {
+        int id = -1;
+        String sql = "SELECT MAX(User_ID) FROM user";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+        } finally {
+            closeResources();
+        }
+        return id;
+    }
+
     public void insertNewUser(User u) {
         String sql = "INSERT INTO la_fioreria.user "
                 + "(Username, Password, Fullname, Email, Phone, Address, Role) "
