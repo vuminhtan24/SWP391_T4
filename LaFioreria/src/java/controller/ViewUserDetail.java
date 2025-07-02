@@ -192,7 +192,7 @@ public class ViewUserDetail extends HttpServlet {
             }
 
             String passwordStrength = "";
-            if (password == null || !password.matches("^\\S{8,20}$")) {
+            if (password == null || !password.matches("^\\S{8,70}$")) {
                 request.setAttribute("errorPass", "Password must be 8-20 characters long and no spaces.");
                 hasError = true;
             } else {
