@@ -53,7 +53,7 @@ public class BouquetDAO extends BaseDao {
 
     public List<Bouquet> getMostSellBouquet() {
         List<Bouquet> listBouquet = new ArrayList<>();
-        
+
         String sql = "SELECT \n"
                 + "    b.Bouquet_ID,\n"
                 + "    b.bouquet_name,\n"
@@ -68,7 +68,7 @@ public class BouquetDAO extends BaseDao {
                 + "WHERE oi.status = 'done'\n"
                 + "GROUP BY \n"
                 + "    b.Bouquet_ID, b.bouquet_name, b.description, b.cid, b.price, b.sellPrice, b.status;";
-        
+
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -94,7 +94,7 @@ public class BouquetDAO extends BaseDao {
         }
 
         return listBouquet;
-        
+
     }
 
     public List<Bouquet> searchBouquet(String name, Integer minPrice, Integer maxPrice, Integer categoryID, Integer rawId) {
@@ -572,7 +572,7 @@ public class BouquetDAO extends BaseDao {
         }
         return false;
     }
-    
+
     public boolean isBatchInBouquet(int batchId) {
         String sql = "SELECT COUNT(*) \n"
                 + "FROM bouquet_raw \n"
@@ -632,6 +632,43 @@ public class BouquetDAO extends BaseDao {
         return b;
     }
 
+    public int bouquetAvailable(int bouquetId) {
+        int available = 0;
+        String sql = "    SELECT \n"
+                + "    MIN(FLOOR(fb.quantity / br.quantity)) AS max_bouquet_count\n"
+                + "FROM \n"
+                + "    bouquet b\n"
+                + "JOIN \n"
+                + "    bouquet_raw br ON b.bouquet_id = br.bouquet_id\n"
+                + "JOIN \n"
+                + "    flower_batch fb ON br.batch_id = fb.batch_id\n"
+                + "WHERE b.Bouquet_ID = ?    \n"
+                + "GROUP BY \n"
+                + "    b.bouquet_id, b.bouquet_name\n"
+                + "ORDER BY \n"
+                + "    max_bouquet_count ASC;";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, bouquetId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                 available = rs.getInt("max_bouquet_count");
+            }
+        } catch (SQLException e) {
+            System.err.println("BouquetDAO: Error in isFlowerInBouquet - " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+
+        return available;
+
+    }
+
     public static void main(String[] args) {
         BouquetDAO dao = new BouquetDAO();
         Bouquet b = new Bouquet();
@@ -643,7 +680,7 @@ public class BouquetDAO extends BaseDao {
 //        System.out.println(big);
         System.out.println(dao.getBouquetFullInfoById(1));
         System.out.println(dao.isFlowerInBouquet(1));
-
+        System.out.println(dao.bouquetAvailable(2));
     }
 
 }

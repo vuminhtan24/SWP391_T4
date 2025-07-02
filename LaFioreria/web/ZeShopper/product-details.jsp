@@ -301,7 +301,7 @@
                                             </div>
                                         </form>
                                     </span>
-                                    <p><b>Availability:</b> In Stock</p>
+                                    <p><b>Availability in Stock: </b>${bouquetAvailable}</p>
                                     <p><b>Condition:</b> New</p>
                                     <p><b>Brand:</b> La Fioreria</p>
                                     <a href=""><img src="${pageContext.request.contextPath}/ZeShopper/images/product-details/share.png"
@@ -346,6 +346,7 @@
                                                     <h2>${bouquetDetail.getBouquetName()}</h2>
                                                     <p><strong>Category:</strong> ${cateName}</p>
                                                     <p><strong>Price:</strong> ${bouquetDetail.getSellPrice()} VND</p>
+                                                    <p><b>Availability in Stock: </b>${bouquetAvailable}</p>
                                                     <p><strong>Flowers in Bouquet:</strong>
                                                         <c:forEach var="br" items="${flowerInBQ}" varStatus="status">
                                                             <c:forEach var="fb" items="${allBatchs}">

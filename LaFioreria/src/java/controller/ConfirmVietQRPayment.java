@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dal.CartDAO;
 import dal.OrderDAO;
 import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.security.Timestamp;
 
 /**
  *
@@ -59,14 +61,32 @@ public class ConfirmVietQRPayment extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Lấy thông tin từ request (gửi từ CheckoutController)
+
         String orderId = request.getParameter("orderId");
         String amountStr = request.getParameter("amount");
 
-        // Nếu thiếu thông tin thì redirect về checkout
         if (orderId == null || amountStr == null) {
             response.sendRedirect("checkout.jsp");
             return;
+        }
+
+        // Lấy thời gian tạo đơn hàng để kiểm tra hạn thanh toán
+        CartDAO dao = new CartDAO();
+        java.sql.Timestamp createdAt = dao.getOrderCreatedAt(Integer.parseInt(orderId));
+
+        if (createdAt != null) {
+            long nowMillis = System.currentTimeMillis();
+            long orderMillis = createdAt.getTime();
+            long diffMillis = nowMillis - orderMillis;
+            long maxAllowedMillis = 15 * 60 * 1000;
+
+            if (diffMillis > maxAllowedMillis) {
+                request.setAttribute("error", "Đơn hàng đã hết thời gian thanh toán. Vui lòng đặt lại đơn mới.");
+                request.getRequestDispatcher("error.jsp").forward(request, response);
+                return;
+            }
+            long remainingTime = maxAllowedMillis - diffMillis;
+            request.setAttribute("remainingTime", remainingTime);
         }
 
         // Parse số tiền
@@ -78,15 +98,13 @@ public class ConfirmVietQRPayment extends HttpServlet {
             return;
         }
 
-        // Lấy thông tin khách hàng
         HttpSession session = request.getSession();
-        Object user = session.getAttribute("user"); // nếu có
+        Object user = session.getAttribute("user");
 
         if (user != null) {
             request.setAttribute("user", user);
         }
 
-        // Đẩy thông tin sang vietqr.jsp
         request.setAttribute("orderId", orderId);
         request.setAttribute("amount", amount);
 
@@ -108,8 +126,8 @@ public class ConfirmVietQRPayment extends HttpServlet {
         int orderId = Integer.parseInt(request.getParameter("orderId"));
 
         try {
-             OrderDAO orderDAO = new OrderDAO();
-             orderDAO.updateOrderStatus(orderId, 1);
+            OrderDAO orderDAO = new OrderDAO();
+            orderDAO.updateOrderStatus(orderId, 1);
 
             System.out.println("Đơn hàng " + orderId + " đã được khách xác nhận chuyển khoản.");
 

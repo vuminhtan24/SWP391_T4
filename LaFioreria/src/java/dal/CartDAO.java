@@ -247,6 +247,28 @@ public class CartDAO extends BaseDao {
         return orderId;
     }
 
+    public Timestamp getOrderCreatedAt(int orderId) {
+        String sql = "SELECT created_at FROM `order` WHERE order_id = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getTimestamp("created_at");
+            }
+        } catch (SQLException e) {
+            System.err.println("getOrderCreatedAt ERROR: " + e.getMessage());
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                System.err.println("Error closing resources: " + e.getMessage());
+            }
+        }
+        return null;
+    }
+
     public void insertOrderItem(OrderItem item) {
         String sql = "INSERT INTO order_item (order_id, bouquet_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
         try {
