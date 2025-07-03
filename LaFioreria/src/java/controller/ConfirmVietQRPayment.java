@@ -77,6 +77,9 @@ public class ConfirmVietQRPayment extends HttpServlet {
         if (createdAt != null) {
             long nowMillis = System.currentTimeMillis();
             long orderMillis = createdAt.getTime();
+               System.out.println("Current time (nowMillis): " + nowMillis + " (" + new java.util.Date(nowMillis) + ")");
+    System.out.println("Order created at (createdAt from DB): " + createdAt + " (orderMillis: " + orderMillis + ")");
+
             long diffMillis = nowMillis - orderMillis;
             long maxAllowedMillis = 15 * 60 * 1000;
 
@@ -86,6 +89,7 @@ public class ConfirmVietQRPayment extends HttpServlet {
                 return;
             }
             long remainingTime = maxAllowedMillis - diffMillis;
+            System.out.println("Calculated remainingTime (millis): " + remainingTime);
             request.setAttribute("remainingTime", remainingTime);
         }
 
