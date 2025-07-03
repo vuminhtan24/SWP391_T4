@@ -114,7 +114,7 @@ public class AddUserDetail extends HttpServlet {
             request.setAttribute("error", "Password must be from " + MIN_LEN + " to " + MAX_LEN + " characters.");
             hasError = true;
         } else {
-            String strongRegex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?])[A-Za-z\\d!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?]{" + MIN_LEN + "," + MAX_LEN + "}$";
+            String strongRegex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&+=]).{8,32}$";
             String mediumRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{" + MIN_LEN + "," + MAX_LEN + "}$";
             String weakRegex = "^[A-Za-z\\d]{7," + MAX_LEN + "}$";
 
@@ -267,7 +267,7 @@ public class AddUserDetail extends HttpServlet {
 // Sau khi đã có userId an toàn, tạo đối tượng EmployeeInfo
             EmployeeInfo ei = new EmployeeInfo(newUserId, employeeCode, contractType, startDate, endDate, department, position);
             eid.insert(ei);
-
+            response.sendRedirect("viewuserdetail");
         }
     }
 

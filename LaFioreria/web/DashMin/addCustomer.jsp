@@ -9,7 +9,6 @@
             <table class="table table-bordered">
                 <!-- ✅ Include phần dùng chung từ addnewuser.jsp -->
                 <jsp:include page="/DashMin/addnewuserdetail.jsp" />
-
                 <!-- 🧩 Thông tin riêng của Customer -->
                 <tr>
                     <td>Customer Code:</td>
