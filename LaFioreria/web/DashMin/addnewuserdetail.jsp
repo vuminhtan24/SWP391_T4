@@ -35,6 +35,17 @@
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
+        <title>Add New User</title>
+        <script>
+            function handleRoleChange(select) {
+                const selectedRole = select.value;
+                if (selectedRole === 'Customer') {
+                    window.location.href = '<%= request.getContextPath() %>/DashMin/addCustomer.jsp';
+                } else if (selectedRole === 'Seller' || selectedRole === 'Marketer' || selectedRole === 'Warehouse Staff' || selectedRole === 'Sales Manager') {
+                    window.location.href = '<%= request.getContextPath() %>/DashMin/addEmployee.jsp';
+                }
+            }
+        </script>
     </head>
 
     <body>
@@ -284,11 +295,11 @@
                                     </tr>
 
                                     <tr>
-                                        <td>Role: </td>
+                                        <td><label for="role">Role:</label></td>
                                         <td>
-                                            <select class="form-select mb-3" aria-label="Default select example" name="option">
+                                            <select name="option" onchange="handleRoleChange(this)" class="form-select">
                                                 <c:forEach items="${roleNames}" var="role">
-                                                    <option value="${role}" ${param.option == role ? "selected" : ""}>${role}</option>
+                                                    <option value="${role}" ${param.option == role ? 'selected' : ''}>${role}</option>
                                                 </c:forEach>
                                             </select>
                                         </td>
