@@ -35,6 +35,22 @@
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
+        <title>Add New User</title>
+        <script>
+            function handleRoleChange(select) {
+                var role = select.value;
+                var customerFields = document.getElementById("customerFields");
+                var employeeFields = document.getElementById("employeeFields");
+
+                if (role === "Customer") {
+                    customerFields.style.display = "table-row-group";
+                    employeeFields.style.display = "none";
+                } else {
+                    customerFields.style.display = "none";
+                    employeeFields.style.display = "table-row-group";
+                }
+            }
+        </script>
     </head>
 
     <body>
@@ -283,22 +299,49 @@
                                         </td>
                                     </tr>
 
+                                    <!-- 🧩 Role chọn để quyết định hiện Customer/Employee -->
                                     <tr>
-                                        <td>Role: </td>
+                                        <td>Role:</td>
                                         <td>
-                                            <select class="form-select mb-3" aria-label="Default select example" name="option">
+                                            <select name="option" class="form-select" onchange="handleRoleChange(this)">
                                                 <c:forEach items="${roleNames}" var="role">
-                                                    <option value="${role}" ${param.option == role ? "selected" : ""}>${role}</option>
+                                                    <option value="${role}">${role}</option>
                                                 </c:forEach>
                                             </select>
                                         </td>
                                     </tr>
 
-                                    <tr>
+                                    <!-- 👤 Trường Customer -->
+                                <tbody id="customerFields" style="display:none;">
+                                    <tr><td>Customer Code:</td><td><input name="customerCode" class="form-control"/></td></tr>
+                                    <tr><td>Join Date:</td><td><input type="date" name="joinDate" class="form-control"/></td></tr>
+                                    <tr><td>Loyalty Point:</td><td><input type="number" name="loyaltyPoint" class="form-control"/></td></tr>
+                                    <tr><td>Birthday:</td><td><input type="date" name="birthday" class="form-control"/></td></tr>
+                                    <tr><td>Gender:</td>
                                         <td>
-                                            <input class="btn btn-primary m-2" type="submit" name="ad" value="ADD">
+                                            <select name="gender" class="form-select">
+                                                <option>Male</option><option>Female</option><option>Other</option>
+                                            </select>
                                         </td>
                                     </tr>
+                                </tbody>
+
+                                <!-- 👔 Trường Employee -->
+                                <tbody id="employeeFields" style="display:none;">
+                                    <tr><td>Employee Code:</td><td><input name="employeeCode" class="form-control"/></td></tr>
+                                    <tr><td>Contract Type:</td><td><input name="contractType" class="form-control"/></td></tr>
+                                    <tr><td>Start Date:</td><td><input type="date" name="startDate" class="form-control"/></td></tr>
+                                    <tr><td>End Date:</td><td><input type="date" name="endDate" class="form-control"/></td></tr>
+                                    <tr><td>Department:</td><td><input name="department" class="form-control"/></td></tr>
+                                    <tr><td>Position:</td><td><input name="position" class="form-control"/></td></tr>
+                                </tbody>
+
+                                <!-- ✅ Nút submit -->
+                                <tr>
+                                    <td colspan="2" style="text-align: right;">
+                                        <input type="submit" class="btn btn-primary" value="Add User"/>
+                                    </td>
+                                </tr>
                                 </tbody>
                             </table>
 
@@ -306,7 +349,13 @@
                                 <p style="color:red">${error}</p>
                             </c:if>
                         </form>
-
+                        <script>
+                            // Khởi tạo: ẩn/hiện đúng phần khi reload lại (dựa vào role cũ nếu có)
+                            window.onload = function () {
+                                const role = document.querySelector("select[name='option']").value;
+                                handleRoleChange({value: role});
+                            };
+                        </script>
                     </div>
                 </div>  
 
