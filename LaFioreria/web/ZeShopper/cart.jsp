@@ -155,7 +155,10 @@
                         <i class="fa fa-shopping-cart fa-5x" style="color: #ccc;"></i>
                         <h3>Your cart is empty</h3>
                         <p>Add some beautiful bouquets to your cart to get started!</p>
-                        <a href="${pageContext.request.contextPath}/product" class="btn btn-primary">Continue Shopping</a>
+                        <div style="display: flex; justify-content: center; gap: 10px;">
+                            <a href="${pageContext.request.contextPath}/product" class="btn btn-primary">Continue Shopping</a>
+                            <a href="${pageContext.request.contextPath}/custom-order" class="btn btn-primary">Đặt hoa theo yêu cầu</a>
+                        </div>
                     </div>
                 </c:if>
 
@@ -187,7 +190,6 @@
                                                     </c:if>
                                                 </c:forEach>
                                             </c:forEach>
-                                        </td>
                                         </td>
                                         <td class="cart_description">
                                             <h4>${item.bouquet.bouquetName}</h4>
@@ -222,8 +224,10 @@
                             </tbody>
                         </table>
                     </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <a href="${pageContext.request.contextPath}/custom-order" class="btn btn-success">Đặt hoa theo yêu cầu</a>
+                    </div>
                 </c:if>
-            </div>
         </section> <!--/#cart_items-->
 
         <!-- Checkout Section - Only show if cart has items -->
@@ -232,9 +236,9 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-6" style="float: right; border: none">
-                            <div class="total_area" style=" border: none">
+                            <div class="total_area" style="border: none">
                                 <ul>
-                                    <li style=" background-color:  white"><strong>Total</strong> <span><p><fmt:formatNumber value="${total}" pattern="#,##0" /> ₫</p></span></li>
+                                    <li style="background-color: white"><strong>Total</strong> <span><p><fmt:formatNumber value="${total}" pattern="#,##0" /> ₫</p></span></li>
                                 </ul>
                                 <div style="display: flex; justify-content: end;">
                                     <a class="btn btn-default check_out" href="${pageContext.request.contextPath}/checkout">Check Out</a>
@@ -243,25 +247,26 @@
                         </div>
                     </div>
                 </div>
-            </c:if>
+            </section>
+        </c:if>
 
-            <jsp:include page="/ZeShopper/footer.jsp"/>
+        <jsp:include page="/ZeShopper/footer.jsp"/>
 
-            <script>
-                // Close popup when clicking outside
-                document.addEventListener('click', function (event) {
-                    const popup = document.getElementById('checkoutPopup');
-                    if (popup && event.target === popup) {
-                        closeCheckoutPopup();
-                    }
-                });
+        <script>
+            // Close popup when clicking outside
+            document.addEventListener('click', function (event) {
+                const popup = document.getElementById('checkoutPopup');
+                if (popup && event.target === popup) {
+                    closeCheckoutPopup();
+                }
+            });
 
-                // Close popup with Escape key
-                document.addEventListener('keydown', function (event) {
-                    if (event.key === 'Escape') {
-                        closeCheckoutPopup();
-                    }
-                });
-            </script>
+            // Close popup with Escape key
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    closeCheckoutPopup();
+                }
+            });
+        </script>
     </body>
 </html>
