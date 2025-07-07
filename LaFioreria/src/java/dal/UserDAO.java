@@ -4,8 +4,6 @@
  */
 package dal;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +11,7 @@ import java.util.List;
 import model.Role;
 import model.User;
 import model.UserManager;
+import java.sql.Statement;
 import org.mindrot.jbcrypt.BCrypt;
 
 /**
@@ -648,6 +647,44 @@ public class UserDAO extends BaseDao {
                 // ignore
             }
         }
+    }
+
+    public int insertUserAndReturnId(User u) {
+        int userId = -1;
+        String sql = "INSERT INTO la_fioreria.user "
+                + "(Username, Password, Fullname, Email, Phone, Address, Role) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+            ps.setString(1, u.getUsername().trim());
+            String hashedPassword = BCrypt.hashpw(u.getPassword(), BCrypt.gensalt());
+            ps.setString(2, hashedPassword);
+            ps.setString(3, u.getFullname().trim());
+            ps.setString(4, u.getEmail().trim());
+            ps.setString(5, u.getPhone().trim());
+            ps.setString(6, u.getAddress().trim());
+            ps.setInt(7, u.getRole());
+
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows > 0) {
+                rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    userId = rs.getInt(1); // ✅ Lấy ra User_ID vừa thêm
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Bạn có thể log ra file log
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return userId;
     }
 
     public int getNextUserId() {

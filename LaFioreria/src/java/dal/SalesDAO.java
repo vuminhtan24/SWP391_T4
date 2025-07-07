@@ -133,7 +133,7 @@ public class SalesDAO extends BaseDao {
                 + "JOIN order_item oi ON o.order_id = oi.order_id "
                 + "JOIN bouquet b ON oi.bouquet_id = b.Bouquet_ID "
                 + "JOIN category c ON b.cid = c.category_id "
-                + "JOIN user u ON o.customer_id = u.User_ID "
+                + "LEFT JOIN user u ON o.customer_id = u.User_ID " // 👈 Sửa ở đây
                 + "JOIN order_status os ON o.status_id = os.order_status_id "
                 + "WHERE " + condition + " "
                 + "ORDER BY o.order_date DESC";
@@ -156,7 +156,6 @@ public class SalesDAO extends BaseDao {
                 list.add(r);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return list;
     }
@@ -413,7 +412,5 @@ public class SalesDAO extends BaseDao {
         }
         return map;
     }
-
-
 
 }

@@ -216,7 +216,12 @@ public class AddUserDetail extends HttpServlet {
         };
 
         User u = new User(name_raw, password, fullName, email, phone_Number, Address, role);
-        ud.insertNewUser(u);
+        int newUserId = ud.insertUserAndReturnId(u);
+        if (newUserId == -1) {
+            request.setAttribute("error", "Không thể thêm user vào database.");
+            request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
+            return;
+        }
 
         if ("Customer".equals(role_raw)) {
             String customerCode = request.getParameter("customerCode");
@@ -227,8 +232,9 @@ public class AddUserDetail extends HttpServlet {
 
             int loyaltyPoint = loyaltyPoint_raw != null && !loyaltyPoint_raw.isEmpty()
                     ? Integer.parseInt(loyaltyPoint_raw) : 0;
+
             CustomerDAO cid = new CustomerDAO();
-            CustomerInfo ci = new CustomerInfo(cid.getLatestInsertedUserId(), customerCode, joinDate, loyaltyPoint, birthday, gender);
+            CustomerInfo ci = new CustomerInfo(newUserId, customerCode, joinDate, loyaltyPoint, birthday, gender);
             cid.insert(ci);
             response.sendRedirect("viewuserdetail");
 
@@ -252,23 +258,11 @@ public class AddUserDetail extends HttpServlet {
             }
 
             EmployeeDAO eid = new EmployeeDAO();
-            int newUserId = -1;
-            try {
-                newUserId = ud.getLatestInsertedUserId();
-                if (newUserId == -1) {
-                    throw new Exception("Failed to get latest inserted user ID.");
-                }
-            } catch (Exception e) { // Ghi log lỗi
-                // Ghi log lỗi
-                request.setAttribute("error", "Failed to retrieve user ID. Cannot continue.");
-                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
-                return;
-            }
-// Sau khi đã có userId an toàn, tạo đối tượng EmployeeInfo
             EmployeeInfo ei = new EmployeeInfo(newUserId, employeeCode, contractType, startDate, endDate, department, position);
             eid.insert(ei);
             response.sendRedirect("viewuserdetail");
         }
+
     }
 
     private void setAttributes(HttpServletRequest request, String name, String pass,

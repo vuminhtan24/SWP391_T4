@@ -443,7 +443,7 @@
                                         <tr>
                                             <td>${r.orderID}</td>
                                             <td>${r.orderDate}</td>
-                                            <td>${r.customerName}</td>
+                                            <td>${r.customerName != null ? r.customerName : 'Unknown Customer'}</td>
                                             <td>${r.productName}</td>
                                             <td>${r.categoryName}</td>
                                             <td>${r.quantity}</td>
