@@ -108,7 +108,7 @@
                     <div class="mb-3">
                         <label for="import_date" class="form-label">Import Date</label>
                         <input type="date" id="import_date" name="import_date" class="form-control" 
-                               value="${import_date}" required>
+                               value="${addFlowerAgree eq true ? requestDate : import_date}" required>
                         <c:if test="${not empty importDateError}">
                             <div class="error">${importDateError}</div>
                         </c:if>
@@ -127,7 +127,8 @@
                     <div class="mb-3">
                         <label for="quantity" class="form-label">Quantity</label>
                         <input type="number" id="quantity" name="quantity" class="form-control" 
-                               value="${quantity}" required min="0" step="1">
+                               value="${addFlowerAgree eq true ? requestQuantity : quantity}" 
+                               required min="${addFlowerAgree eq true ? requestQuantity : 0}" step="1">
                         <c:if test="${not empty quantityError}">
                             <div class="error">${quantityError}</div>
                         </c:if>
@@ -164,14 +165,14 @@
 
                     <div class="d-flex justify-content-center gap-3">
                         <button type="submit" name="action" value="addbatch" class="btn btn-primary">Add Batch</button>
-                            <c:choose>
-                                <c:when test="${sessionScope.addFlowerAgree eq true}">
-                                    <a href="${pageContext.request.contextPath}/requestDetail?orderId=${orderId}&orderItemId=${orderItemId}" class="btn btn-secondary">Cancel</a>
-                                </c:when>
-                                <c:otherwise>
-                                    <a href="${pageContext.request.contextPath}/rawFlowerDetails?flower_id=${flowerId}" class="btn btn-secondary">Cancel</a>
-                                </c:otherwise>
-                            </c:choose>
+                        <c:choose>
+                            <c:when test="${sessionScope.addFlowerAgree eq true}">
+                                <a href="${pageContext.request.contextPath}/requestDetail?orderId=${orderId}&orderItemId=${orderItemId}" class="btn btn-secondary">Cancel</a>
+                            </c:when>
+                            <c:otherwise>
+                                <a href="${pageContext.request.contextPath}/rawFlowerDetails?flower_id=${flowerId}" class="btn btn-secondary">Cancel</a>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </form>
 

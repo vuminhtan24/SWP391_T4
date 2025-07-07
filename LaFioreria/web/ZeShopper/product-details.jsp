@@ -290,18 +290,24 @@
                                     <h2>${bouquetDetail.getBouquetName()}</h2>
                                     <span>
                                         <span>${bouquetDetail.getSellPrice()} VND</span>
+
                                         <form id="addToCartForm">
                                             <label class="popup-label">Quantity:</label>
                                             <input id="popup-quantity" type="number" name="quantity" value="1" min="1" required class="popup-input">
+
                                             <input type="hidden" name="bouquetId" id="popup-id" value="${bouquetDetail.getBouquetId()}">
+
                                             <div class="popup-buttons">
                                                 <button type="submit" class="btn btn-fefault cart">
                                                     <i class="fa fa-shopping-cart"></i> Add to cart
                                                 </button>
                                             </div>
+
+                                            <p id="quantity-error" style="color: red; font-weight: bold">${error}</p>
                                         </form>
                                     </span>
                                     <p><b>Availability in Stock: </b>${bouquetAvailable}</p>
+                                    <input type="hidden" name="bouquetAvailable" value="${bouquetAvailable}">
                                     <p><b>Condition:</b> New</p>
                                     <p><b>Brand:</b> La Fioreria</p>
                                     <a href=""><img src="${pageContext.request.contextPath}/ZeShopper/images/product-details/share.png"
@@ -474,22 +480,32 @@
         <div id="success-popup" class="success-toast">Added to cart successfully!</div>
 
         <script>
+            const availableQuantity = ${bouquetAvailable}; // Từ server đẩy xuống JS
+        </script>
+
+        <script>
             document.getElementById("addToCartForm").addEventListener("submit", function (e) {
-                e.preventDefault(); // Ngăn form reload
+                e.preventDefault(); // Ngăn reload mặc định
 
                 const bouquetId = document.getElementById("popup-id").value;
-                const quantity = document.getElementById("popup-quantity").value;
+                const quantityInput = document.getElementById("popup-quantity");
+                const quantity = parseInt(quantityInput.value);
+                const errorDisplay = document.getElementById("quantity-error");
 
-                console.log(document.getElementById("popup-id"))
+                // Reset lỗi
+                errorDisplay.innerText = "";
 
+                // Kiểm tra số lượng
+                if (quantity > availableQuantity) {
+                    errorDisplay.innerText = `Bạn chỉ có thể đặt tối đa ${bouquetAvailable} sản phẩm.`;
+                    return;
+                }
+
+                // Gửi bằng fetch
                 const formData = new URLSearchParams();
                 formData.append("action", "add");
                 formData.append("bouquetId", bouquetId);
                 formData.append("quantity", quantity);
-
-                for (const [key, value] of formData.entries()) {
-                    console.log(key, `:`, value);
-                }
 
                 fetch("ZeShopper/cart", {
                     method: "POST",
@@ -500,31 +516,28 @@
                 })
                         .then(res => res.json())
                         .then(data => {
-
-
                             if (data.status === "added") {
                                 showSuccessPopup("Added to cart successfully!");
                             } else {
-                                alert("Error: " + data.status);
+                                errorDisplay.innerText = "Lỗi: " + data.status;
                             }
                         })
                         .catch(err => {
                             console.error("Error adding to cart:", err);
-                            alert("Something went wrong.");
+                            errorDisplay.innerText = "Something went wrong.";
                         });
             });
 
             function showSuccessPopup(message) {
                 const successBox = document.getElementById("success-popup");
-                console.log(successBox)
                 successBox.innerText = message;
                 successBox.style.display = "block";
 
-                // Ẩn sau 3 giây
                 setTimeout(() => {
                     successBox.style.display = "none";
                 }, 3000);
             }
+
         </script>
 
         <!-- JS: jQuery + Bootstrap 3.4.1 -->
@@ -591,6 +604,17 @@
                             }
                         });
                     });
+
+                    document.querySelector('form').addEventListener('submit', function (e) {
+                        const quantity = parseInt(document.querySelector('input[name="quantity"]').value);
+                        const max = parseInt(document.querySelector('input[name="quantity"]').getAttribute('max'));
+                        if (quantity > max) {
+                            e.preventDefault();
+                            alert("Số lượng bạn nhập vượt quá giới hạn cho phép!");
+                        }
+                    });
         </script>
+
+
     </body>
 </html>

@@ -105,217 +105,229 @@
                     </div>
                 </c:when>  
                 <c:otherwise>
-                            <div class="navbar-nav w-100">
-                                <div class="nav-item dropdown">
-                                    <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Order</a>
-                                    <div class="dropdown-menu bg-transparent border-0">
-                                        <a href="${pageContext.request.contextPath}/orderManagement" class="dropdown-item active">Order Management</a>
-                                        <a href="${pageContext.request.contextPath}/orderDetail" class="dropdown-item">Order Details</a>
-                                    </div>
-                                </div>
-                                <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
-
-                                <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
+                    <div class="navbar-nav w-100">
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Order</a>
+                            <div class="dropdown-menu bg-transparent border-0">
+                                <a href="${pageContext.request.contextPath}/orderManagement" class="dropdown-item active">Order Management</a>
+                                <a href="${pageContext.request.contextPath}/orderDetail" class="dropdown-item">Order Details</a>
                             </div>
-                        </nav>
-                    </div>
-                </c:otherwise>    
-            </c:choose>                
-            <!-- Sidebar End -->
-
-            <!-- Content Start -->
-            <div class="content">
-                <!-- Navbar Start -->
-                <jsp:include page="/DashMin/navbar.jsp"/>
-                <!-- Navbar End -->
-
-                <!-- Order Detail Start -->
-                <div class="container-fluid pt-4 px-4">
-                    <div class="bg-light rounded p-4">
-                        <div class="d-flex align-items-center justify-content-between mb-4">
-                            <h6 class="mb-0">Order Details</h6>
-                            <a href="${pageContext.request.contextPath}/orderManagement">Back to Order Management</a>
                         </div>
+                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
 
-                        <c:if test="${not empty successMessage}">
-                            <div class="alert alert-success" role="alert">
-                                ${successMessage}
-                            </div>
-                        </c:if>
-                        <c:if test="${not empty errorMessage}">
-                            <div class="alert alert-danger" role="alert">
-                                ${errorMessage}
-                            </div>
-                        </c:if>
-                        <c:if test="${not empty sessionScope.RequestSent}">
-                            <div class="alert alert-success" role="alert">
-                                ${sessionScope.RequestSent}
-                            </div>
-                            <c:remove var="RequestSent" scope="session" />
-                        </c:if>
-                        <c:if test="${order != null}">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Order ID:</strong> ${order.orderId}</p>
-                                    <p><strong>Order Date:</strong> ${order.orderDate}</p>
-                                    <p><strong>Customer ID:</strong> ${order.customerId}</p>
-                                    <p><strong>Customer Name:</strong> ${order.customerName}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Total Import:</strong> ${order.totalImport}</p>
-                                    <p><strong>Total Sell</strong> ${order.totalSell}</p>
-                                    <p><strong>Status ID:</strong> ${order.statusId}</p>
-                                    <p><strong>Status:</strong> ${order.statusName}</p>
-                                    <p><strong>Shipper ID:</strong> ${order.shipperId != null ? order.shipperId : "Not Assigned"}</p>
-                                    <p><strong>Shipper Name:</strong> ${order.shipperName != null ? order.shipperName : "Not Assigned"}</p>
-                                </div>
-                            </div>
-                            <!-- Delivery Confirmation Image -->
-                            <c:if test="${order.statusName == 'Delivered' && not empty order.deliveryProofImage}">
-                                <hr class="my-4">
-                                <h6 class="mb-3">Delivery Confirmation Image:</h6>
-                                <div class="text-center">
-                                    <img
-                                        src="${pageContext.request.contextPath}${order.deliveryProofImage}"
-                                        alt="Bouquet Image"
-                                        class="img-fluid bouquet-img mb-2"
-                                        style="width: 300px; height: 300px; object-fit: cover; border-radius: 8px;" />
-                                </div>
-                            </c:if>
-                            <c:if test="${order.statusName == 'Delivered' && empty order.deliveryProofImage}">
-                                <hr class="my-4">
-                                <h6 class="mb-3">Delivery Confirmation Image:</h6>
-                                <p>No delivery proof image available.</p>
-                            </c:if>
-                            <!-- Reject Delivery Image -->
-                            <c:if test="${order.statusName == 'Cancelled' && not empty order.rejectImage}">
-                                <hr class="my-4">
-                                <h6 class="mb-3">Rejected Delivery Image:</h6>
-                                <div class="text-center">
-                                    <img
-                                        src="${pageContext.request.contextPath}${order.rejectImage}"
-                                        alt="Reject Image"
-                                        class="img-fluid bouquet-img mb-2"
-                                        style="width: 300px; height: 300px; object-fit: cover; border-radius: 8px;" />
-                                </div>
-                            </c:if>
-                            <c:if test="${order.statusName == 'Cancelled' && empty order.rejectImage}">
-                                <hr class="my-4">
-                                <h6 class="mb-3">Rejected Delivery Image:</h6>
-                                <p>No reject image available.</p>
-                            </c:if>
-                            <c:if test="${order.statusName == 'Cancelled' && not empty order.rejectReason}">
-                                <hr class="my-4">
-                                <h6 class="mb-3">Reason for Rejection:</h6>
-                                <p>${order.rejectReason}</p>
-                            </c:if>
+                        <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
+                    </div>
+                </nav>
+            </div>
+        </c:otherwise>    
+    </c:choose>                
+    <!-- Sidebar End -->
 
-                            <hr class="my-4">
-                            <h6 class="mb-3">Purchased Products:</h6>
-                            <c:if test="${empty orderItems}">
-                                <p>No products found in this order.</p>
-                            </c:if>
-                            <c:if test="${not empty orderItems}">
-                                <div class="table-responsive">
-                                    <table class="table text-start align-middle table-bordered table-hover mb-0">
-                                        <thead>
-                                            <tr class="text-dark">
-                                                <th scope="col">#</th>
-                                                <th scope="col">Image</th>
-                                                <th scope="col">Product Name</th>
-                                                <th scope="col">Quantity</th>
-                                                <th scope="col">Unit Price</th>
-                                                <th scope="col">Subtotal</th>
-                                                <th scope="col">Sell Price</th>
-                                                <th scope="col">Status</th>
-                                                <th scope="col">Make Bouquet</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <c:forEach var="item" items="${orderItems}" varStatus="loop">
-                                                <tr>
-                                                    <td>${loop.index + 1}</td>
-                                                    <td>
-                                                        <c:choose>
-                                                            <c:when test="${not empty item.bouquetImage}">
-                                                                <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${item.bouquetImage}" 
-                                                                     alt="${item.bouquetName}" style="width: 50px; height: 50px; object-fit: cover;">
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                [Image of No image]
-                                                            </c:otherwise>
-                                                        </c:choose>
-                                                    </td>
-                                                    <td>${item.bouquetName}</td>
-                                                    <td>${item.quantity}</td>
-                                                    <td>${item.unitPrice}</td>
-                                                    <td>
-                                                        <fmt:parseNumber var="qty" value="${item.quantity}" integerOnly="true" />
-                                                        <fmt:parseNumber var="price" value="${item.unitPrice}" type="number" />
-                                                        <fmt:formatNumber value="${qty * price}" type="number" maxFractionDigits="2" />
-                                                    </td>
-                                                    <td>
-                                                        ${item.getSellPrice()}
-                                                    </td>
-                                                    <td>${item.getStatus()}</td>
+    <!-- Content Start -->
+    <div class="content">
+        <!-- Navbar Start -->
+        <jsp:include page="/DashMin/navbar.jsp"/>
+        <!-- Navbar End -->
+
+        <!-- Order Detail Start -->
+        <div class="container-fluid pt-4 px-4">
+            <div class="bg-light rounded p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h6 class="mb-0">Order Details</h6>
+                    <a href="${pageContext.request.contextPath}/orderManagement">Back to Order Management</a>
+                </div>
+
+                <c:if test="${not empty successMessage}">
+                    <div class="alert alert-success" role="alert">
+                        ${successMessage}
+                    </div>
+                </c:if>
+                <c:if test="${not empty errorMessage}">
+                    <div class="alert alert-danger" role="alert">
+                        ${errorMessage}
+                    </div>
+                </c:if>
+                <c:if test="${not empty sessionScope.RequestSent}">
+                    <div class="alert alert-success" role="alert">
+                        ${sessionScope.RequestSent}
+                    </div>
+                    <c:remove var="RequestSent" scope="session" />
+                </c:if>
+                <c:if test="${order != null}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Order ID:</strong> ${order.orderId}</p>
+                            <p><strong>Order Date:</strong> ${order.orderDate}</p>
+                            <p><strong>Customer ID:</strong> ${order.customerId}</p>
+                            <p><strong>Customer Name:</strong> ${order.customerName}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Total Import:</strong> ${order.totalImport}</p>
+                            <p><strong>Total Sell</strong> ${order.totalSell}</p>
+                            <p><strong>Status ID:</strong> ${order.statusId}</p>
+                            <p><strong>Status:</strong> ${order.statusName}</p>
+                            <p><strong>Shipper ID:</strong> ${order.shipperId != null ? order.shipperId : "Not Assigned"}</p>
+                            <p><strong>Shipper Name:</strong> ${order.shipperName != null ? order.shipperName : "Not Assigned"}</p>
+                        </div>
+                    </div>
+                    <!-- Delivery Confirmation Image -->
+                    <c:if test="${order.statusName == 'Delivered' && not empty order.deliveryProofImage}">
+                        <hr class="my-4">
+                        <h6 class="mb-3">Delivery Confirmation Image:</h6>
+                        <div class="text-center">
+                            <img
+                                src="${pageContext.request.contextPath}${order.deliveryProofImage}"
+                                alt="Bouquet Image"
+                                class="img-fluid bouquet-img mb-2"
+                                style="width: 300px; height: 300px; object-fit: cover; border-radius: 8px;" />
+                        </div>
+                    </c:if>
+                    <c:if test="${order.statusName == 'Delivered' && empty order.deliveryProofImage}">
+                        <hr class="my-4">
+                        <h6 class="mb-3">Delivery Confirmation Image:</h6>
+                        <p>No delivery proof image available.</p>
+                    </c:if>
+                    <!-- Reject Delivery Image -->
+                    <c:if test="${order.statusName == 'Cancelled' && not empty order.rejectImage}">
+                        <hr class="my-4">
+                        <h6 class="mb-3">Rejected Delivery Image:</h6>
+                        <div class="text-center">
+                            <img
+                                src="${pageContext.request.contextPath}${order.rejectImage}"
+                                alt="Reject Image"
+                                class="img-fluid bouquet-img mb-2"
+                                style="width: 300px; height: 300px; object-fit: cover; border-radius: 8px;" />
+                        </div>
+                    </c:if>
+                    <c:if test="${order.statusName == 'Cancelled' && empty order.rejectImage}">
+                        <hr class="my-4">
+                        <h6 class="mb-3">Rejected Delivery Image:</h6>
+                        <p>No reject image available.</p>
+                    </c:if>
+                    <c:if test="${order.statusName == 'Cancelled' && not empty order.rejectReason}">
+                        <hr class="my-4">
+                        <h6 class="mb-3">Reason for Rejection:</h6>
+                        <p>${order.rejectReason}</p>
+                    </c:if>
+
+                    <hr class="my-4">
+                    <h6 class="mb-3">Purchased Products:</h6>
+                    <c:if test="${empty orderItems}">
+                        <p>No products found in this order.</p>
+                    </c:if>
+                    <c:if test="${not empty orderItems}">
+                        <div class="table-responsive">
+                            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                                <thead>
+                                    <tr class="text-dark">
+                                        <th scope="col">#</th>
+                                        <th scope="col">Image</th>
+                                        <th scope="col">Product Name</th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col">Unit Price</th>
+                                        <th scope="col">Subtotal</th>
+                                        <th scope="col">Sell Price</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Make Bouquet</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="item" items="${orderItems}" varStatus="loop">
+                                        <tr>
+                                            <td>${loop.index + 1}</td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${not empty item.bouquetImage}">
+                                                        <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${item.bouquetImage}" 
+                                                             alt="${item.bouquetName}" style="width: 50px; height: 50px; object-fit: cover;">
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        [Image of No image]
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                            <td>${item.bouquetName}</td>
+                                            <td>${item.quantity}</td>
+                                            <td>${item.unitPrice}</td>
+                                            <td>
+                                                <fmt:parseNumber var="qty" value="${item.quantity}" integerOnly="true" />
+                                                <fmt:parseNumber var="price" value="${item.unitPrice}" type="number" />
+                                                <fmt:formatNumber value="${qty * price}" type="number" maxFractionDigits="2" />
+                                            </td>
+                                            <td>
+                                                ${item.getSellPrice()}
+                                            </td>
+                                            <td>${item.getStatus()}</td>
+                                            <c:choose>
+                                                <c:when test="${sessionScope.currentAcc.getRole() != 2}">
                                                     <td><button type="button"
+                                                                class="btn btn-edit"
+                                                                onclick="location.href = '${pageContext.request.contextPath}/makeBouquet?BouquetId=${item.getBouquetId()}&OrderId=${item.getOrderId()}&OrderItemID=${item.getOrderDetailId()}';"
+                                                                disabled>
+                                                            Make Bouquet
+                                                        </button></td>
+                                                    </c:when>     
+                                                    <c:otherwise>
+                                                        <td><button type="button"
                                                                 class="btn btn-edit"
                                                                 onclick="location.href = '${pageContext.request.contextPath}/makeBouquet?BouquetId=${item.getBouquetId()}&OrderId=${item.getOrderId()}&OrderItemID=${item.getOrderDetailId()}';">
                                                             Make Bouquet
                                                         </button></td>
-                                                </tr>
-                                            </c:forEach>
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                            </c:if>
-                            <div class="mt-4 text-end">
-                                <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}&action=edit" class="btn btn-primary me-2">Edit Order</a>
-                                <a href="${pageContext.request.contextPath}/orderManagement" class="btn btn-secondary">Back</a>
-                            </div>
-
-                        </c:if>
-                        <c:if test="${order == null}">
-                            <p>Unable to load order details.</p>
-                        </c:if>
-                    </div>
-                </div>
-                <!-- Order Detail End -->
-
-                <!-- Footer Start -->
-                <div class="container-fluid pt-4 px-4">
-                    <div class="bg-light rounded-top p-4">
-                        <div class="row">
-                            <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">Your Site Name</a>, All Rights Reserved.
-                            </div>
-                            <div class="col-12 col-sm-6 text-center text-sm-end">
-                                Designed By <a href="https://htmlcodex.com">HTML Codex</a>
-                            </div>
+                                                    </c:otherwise>    
+                                                </c:choose>             
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
                         </div>
+
+                    </c:if>
+                    <div class="mt-4 text-end">
+                        <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}&action=edit" class="btn btn-primary me-2">Edit Order</a>
+                        <a href="${pageContext.request.contextPath}/orderManagement" class="btn btn-secondary">Back</a>
+                    </div>
+
+                </c:if>
+                <c:if test="${order == null}">
+                    <p>Unable to load order details.</p>
+                </c:if>
+            </div>
+        </div>
+        <!-- Order Detail End -->
+
+        <!-- Footer Start -->
+        <div class="container-fluid pt-4 px-4">
+            <div class="bg-light rounded-top p-4">
+                <div class="row">
+                    <div class="col-12 col-sm-6 text-center text-sm-start">
+                        &copy; <a href="#">Your Site Name</a>, All Rights Reserved.
+                    </div>
+                    <div class="col-12 col-sm-6 text-center text-sm-end">
+                        Designed By <a href="https://htmlcodex.com">HTML Codex</a>
                     </div>
                 </div>
-                <!-- Footer End -->
             </div>
-            <!-- Content End -->
-
-            <!-- Back to Top -->
-            <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
         </div>
+        <!-- Footer End -->
+    </div>
+    <!-- Content End -->
 
-        <!-- JavaScript Libraries -->
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+</div>
 
-        <!-- Template Javascript -->
-        <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
-    </body>
+<!-- JavaScript Libraries -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
+<script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
+<script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
+<script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
+<script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
+<script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
+<script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<!-- Template Javascript -->
+<script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+</body>
 </html>

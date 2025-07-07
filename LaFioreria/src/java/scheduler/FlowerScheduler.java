@@ -45,7 +45,7 @@ public class FlowerScheduler extends BaseDao {
             connection = dbc.getConnection();
 
             // 1. Xóa lô hoa hết hạn
-            String deleteExpiredBatches = "DELETE FROM flower_batch WHERE expiration_date < ? AND (hold IS NULL OR hold = 0)";
+            String deleteExpiredBatches = "UPDATE flower_batch SET status = 'expired' WHERE expiration_date < ? AND (hold IS NULL OR hold = 0)";
             ps = connection.prepareStatement(deleteExpiredBatches);
             ps.setString(1, currentDate);
             int deletedRows = ps.executeUpdate();
