@@ -320,11 +320,15 @@
                                     </c:if>
 
                                     <!-- Role dropdown & Submit -->
+                                    <!-- Gửi role hiện tại ẩn vào servlet -->
                                     <tr>
                                         <td>
+                                            <input type="hidden" name="currentRole" value="${userManager.role}" />
+
+                                            <!-- Dropdown Role -->
                                             <select class="form-select mb-3" aria-label="Default select example" name="option">
                                                 <c:forEach items="${roleNames}" var="role">
-                                                    <option value="${role}">${role}</option>
+                                                    <option value="${role}" ${role eq userManager.role ? "selected" : ""}>${role}</option>
                                                 </c:forEach>
                                             </select>
                                         </td>

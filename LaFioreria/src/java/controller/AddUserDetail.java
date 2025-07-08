@@ -196,7 +196,14 @@ public class AddUserDetail extends HttpServlet {
             return;
         }
 
-        int role = switch (role_raw) {
+// ✅ Lấy currentRole ẩn từ form (giá trị ban đầu)
+        String currentRole = request.getParameter("currentRole");
+
+// ✅ Nếu người dùng không đổi role thì giữ nguyên role ban đầu
+        String finalRole = (role_raw != null && !role_raw.equals(currentRole)) ? role_raw : currentRole;
+
+// ✅ Mapping role name → role ID
+        int role = switch (finalRole) {
             case "Admin" ->
                 1;
             case "Sales Manager" ->
@@ -223,7 +230,7 @@ public class AddUserDetail extends HttpServlet {
             return;
         }
 
-        if ("Customer".equals(role_raw)) {
+        if ("Customer".equals(finalRole)) {
             String customerCode = request.getParameter("customerCode");
             String joinDate = request.getParameter("joinDate");
             String loyaltyPoint_raw = request.getParameter("loyaltyPoint");
