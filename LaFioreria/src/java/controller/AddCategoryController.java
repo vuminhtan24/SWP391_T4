@@ -42,7 +42,7 @@ public class AddCategoryController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet AddCategoryController</title>");            
+            out.println("<title>Servlet AddCategoryController</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet AddCategoryController at " + request.getContextPath() + "</h1>");
@@ -82,19 +82,21 @@ public class AddCategoryController extends HttpServlet {
             String categoryName = request.getParameter("categoryName");
             String description = request.getParameter("description");
 
-            // Validate các field
-            String categoryNameError = Validate.validateText(categoryName, "Category Name");
-            if (categoryNameError == null) {
-                // Kiểm tra độ dài categoryName (3-100 ký tự)
-                categoryNameError = Validate.validateLength(categoryName, "Category Name", 3, 100);
-            }
-            String descriptionError = Validate.validateDescription(description);
-
-            // Lưu dữ liệu đã nhập vào session để giữ giá trị
+            // Lưu dữ liệu vào session để giữ lại trong mọi trường hợp
             session.setAttribute("categoryName", categoryName);
             session.setAttribute("description", description);
 
-            // Nếu có lỗi, lưu thông báo lỗi vào session và hiển thị lại form
+            // Validate các field
+            String categoryNameError = Validate.validateText(categoryName, "Category Name");
+            if (categoryNameError == null) {
+                categoryNameError = Validate.validateLength(categoryName, "Category Name", 3, 100);
+            }
+            String descriptionError = Validate.validateDescription(description);
+            if (description != null && !description.trim().isEmpty()) {
+                descriptionError = Validate.validateLength(description, "Description", 1, 255);
+            }
+
+            // Nếu có lỗi validate, lưu thông báo lỗi và hiển thị lại form
             if (categoryNameError != null || descriptionError != null) {
                 session.setAttribute("categoryNameError", categoryNameError);
                 session.setAttribute("descriptionError", descriptionError);
@@ -102,11 +104,13 @@ public class AddCategoryController extends HttpServlet {
                 return;
             }
 
-            // Xóa các lỗi và dữ liệu trong session nếu validate thành công
-            session.removeAttribute("categoryNameError");
-            session.removeAttribute("descriptionError");
-            session.removeAttribute("categoryName");
-            session.removeAttribute("description");
+            // Kiểm tra trùng tên danh mục
+            CategoryDAO cdao = new CategoryDAO();
+            if (cdao.isCategoryNameExists(categoryName)) {
+                session.setAttribute("categoryNameError", "Category name already exists.");
+                request.getRequestDispatcher("./DashMin/addcategory.jsp").forward(request, response);
+                return;
+            }
 
             // Tạo đối tượng Category
             Category category = new Category();
@@ -114,24 +118,29 @@ public class AddCategoryController extends HttpServlet {
             category.setDescription(description != null ? description : "");
 
             // Thêm danh mục vào cơ sở dữ liệu
-            CategoryDAO cdao = new CategoryDAO();
             boolean success = cdao.insertCategory(category);
-
             if (!success) {
                 session.setAttribute("error", "Failed to add category.");
                 request.getRequestDispatcher("./DashMin/addcategory.jsp").forward(request, response);
                 return;
             }
 
-            // Lưu thông báo thành công vào session
-            session.setAttribute("message", "Category added successfully!");
+            // Xóa tất cả dữ liệu và lỗi trong session sau khi thêm thành công
+            session.removeAttribute("categoryName");
+            session.removeAttribute("description");
+            session.removeAttribute("categoryNameError");
+            session.removeAttribute("descriptionError");
+            session.removeAttribute("error");
 
-            // Chuyển hướng về trang danh sách danh mục
+            // Lưu thông báo thành công
+            session.setAttribute("message", "Category added successfully!");
             response.sendRedirect(request.getContextPath() + "/category");
+
         } catch (Exception e) {
             System.out.println("Error in AddCategoryController doPost: " + e.getMessage());
             e.printStackTrace();
-            session.setAttribute("error", "An error occurred while processing the request.");
+            // Lưu thông báo lỗi nhưng vẫn giữ lại dữ liệu đã nhập
+            session.setAttribute("error", "An error occurred while processing the request: " + e.getMessage());
             request.getRequestDispatcher("./DashMin/addcategory.jsp").forward(request, response);
         }
     }

@@ -4,6 +4,8 @@
  */
 package controller;
 
+import dal.CustomerDAO;
+import dal.EmployeeDAO;
 import dal.UserDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,7 +13,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDate;
 import java.util.List;
+import model.CustomerInfo;
+import model.EmployeeInfo;
 import model.User;
 
 /**
@@ -79,6 +84,7 @@ public class AddUserDetail extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -108,7 +114,7 @@ public class AddUserDetail extends HttpServlet {
             request.setAttribute("error", "Password must be from " + MIN_LEN + " to " + MAX_LEN + " characters.");
             hasError = true;
         } else {
-            String strongRegex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?])[A-Za-z\\d!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?]{" + MIN_LEN + "," + MAX_LEN + "}$";
+            String strongRegex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&+=]).{8,32}$";
             String mediumRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{" + MIN_LEN + "," + MAX_LEN + "}$";
             String weakRegex = "^[A-Za-z\\d]{7," + MAX_LEN + "}$";
 
@@ -190,7 +196,14 @@ public class AddUserDetail extends HttpServlet {
             return;
         }
 
-        int role = switch (role_raw) {
+// ✅ Lấy currentRole ẩn từ form (giá trị ban đầu)
+        String currentRole = request.getParameter("currentRole");
+
+// ✅ Nếu người dùng không đổi role thì giữ nguyên role ban đầu
+        String finalRole = (role_raw != null && !role_raw.equals(currentRole)) ? role_raw : currentRole;
+
+// ✅ Mapping role name → role ID
+        int role = switch (finalRole) {
             case "Admin" ->
                 1;
             case "Sales Manager" ->
@@ -210,9 +223,53 @@ public class AddUserDetail extends HttpServlet {
         };
 
         User u = new User(name_raw, password, fullName, email, phone_Number, Address, role);
-        ud.insertNewUser(u);
+        int newUserId = ud.insertUserAndReturnId(u);
+        if (newUserId == -1) {
+            request.setAttribute("error", "Không thể thêm user vào database.");
+            request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
+            return;
+        }
 
-        response.sendRedirect("viewuserdetail");
+        if ("Customer".equals(finalRole)) {
+            String customerCode = request.getParameter("customerCode");
+            String joinDate = request.getParameter("joinDate");
+            String loyaltyPoint_raw = request.getParameter("loyaltyPoint");
+            String birthday = request.getParameter("birthday");
+            String gender = request.getParameter("gender");
+
+            int loyaltyPoint = loyaltyPoint_raw != null && !loyaltyPoint_raw.isEmpty()
+                    ? Integer.parseInt(loyaltyPoint_raw) : 0;
+
+            CustomerDAO cid = new CustomerDAO();
+            CustomerInfo ci = new CustomerInfo(newUserId, customerCode, joinDate, loyaltyPoint, birthday, gender);
+            cid.insert(ci);
+            response.sendRedirect("viewuserdetail");
+
+        } else {
+            String employeeCode = request.getParameter("employeeCode");
+            String contractType = request.getParameter("contractType");
+            String startDateStr = request.getParameter("startDate");
+            String endDateStr = request.getParameter("endDate");
+            String department = request.getParameter("department");
+            String position = request.getParameter("position");
+
+            LocalDate startDate = null;
+            LocalDate endDate = null;
+
+            if (startDateStr != null && !startDateStr.isEmpty()) {
+                startDate = LocalDate.parse(startDateStr);  // ISO format yyyy-MM-dd
+            }
+
+            if (endDateStr != null && !endDateStr.isEmpty()) {
+                endDate = LocalDate.parse(endDateStr);
+            }
+
+            EmployeeDAO eid = new EmployeeDAO();
+            EmployeeInfo ei = new EmployeeInfo(newUserId, employeeCode, contractType, startDate, endDate, department, position);
+            eid.insert(ei);
+            response.sendRedirect("viewuserdetail");
+        }
+
     }
 
     private void setAttributes(HttpServletRequest request, String name, String pass,

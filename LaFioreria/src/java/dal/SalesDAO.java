@@ -133,7 +133,7 @@ public class SalesDAO extends BaseDao {
                 + "JOIN order_item oi ON o.order_id = oi.order_id "
                 + "JOIN bouquet b ON oi.bouquet_id = b.Bouquet_ID "
                 + "JOIN category c ON b.cid = c.category_id "
-                + "JOIN user u ON o.customer_id = u.User_ID "
+                + "LEFT JOIN user u ON o.customer_id = u.User_ID " // 👈 Sửa ở đây
                 + "JOIN order_status os ON o.status_id = os.order_status_id "
                 + "WHERE " + condition + " "
                 + "ORDER BY o.order_date DESC";
@@ -156,7 +156,6 @@ public class SalesDAO extends BaseDao {
                 list.add(r);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return list;
     }
@@ -307,7 +306,7 @@ public class SalesDAO extends BaseDao {
             ps.setInt(1, year);
             rs = ps.executeQuery();
             while (rs.next()) {
-                String label = "Tháng " + rs.getInt("month");
+                String label = "Month " + rs.getInt("month");
                 double revenue = rs.getDouble("total_revenue");
                 int orders = rs.getInt("total_orders");
                 list.add(new StatResult(label, revenue, orders));
@@ -329,7 +328,7 @@ public class SalesDAO extends BaseDao {
             ps = connection.prepareStatement(sql);
             rs = ps.executeQuery();
             while (rs.next()) {
-                String label = "Năm " + rs.getInt("year");
+                String label = "Year " + rs.getInt("year");
                 double revenue = rs.getDouble("total_revenue");
                 int orders = rs.getInt("total_orders");
                 list.add(new StatResult(label, revenue, orders));
@@ -405,15 +404,13 @@ public class SalesDAO extends BaseDao {
             }
 
             // Tính dùng được = nhập - hỏng
-            map.put("Dùng được (bán)", imported - wasted);
-            map.put("Tổn thất (hỏng/quá hạn/từ chối)", wasted);
+            map.put("Available (for sale)", imported - wasted);
+            map.put("Loss (damaged/overdue/rejected)", wasted);
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return map;
     }
-
-
 
 }

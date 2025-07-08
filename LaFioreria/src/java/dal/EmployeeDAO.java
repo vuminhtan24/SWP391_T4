@@ -4,15 +4,135 @@
  */
 package dal;
 
-import java.util.Date;
+import java.sql.SQLException;
 import model.EmployeeInfo;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author LAPTOP
  */
 public class EmployeeDAO extends BaseDao {
+
+    public List<EmployeeInfo> getAll() {
+        List<EmployeeInfo> list = new ArrayList<>();
+        String sql = "SELECT * FROM employee_info";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                EmployeeInfo e = new EmployeeInfo(
+                        rs.getInt("User_ID"),
+                        rs.getString("Employee_Code"),
+                        rs.getString("Contract_Type"),
+                        rs.getDate("Start_Date") != null ? rs.getDate("Start_Date").toLocalDate() : null,
+                        rs.getDate("End_Date") != null ? rs.getDate("End_Date").toLocalDate() : null,
+                        rs.getString("Department"),
+                        rs.getString("Position")
+                );
+                list.add(e);
+            }
+        } catch (SQLException e) {
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception ex) {
+            }
+        }
+        return list;
+    }
+
+    public List<EmployeeInfo> getFilteredEmployees(String keyword, String department, String sortColumn, String sortOrder, int offset, int limit) {
+        List<EmployeeInfo> list = new ArrayList<>();
+        String sql = "SELECT * FROM employee_info WHERE 1=1";
+
+        if (keyword != null && !keyword.isEmpty()) {
+            sql += " AND (Employee_Code LIKE ? OR Position LIKE ?)";
+        }
+
+        if (department != null && !department.isEmpty()) {
+            sql += " AND Department = ?";
+        }
+
+        if (sortColumn != null && !sortColumn.isEmpty() && sortOrder != null && !sortOrder.isEmpty()) {
+            sql += " ORDER BY " + sortColumn + " " + sortOrder;
+        } else {
+            sql += " ORDER BY User_ID ASC";
+        }
+
+        sql += " LIMIT ? OFFSET ?";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            int i = 1;
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(i++, "%" + keyword + "%");
+                ps.setString(i++, "%" + keyword + "%");
+            }
+
+            if (department != null && !department.isEmpty()) {
+                ps.setString(i++, department);
+            }
+
+            ps.setInt(i++, limit);
+            ps.setInt(i++, offset);
+
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                EmployeeInfo e = new EmployeeInfo(
+                        rs.getInt("User_ID"),
+                        rs.getString("Employee_Code"),
+                        rs.getString("Contract_Type"),
+                        rs.getDate("Start_Date") != null ? rs.getDate("Start_Date").toLocalDate() : null,
+                        rs.getDate("End_Date") != null ? rs.getDate("End_Date").toLocalDate() : null,
+                        rs.getString("Department"),
+                        rs.getString("Position")
+                );
+                list.add(e);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public int countFilteredEmployees(String keyword, String department) {
+        String sql = "SELECT COUNT(*) FROM employee_info WHERE 1=1";
+        if (keyword != null && !keyword.isEmpty()) {
+            sql += " AND (Employee_Code LIKE ? OR Position LIKE ?)";
+        }
+        if (department != null && !department.isEmpty()) {
+            sql += " AND Department = ?";
+        }
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+
+            int i = 1;
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(i++, "%" + keyword + "%");
+                ps.setString(i++, "%" + keyword + "%");
+            }
+
+            if (department != null && !department.isEmpty()) {
+                ps.setString(i++, department);
+            }
+
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
     public EmployeeInfo getByUserId(int userId) {
         EmployeeInfo ei = null;
@@ -33,7 +153,7 @@ public class EmployeeDAO extends BaseDao {
                         rs.getString("Position")
                 );
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             System.out.println("Lỗi getByUserId (EmployeeDAO): " + e.getMessage());
         }
         return ei;
@@ -47,7 +167,7 @@ public class EmployeeDAO extends BaseDao {
             ps.setInt(1, userId);
             rs = ps.executeQuery();
             return rs.next();
-        } catch (Exception e) {
+        } catch (SQLException e) {
             System.out.println("Lỗi exist (EmployeeDAO): " + e.getMessage());
         }
         return false;
@@ -67,7 +187,7 @@ public class EmployeeDAO extends BaseDao {
             ps.setString(6, e.getDepartment());
             ps.setString(7, e.getPosition());
             ps.executeUpdate();
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             System.out.println("Lỗi insert (EmployeeDAO): " + ex.getMessage());
         }
     }

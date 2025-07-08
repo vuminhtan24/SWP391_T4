@@ -4,6 +4,7 @@
  */
 package controller;
 
+import com.google.gson.Gson;
 import dal.FlowerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import model.StatResult;
 
 /**
@@ -63,13 +65,24 @@ public class FlowerLossChartServlet extends HttpServlet {
             throws ServletException, IOException {
 
         FlowerDAO dao = new FlowerDAO();
+        Gson gson = new Gson();
         Map<String, Integer> discardReasonByCategory = dao.getDiscardReasonByFlowerType();
         List<StatResult> expiredByMonthAndCategory = dao.getExpiredFlowerByMonthAndCategory();
 
-        request.setAttribute("discardReasonByCategory", discardReasonByCategory);
-        request.setAttribute("expiredByMonthAndCategory", expiredByMonthAndCategory);
+// ⚙️ Dữ liệu cho biểu đồ cột: Lỗi theo loại hoa
+        request.setAttribute("discardLabels", gson.toJson(discardReasonByCategory.keySet()));
+        request.setAttribute("discardValues", gson.toJson(discardReasonByCategory.values()));
 
-        request.getRequestDispatcher("/TestWeb/flower_loss_chart.jsp").forward(request, response);
+// ⚙️ Dữ liệu cho biểu đồ đường: Hoa hết hạn theo tháng
+        request.setAttribute("expiredLabels", gson.toJson(
+                expiredByMonthAndCategory.stream().map(StatResult::getLabel).collect(Collectors.toList())
+        ));
+        request.setAttribute("expiredValues", gson.toJson(
+                expiredByMonthAndCategory.stream().map(StatResult::getValue).collect(Collectors.toList())
+        ));
+        
+//        response.sendRedirect("/LaFioreria/DashMin/flower_loss.jsp");
+        request.getRequestDispatcher("DashMin/flower_loss.jsp").forward(request, response);
     }
 
     /**

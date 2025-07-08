@@ -12,6 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -70,27 +71,42 @@ public class FlowerQualityStatsServlet extends HttpServlet {
         // Nếu không có dữ liệu, sử dụng dữ liệu mẫu
         if (discardReasonStats == null || discardReasonStats.isEmpty()) {
             discardReasonStats = new LinkedHashMap<>();
-            discardReasonStats.put("Hỏng do nhiệt độ", 60);
-            discardReasonStats.put("Mốc", 25);
-            discardReasonStats.put("Quá hạn", 30);
-            discardReasonStats.put("Bị dập khi vận chuyển", 15);
-            discardReasonStats.put("Giao sai / từ chối", 20);
+            discardReasonStats.put("Damaged due to temperature", 60);
+            discardReasonStats.put("Moldy", 25);
+            discardReasonStats.put("Expired", 30);
+            discardReasonStats.put("Bruised during transportation", 15);
+            discardReasonStats.put("Wrong delivery / Rejected", 20);
+        }
+
+        Map<String, String> translationMap = new HashMap<>();
+        translationMap.put("Lỗi do nhiệt độ", "Damaged due to temperature");
+        translationMap.put("Mốc", "Moldy");
+        translationMap.put("Hết hạn", "Expired");
+        translationMap.put("Dập nát khi vận chuyển", "Bruised during transportation");
+        translationMap.put("Giao sai / bị từ chối", "Wrong delivery / Rejected");
+
+// Chuyển map sang tiếng Anh
+        Map<String, Integer> translatedMap = new LinkedHashMap<>();
+        for (Map.Entry<String, Integer> entry : discardReasonStats.entrySet()) {
+            String key = entry.getKey();
+            String englishKey = translationMap.getOrDefault(key, key); // nếu không có thì giữ nguyên
+            translatedMap.put(englishKey, entry.getValue());
         }
 
         if (importVsWasteStats == null || importVsWasteStats.isEmpty()) {
             importVsWasteStats = new LinkedHashMap<>();
-            importVsWasteStats.put("Dùng được (bán)", 800);
-            importVsWasteStats.put("Hỏng", 100);
-            importVsWasteStats.put("Quá hạn", 50);
-            importVsWasteStats.put("Giao sai / từ chối", 50);
+            importVsWasteStats.put("Usable (sold)", 800);
+            importVsWasteStats.put("Damaged", 100);
+            importVsWasteStats.put("Expired", 50);
+            importVsWasteStats.put("Wrong delivery / Rejected", 50);
         }
 
         // Gửi sang JSP
-        request.setAttribute("discardReasonStats", discardReasonStats);
+        request.setAttribute("discardReasonStats", translatedMap);
         request.setAttribute("importVsWasteStats", importVsWasteStats);
 
         // Chuyển sang trang JSP để hiển thị biểu đồ
-        request.getRequestDispatcher("/TestWeb/flower_quality.jsp").forward(request, response);
+        request.getRequestDispatcher("TestWeb/flower_quality.jsp").forward(request, response);
     }
 
     /**

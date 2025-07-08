@@ -106,6 +106,124 @@
                 }
             });
         }
+        // ✅ Hàm an toàn để parse JSON
+        function safeParse(jsonStr) {
+            try {
+                return JSON.parse(jsonStr);
+            } catch (e) {
+                console.error("Lỗi khi phân tích JSON:", jsonStr, e);
+                return [];
+            }
+        }
+
+        // 📊 Toggle & vẽ biểu đồ cột: Lý do lỗi theo loại hoa
+        let barChartDrawn = false;
+        $("#toggleBarChart").click(function () {
+            const $barCanvas = $("#barByCategory");
+
+            $barCanvas.toggle();
+
+            if (!barChartDrawn && $barCanvas.is(":visible")) {
+                const labels = safeParse($barCanvas.attr("data-labels"));
+                const values = safeParse($barCanvas.attr("data-values"));
+
+                if (labels.length && values.length) {
+                    window.barByCategory = new Chart($barCanvas[0], {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                    label: 'Error Count',
+                                    data: values,
+                                    backgroundColor: '#f44336'
+                                }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {position: 'top'},
+                                title: {
+                                    display: true,
+                                    text: '📊 Error Reasons by Flower Type'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Quantity'
+                                    }
+                                }
+                            }
+                        }
+
+                    });
+                    barChartDrawn = true;
+                }
+            }
+        });
+
+        // 📈 Toggle & vẽ biểu đồ đường: Hoa hết hạn theo thời gian
+        let lineChartDrawn = false;
+        $("#toggleLineChart").click(function () {
+            const $lineCanvas = $("#lineExpired");
+
+            $lineCanvas.toggle();
+
+            if (!lineChartDrawn && $lineCanvas.is(":visible")) {
+                const labels = safeParse($lineCanvas.attr("data-labels"));
+                const values = safeParse($lineCanvas.attr("data-values"));
+
+                if (labels.length && values.length) {
+                    window.lineExpired = new Chart($lineCanvas[0], {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                    label: 'Expired Flowers',
+                                    data: values,
+                                    borderColor: 'blue',
+                                    backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                                    tension: 0.4,
+                                    fill: true
+                                }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {position: 'top'},
+                                title: {
+                                    display: true,
+                                    text: '📈 Expired Flowers Over Time'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Number of Flowers'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Time (Month)'
+                                    }
+                                }
+                            }
+                        }
+
+                    });
+                    lineChartDrawn = true;
+                }
+            }
+        });
+
+
+
+
 
 // Biểu đồ tỉ lệ đơn hàng theo trạng thái (Donut chart)
         if (document.getElementById("orderStatusChart")) {
@@ -121,7 +239,7 @@
                     data: {
                         labels: labels,
                         datasets: [{
-                                label: 'Số lượng đơn hàng',
+                                label: 'Number of orders',
                                 data: data,
                                 backgroundColor: [
                                     '#4CAF50', '#FFC107', '#2196F3', '#FF5722', '#9C27B0'
@@ -135,7 +253,7 @@
                             legend: {position: 'bottom'},
                             title: {
                                 display: true,
-                                text: 'Tỉ lệ đơn hàng theo trạng thái'
+                                text: 'Order Rate by Status'
                             },
                             // ✅ Nền trắng cho ảnh PNG
                             custom_canvas_background_color: {
@@ -176,7 +294,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                            label: "Doanh thu theo ngày (tháng này)",
+                            label: "Revenue by day (this month)",
                             data: values,
                             backgroundColor: 'rgba(75, 192, 192, 0.5)',
                             borderColor: 'rgb(75, 192, 192)',
@@ -263,7 +381,7 @@
                         labels: parsedLabels,
                         datasets: [
                             {
-                                label: 'Doanh thu (VND)',
+                                label: 'Revenue (VND)',
                                 data: parsedRevenues,
                                 backgroundColor: 'rgba(54, 162, 235, 0.6)',
                                 borderColor: 'rgb(54, 162, 235)',
@@ -271,7 +389,7 @@
                                 yAxisID: 'y'
                             },
                             {
-                                label: 'Số đơn hàng',
+                                label: 'Order Number',
                                 data: parsedOrders,
                                 backgroundColor: 'rgba(255, 159, 64, 0.6)',
                                 borderColor: 'rgb(255, 159, 64)',
@@ -288,14 +406,14 @@
                                 type: 'linear',
                                 position: 'left',
                                 beginAtZero: true,
-                                title: {display: true, text: 'Doanh thu (VND)'}
+                                title: {display: true, text: 'Revenue (VND)'}
                             },
                             y1: {
                                 type: 'linear',
                                 position: 'right',
                                 beginAtZero: true,
                                 grid: {drawOnChartArea: false},
-                                title: {display: true, text: 'Số đơn hàng'}
+                                title: {display: true, text: 'Order Number'}
                             }
                         },
                         plugins: {
@@ -347,7 +465,7 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Doanh thu (VND)',
+                            label: 'Revenue (VND)',
                             data: revenues,
                             backgroundColor: 'rgba(54, 162, 235, 0.6)',
                             borderColor: 'rgb(54, 162, 235)',
@@ -355,7 +473,7 @@
                             yAxisID: 'y',
                         },
                         {
-                            label: 'Số đơn hàng',
+                            label: 'Order Number',
                             data: orders,
                             backgroundColor: 'rgba(255, 99, 132, 0.6)',
                             borderColor: 'rgb(255, 99, 132)',
@@ -371,13 +489,13 @@
                         y: {
                             type: 'linear',
                             position: 'left',
-                            title: {display: true, text: 'Doanh thu (VND)'},
+                            title: {display: true, text: 'Revenue (VND)'},
                             beginAtZero: true
                         },
                         y1: {
                             type: 'linear',
                             position: 'right',
-                            title: {display: true, text: 'Số đơn hàng'},
+                            title: {display: true, text: 'Order Number'},
                             grid: {drawOnChartArea: false},
                             beginAtZero: true
                         }
@@ -418,7 +536,7 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Doanh thu (VND)',
+                            label: 'Revenue (VND)',
                             data: revenues,
                             backgroundColor: 'rgba(75, 192, 192, 0.5)',
                             borderColor: 'rgb(75, 192, 192)',
@@ -426,7 +544,7 @@
                             yAxisID: 'y'
                         },
                         {
-                            label: 'Số đơn hàng',
+                            label: 'Order Number',
                             data: orders,
                             backgroundColor: 'rgba(255, 159, 64, 0.6)',
                             borderColor: 'rgb(255, 159, 64)',
@@ -443,14 +561,14 @@
                             type: 'linear',
                             position: 'left',
                             beginAtZero: true,
-                            title: {display: true, text: 'Doanh thu (VND)'}
+                            title: {display: true, text: 'Revenue (VND)'}
                         },
                         y1: {
                             type: 'linear',
                             position: 'right',
                             beginAtZero: true,
                             grid: {drawOnChartArea: false},
-                            title: {display: true, text: 'Số đơn hàng'}
+                            title: {display: true, text: 'Order Number'}
                         }
                     },
                     plugins: {
@@ -488,7 +606,7 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Doanh thu (VND)',
+                            label: 'Revenue (VND)',
                             data: revenues,
                             backgroundColor: 'rgba(153, 102, 255, 0.6)',
                             borderColor: 'rgb(153, 102, 255)',
@@ -496,7 +614,7 @@
                             yAxisID: 'y'
                         },
                         {
-                            label: 'Số đơn hàng',
+                            label: 'Order Number',
                             data: orders,
                             backgroundColor: 'rgba(255, 205, 86, 0.6)',
                             borderColor: 'rgb(255, 205, 86)',
@@ -513,14 +631,14 @@
                             type: 'linear',
                             position: 'left',
                             beginAtZero: true,
-                            title: {display: true, text: 'Doanh thu (VND)'}
+                            title: {display: true, text: 'Revenue (VND)'}
                         },
                         y1: {
                             type: 'linear',
                             position: 'right',
                             beginAtZero: true,
                             grid: {drawOnChartArea: false},
-                            title: {display: true, text: 'Số đơn hàng'}
+                            title: {display: true, text: 'Order Number'}
                         }
                     },
                     plugins: {
@@ -678,7 +796,7 @@
                         plugins: {
                             title: {
                                 display: true,
-                                text: 'Doanh thu theo loại hoa (tháng này)'
+                                text: 'Revenue by flower type (this month)'
                             }
                         },
                         interaction: {
@@ -690,7 +808,7 @@
                                 beginAtZero: true,
                                 title: {
                                     display: true,
-                                    text: 'Doanh thu (VNĐ)'
+                                    text: 'Revenue (VND)'
                                 }
                             }
                         },
@@ -726,7 +844,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                            label: 'Doanh thu (VND)',
+                            label: 'Revenue (VND)',
                             data: values,
                             borderColor: 'rgb(75, 192, 192)',
                             backgroundColor: 'rgba(75, 192, 192, 0.2)',
