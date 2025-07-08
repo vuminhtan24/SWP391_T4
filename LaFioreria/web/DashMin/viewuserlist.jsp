@@ -436,7 +436,7 @@
                             </div>
 
                         <div>
-                            <a href="${pageContext.request.contextPath}/Vvewemployeeservlet" class="btn btn-primary">
+                            <a href="${pageContext.request.contextPath}/viewemployeeservlet" class="btn btn-primary">
                                 <i class="fas fa-users"></i> Employee Manager
                             </a>
 

@@ -19,7 +19,7 @@ import model.EmployeeInfo;
  *
  * @author LAPTOP
  */
-@WebServlet(name = "ViewEmployeeServlet", urlPatterns = {"/Vvewemployeeservlet"})
+@WebServlet(name = "ViewEmployeeServlet", urlPatterns = {"/viewemployeeservlet"})
 public class ViewEmployeeServlet extends HttpServlet {
 
     /**
@@ -60,9 +60,46 @@ public class ViewEmployeeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        String keyword = request.getParameter("search");
+        keyword = (keyword != null) ? keyword.trim() : null;
+
+        String department = request.getParameter("department");
+        department = (department != null) ? department.trim() : null;
+
+        String sort = request.getParameter("sort");
+        sort = (sort != null) ? sort.trim() : null;
+
+        String order = request.getParameter("order");
+        order = (order != null) ? order.trim() : null;
+
+        System.out.println("keyword = " + keyword);
+        System.out.println("department = " + department);
+        System.out.println("sort = " + sort);
+        System.out.println("order = " + order);
+
+        String page_raw = request.getParameter("page");
+
+        int page = (page_raw == null || page_raw.isEmpty()) ? 1 : Integer.parseInt(page_raw);
+        int pageSize = 5;
+        int offset = (page - 1) * pageSize;
+
         EmployeeDAO dao = new EmployeeDAO();
-        List<EmployeeInfo> employeeList = dao.getAll();
+        List<EmployeeInfo> employeeList = dao.getFilteredEmployees(
+                keyword, department, sort, order, offset, pageSize
+        );
+
+        int totalRows = dao.countFilteredEmployees(keyword, department);
+        int totalPages = (int) Math.ceil((double) totalRows / pageSize);
+
         request.setAttribute("employeeList", employeeList);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("search", keyword);
+        request.setAttribute("department", department);
+        request.setAttribute("sort", sort);
+        request.setAttribute("order", order);
+
         request.getRequestDispatcher("DashMin/employee_list.jsp").forward(request, response);
     }
 
