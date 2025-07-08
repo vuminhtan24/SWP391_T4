@@ -435,28 +435,33 @@
                                 </div>
                             </div>
 
+                        <div>
+                            <a href="${pageContext.request.contextPath}/viewemployeeservlet" class="btn btn-primary">
+                                <i class="fas fa-users"></i> Employee Manager
+                            </a>
 
-                            <!-- Table View -->
-                            <!-- Table View -->
-                            <div class="col-12">
-                                <div class="table-container">
-                                    <h6 class="mb-4">View User List Table</h6>
-                                    <div class="table-responsive">
-                                        <table class="table table-striped table-bordered align-middle text-center">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>User ID</th>
-                                                    <th>User Name</th>
-                                                    <th>Password</th>
-                                                    <th>Full Name</th>
-                                                    <th>Email</th>
-                                                    <th>Phone</th>
-                                                    <th>Address</th>
-                                                    <th>Role</th>
-                                                    <th colspan="3">Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
+                        </div>
+                        <!-- Table View -->
+                        <!-- Table View -->
+                        <div class="col-12">
+                            <div class="table-container">
+                                <h6 class="mb-4">View User List Table</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered align-middle text-center">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>User ID</th>
+                                                <th>User Name</th>
+                                                <th>Password</th>
+                                                <th>Full Name</th>
+                                                <th>Email</th>
+                                                <th>Phone</th>
+                                                <th>Address</th>
+                                                <th>Role</th>
+                                                <th colspan="3">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
                                             <c:forEach items="${userManagerList}" var="user">
                                                 <tr>
                                                     <td>${user.userid}</td>
