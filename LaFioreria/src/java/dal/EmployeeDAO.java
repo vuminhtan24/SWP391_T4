@@ -4,15 +4,48 @@
  */
 package dal;
 
-import java.util.Date;
+import java.sql.SQLException;
 import model.EmployeeInfo;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author LAPTOP
  */
 public class EmployeeDAO extends BaseDao {
+
+    public List<EmployeeInfo> getAll() {
+        List<EmployeeInfo> list = new ArrayList<>();
+        String sql = "SELECT * FROM employee_info";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                EmployeeInfo e = new EmployeeInfo(
+                        rs.getInt("User_ID"),
+                        rs.getString("Employee_Code"),
+                        rs.getString("Contract_Type"),
+                        rs.getDate("Start_Date") != null ? rs.getDate("Start_Date").toLocalDate() : null,
+                        rs.getDate("End_Date") != null ? rs.getDate("End_Date").toLocalDate() : null,
+                        rs.getString("Department"),
+                        rs.getString("Position")
+                );
+                list.add(e);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return list;
+    }
 
     public EmployeeInfo getByUserId(int userId) {
         EmployeeInfo ei = null;
