@@ -516,9 +516,11 @@ public class OrderDAO extends BaseDao {
      * @param order The Order object containing the details for the new order.
      * @return The generated order_id if successful, -1 otherwise.
      */
+//    Nếu payment là COD thì chuyển thẳng đến status là processing (đang cắm hoa)
+//    còn nếu là VietQR thì sẽ status = 1 sẽ chờ thanh toán rồi mới đến bước processing
     public int addOrder(Order order) {
         String sql = "INSERT INTO `order` (order_date, customer_id, total_import, total_sell, status_id, shipper_id, payment_method) "
-                + "VALUES (?, ?, ?, ?, ?, ?,?)";
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
         int generatedId = -1;
 
         try {
@@ -526,20 +528,22 @@ public class OrderDAO extends BaseDao {
             ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             int totalImport = Integer.parseInt(order.getTotalImport());
-            int totalSell = totalImport * 5;
+            int totalSell = totalImport * 5; // Giữ logic tính total_sell như cũ
+
+            // Xác định status_id dựa trên payment_method
+            int statusId = "VietQR".equals(order.getPaymentMethod()) ? 1 : 2; // 1: Chờ thanh toán, 2: Chờ lấy hàng
 
             ps.setString(1, order.getOrderDate());
             ps.setInt(2, order.getCustomerId());
             ps.setInt(3, totalImport);
             ps.setInt(4, totalSell);
-            ps.setInt(5, order.getStatusId());
-            ps.setString(7, order.getPaymentMethod());
-
+            ps.setInt(5, statusId); // Dùng statusId tự động
             if (order.getShipperId() == null) {
                 ps.setNull(6, java.sql.Types.INTEGER);
             } else {
                 ps.setInt(6, order.getShipperId());
             }
+            ps.setString(7, order.getPaymentMethod());
 
             int rowsAffected = ps.executeUpdate();
             if (rowsAffected > 0) {
@@ -1252,10 +1256,10 @@ public class OrderDAO extends BaseDao {
 
     public static void main(String[] args) {
         OrderDAO cartDAO = new OrderDAO();
-        
+
         int testOrderId = 1; // 📝 Thay ID này bằng 1 ID tồn tại trong DB
         Order order = cartDAO.getOrderDetailById(31);
-        
+
         if (order != null) {
             System.out.println("Thông tin đơn hàng:");
             System.out.println("ID: " + order.getOrderId());

@@ -82,9 +82,8 @@
                                                     <c:choose>
                                                         <c:when test="${sessionScope.currentAcc.getRole() != 7}">
                                                             <li><a href="${pageContext.request.contextPath}/DashMin/admin"><i class="fa fa-id-card"></i> Manage Page</a></li>
-                                                            </c:when>
-                                                        </c:choose>
-
+                                                        </c:when>
+                                                    </c:choose>
                                                     <li><a href="${pageContext.request.contextPath}/viewuserdetailhome"><i class="fa fa-id-card"></i> User Detail</a></li>
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/changePassword.jsp"><i class="fa fa-key"></i> Change Password</a></li>
                                                     <li class="divider"></li>
@@ -94,10 +93,9 @@
                                         </c:when>
                                         <c:otherwise>
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/LoginServlet"><i class="fa fa-lock"></i> Login</a></li>
-                                            </c:otherwise>
-                                        </c:choose>
-
-                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/wishlist.jsp"><i class="fa fa-star"></i> Wishlist</a></li>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/order"><i class="fa fa-file-text-o"></i> Order</a></li>
                                     <li><a href="${pageContext.request.contextPath}/checkout"><i class="fa fa-crosshairs"></i> Checkout</a></li>
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/cart"><i class="fa fa-shopping-cart"></i> Cart</a></li>
                                 </ul>
@@ -140,10 +138,16 @@
                                 </ul>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div><!--/header-bottom-->
         </header><!--/header-->
+
+        <script>
+            function openOrderPopup() {
+                document.getElementById("order-popup").style.display = "flex";
+                loadOrders("all"); // Load all orders by default
+            }
+        </script>
     </body>
 </html>

@@ -157,7 +157,6 @@
                         <p>Add some beautiful bouquets to your cart to get started!</p>
                         <div style="display: flex; justify-content: center; gap: 10px;">
                             <a href="${pageContext.request.contextPath}/product" class="btn btn-primary">Continue Shopping</a>
-                            <a href="${pageContext.request.contextPath}/custom-order" class="btn btn-primary">Đặt hoa theo yêu cầu</a>
                         </div>
                     </div>
                 </c:if>
@@ -223,10 +222,7 @@
                                 </c:forEach>
                             </tbody>
                         </table>
-                    </div>
-                    <div style="text-align: center; margin-top: 20px;">
-                        <a href="${pageContext.request.contextPath}/custom-order" class="btn btn-success">Đặt hoa theo yêu cầu</a>
-                    </div>
+                    </div>                    
                 </c:if>
         </section> <!--/#cart_items-->
 
