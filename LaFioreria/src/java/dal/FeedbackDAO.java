@@ -9,6 +9,67 @@ import model.Feedback;
 import model.FeedbackImg;
 
 public class FeedbackDAO extends BaseDao {
+    
+    public List<Feedback> getAllFeedbacks(String search, Integer bouquetId, Integer rating) {
+        List<Feedback> feedbacks = new ArrayList<>();
+        String sql = "SELECT DISTINCT f.feedback_id, f.customer_id, f.bouquet_id, f.rating, f.comment, f.created_at, f.status, " +
+                     "COALESCE(u.Fullname, o.customer_name) AS customer_name " +
+                     "FROM feedback f " +
+                     "LEFT JOIN `order` o ON f.customer_id = o.customer_id AND f.order_id = o.order_id " +
+                     "LEFT JOIN `user` u ON f.customer_id = u.User_ID " +
+                     "WHERE 1=1 ";
+        
+        // Add search condition
+        if (search != null && !search.trim().isEmpty()) {
+            sql += "AND (f.comment LIKE ? OR COALESCE(u.Fullname, o.customer_name) LIKE ?) ";
+        }
+        // Add bouquet_id filter
+        if (bouquetId != null && bouquetId > 0) {
+            sql += "AND f.bouquet_id = ? ";
+        }
+        // Add rating filter
+        if (rating != null && rating > 0) {
+            sql += "AND f.rating = ? ";
+        }
+        
+        sql += "ORDER BY f.created_at DESC";
+        
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            int paramIndex = 1;
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(paramIndex++, "%" + search + "%");
+                ps.setString(paramIndex++, "%" + search + "%");
+            }
+            if (bouquetId != null && bouquetId > 0) {
+                ps.setInt(paramIndex++, bouquetId);
+            }
+            if (rating != null && rating > 0) {
+                ps.setInt(paramIndex++, rating);
+            }
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Feedback feedback = new Feedback();
+                feedback.setFeedbackId(rs.getInt("feedback_id"));
+                feedback.setCustomerId(rs.getInt("customer_id"));
+                feedback.setBouquetId(rs.getInt("bouquet_id"));
+                feedback.setRating(rs.getInt("rating"));
+                feedback.setComment(rs.getString("comment"));
+                Timestamp timestamp = rs.getTimestamp("created_at");
+                feedback.setCreated_at(timestamp != null ? timestamp.toLocalDateTime() : null);
+                feedback.setStatus(rs.getString("status"));
+                feedbacks.add(feedback);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {}
+        }
+        return feedbacks;
+    }
 
     public boolean hasCustomerPurchasedBouquet(int customerId, int bouquetId) {
         String sql = "SELECT COUNT(*) FROM `order` o "
@@ -200,6 +261,25 @@ public class FeedbackDAO extends BaseDao {
             }
         }
         return "Khách";
+    }
+
+    public void updateFeedbackStatus(int feedbackId, String status) {
+        String sql = "UPDATE feedback SET status = ? WHERE feedback_id = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, status);
+            ps.setInt(2, feedbackId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to update feedback status: " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
     }
 
     public static void main(String[] args) {

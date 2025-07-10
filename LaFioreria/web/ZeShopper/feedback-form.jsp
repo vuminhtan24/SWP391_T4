@@ -38,7 +38,7 @@
             .form-group label {
                 font-weight: bold;
             }
-            .form-group input, .form-group textarea {
+            .form-group input[type="text"], .form-group textarea {
                 width: 100%;
                 padding: 8px;
                 border: 1px solid #ccc;
@@ -64,6 +64,28 @@
             .submit-button:hover {
                 background-color: #4cae4c;
             }
+            .star-rating {
+                direction: rtl;
+                font-size: 30px;
+                unicode-bidi: bidi-override;
+                text-align: left;
+                display: inline-block;
+            }
+            .star-rating input {
+                display: none;
+            }
+            .star-rating label {
+                color: #ccc;
+                cursor: pointer;
+            }
+            .star-rating input:checked ~ label,
+            .star-rating label:hover,
+            .star-rating label:hover ~ label {
+                color: #fc0;
+            }
+            .star-rating input:checked + label {
+                color: #fc0;
+            }
         </style>
     </head>
     <body>
@@ -78,21 +100,28 @@
                 <c:if test="${not empty message}">
                     <div class="alert alert-success">${message}</div>
                 </c:if>
-                <form action="${pageContext.request.contextPath}/ZeShopper/feedback" method="post">
+                <form action="${pageContext.request.contextPath}/ZeShopper/feedback" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="action" value="submitFeedback">
                     <input type="hidden" name="orderId" value="${orderId}">
                     <input type="hidden" name="bouquetId" value="${bouquetId}">
                     <div class="form-group">
-                        <label for="rating">Đánh giá (1-5 sao):</label>
-                        <input type="number" id="rating" name="rating" min="1" max="5" required>
+                        <label>Đánh giá:</label>
+                        <div class="star-rating">
+                            <input type="radio" id="star5" name="rating" value="5" required><label for="star5">★</label>
+                            <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
+                            <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
+                            <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
+                            <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="comment">Nhận xét:</label>
                         <textarea id="comment" name="comment" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="images">Hình ảnh (tùy chọn):</label>
-                        <input type="file" id="images" name="imageUrls" multiple accept="image/*">
+                        <label for="images">Hình ảnh (tối đa 3 ảnh, định dạng .jpg, .jpeg, .png):</label>
+                        <input type="file" id="images" name="imageFiles" multiple accept=".jpg,.jpeg,.png">
+                        <small class="form-text text-muted">Bạn chỉ có thể upload tối đa 3 ảnh.</small>
                     </div>
                     <button type="submit" class="submit-button">Gửi đánh giá</button>
                 </form>
