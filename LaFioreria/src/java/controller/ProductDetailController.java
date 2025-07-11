@@ -9,6 +9,7 @@ import dal.CategoryDAO;
 import dal.FlowerBatchDAO;
 import dal.FlowerTypeDAO;
 import dal.RawFlowerDAO;
+import dal.FeedbackDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -16,6 +17,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import model.Bouquet;
@@ -25,6 +28,7 @@ import model.Category;
 import model.FlowerBatch;
 import model.FlowerType;
 import model.RawFlower;
+import model.Feedback;
 
 /**
  *
@@ -72,12 +76,12 @@ public class ProductDetailController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String idStr = request.getParameter("id");
-
         int id = Integer.parseInt(idStr);
         BouquetDAO bqdao = new BouquetDAO();
         FlowerTypeDAO rfdao = new FlowerTypeDAO();
         CategoryDAO cdao = new CategoryDAO();
         FlowerBatchDAO fbdao = new FlowerBatchDAO();
+        FeedbackDAO fdao = new FeedbackDAO();
 
         Bouquet detailsBQ = bqdao.getBouquetByID(id);
         String cateName = cdao.getCategoryNameByBouquet(id);
@@ -88,14 +92,32 @@ public class ProductDetailController extends HttpServlet {
         List<BouquetImage> images = bqdao.getBouquetImage(id);
         String cateDes = cdao.getCategoryDesByBouquet(id);
         List<BouquetImage> allImage = bqdao.getAllBouquetImage();
-        
+        // Xử lý feedback
+        List<Feedback> feedback = new ArrayList<>();
+        try {
+            feedback = fdao.getFeedbacksByBouquetId(id);
+            System.out.println("Feedback size for bouquetId " + id + ": " + (feedback != null ? feedback.size() : "null"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error fetching feedback for bouquetId " + id + ": " + e.getMessage());
+        }
+
+        // Lấy tên khách hàng cho từng feedback
+        Map<Integer, String> feedbackCustomerNames = new HashMap<>();
+        for (Feedback f : feedback) {
+            String customerName = fdao.getCustomerNameFromOrderOrUser(f.getCustomerId());
+            feedbackCustomerNames.put(f.getFeedbackId(), customerName);
+        }
+
+        // Loại bỏ bouquet hiện tại khỏi danh sách cùng danh mục
         for (int i = sameCate.size() - 1; i >= 0; i--) {
             Bouquet b = sameCate.get(i);
             if (b.getBouquetId() == detailsBQ.getBouquetId()) {
                 sameCate.remove(i);
             }
         }
-        
+
+        // Đặt các thuộc tính vào request
         request.setAttribute("bouquetAvailable", bqdao.bouquetAvailable(id));
         request.setAttribute("allImage", allImage);
         request.setAttribute("allBatchs", allBatchs);
@@ -107,6 +129,9 @@ public class ProductDetailController extends HttpServlet {
         request.setAttribute("allFlowers", allFlowers);
         request.setAttribute("cateList", cdao.getBouquetCategory());
         request.setAttribute("flowerInBQ", bqRaws);
+        request.setAttribute("feedback", feedback);
+        request.setAttribute("feedbackCustomerNames", feedbackCustomerNames);
+
         request.getRequestDispatcher("./ZeShopper/product-details.jsp").forward(request, response);
     }
 
