@@ -84,6 +84,17 @@ public class FeedbackController extends HttpServlet {
                 request.getRequestDispatcher("/ZeShopper/order.jsp").forward(request, response);
                 return;
             }
+            
+            // Check if feedback already exists and is approved or rejected
+            List<Feedback> existingFeedbacks = feedbackDAO.getFeedbacksByBouquetId(bouquetId); // Non-static call
+            for (Feedback f : existingFeedbacks) {
+                if (f.getCustomerId() == currentUser.getUserid() && 
+                    ("approved".equals(f.getStatus()) || "rejected".equals(f.getStatus()))) {
+                    request.setAttribute("error", "You have already submitted feedback for this product.");
+                    request.getRequestDispatcher("/ZeShopper/order.jsp").forward(request, response);
+                    return;
+                }
+            }
 
             // Xử lý upload ảnh
             List<String> savedImageUrls = new ArrayList<>();
@@ -139,7 +150,7 @@ public class FeedbackController extends HttpServlet {
                 feedbackDAO.insertFeedbackImage(feedbackId, url); // Giả sử có phương thức này
             }
 
-            request.setAttribute("message", "Gửi phản hồi thành công. Phản hồi sẽ được hiển thị sau khi được duyệt.");
+            request.setAttribute("message", "Cảm ơn bạn đã dành thời gian đánh giá sản phẩm của shop!(ΦзΦ) ❤️");
             request.getRequestDispatcher("/ZeShopper/order.jsp").forward(request, response);
         }
     }
