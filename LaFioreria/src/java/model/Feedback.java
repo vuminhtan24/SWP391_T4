@@ -5,6 +5,9 @@
 package model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 /**
  *
@@ -16,13 +19,14 @@ public class Feedback {
     int bouquetId;
     int rating;
     String comment;
-    LocalDate created_at;
+    LocalDateTime created_at;
     String status;
+    String bouquetName;
 
     public Feedback() {
     }
 
-    public Feedback(int feedbackId, int customerId, int bouquetId, int rating, String comment, LocalDate created_at, String status) {
+    public Feedback(int feedbackId, int customerId, int bouquetId, int rating, String comment, LocalDateTime created_at, String status, String bouquetName) {
         this.feedbackId = feedbackId;
         this.customerId = customerId;
         this.bouquetId = bouquetId;
@@ -30,6 +34,7 @@ public class Feedback {
         this.comment = comment;
         this.created_at = created_at;
         this.status = status;
+        this.bouquetName = bouquetName;
     }
 
     public int getFeedbackId() {
@@ -72,11 +77,11 @@ public class Feedback {
         this.comment = comment;
     }
 
-    public LocalDate getCreated_at() {
+    public LocalDateTime getCreated_at() {
         return created_at;
     }
 
-    public void setCreated_at(LocalDate created_at) {
+    public void setCreated_at(LocalDateTime created_at) {
         this.created_at = created_at;
     }
 
@@ -87,11 +92,24 @@ public class Feedback {
     public void setStatus(String status) {
         this.status = status;
     }
+    
+    // Thêm getter chuyển đổi sang Date
+    public java.util.Date getCreatedAtAsDate() {
+        return created_at != null ? java.util.Date.from(created_at.atZone(java.time.ZoneId.systemDefault()).toInstant()) : null;
+    }
+
+    public String getBouquetName() {
+        return bouquetName;
+    }
+
+    public void setBouquetName(String bouquetName) {
+        this.bouquetName = bouquetName;
+    }
 
     @Override
     public String toString() {
-        return "Feedback{" + "feedbackId=" + feedbackId + ", customerId=" + customerId + ", bouquetId=" + bouquetId + ", rating=" + rating + ", comment=" + comment + ", created_at=" + created_at + ", status=" + status + '}';
+        return "Feedback{" + "feedbackId=" + feedbackId + ", customerId=" + customerId + ", bouquetId=" + bouquetId + ", rating=" + rating + ", comment=" + comment + ", created_at=" + created_at + ", status=" + status + ", bouquetName=" + bouquetName + '}';
     }
-    
+        
     
 }

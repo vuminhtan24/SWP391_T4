@@ -1,7 +1,7 @@
 <%-- 
     Document   : order
     Created on : Jul 07, 2025, 10:50 PM
-    Author     : xAI (via Grok)
+    Author     : Admin
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -30,39 +30,32 @@
                 margin-bottom: 15px;
                 padding: 10px;
             }
-
             .order-filter select {
                 padding: 8px;
                 border-radius: 6px;
                 border: 1px solid #ccc;
             }
-
             .order-item {
                 border: 1px solid #eee;
                 padding: 15px;
                 margin-bottom: 15px;
                 border-radius: 4px;
             }
-
             .order-item h4 {
                 margin: 0 0 8px 0;
                 font-size: 18px;
             }
-
             .order-item p {
                 margin: 5px 0;
                 color: #555;
             }
-
             .order-status {
                 font-weight: bold;
-                color: #d9534f; /* Màu đỏ cho các trạng thái chưa giao/hủy */
+                color: #d9534f;
             }
-
             .order-status-delivered {
-                color: #28a745; /* Màu xanh cho trạng thái đã giao */
+                color: #28a745;
             }
-
             .order-details {
                 margin-top: 15px;
                 padding: 15px;
@@ -71,11 +64,9 @@
                 display: none;
                 background-color: #f9f9f9;
             }
-
             .order-details.active {
                 display: block;
             }
-
             .error-message {
                 color: red;
                 margin: 15px 0;
@@ -84,7 +75,6 @@
                 border-radius: 4px;
                 background-color: #f8d7da;
             }
-
             .toggle-details {
                 background-color: #5cb85c;
                 color: white;
@@ -93,19 +83,28 @@
                 border-radius: 4px;
                 cursor: pointer;
                 margin-top: 10px;
-                margin-right: 10px; /* Thêm margin để nút hủy không dính vào */
+                margin-right: 10px;
             }
-
             .toggle-details:hover {
                 background-color: #4cae4c;
             }
-
             .payment-instructions {
                 background-color: #e7f3ff;
                 border: 1px solid #b3d7ff;
                 padding: 10px;
                 margin-top: 10px;
                 border-radius: 4px;
+            }
+            .action-buttons {
+                margin-top: 10px;
+            }
+            .action-buttons a, .action-buttons form {
+                display: inline-block;
+                margin-right: 10px;
+            }
+            .disabled-link {
+                pointer-events: none;
+                opacity: 0.6;
             }
         </style>
     </head>
@@ -115,7 +114,6 @@
         <div class="container" style="margin-top: 20px;">
             <h2>Lịch Sử Đơn Hàng</h2>
 
-            <!-- Form lọc trạng thái -->
             <div class="order-filter">
                 <form action="${pageContext.request.contextPath}/ZeShopper/order" method="get">
                     <label for="order-status-filter">Lọc theo trạng thái:</label>
@@ -130,7 +128,6 @@
                 </form>
             </div>
 
-            <!-- Hiển thị thông báo nếu có -->
             <c:if test="${not empty message}">
                 <div class="alert alert-success">
                     <i class="fa fa-check-circle"></i> ${message}
@@ -142,7 +139,6 @@
                 </div>
             </c:if>
 
-            <!-- Hiển thị danh sách đơn hàng -->
             <c:if test="${empty orders}">
                 <div class="empty-orders" style="text-align: center; padding: 50px; color: #666;">
                     <i class="fa fa-shopping-bag fa-5x" style="color: #ccc;"></i>
@@ -169,26 +165,23 @@
                                 <c:otherwise>Không xác định</c:otherwise>
                             </c:choose>
                         </p>
-                        <!-- Nút hủy đơn hàng cho VietQR ở trạng thái Chờ thanh toán -->
-                        <c:if test="${order.statusId == 1 && order.paymentMethod == 'vietqr'}">
-                            <form action="${pageContext.request.contextPath}/ZeShopper/order" method="post" style="display: inline;">
+                        <c:if test="${order.statusId == 1 && order.paymentMethod == 'VietQR'}">
+                            <form action="${pageContext.request.contextPath}/ZeShopper/order" method="post" style="display: inline;" onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này?');">
                                 <input type="hidden" name="action" value="cancel">
                                 <input type="hidden" name="orderId" value="${order.orderId}">
-                                <button type="submit" class="btn btn-danger btn-sm">Hủy đơn hàng</button>
+                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i> Hủy đơn hàng</button>
                             </form>
                         </c:if>
-                        <!-- Nút xem chi tiết -->
                         <button class="toggle-details" onclick="toggleDetails('order-details-${order.orderId}')">Xem chi tiết</button>
                         <div class="order-details" id="order-details-${order.orderId}">
                             <h4>Chi tiết đơn hàng</h4>
                             <p>Phương thức thanh toán:
                                 <c:choose>
-                                    <c:when test="${order.paymentMethod == 'vietqr'}">Chuyển khoản VietQR</c:when>
-                                    <c:when test="${order.paymentMethod == 'cod'}">Thanh toán khi nhận hàng (COD)</c:when>
+                                    <c:when test="${order.paymentMethod == 'VietQR'}">Chuyển khoản VietQR</c:when>
+                                    <c:when test="${order.paymentMethod == 'COD'}">Thanh toán khi nhận hàng (COD)</c:when>
                                     <c:otherwise>${order.paymentMethod}</c:otherwise>
                                 </c:choose>
                             </p>
-                            <!-- Hướng dẫn thanh toán VietQR -->
                             <c:if test="${order.statusId == 1 && order.paymentMethod == 'VietQR'}">
                                 <div class="payment-instructions">
                                     <p><strong>Hướng dẫn thanh toán VietQR:</strong></p>
@@ -206,11 +199,26 @@
                                 <p>
                                     Hoa: ${item.bouquetName != null ? item.bouquetName : 'N/A'} 
                                     (Số lượng: ${item.quantity}, 
-                                    Giá: <fmt:formatNumber value="${item.unitPrice}" pattern="#,##0" /> ₫)
+                                    Giá mỗi sản phẩm: <fmt:formatNumber value="${item.unitPrice}" pattern="#,##0" /> ₫)                                    
                                 </p>
+                                <p>Phí giao hàng: 30 000₫</p>
                                 <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${item.bouquetImage != null ? item.bouquetImage : 'default.jpg'}" 
                                      alt="${item.bouquetName != null ? item.bouquetName : 'N/A'}" 
                                      style="max-width: 100px; max-height: 100px; margin: 5px 0;">
+                                <c:if test="${order.statusId == 4}">
+                                    <div class="action-buttons">
+                                        <c:set var="canWrite" value="${canWriteFeedbackMap[item.bouquetId]}"/>
+                                        <c:if test="${canWrite}">
+                                            <a href="${pageContext.request.contextPath}/ZeShopper/feedback?action=write&orderId=${order.orderId}&bouquetId=${item.bouquetId}" 
+                                               class="btn btn-primary btn-sm"><i class="fa fa-comment"></i> Viết đánh giá</a>
+                                        </c:if>
+                                        <c:if test="${not canWrite}">
+                                            <span class="text-warning">Bạn đã gửi đánh giá cho sản phẩm này.</span>
+                                        </c:if>
+                                        <a href="${pageContext.request.contextPath}/productDetail?id=${item.bouquetId}" 
+                                           class="btn btn-success btn-sm"><i class="fa fa-shopping-cart"></i> Mua lại</a>
+                                    </div>
+                                </c:if>
                             </c:forEach>
                         </div>
                     </div>

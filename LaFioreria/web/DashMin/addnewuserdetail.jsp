@@ -313,28 +313,96 @@
 
                                     <!-- 👤 Trường Customer -->
                                 <tbody id="customerFields" style="display:none;">
-                                    <tr><td>Customer Code:</td><td><input name="customerCode" class="form-control"/></td></tr>
-                                    <tr><td>Join Date:</td><td><input type="date" name="joinDate" class="form-control"/></td></tr>
-                                    <tr><td>Loyalty Point:</td><td><input type="number" name="loyaltyPoint" class="form-control"/></td></tr>
-                                    <tr><td>Birthday:</td><td><input type="date" name="birthday" class="form-control"/></td></tr>
-                                    <tr><td>Gender:</td>
+                                    <tr>
+                                        <td>Customer Code:</td>
+                                        <td>
+                                            <input name="customerCode" class="form-control" value="${customerCode != null ? customerCode : ''}"/>
+                                            <span class="text-danger">${errorCustomerCode}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Join Date:</td>
+                                        <td>
+                                            <input type="date" name="joinDate" class="form-control" value="${joinDate != null ? joinDate : ''}"/>
+                                            <span class="text-danger">${errorJoinDate}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Loyalty Point:</td>
+                                        <td>
+                                            <input type="number" name="loyaltyPoint" class="form-control" value="${loyaltyPoint != null ? loyaltyPoint : ''}"/>
+                                            <span class="text-danger">${errorLoyaltyPoint}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Birthday:</td>
+                                        <td>
+                                            <input type="date" name="birthday" class="form-control" value="${birthday != null ? birthday : ''}"/>
+                                            <span class="text-danger">${errorBirthday}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Gender:</td>
                                         <td>
                                             <select name="gender" class="form-select">
-                                                <option>Male</option><option>Female</option><option>Other</option>
+                                                <option value="Male" ${gender == 'Male' ? 'selected' : ''}>Male</option>
+                                                <option value="Female" ${gender == 'Female' ? 'selected' : ''}>Female</option>
+                                                <option value="Other" ${gender == 'Other' ? 'selected' : ''}>Other</option>
                                             </select>
+                                            <span class="text-danger">${errorGender}</span>
                                         </td>
                                     </tr>
                                 </tbody>
 
+
+
                                 <!-- 👔 Trường Employee -->
                                 <tbody id="employeeFields" style="display:none;">
-                                    <tr><td>Employee Code:</td><td><input name="employeeCode" class="form-control"/></td></tr>
-                                    <tr><td>Contract Type:</td><td><input name="contractType" class="form-control"/></td></tr>
-                                    <tr><td>Start Date:</td><td><input type="date" name="startDate" class="form-control"/></td></tr>
-                                    <tr><td>End Date:</td><td><input type="date" name="endDate" class="form-control"/></td></tr>
-                                    <tr><td>Department:</td><td><input name="department" class="form-control"/></td></tr>
-                                    <tr><td>Position:</td><td><input name="position" class="form-control"/></td></tr>
+                                    <tr>
+                                        <td>Employee Code:</td>
+                                        <td>
+                                            <input name="employeeCode" class="form-control" value="${employeeCode != null ? employeeCode : ''}"/>
+                                            <span class="text-danger">${errorEmployeeCode}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Contract Type:</td>
+                                        <td>
+                                            <input name="contractType" class="form-control" value="${contractType != null ? contractType : ''}"/>
+                                            <span class="text-danger">${errorContractType}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Start Date:</td>
+                                        <td>
+                                            <input type="date" name="startDate" class="form-control" value="${startDate != null ? startDate : ''}"/>
+                                            <span class="text-danger">${errorStartDate}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>End Date:</td>
+                                        <td>
+                                            <input type="date" name="endDate" class="form-control" value="${endDate != null ? endDate : ''}"/>
+                                            <span class="text-danger">${errorEndDate}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Department:</td>
+                                        <td>
+                                            <input name="department" class="form-control" value="${department != null ? department : ''}"/>
+                                            <span class="text-danger">${errorDepartment}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Position:</td>
+                                        <td>
+                                            <input name="position" class="form-control" value="${position != null ? position : ''}"/>
+                                            <span class="text-danger">${errorPosition}</span>
+                                        </td>
+                                    </tr>
                                 </tbody>
+
+
 
                                 <!-- ✅ Nút submit -->
                                 <tr>

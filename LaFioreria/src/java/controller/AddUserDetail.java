@@ -107,6 +107,11 @@ public class AddUserDetail extends HttpServlet {
             hasError = true;
         }
 
+        if (ud.isUsernameExist(name_raw)) {
+            request.setAttribute("errorName", "Username already exists.");
+            hasError = true;
+        }
+
         final int MIN_LEN = 8;
         final int MAX_LEN = 32;
 
@@ -189,13 +194,6 @@ public class AddUserDetail extends HttpServlet {
             hasError = true;
         }
 
-        if (hasError) {
-            setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
-            request.setAttribute("roleNames", ud.getRoleNames());
-            request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
-            return;
-        }
-
 // ✅ Lấy currentRole ẩn từ form (giá trị ban đầu)
         String currentRole = request.getParameter("currentRole");
 
@@ -222,6 +220,31 @@ public class AddUserDetail extends HttpServlet {
                 0;
         };
 
+        if (hasError) {
+            setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
+
+            // ✅ Giữ lại thông tin Customer
+            if ("Customer".equals(finalRole)) {
+                request.setAttribute("customerCode", request.getParameter("customerCode"));
+                request.setAttribute("joinDate", request.getParameter("joinDate"));
+                request.setAttribute("loyaltyPoint", request.getParameter("loyaltyPoint"));
+                request.setAttribute("birthday", request.getParameter("birthday"));
+                request.setAttribute("gender", request.getParameter("gender"));
+            } else {
+                // ✅ Giữ lại thông tin Employee
+                request.setAttribute("employeeCode", request.getParameter("employeeCode"));
+                request.setAttribute("contractType", request.getParameter("contractType"));
+                request.setAttribute("startDate", request.getParameter("startDate"));
+                request.setAttribute("endDate", request.getParameter("endDate"));
+                request.setAttribute("department", request.getParameter("department"));
+                request.setAttribute("position", request.getParameter("position"));
+            }
+
+            request.setAttribute("roleNames", ud.getRoleNames());
+            request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
+            return;
+        }
+
         User u = new User(name_raw, password, fullName, email, phone_Number, Address, role);
         int newUserId = ud.insertUserAndReturnId(u);
         if (newUserId == -1) {
@@ -237,14 +260,75 @@ public class AddUserDetail extends HttpServlet {
             String birthday = request.getParameter("birthday");
             String gender = request.getParameter("gender");
 
-            int loyaltyPoint = loyaltyPoint_raw != null && !loyaltyPoint_raw.isEmpty()
-                    ? Integer.parseInt(loyaltyPoint_raw) : 0;
+            boolean customerError = false;
 
+            if (customerCode == null || !customerCode.matches("^CUST\\d{4,10}$")) {
+                request.setAttribute("errorCustomerCode", "Customer code must start with 'CUST' followed by 4–10 digits (e.g., CUST1001).");
+                customerError = true;
+            }
+
+            if (joinDate == null || joinDate.isEmpty()) {
+                request.setAttribute("errorJoinDate", "Join date is required.");
+                customerError = true;
+            } else {
+                LocalDate join = LocalDate.parse(joinDate);
+                if (join.isAfter(LocalDate.now())) {
+                    request.setAttribute("errorJoinDate", "Join date cannot be in the future.");
+                    customerError = true;
+                }
+            }
+
+            int loyaltyPoint = 0;
+            if (loyaltyPoint_raw != null && !loyaltyPoint_raw.isEmpty()) {
+                try {
+                    loyaltyPoint = Integer.parseInt(loyaltyPoint_raw);
+                    if (loyaltyPoint < 0 || loyaltyPoint > 100000) {
+                        request.setAttribute("errorLoyaltyPoint", "Loyalty point must be between 0 and 100000.");
+                        customerError = true;
+                    }
+                } catch (NumberFormatException e) {
+                    request.setAttribute("errorLoyaltyPoint", "Loyalty point must be a valid number.");
+                    customerError = true;
+                }
+            }
+
+            if (birthday != null && !birthday.isEmpty()) {
+                try {
+                    LocalDate birthDate = LocalDate.parse(birthday);
+                    if (birthDate.isAfter(LocalDate.now().minusYears(10))) {
+                        request.setAttribute("errorBirthday", "Customer must be at least 10 years old.");
+                        customerError = true;
+                    }
+                } catch (Exception e) {
+                    request.setAttribute("errorBirthday", "Birthday format must be yyyy-MM-dd.");
+                    customerError = true;
+                }
+            }
+
+            if (gender == null || !(gender.equals("Male") || gender.equals("Female") || gender.equals("Other"))) {
+                request.setAttribute("errorGender", "Gender must be selected.");
+                customerError = true;
+            }
+
+            if (customerError) {
+                // Giữ lại dữ liệu đã nhập
+                setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
+                request.setAttribute("customerCode", customerCode);
+                request.setAttribute("joinDate", joinDate);
+                request.setAttribute("loyaltyPoint", loyaltyPoint_raw);
+                request.setAttribute("birthday", birthday);
+                request.setAttribute("gender", gender);
+                request.setAttribute("roleNames", ud.getRoleNames());
+
+                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
+                return;
+            }
+
+            // Sau khi kiểm tra xong mới insert vào DB
             CustomerDAO cid = new CustomerDAO();
             CustomerInfo ci = new CustomerInfo(newUserId, customerCode, joinDate, loyaltyPoint, birthday, gender);
             cid.insert(ci);
             response.sendRedirect("viewuserdetail");
-
         } else {
             String employeeCode = request.getParameter("employeeCode");
             String contractType = request.getParameter("contractType");
@@ -253,17 +337,79 @@ public class AddUserDetail extends HttpServlet {
             String department = request.getParameter("department");
             String position = request.getParameter("position");
 
+            boolean employeeError = false;
             LocalDate startDate = null;
             LocalDate endDate = null;
 
-            if (startDateStr != null && !startDateStr.isEmpty()) {
-                startDate = LocalDate.parse(startDateStr);  // ISO format yyyy-MM-dd
+            if (employeeCode == null || !employeeCode.matches("^EMP\\d{4,10}$")) {
+                request.setAttribute("errorEmployeeCode", "Employee code must start with 'EMP' followed by 4–10 digits (e.g., EMP1001).");
+                employeeError = true;
+            }
+
+            if (contractType == null || contractType.trim().isEmpty()) {
+                request.setAttribute("errorContractType", "Contract type is required.");
+                employeeError = true;
+            } else if (!contractType.matches("^(Full-time|Part-time|Freelance|Contract)$")) {
+                request.setAttribute("errorContractType", "Contract type must be one of: Full-time, Part-time, Freelance, Contract.");
+                employeeError = true;
+            }
+
+            if (startDateStr == null || startDateStr.isEmpty()) {
+                request.setAttribute("errorStartDate", "Start date is required.");
+                employeeError = true;
+            } else {
+                try {
+                    startDate = LocalDate.parse(startDateStr);
+                    if (startDate.isAfter(LocalDate.now().plusDays(1))) {
+                        request.setAttribute("errorStartDate", "Start date cannot be in the future.");
+                        employeeError = true;
+                    }
+                } catch (Exception e) {
+                    request.setAttribute("errorStartDate", "Invalid start date format (yyyy-MM-dd expected).");
+                    employeeError = true;
+                }
             }
 
             if (endDateStr != null && !endDateStr.isEmpty()) {
-                endDate = LocalDate.parse(endDateStr);
+                try {
+                    endDate = LocalDate.parse(endDateStr);
+                    if (startDate != null && endDate.isBefore(startDate)) {
+                        request.setAttribute("errorEndDate", "End date cannot be before start date.");
+                        employeeError = true;
+                    }
+                } catch (Exception e) {
+                    request.setAttribute("errorEndDate", "Invalid end date format (yyyy-MM-dd expected).");
+                    employeeError = true;
+                }
             }
 
+            if (department == null || department.trim().length() < 2 || department.length() > 50) {
+                request.setAttribute("errorDepartment", "Department must be 2–50 characters.");
+                employeeError = true;
+            }
+
+            if (position == null || position.trim().length() < 2 || position.length() > 50) {
+                request.setAttribute("errorPosition", "Position must be 2–50 characters.");
+                employeeError = true;
+            }
+
+            if (employeeError) {
+                setAttributes(request, name_raw, password, fullName, email, phone_Number, Address, role_raw);
+
+                // Giữ lại dữ liệu đã nhập
+                request.setAttribute("employeeCode", employeeCode);
+                request.setAttribute("contractType", contractType);
+                request.setAttribute("startDate", startDateStr);
+                request.setAttribute("endDate", endDateStr);
+                request.setAttribute("department", department);
+                request.setAttribute("position", position);
+                request.setAttribute("roleNames", ud.getRoleNames());
+
+                request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
+                return;
+            }
+
+            // Sau khi hợp lệ, tiến hành insert
             EmployeeDAO eid = new EmployeeDAO();
             EmployeeInfo ei = new EmployeeInfo(newUserId, employeeCode, contractType, startDate, endDate, department, position);
             eid.insert(ei);
