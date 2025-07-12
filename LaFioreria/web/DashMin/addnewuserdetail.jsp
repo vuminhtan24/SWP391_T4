@@ -36,21 +36,6 @@
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
         <title>Add New User</title>
-        <script>
-            function handleRoleChange(select) {
-                var role = select.value;
-                var customerFields = document.getElementById("customerFields");
-                var employeeFields = document.getElementById("employeeFields");
-
-                if (role === "Customer") {
-                    customerFields.style.display = "table-row-group";
-                    employeeFields.style.display = "none";
-                } else {
-                    customerFields.style.display = "none";
-                    employeeFields.style.display = "table-row-group";
-                }
-            }
-        </script>
     </head>
 
     <body>
@@ -305,8 +290,9 @@
                                         <td>
                                             <select name="option" class="form-select" onchange="handleRoleChange(this)">
                                                 <c:forEach items="${roleNames}" var="role">
-                                                    <option value="${role}">${role}</option>
+                                                    <option value="${role}" ${role == selectedRole ? 'selected' : ''}>${role}</option>
                                                 </c:forEach>
+
                                             </select>
                                         </td>
                                     </tr>
@@ -418,12 +404,32 @@
                             </c:if>
                         </form>
                         <script>
-                            // Khởi tạo: ẩn/hiện đúng phần khi reload lại (dựa vào role cũ nếu có)
                             window.onload = function () {
-                                const role = document.querySelector("select[name='option']").value;
-                                handleRoleChange({value: role});
+                                const selectedRole = "${selectedRole}";
+                                handleRoleChange({value: selectedRole});
                             };
+
+                            function handleRoleChange(e) {
+                                const role = e.value;
+                                const customerFields = document.getElementById("customerFields");
+                                const employeeFields = document.getElementById("employeeFields");
+
+                                if (role === "Customer") {
+                                    customerFields.style.display = "table-row-group";
+                                    employeeFields.style.display = "none";
+                                } 
+                                else if(role === "Guest"){
+                                    customerFields.style.display = "none";
+                                    employeeFields.style.display = "none";
+                                }
+                                
+                                else {
+                                    customerFields.style.display = "none";
+                                    employeeFields.style.display = "table-row-group";
+                                }
+                            }
                         </script>
+
                     </div>
                 </div>  
 
