@@ -211,29 +211,25 @@ public class FeedbackDAO extends BaseDao {
         return feedbacks;
     }
 
-    public List<FeedbackImg> getFeedbackImages(int feedbackId) {
-        List<FeedbackImg> images = new ArrayList<>();
-        String sql = "SELECT feedback_id, image_url FROM feedback_images WHERE feedback_id = ?";
+    public List<String> getFeedbackImageUrls(int feedbackId) {
+        List<String> imageUrls = new ArrayList<>();
+        String sql = "SELECT image_url FROM feedback_images WHERE feedback_id = ?";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setInt(1, feedbackId);
             rs = ps.executeQuery();
             while (rs.next()) {
-                FeedbackImg img = new FeedbackImg();
-                img.setFeedbackId(rs.getInt("feedback_id"));
-                img.setImageUrl(rs.getString("image_url"));
-                images.add(img);
+                imageUrls.add(rs.getString("image_url"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             try {
                 this.closeResources();
-            } catch (Exception e) {
-            }
+            } catch (Exception e) {}
         }
-        return images;
+        return imageUrls;
     }
 
     public String getCustomerNameFromOrderOrUser(int customerId) {
