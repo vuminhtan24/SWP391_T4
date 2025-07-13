@@ -640,6 +640,7 @@ public class UserDAO extends BaseDao {
 
             ps.executeUpdate();
         } catch (SQLException e) {
+
         } finally {
             try {
                 closeResources();
@@ -676,7 +677,12 @@ public class UserDAO extends BaseDao {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // Bạn có thể log ra file log
+            e.printStackTrace();
+            System.out.println("❌ SQL Error khi insert user:");
+            System.out.println("Username: " + u.getUsername());
+            System.out.println("Email: " + u.getEmail());
+            System.out.println("Phone: " + u.getPhone());
+            e.printStackTrace(); // Quan trọng// Bạn có thể log ra file log
         } finally {
             try {
                 closeResources();
@@ -685,6 +691,25 @@ public class UserDAO extends BaseDao {
             }
         }
         return userId;
+    }
+
+    public boolean isUsernameExist(String username) {
+        String sql = "SELECT 1 FROM la_fioreria.user WHERE Username = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, username.trim());
+            rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return false;
     }
 
     public int getNextUserId() {

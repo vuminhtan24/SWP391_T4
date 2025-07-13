@@ -1,7 +1,7 @@
 <%-- 
     Document   : order
     Created on : Jul 07, 2025, 10:50 PM
-    Author     : xAI (via Grok)
+    Author     : Admin
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -101,6 +101,10 @@
             .action-buttons a, .action-buttons form {
                 display: inline-block;
                 margin-right: 10px;
+            }
+            .disabled-link {
+                pointer-events: none;
+                opacity: 0.6;
             }
         </style>
     </head>
@@ -203,8 +207,14 @@
                                      style="max-width: 100px; max-height: 100px; margin: 5px 0;">
                                 <c:if test="${order.statusId == 4}">
                                     <div class="action-buttons">
-                                        <a href="${pageContext.request.contextPath}/ZeShopper/feedback?action=write&orderId=${order.orderId}&bouquetId=${item.bouquetId}" 
-                                           class="btn btn-primary btn-sm"><i class="fa fa-comment"></i> Viết đánh giá</a>
+                                        <c:set var="canWrite" value="${canWriteFeedbackMap[item.bouquetId]}"/>
+                                        <c:if test="${canWrite}">
+                                            <a href="${pageContext.request.contextPath}/ZeShopper/feedback?action=write&orderId=${order.orderId}&bouquetId=${item.bouquetId}" 
+                                               class="btn btn-primary btn-sm"><i class="fa fa-comment"></i> Viết đánh giá</a>
+                                        </c:if>
+                                        <c:if test="${not canWrite}">
+                                            <span class="text-warning">Bạn đã gửi đánh giá cho sản phẩm này.</span>
+                                        </c:if>
                                         <a href="${pageContext.request.contextPath}/productDetail?id=${item.bouquetId}" 
                                            class="btn btn-success btn-sm"><i class="fa fa-shopping-cart"></i> Mua lại</a>
                                     </div>

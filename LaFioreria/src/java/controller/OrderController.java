@@ -1,5 +1,6 @@
 package controller;
 
+import dal.FeedbackDAO;
 import dal.OrderDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -8,7 +9,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import model.Feedback;
 import model.Order;
 import model.OrderDetail;
 import model.User;
@@ -50,6 +54,7 @@ public class OrderController extends HttpServlet {
 
         try {
             OrderDAO orderDAO = new OrderDAO();
+            FeedbackDAO feedbackDAO = new FeedbackDAO();
             // Lấy danh sách đơn hàng, lọc theo customerId và statusId
             List<Order> orders = orderDAO.searchOrders(null, statusId, 1, Integer.MAX_VALUE, "orderDate", "desc");
             orders.removeIf(order -> order.getCustomerId() != customerId);
@@ -59,6 +64,24 @@ public class OrderController extends HttpServlet {
             for (Order order : orders) {
                 List<OrderDetail> details = orderDAO.getOrderItemsByOrderId(order.getOrderId());
                 orderDetailsList.add(details);
+            }
+            
+            // Check feedback eligibility for each order item
+            Map<Integer, Boolean> canWriteFeedbackMap = new HashMap<>();
+            for (Order order : orders) {
+                for (OrderDetail detail : orderDAO.getOrderItemsByOrderId(order.getOrderId())) {
+                    int bouquetId = detail.getBouquetId();
+                    List<Feedback> existingFeedbacks = feedbackDAO.getFeedbacksByBouquetId(bouquetId); // Non-static call
+                    boolean canWrite = true;
+                    for (Feedback f : existingFeedbacks) {
+                        if (f.getCustomerId() == customerId && 
+                            ("approved".equals(f.getStatus()) || "rejected".equals(f.getStatus()))) {
+                            canWrite = false;
+                            break;
+                        }
+                    }
+                    canWriteFeedbackMap.put(bouquetId, canWrite);
+                }
             }
 
             // Đặt dữ liệu vào request

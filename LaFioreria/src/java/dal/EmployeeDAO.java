@@ -100,6 +100,32 @@ public class EmployeeDAO extends BaseDao {
         return list;
     }
 
+    public List<EmployeeInfo> getEmployeesExpiringInDays(int daysBefore) {
+        List<EmployeeInfo> list = new ArrayList<>();
+        String sql = "SELECT * FROM employee_info "
+                + "WHERE DATEDIFF(End_Date, CURDATE()) BETWEEN 0 AND ?";
+        try {
+            connection = dbc.getConnection(); // thay bằng cách bạn mở kết nối
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, daysBefore);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                EmployeeInfo e = new EmployeeInfo();
+                e.setUserId(rs.getInt("User_ID"));
+                e.setEmployeeCode(rs.getString("Employee_Code"));
+                e.setContractType(rs.getString("Contract_Type"));
+                e.setStartDate(rs.getDate("Start_Date").toLocalDate());
+                e.setEndDate(rs.getDate("End_Date").toLocalDate());
+                e.setDepartment(rs.getString("Department"));
+                e.setPosition(rs.getString("Position"));
+                list.add(e);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
     public int countFilteredEmployees(String keyword, String department) {
         String sql = "SELECT COUNT(*) FROM employee_info WHERE 1=1";
         if (keyword != null && !keyword.isEmpty()) {

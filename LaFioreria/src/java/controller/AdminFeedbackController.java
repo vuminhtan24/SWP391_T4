@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +63,17 @@ public class AdminFeedbackController extends HttpServlet {
             }
         }
 
+        // Sort parameters
+        String sortField = request.getParameter("sortField");
+        String sortDir = request.getParameter("sortDir");
+        if (sortField == null || (!"feedbackId".equals(sortField) && !"bouquetName".equals(sortField) && !"customerName".equals(sortField) &&
+                !"rating".equals(sortField) && !"comment".equals(sortField) && !"created_at".equals(sortField) && !"status".equals(sortField))) {
+            sortField = "feedbackId";
+        }
+        if (sortDir == null || (!"asc".equalsIgnoreCase(sortDir) && !"desc".equalsIgnoreCase(sortDir))) {
+            sortDir = "asc";
+        }
+
         // Retrieve all feedback with filters
         List<Feedback> feedbackList = feedbackDAO.getAllFeedbacks(search, bouquetId, rating);
         Map<Integer, String> feedbackCustomerNames = new HashMap<>();
@@ -77,11 +90,40 @@ public class AdminFeedbackController extends HttpServlet {
             }
         }
 
+        // Sorting
+        Comparator<Feedback> cmp = Comparator.comparing(Feedback::getFeedbackId); // Default sort by ID
+        switch (sortField) {
+            case "bouquetName":
+                cmp = Comparator.comparing(Feedback::getBouquetName, String.CASE_INSENSITIVE_ORDER);
+                break;
+            case "customerName":
+                cmp = Comparator.comparing(f -> feedbackCustomerNames.get(f.getFeedbackId()), String.CASE_INSENSITIVE_ORDER);
+                break;
+            case "rating":
+                cmp = Comparator.comparingInt(Feedback::getRating);
+                break;
+            case "comment":
+                cmp = Comparator.comparing(Feedback::getComment, String.CASE_INSENSITIVE_ORDER);
+                break;
+            case "created_at":
+                cmp = Comparator.comparing(Feedback::getCreated_at);
+                break;
+            case "status":
+                cmp = Comparator.comparing(Feedback::getStatus, String.CASE_INSENSITIVE_ORDER);
+                break;
+        }
+        if ("desc".equalsIgnoreCase(sortDir)) {
+            cmp = cmp.reversed();
+        }
+        feedbackList.sort(cmp);
+
+        // Pagination
         int totalItems = feedbackList.size();
         int totalPages = (int) Math.ceil((double) totalItems / itemsPerPage);
-        int start = (currentPage - 1) * itemsPerPage;
-        int end = Math.min(start + itemsPerPage, totalItems);
-        List<Feedback> paginatedList = feedbackList.subList(start, end);
+        currentPage = Math.max(1, Math.min(currentPage, totalPages));
+        int startIndex = (currentPage - 1) * itemsPerPage;
+        int endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+        List<Feedback> paginatedList = totalItems > 0 ? feedbackList.subList(startIndex, endIndex) : new ArrayList<>();
 
         // Get list of bouquets for filter dropdown
         List<Bouquet> bouquetList = bouquetDAO.getAll();
@@ -94,6 +136,8 @@ public class AdminFeedbackController extends HttpServlet {
         request.setAttribute("feedbackSearch", search);
         request.setAttribute("bouquetId", bouquetId);
         request.setAttribute("rating", rating);
+        request.setAttribute("sortField", sortField);
+        request.setAttribute("sortDir", sortDir);
         request.setAttribute("bouquetList", bouquetList);
         request.getRequestDispatcher("/DashMin/feedback.jsp").forward(request, response);
     }
