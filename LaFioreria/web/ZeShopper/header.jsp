@@ -74,6 +74,7 @@
                                 <ul class="nav navbar-nav">
                                     <c:choose>
                                         <c:when test="${sessionScope.currentAcc != null}">
+                                            <input type="hidden" name="user_id" value="${sessionScope.currentAcc.userid}" />
                                             <li class="dropdown">
                                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                                     <i class="fa fa-user"></i> Hello, ${sessionScope.currentAcc.username} <b class="caret"></b>

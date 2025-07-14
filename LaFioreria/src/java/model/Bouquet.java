@@ -16,6 +16,7 @@ public class Bouquet {
     int price;
     int sellPrice;
     String status;
+    int availableQuantity;
     
     public Bouquet() {
     }
@@ -30,6 +31,13 @@ public class Bouquet {
         this.status = status;
     }
 
+    public Bouquet(int bouquetId, int availableQuantity) {
+        this.bouquetId = bouquetId;
+        this.availableQuantity = availableQuantity;
+    }
+    
+    
+    
     public int getBouquetId() {
         return bouquetId;
     }
@@ -86,6 +94,14 @@ public class Bouquet {
         this.status = status;
     }
 
+    public int getAvailableQuantity() {
+        return availableQuantity;
+    }
+
+    public void setAvailableQuantity(int availableQuantity) {
+        this.availableQuantity = availableQuantity;
+    }
+    
     @Override
     public String toString() {
         return "Bouquet{" + "bouquetId=" + bouquetId + ", bouquetName=" + bouquetName + ", Description=" + Description + ", cid=" + cid + ", price=" + price + ", sellPrice=" + sellPrice + ", status=" + status +'}';

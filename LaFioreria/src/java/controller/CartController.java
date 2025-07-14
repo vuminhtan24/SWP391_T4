@@ -155,14 +155,19 @@ public class CartController extends HttpServlet {
 
         int customerId = currentUser.getUserid();
         CartDAO dao = new CartDAO();
+        BouquetDAO bdao = new BouquetDAO();
 
         try {
             CartDetail existing = dao.getCartItem(customerId, bouquetId);
             if (existing != null) {
                 int newQuantity = existing.getQuantity() + quantity;
                 dao.updateQuantity(customerId, bouquetId, newQuantity);
+                bdao.cleanupExpiredSoftHolds(customerId);
             } else {
+                bdao.cleanupExpiredSoftHolds(customerId);
                 dao.insertItem(customerId, bouquetId, quantity);
+                bdao.insertSoftHold(customerId);
+                bdao.recalculateRealTimeQuantities();
             }
 
             response.getWriter().write("{\"status\": \"added\", \"message\": \"Item added to cart\"}");
@@ -208,13 +213,17 @@ public class CartController extends HttpServlet {
             int quantity = Integer.parseInt(request.getParameter("quantity"));
 
             CartDAO dao = new CartDAO();
+            BouquetDAO bdao = new BouquetDAO();
 
             if (quantity <= 0) {
+                int cartId = dao.getCartIdByCustomerAndBouquet(customerId, bouquetId);
                 dao.deleteItem(customerId, bouquetId);
+                bdao.cancelSoftHoldByCartId(cartId);
             } else {
                 dao.updateQuantity(customerId, bouquetId, quantity);
+                bdao.cleanupExpiredSoftHolds(customerId);
             }
-
+            bdao.recalculateRealTimeQuantities();
         } catch (NumberFormatException e) {
             request.setAttribute("error", "Invalid input format");
         } catch (Exception e) {
@@ -249,7 +258,14 @@ public class CartController extends HttpServlet {
             int bouquetId = Integer.parseInt(request.getParameter("bouquetId"));
 
             CartDAO dao = new CartDAO();
+            BouquetDAO bdao = new BouquetDAO();
+            
+            int cartId = dao.getCartIdByCustomerAndBouquet(customerId, bouquetId);
+            
             dao.deleteItem(customerId, bouquetId);
+            bdao.cancelSoftHoldByCartId(cartId);
+            
+            bdao.recalculateRealTimeQuantities();
 
         } catch (NumberFormatException e) {
             request.setAttribute("error", "Invalid bouquet ID format");

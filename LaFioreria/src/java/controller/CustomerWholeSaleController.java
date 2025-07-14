@@ -5,9 +5,7 @@
 package controller;
 
 import dal.BouquetDAO;
-import dal.CategoryDAO;
-import dal.FlowerTypeDAO;
-import dal.RawFlowerDAO;
+import dal.WholeSaleDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -15,20 +13,19 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
 import model.Bouquet;
 import model.BouquetImage;
-import model.Category;
-import model.FlowerType;
-import model.RawFlower;
+import model.User;
+import model.WholeSale;
 
 /**
  *
  * @author ADMIN
  */
-@WebServlet(name = "HomeController", urlPatterns = {"/home"})
-public class HomeController extends HttpServlet {
+@WebServlet(name = "CustomerWholeSaleController", urlPatterns = {"/wholeSale"})
+public class CustomerWholeSaleController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -47,10 +44,10 @@ public class HomeController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet HomeController</title>");
+            out.println("<title>Servlet CustomerWholeSaleController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet HomeController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet CustomerWholeSaleController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -68,32 +65,25 @@ public class HomeController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Bouquet> listBouquet = new ArrayList<>();
-        List<Category> listCategoryBQ = new ArrayList<>();
-        List<FlowerType> listFlower = new ArrayList<>();
-        List<Bouquet> listMostSellBouquet = new ArrayList<>();
-        List<Bouquet> available = new ArrayList<>();
-        
-        BouquetDAO bdao = new BouquetDAO();
-        CategoryDAO cdao = new CategoryDAO();
-        FlowerTypeDAO fdao = new FlowerTypeDAO();
+        User acc = (User) request.getSession().getAttribute("currentAcc");
+        if (acc == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
 
-        listFlower = fdao.getAllFlowerTypes();
-        request.setAttribute("listFlowerHome", listFlower);
+        int userId = acc.getUserid();
 
-        listBouquet = bdao.getAll();
-        available = bdao.allBouquetAvailable();
-        listCategoryBQ = cdao.getBouquetCategory();
-        listMostSellBouquet = bdao.getMostSellBouquet();
-        List<BouquetImage> images = bdao.getAllBouquetImage();
-        
-        request.setAttribute("available", available);
+        WholeSaleDAO wsDao = new WholeSaleDAO();
+        BouquetDAO bDao = new BouquetDAO();
+
+        List<BouquetImage> images = bDao.getAllBouquetImage();
+        List<WholeSale> listWSRequest = wsDao.getWholeSaleRequestByUserID(userId);
+        List<Bouquet> listBouquet = bDao.getAll();
+
+        request.setAttribute("listBouquet", listBouquet);
         request.setAttribute("images", images);
-        request.setAttribute("listMostSellBouquet", listMostSellBouquet);
-        request.setAttribute("listBouquetHome", listBouquet);
-        request.setAttribute("cateBouquetHome", listCategoryBQ);
-        request.getRequestDispatcher("./ZeShopper/home.jsp").forward(request, response);
-
+        request.setAttribute("wholesaleList", listWSRequest);
+        request.getRequestDispatcher("./ZeShopper/wholeSale.jsp").forward(request, response);
     }
 
     /**
@@ -107,7 +97,38 @@ public class HomeController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        String action = request.getParameter("action");
+        String act = request.getParameter("act"); // từ query string ?act=confirm
+
+        try {
+            WholeSaleDAO wsDao = new WholeSaleDAO();
+
+            if ("update".equalsIgnoreCase(action)) {
+                // Xử lý cập nhật đơn hàng
+                int userId = Integer.parseInt(request.getParameter("user_id"));
+                int bouquetId = Integer.parseInt(request.getParameter("bouquet_id"));
+                int quantity = Integer.parseInt(request.getParameter("requested_quantity"));
+                String note = request.getParameter("note");
+
+                wsDao.UpdateWholeSaleRequest(userId, bouquetId, quantity, note);
+                response.sendRedirect(request.getContextPath() + "/wholeSale");
+
+            } else if ("confirm".equalsIgnoreCase(act)) {
+                // Xử lý xác nhận yêu cầu báo giá (chuyển tất cả đơn SHOPPING -> PENDING)
+                int userId = Integer.parseInt(request.getParameter("user_id"));
+
+                wsDao.confirmAllRequests(userId); // bạn cần viết hàm này trong DAO
+                response.sendRedirect(request.getContextPath() + "/wholeSale?confirmed=true");
+
+            } else {
+                // Mặc định nếu không rõ action
+                response.sendRedirect(request.getContextPath() + "/wholeSale");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/error.jsp");
+        }
     }
 
     /**

@@ -148,7 +148,7 @@ public class ProductController extends HttpServlet {
             request.getRequestDispatcher("./ZeShopper/shop.jsp").forward(request, response);
             return;
         }
-
+        
         // PHÂN TRANG
         int pageSize = 6; // số sản phẩm mỗi trang
         int currentPage = 1;
@@ -170,6 +170,7 @@ public class ProductController extends HttpServlet {
         List<Bouquet> bouquetPage = listBouquet.subList(start, end);
 
         // Đặt thuộc tính để truyền qua JSP
+        request.setAttribute("bouquetAvailable", bdao.allBouquetAvailable());
         request.setAttribute("images", images);
         request.setAttribute("listBouquet", bouquetPage);
         request.setAttribute("currentPage", currentPage);

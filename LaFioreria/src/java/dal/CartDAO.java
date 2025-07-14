@@ -306,4 +306,35 @@ public class CartDAO extends BaseDao {
         }
     }
 
+    public Integer getCartIdByCustomerAndBouquet(int customerId, int bouquetId) {
+        String sql = """
+        SELECT cart_id
+        FROM cartdetails
+        WHERE customer_id = ? AND bouquet_id = ?
+        LIMIT 1
+    """;
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, customerId);
+            ps.setInt(2, bouquetId);
+
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("cart_id");
+            }
+        } catch (SQLException e) {
+            System.err.println("CartDAO: SQLException in getCartIdByCustomerAndBouquet - " + e.getMessage());
+        } finally {
+            try {
+                closeResources();
+            } catch (Exception e) {
+                // Ignore silently
+            }
+        }
+
+        return null;
+    }
+
 }
