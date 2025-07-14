@@ -25,9 +25,9 @@
                 <h2 class="mb-4">Quét mã QR để thanh toán</h2>
 
                 <%
-                    String bankCode = "MB";
-                    String accountNumber = "2628612348888";
-                    String accountName = "LaFioreria";
+    String bankCode = "MB";
+    String accountNumber = "2628612348888";
+    String accountName = "LaFioreria";
                     int amount = Integer.parseInt(request.getParameter("amount"));
                     String orderId = request.getParameter("orderId");
                 %>

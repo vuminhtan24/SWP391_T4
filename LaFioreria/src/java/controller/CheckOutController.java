@@ -8,6 +8,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate; // Import lớp LocalDate
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -191,19 +192,19 @@ public class CheckOutController extends HttpServlet {
         if (ward != null && !ward.trim().isEmpty()) {
             if (fullAddressBuilder.length() > 0) {
                 fullAddressBuilder.append(", ");
-            }
+        }
             fullAddressBuilder.append(ward.trim());
         }
         if (district != null && !district.trim().isEmpty()) {
             if (fullAddressBuilder.length() > 0) {
                 fullAddressBuilder.append(", ");
-            }
+        }
             fullAddressBuilder.append(district.trim());
         }
         if (province != null && !province.trim().isEmpty()) {
             if (fullAddressBuilder.length() > 0) {
                 fullAddressBuilder.append(", ");
-            }
+        }
             fullAddressBuilder.append(province.trim());
         }
         String fullAddress = fullAddressBuilder.toString();
