@@ -104,6 +104,11 @@ public class ProductDetailController extends HttpServlet {
             e.printStackTrace();
             System.out.println("Error fetching feedback for bouquetId " + id + ": " + e.getMessage());
         }
+        // Prepare map of feedback images
+        Map<Integer, List<String>> feedbackImages = new HashMap<>();
+        for (Feedback f : feedback) {
+            feedbackImages.put(f.getFeedbackId(), fdao.getFeedbackImageUrls(f.getFeedbackId()));
+        }        
 
         // Lấy tên khách hàng cho từng feedback
         Map<Integer, String> feedbackCustomerNames = new HashMap<>();
@@ -135,6 +140,7 @@ public class ProductDetailController extends HttpServlet {
         request.setAttribute("flowerInBQ", bqRaws);
         request.setAttribute("feedback", feedback);
         request.setAttribute("feedbackCustomerNames", feedbackCustomerNames);
+        request.setAttribute("feedbackImages", feedbackImages);
 
         request.getRequestDispatcher("./ZeShopper/product-details.jsp").forward(request, response);
     }
