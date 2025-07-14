@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
 import dal.CartDAO;
@@ -17,11 +13,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.security.Timestamp;
 import model.Order;
+import model.User; // Import User model
 
 /**
  *
  * @author VU MINH TAN
  */
+@WebServlet(name = "ConfirmVietQRPayment", urlPatterns = {"/ConfirmVietQRPayment"}) // Add WebServlet annotation if not present
 public class ConfirmVietQRPayment extends HttpServlet {
 
     /**
@@ -67,11 +65,16 @@ public class ConfirmVietQRPayment extends HttpServlet {
         String amountStr = request.getParameter("amount");
 
         if (orderId == null || amountStr == null) {
-            response.sendRedirect("checkout.jsp");
+            response.sendRedirect("checkout.jsp"); // Redirect to checkout if parameters are missing
             return;
         }
 
-        // Lấy thời gian tạo đơn hàng để kiểm tra hạn thanh toán
+        // Set QR code specific parameters from the server-side
+        request.setAttribute("bankCode", "MB");
+        request.setAttribute("accountNumber", "2628612348888");
+        request.setAttribute("accountName", "LaFioreria");
+
+        // Get order creation time to check payment deadline
         CartDAO dao = new CartDAO();
         java.sql.Timestamp createdAt = dao.getOrderCreatedAt(Integer.parseInt(orderId));
 
@@ -79,7 +82,7 @@ public class ConfirmVietQRPayment extends HttpServlet {
             long nowMillis = System.currentTimeMillis();
             long orderMillis = createdAt.getTime();
             long diffMillis = nowMillis - orderMillis;
-            long maxAllowedMillis = 15 * 60 * 1000;
+            long maxAllowedMillis = 15 * 60 * 1000; // 15 minutes in milliseconds
 
             if (diffMillis > maxAllowedMillis) {
                 request.setAttribute("error", "Đơn hàng đã hết thời gian thanh toán. Vui lòng đặt lại đơn mới.");
@@ -90,17 +93,17 @@ public class ConfirmVietQRPayment extends HttpServlet {
             request.setAttribute("remainingTime", remainingTime);
         }
 
-        // Parse số tiền
+        // Parse amount
         int amount = 0;
         try {
             amount = Integer.parseInt(amountStr);
         } catch (NumberFormatException e) {
-            response.sendRedirect("checkout.jsp");
+            response.sendRedirect("checkout.jsp"); // Redirect if amount is not a valid number
             return;
         }
 
         HttpSession session = request.getSession();
-        Object user = session.getAttribute("user");
+        User user = (User) session.getAttribute("currentAcc"); // Assuming "currentAcc" is used for user object
         if (user != null) {
             request.setAttribute("user", user);
         }
@@ -127,15 +130,17 @@ public class ConfirmVietQRPayment extends HttpServlet {
 
         try {
             OrderDAO orderDAO = new OrderDAO();
-            orderDAO.updateOrderStatus(orderId, 1);
+            orderDAO.updateOrderStatus(orderId, 1); // Update order status to 1 (confirmed payment)
 
             System.out.println("Đơn hàng " + orderId + " đã được khách xác nhận chuyển khoản.");
 
-            response.sendRedirect("/LaFioreria/ZeShopper/thanks-you.jsp?orderId=" + orderId);
+            // Redirect to a thank you page with the order ID
+            response.sendRedirect(request.getContextPath() + "/ZeShopper/thanks-you.jsp?orderId=" + orderId);
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("error.jsp");
+            // Redirect to an error page if something goes wrong
+            response.sendRedirect(request.getContextPath() + "/error.jsp");
         }
     }
 
