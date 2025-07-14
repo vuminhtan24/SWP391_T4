@@ -57,6 +57,14 @@ public class WholeSale {
         this.created_at = created_at;
         this.status = status;
     }
+    
+    public WholeSale(int user_id, LocalDate created_at, LocalDate quoted_at, LocalDate responded_at, String status) {
+        this.user_id = user_id;
+        this.created_at = created_at;
+        this.quoted_at = quoted_at;
+        this.responded_at = responded_at;
+        this.status = status;
+    }
 
     public int getId() {
         return id;
