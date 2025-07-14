@@ -223,29 +223,188 @@ public class WholeSaleDAO extends BaseDao {
             }
         }
     }
-    
+
     public void confirmAllRequests(int userId) {
-    String sql = "UPDATE wholesale_quote_request SET status = 'PENDING' WHERE user_id = ? AND status = 'SHOPPING'";
-    try {
-        connection = dbc.getConnection();
-        ps = connection.prepareStatement(sql);
-        ps.setInt(1, userId);
-        ps.executeUpdate();
-    } catch (SQLException e) {
-        e.printStackTrace();
-    } finally {
+        String sql = "UPDATE wholesale_quote_request SET status = 'PENDING' WHERE user_id = ? AND status = 'SHOPPING'";
         try {
-            this.closeResources();
-        } catch (Exception e) {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, userId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
         }
     }
-}
 
+    public List<WholeSale> getWholeSaleSummary(LocalDate createdAt, String status) {
+        List<WholeSale> list = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT \n"
+                + "    user_id,\n"
+                + "    created_at,\n"
+                + "    MIN(quoted_at) AS quoted_at,\n"
+                + "    MIN(responded_at) AS responded_at,\n"
+                + "    status\n"
+                + "FROM \n"
+                + "    wholesale_quote_request\n"
+                + "WHERE \n"
+                + "    status <> 'SHOPPING'\n"
+        );
+
+        List<Object> parameters = new ArrayList<>();
+
+        if (createdAt != null) {
+            sql.append("AND created_at = ?\n");
+            parameters.add(java.sql.Date.valueOf(createdAt));
+        }
+
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append("AND status = ?\n");
+            parameters.add(status.trim());
+        }
+
+        sql.append("GROUP BY user_id, created_at, status");
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql.toString());
+
+            // Set parameter values theo thứ tự
+            for (int i = 0; i < parameters.size(); i++) {
+                ps.setObject(i + 1, parameters.get(i));
+            }
+
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int user_id = rs.getInt("user_id");
+
+                LocalDate quoted_at = null;
+                java.sql.Date quotedDateSql = rs.getDate("quoted_at");
+                if (quotedDateSql != null) {
+                    quoted_at = quotedDateSql.toLocalDate();
+                }
+
+                LocalDate responded_at = null;
+                java.sql.Date respondedDateSql = rs.getDate("responded_at");
+                if (respondedDateSql != null) {
+                    responded_at = respondedDateSql.toLocalDate();
+                }
+
+                LocalDate created_at = rs.getDate("created_at").toLocalDate();
+                String resultStatus = rs.getString("status");
+
+                WholeSale ws = new WholeSale(user_id, created_at, quoted_at, responded_at, resultStatus);
+                list.add(ws);
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error: " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return list;
+    }
+
+    public List<WholeSale> getWholeSaleList(int uid, LocalDate requestDate, String status) {
+        List<WholeSale> list = new ArrayList<>();
+        String sql = "SELECT * FROM la_fioreria.wholesale_quote_request \n"
+                + "WHERE user_id = ? \n"
+                + "AND created_at = ? \n"
+                + "AND TRIM(status) = ?;";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, uid);
+            ps.setDate(2, java.sql.Date.valueOf(requestDate));
+            ps.setString(3, status);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                int bouquet_id = rs.getInt("bouquet_id");
+                int requested_quantity = rs.getInt("requested_quantity");
+                String note = rs.getString("note");
+                int quoted_price = rs.getInt("quoted_price");
+                int total_price = rs.getInt("total_price");
+                java.sql.Date quotedDateSql = rs.getDate("quoted_at");
+                LocalDate quoted_at = (quotedDateSql != null) ? quotedDateSql.toLocalDate() : null;
+
+                java.sql.Date respondedDateSql = rs.getDate("responded_at");
+                LocalDate responded_at = (respondedDateSql != null) ? respondedDateSql.toLocalDate() : null;
+
+                WholeSale ws = new WholeSale(id, uid, bouquet_id, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, requestDate, status);
+                list.add(ws);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return list;
+    }
+
+    public List<WholeSale> getWholeSaleRequestByFlowerID(int flowerId) {
+        List<WholeSale> list = new ArrayList<>();
+        String sql = "SELECT ws.* FROM la_fioreria.wholesale_quote_request ws\n"
+                + "JOIN la_fioreria.bouquet_raw br ON br.bouquet_id = ws.bouquet_id\n"
+                + "JOIN la_fioreria.flower_batch fb ON fb.batch_id = br.batch_id\n"
+                + "JOIN la_fioreria.flower_type ft ON ft.flower_id = fb.flower_id\n"
+                + "WHERE ft.flower_id = ? \n"
+                + "AND ws.status <> 'SHOPPING'";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, flowerId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                int user_id = rs.getInt("user_id");
+                int bouquet_id = rs.getInt("bouquet_id");
+                int requested_quantity = rs.getInt("requested_quantity");
+                String note = rs.getString("note");
+                int quoted_price = rs.getInt("quoted_price");
+                int total_price = rs.getInt("total_price");
+                java.sql.Date quotedDateSql = rs.getDate("quoted_at");
+                LocalDate quoted_at = (quotedDateSql != null) ? quotedDateSql.toLocalDate() : null;
+
+                java.sql.Date respondedDateSql = rs.getDate("responded_at");
+                LocalDate responded_at = (respondedDateSql != null) ? respondedDateSql.toLocalDate() : null;
+
+                java.sql.Date createdDateSql = rs.getDate("created_at");
+                LocalDate created_at = (createdDateSql != null) ? createdDateSql.toLocalDate() : null;
+                String status = rs.getString("status");
+
+                WholeSale ws = new WholeSale(id, user_id, bouquet_id, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, created_at, status);
+                list.add(ws);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return list;
+    }
 
     public static void main(String[] args) {
         WholeSaleDAO dao = new WholeSaleDAO();
         List<WholeSale> list = dao.getWholeSaleRequestByUserID(13);
-        dao.UpdateWholeSaleRequest(13, 2, 60, "test update");
-        System.out.println(list);
+        System.out.println(dao.getWholeSaleRequestByFlowerID(1));
     }
 }

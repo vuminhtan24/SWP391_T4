@@ -793,18 +793,19 @@ public class UserDAO extends BaseDao {
         UserDAO ud = new UserDAO();
 
         User user1 = new User(
-                13, // User_ID duy nhất
-                "shipper",
-                "123",
-                "Vu Minh Tan",
-                "vuminhtan2004@gmail.com",
-                "0901234567",
-                "123 Main St, Anytown",
-                8
+                17, // User_ID duy nhất
+                "bobo",
+                "123456789",
+                "Vu Minh Quang",
+                "vmqbov@gmail.com",
+                "0786709182",
+                "Ha Dong, Ha Noi",
+                7
         );
-//        ud.insertNewUser(user1);
-
-        System.out.println(ud.getUserByID(1));
+        ud.insertNewUser(user1);
+        
+        
+        
 
     }
 

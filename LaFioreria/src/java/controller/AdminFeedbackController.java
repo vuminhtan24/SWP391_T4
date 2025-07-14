@@ -81,7 +81,7 @@ public class AdminFeedbackController extends HttpServlet {
 
         for (Feedback f : feedbackList) {
             feedbackCustomerNames.put(f.getFeedbackId(), feedbackDAO.getCustomerNameFromOrderOrUser(f.getCustomerId()));
-            feedbackImages.put(f.getFeedbackId(), feedbackDAO.getFeedbackImages(f.getFeedbackId()));
+//            feedbackImages.put(f.getFeedbackId(), feedbackDAO.getFeedbackImages(f.getFeedbackId()));
             if (f.getBouquetId() > 0) {
                 Bouquet bouquet = bouquetDAO.getBouquetByID(f.getBouquetId());
                 f.setBouquetName(bouquet != null ? bouquet.getBouquetName() : "Unknown Bouquet");
