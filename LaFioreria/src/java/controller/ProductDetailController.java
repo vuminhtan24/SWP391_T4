@@ -10,6 +10,7 @@ import dal.FlowerBatchDAO;
 import dal.FlowerTypeDAO;
 import dal.RawFlowerDAO;
 import dal.FeedbackDAO;
+import dal.WholeSaleDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -17,6 +18,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ import model.FlowerBatch;
 import model.FlowerType;
 import model.RawFlower;
 import model.Feedback;
+import model.WholeSale;
 
 /**
  *
@@ -123,6 +126,7 @@ public class ProductDetailController extends HttpServlet {
         }
 
         // Đặt các thuộc tính vào request
+        request.setAttribute("productId", id);
         request.setAttribute("bouquetAvailable", bqdao.bouquetAvailable(id));
         request.setAttribute("allImage", allImage);
         request.setAttribute("allBatchs", allBatchs);
@@ -152,7 +156,37 @@ public class ProductDetailController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            String userIdStr = request.getParameter("user_id");
+            String bouquetIdStr = request.getParameter("bouquet_id");
+            String requestedQuantityStr = request.getParameter("requested_quantity");
+            String note = request.getParameter("note");
+            String productId = request.getParameter("productId"); // dùng để redirect về đúng trang
+
+            Integer userId = Integer.parseInt(userIdStr);
+            Integer bouquetId = Integer.parseInt(bouquetIdStr);
+            Integer requestedQuantity = Integer.parseInt(requestedQuantityStr);
+
+            WholeSale ws = new WholeSale(
+                    userId,
+                    bouquetId,
+                    requestedQuantity,
+                    note,
+                    null, null, null, null,
+                    LocalDate.now(),
+                    "SHOPPING"
+            );
+
+            WholeSaleDAO wsDAO = new WholeSaleDAO();
+            wsDAO.insertWholeSaleRequest(ws);
+
+            // Redirect về product-details.jsp kèm thông báo
+            response.sendRedirect(request.getContextPath() + "/productDetail?id=" + productId + "&addedWholesale=true");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect("error.jsp"); // hoặc redirect về trang báo lỗi
+        }
     }
 
     /**
