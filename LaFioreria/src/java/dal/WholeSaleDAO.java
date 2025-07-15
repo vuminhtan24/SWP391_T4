@@ -356,6 +356,46 @@ public class WholeSaleDAO extends BaseDao {
         return list;
     }
 
+    public WholeSale getWholeSaleDetail(int uid, LocalDate requestDate, String status, int bid) {
+        String sql = "SELECT * FROM la_fioreria.wholesale_quote_request \n"
+                + "WHERE user_id = ?\n"
+                + "AND created_at = ?\n"
+                + "AND status = ?\n"
+                + "AND bouquet_id = ?";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, uid);
+            ps.setDate(2, java.sql.Date.valueOf(requestDate));
+            ps.setString(3, status);
+            ps.setInt(4, bid);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                int id = rs.getInt("id");
+                int requested_quantity = rs.getInt("requested_quantity");
+                String note = rs.getString("note");
+                int quoted_price = rs.getInt("quoted_price");
+                int total_price = rs.getInt("total_price");
+                java.sql.Date quotedDateSql = rs.getDate("quoted_at");
+                LocalDate quoted_at = (quotedDateSql != null) ? quotedDateSql.toLocalDate() : null;
+
+                java.sql.Date respondedDateSql = rs.getDate("responded_at");
+                LocalDate responded_at = (respondedDateSql != null) ? respondedDateSql.toLocalDate() : null;
+
+                return new WholeSale(id, uid, bid, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, requestDate, status);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return null;
+    }
+
     public List<WholeSale> getWholeSaleRequestByFlowerID(int flowerId) {
         List<WholeSale> list = new ArrayList<>();
         String sql = "SELECT ws.* FROM la_fioreria.wholesale_quote_request ws\n"
@@ -400,6 +440,39 @@ public class WholeSaleDAO extends BaseDao {
             }
         }
         return list;
+    }
+
+    public void AssignQuotedPrice(int totalPrice, LocalDate quotedDate, int quotedPrice, int uid, LocalDate requestDate, String status, int bid) {
+        String sql = "UPDATE `la_fioreria`.`wholesale_quote_request`\n"
+                + "SET\n"
+                + "`quoted_price` = ?,\n"
+                + "`total_price` = ?,\n"
+                + "`quoted_at` = ?,\n"
+                + "`status` = 'QUOTED'\n"
+                + "WHERE user_id = ?\n"
+                + "AND created_at = ?\n"
+                + "AND status = ?\n"
+                + "AND bouquet_id = ?";
+        
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, quotedPrice);
+            ps.setInt(2, totalPrice);
+            ps.setDate(3, java.sql.Date.valueOf(quotedDate));
+            ps.setInt(4, uid);
+            ps.setDate(5, java.sql.Date.valueOf(requestDate));
+            ps.setString(6, status);
+            ps.setInt(7, bid);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
     }
 
     public static void main(String[] args) {
