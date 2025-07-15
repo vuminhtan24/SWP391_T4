@@ -307,6 +307,34 @@ public class UserDAO extends BaseDao {
         return false;
     }
 
+    public boolean isCustomerCodeExist(String code) {
+        String sql = "SELECT 1 FROM Customer_info WHERE customer_code = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, code);
+            rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean isEmployeeCodeExist(String code) {
+        String sql = "SELECT 1 FROM Employee_info WHERE employee_code = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, code);
+            rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public List<UserManager> getUserByRoleId(int role_id) {
         List<UserManager> list = new ArrayList<>();
         String sql
@@ -682,7 +710,8 @@ public class UserDAO extends BaseDao {
             System.out.println("Username: " + u.getUsername());
             System.out.println("Email: " + u.getEmail());
             System.out.println("Phone: " + u.getPhone());
-            e.printStackTrace(); // Quan trọng// Bạn có thể log ra file log
+            System.out.println("SQL ERROR in insertUserAndReturnId(): " + e.getMessage());
+            return -1;
         } finally {
             try {
                 closeResources();
