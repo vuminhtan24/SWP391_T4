@@ -8,6 +8,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<fmt:setLocale value="vi_VN" />
 
 <!DOCTYPE html>
 <html>
@@ -456,7 +457,7 @@
                                                                     <span id="wholesaleExpenseDisplay">
                                                                         <c:choose>
                                                                             <c:when test="${not empty wholesaleExpense}">
-                                                                                <fmt:formatNumber value="${wholesaleExpense}" type="number" groupingUsed="true" /> ₫                                                   
+                                                                                <fmt:formatNumber value="${wholesaleExpense}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫                                                   
                                                                             </c:when>
                                                                             <c:otherwise>0 ₫</c:otherwise>
                                                                         </c:choose>
@@ -467,7 +468,7 @@
                                                                     <span id="wholesalePriceDisplay">
                                                                         <c:choose>
                                                                             <c:when test="${not empty wholesalePrice}">
-                                                                                <fmt:formatNumber value="${wholesaleExpense}" type="number" groupingUsed="true" /> ₫
+                                                                                <fmt:formatNumber value="${wholesalePrice}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫
                                                                             </c:when>
                                                                             <c:otherwise>0 ₫</c:otherwise>
                                                                         </c:choose>
@@ -478,7 +479,7 @@
                                                                     <span id="totalWholesaleDisplay">
                                                                         <c:choose>
                                                                             <c:when test="${not empty totalWholesale}">
-                                                                                <fmt:formatNumber value="${wholesaleExpense}" type="number" groupingUsed="true" /> ₫
+                                                                                <fmt:formatNumber value="${totalWholesale}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫
                                                                             </c:when>
                                                                             <c:otherwise>0 ₫</c:otherwise>
                                                                         </c:choose>
