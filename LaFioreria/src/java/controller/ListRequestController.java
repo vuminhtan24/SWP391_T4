@@ -35,7 +35,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.mail.Session;
+import jakarta.mail.Session;
 import model.BouquetImage;
 import model.FlowerBatch;
 import model.FlowerType;
