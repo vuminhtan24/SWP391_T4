@@ -129,10 +129,7 @@
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/login">Login</a></li> 
                                         </ul>
                                     </li> 
-                                    <li class="dropdown"><a href="${pageContext.request.contextPath}/blog">Blog<i class="fa fa-angle-down"></i></a>
-                                        <ul role="menu" class="sub-menu">
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/blog.jsp">Blog List</a></li>
-                                        </ul>
+                                    <li><a href="${pageContext.request.contextPath}/blog">Blog</a>
                                     </li> 
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/contact-us.jsp">Contact</a></li>
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/about-us.jsp">About us</a></li>
