@@ -26,7 +26,7 @@ import model.User;
 @WebServlet(name = "OrderListServlet", urlPatterns = {"/orderManagement"})
 public class OrderListServlet extends HttpServlet {
     // FIX: Ensure this is set to 8
-    private static final int DEFAULT_PAGE_SIZE = 10; // Thay đổi giá trị này thành 8
+    private static final int DEFAULT_PAGE_SIZE = 5; // Thay đổi giá trị này thành 8
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.

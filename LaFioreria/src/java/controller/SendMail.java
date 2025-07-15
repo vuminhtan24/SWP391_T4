@@ -9,8 +9,8 @@ package controller;
  * @author VU MINH TAN
  */
 import java.util.Properties;
-import javax.mail.*;
-import javax.mail.internet.*;
+import jakarta.mail.*;
+import jakarta.mail.internet.*;
 
 public class SendMail {
     public static void send(String to, String subject, String content) throws MessagingException {
