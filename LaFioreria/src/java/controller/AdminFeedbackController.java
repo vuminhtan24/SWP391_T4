@@ -77,11 +77,11 @@ public class AdminFeedbackController extends HttpServlet {
         // Retrieve all feedback with filters
         List<Feedback> feedbackList = feedbackDAO.getAllFeedbacks(search, bouquetId, rating);
         Map<Integer, String> feedbackCustomerNames = new HashMap<>();
-        Map<Integer, List<FeedbackImg>> feedbackImages = new HashMap<>();
+        Map<Integer, List<String>> feedbackImages = new HashMap<>();
 
         for (Feedback f : feedbackList) {
             feedbackCustomerNames.put(f.getFeedbackId(), feedbackDAO.getCustomerNameFromOrderOrUser(f.getCustomerId()));
-            feedbackImages.put(f.getFeedbackId(), feedbackDAO.getFeedbackImages(f.getFeedbackId()));
+            feedbackImages.put(f.getFeedbackId(), feedbackDAO.getFeedbackImageUrls(f.getFeedbackId()));
             if (f.getBouquetId() > 0) {
                 Bouquet bouquet = bouquetDAO.getBouquetByID(f.getBouquetId());
                 f.setBouquetName(bouquet != null ? bouquet.getBouquetName() : "Unknown Bouquet");

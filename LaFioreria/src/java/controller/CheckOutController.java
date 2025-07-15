@@ -8,6 +8,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate; // Import lớp LocalDate
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -133,7 +134,7 @@ public class CheckOutController extends HttpServlet {
         // Đảm bảo encoding để đọc dữ liệu tiếng Việt nếu có
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
-        response.setContentType("application/json"); // Đặt Content-Type cho phản hồi JSON
+        response.setContentType("application/json"); // Luôn đặt Content-Type cho phản hồi JSON
 
         String action = request.getParameter("action");
 
@@ -174,6 +175,10 @@ public class CheckOutController extends HttpServlet {
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
         int customerId = (currentUser != null) ? currentUser.getUserid() : -1; // Khách vãng lai = -1
         String paymentMethod = request.getParameter("paymentMethod");
+        HttpSession session = request.getSession(); // Get session to store order details
+
+        System.out.println("DEBUG: Entering processOrder method.");
+        System.out.println("DEBUG: Payment Method: " + paymentMethod);
 
         // Lấy thông tin từ form
         String fullName = request.getParameter("fullName");
@@ -183,6 +188,8 @@ public class CheckOutController extends HttpServlet {
         String district = request.getParameter("district");
         String ward = request.getParameter("ward");
 
+        System.out.println("DEBUG: Customer Info - Name: " + fullName + ", Phone: " + phoneNumber);
+
         // Địa chỉ chỉ lấy district và province
         StringBuilder fullAddressBuilder = new StringBuilder();
         if (addressLine != null && !addressLine.trim().isEmpty()) {
@@ -191,28 +198,31 @@ public class CheckOutController extends HttpServlet {
         if (ward != null && !ward.trim().isEmpty()) {
             if (fullAddressBuilder.length() > 0) {
                 fullAddressBuilder.append(", ");
-            }
+        }
             fullAddressBuilder.append(ward.trim());
         }
         if (district != null && !district.trim().isEmpty()) {
             if (fullAddressBuilder.length() > 0) {
                 fullAddressBuilder.append(", ");
-            }
+        }
             fullAddressBuilder.append(district.trim());
         }
         if (province != null && !province.trim().isEmpty()) {
             if (fullAddressBuilder.length() > 0) {
                 fullAddressBuilder.append(", ");
-            }
+        }
             fullAddressBuilder.append(province.trim());
         }
         String fullAddress = fullAddressBuilder.toString();
+        System.out.println("DEBUG: Full Address: " + fullAddress);
 
         String totalSellStr = request.getParameter("totalAmount");
         double actualTotalSell;
         try {
             actualTotalSell = Double.parseDouble(totalSellStr);
+            System.out.println("DEBUG: Total Amount (parsed): " + actualTotalSell);
         } catch (NumberFormatException e) {
+            System.err.println("ERROR: NumberFormatException for totalAmount: " + totalSellStr);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("{\"status\": \"error\", \"message\": \"Tổng tiền không hợp lệ.\"}");
             return;
@@ -232,28 +242,39 @@ public class CheckOutController extends HttpServlet {
 
         CartDAO cartDAO = new CartDAO();
         try {
+            System.out.println("DEBUG: Attempting to insert order.");
             int orderId = cartDAO.insertOrder(order);
             if (orderId == -1) {
+                System.err.println("ERROR: Failed to insert order, orderId is -1. Check database insertion logic.");
                 throw new Exception("Không thể tạo đơn hàng");
             }
+            System.out.println("DEBUG: Order inserted successfully. Order ID: " + orderId);
+
 
             List<CartDetail> cartItems;
             if (currentUser != null) {
+                System.out.println("DEBUG: Getting cart details for logged-in user: " + customerId);
                 cartItems = cartDAO.getCartDetailsByCustomerId(customerId);
             } else {
+                System.out.println("DEBUG: Getting cart details from session for guest user.");
                 cartItems = (List<CartDetail>) request.getSession().getAttribute("cart");
             }
 
             if (cartItems == null || cartItems.isEmpty()) {
+                System.err.println("ERROR: Cart is empty or null after retrieval.");
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write("{\"status\": \"error\", \"message\": \"Giỏ hàng trống.\"}");
                 return;
             }
+            System.out.println("DEBUG: Cart items count: " + cartItems.size());
+
 
             for (CartDetail cartItem : cartItems) {
+                System.out.println("DEBUG: Processing cart item Bouquet ID: " + cartItem.getBouquetId() + ", Quantity: " + cartItem.getQuantity());
                 if (cartItem.getBouquet() == null) {
                     BouquetDAO bouquetDAO = new BouquetDAO();
                     cartItem.setBouquet(bouquetDAO.getBouquetFullInfoById(cartItem.getBouquetId()));
+                    System.out.println("DEBUG: Loaded Bouquet info for ID: " + cartItem.getBouquetId());
                 }
 
                 OrderItem orderItem = new OrderItem(
@@ -262,26 +283,44 @@ public class CheckOutController extends HttpServlet {
                         cartItem.getQuantity(),
                         cartItem.getBouquet().getSellPrice()
                 );
+                System.out.println("DEBUG: Attempting to insert order item for Bouquet ID: " + cartItem.getBouquetId());
                 cartDAO.insertOrderItem(orderItem);
+                System.out.println("DEBUG: Order item inserted successfully.");
             }
 
             // Xoá giỏ hàng sau khi đặt
             if (currentUser != null) {
+                System.out.println("DEBUG: Deleting cart for logged-in user: " + customerId);
                 cartDAO.deleteCartByCustomerId(customerId);
+                System.out.println("DEBUG: Cart deleted for logged-in user.");
             } else {
+                System.out.println("DEBUG: Removing cart from session for guest user.");
                 request.getSession().removeAttribute("cart");
+                System.out.println("DEBUG: Cart removed from session.");
             }
 
+            // Always return JSON response
             if ("vietqr".equals(paymentMethod)) {
-                response.getWriter().write("{\"status\": \"success\", \"orderId\": " + orderId + "}");
+                // Store orderId and amount in session for secure retrieval by ConfirmVietQRPayment
+                session.setAttribute("currentOrderId", orderId);
+                session.setAttribute("currentOrderAmount", (int) actualTotalSell); // Cast to int if amount is always integer for QR
+                System.out.println("DEBUG: Stored orderId " + orderId + " and amount " + (int)actualTotalSell + " in session.");
+                // Return JSON with redirect URL
+                String redirectUrl = request.getContextPath() + "/ConfirmVietQRPayment";
+                response.getWriter().write("{\"status\": \"success\", \"paymentMethod\": \"vietqr\", \"orderId\": " + orderId + ", \"amount\": " + (int)actualTotalSell + ", \"redirectUrl\": \"" + redirectUrl + "\"}");
+                System.out.println("DEBUG: Sent JSON success response with redirectUrl for VietQR payment.");
+
             } else {
                 response.getWriter().write("{\"status\": \"success\", \"message\": \"Đơn hàng đã được đặt thành công! Mã đơn hàng: " + orderId + "\"}");
+                System.out.println("DEBUG: Sent JSON success response for non-VietQR payment.");
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("ERROR: An unexpected error occurred during order processing. Details: " + e.getMessage());
+            e.printStackTrace(); // In toàn bộ stack trace để gỡ lỗi chi tiết
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("{\"status\": \"error\", \"message\": \"Có lỗi khi đặt hàng: " + e.getMessage() + "\"}");
+            System.out.println("DEBUG: Sent JSON error response.");
         }
     }
 

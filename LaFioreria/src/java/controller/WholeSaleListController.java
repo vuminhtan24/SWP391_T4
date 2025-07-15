@@ -5,9 +5,7 @@
 package controller;
 
 import dal.BouquetDAO;
-import dal.CategoryDAO;
-import dal.FlowerTypeDAO;
-import dal.RawFlowerDAO;
+import dal.WholeSaleDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -15,20 +13,19 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
 import model.Bouquet;
 import model.BouquetImage;
-import model.Category;
-import model.FlowerType;
-import model.RawFlower;
+import model.User;
+import model.WholeSale;
 
 /**
  *
  * @author ADMIN
  */
-@WebServlet(name = "HomeController", urlPatterns = {"/home"})
-public class HomeController extends HttpServlet {
+@WebServlet(name = "WholeSaleListController", urlPatterns = {"/listWholeSaleRequest"})
+public class WholeSaleListController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -47,10 +44,10 @@ public class HomeController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet HomeController</title>");
+            out.println("<title>Servlet WholeSaleListController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet HomeController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet WholeSaleListController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -68,32 +65,37 @@ public class HomeController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Bouquet> listBouquet = new ArrayList<>();
-        List<Category> listCategoryBQ = new ArrayList<>();
-        List<FlowerType> listFlower = new ArrayList<>();
-        List<Bouquet> listMostSellBouquet = new ArrayList<>();
-        List<Bouquet> available = new ArrayList<>();
-        
-        BouquetDAO bdao = new BouquetDAO();
-        CategoryDAO cdao = new CategoryDAO();
-        FlowerTypeDAO fdao = new FlowerTypeDAO();
+        WholeSaleDAO wsDao = new WholeSaleDAO();
 
-        listFlower = fdao.getAllFlowerTypes();
-        request.setAttribute("listFlowerHome", listFlower);
+        String requestDateStr = request.getParameter("requestDate");
+        String status = request.getParameter("status");
 
-        listBouquet = bdao.getAll();
-        available = bdao.allBouquetAvailable();
-        listCategoryBQ = cdao.getBouquetCategory();
-        listMostSellBouquet = bdao.getMostSellBouquet();
-        List<BouquetImage> images = bdao.getAllBouquetImage();
-        
-        request.setAttribute("available", available);
-        request.setAttribute("images", images);
-        request.setAttribute("listMostSellBouquet", listMostSellBouquet);
-        request.setAttribute("listBouquetHome", listBouquet);
-        request.setAttribute("cateBouquetHome", listCategoryBQ);
-        request.getRequestDispatcher("./ZeShopper/home.jsp").forward(request, response);
+        LocalDate requestDate = null;
+        if (requestDateStr != null && !requestDateStr.trim().isEmpty()) {
+            try {
+                requestDate = LocalDate.parse(requestDateStr.trim());
+            } catch (Exception e) {
+                request.setAttribute("dateError", "Invalid date format.");
+            }
+        }
 
+        // Trim status if not null
+        if (status != null) {
+            status = status.trim();
+            if (status.isEmpty()) {
+                status = null;
+            }
+        }
+
+        // Gọi DAO có filter
+        List<WholeSale> listWS = wsDao.getWholeSaleSummary(requestDate, status);
+
+        // Gửi dữ liệu sang view
+        request.setAttribute("listWS", listWS);
+        request.setAttribute("requestDate", requestDateStr); // để giữ lại trên giao diện
+        request.setAttribute("status", status);
+
+        request.getRequestDispatcher("./DashMin/listWholeSale.jsp").forward(request, response);
     }
 
     /**
