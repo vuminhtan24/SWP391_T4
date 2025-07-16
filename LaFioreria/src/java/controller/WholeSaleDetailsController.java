@@ -102,7 +102,7 @@ public class WholeSaleDetailsController extends HttpServlet {
         if (flowerID != null) {
             listWS = wsDao.getWholeSaleRequestByFlowerID(flowerID);
         } else {
-            listWS = wsDao.getWholeSaleList(userId, requestDate, status);
+            listWS = wsDao.getWholeSaleList(userId, requestDate);
         }
 
         User userInfo = uDao.getUserByID(userId);

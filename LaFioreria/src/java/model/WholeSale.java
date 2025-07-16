@@ -27,11 +27,12 @@ public class WholeSale {
     private LocalDate created_at;      // Luôn có → vẫn dùng LocalDate
 
     private String status;
+    private Integer expense;
 
     public WholeSale() {
     }
 
-    public WholeSale(int id, int user_id, int bouquet_id, int requested_quantity, String note, Integer quoted_price, Integer total_price, LocalDate quoted_at, LocalDate responded_at, LocalDate created_at, String status) {
+    public WholeSale(int id, int user_id, int bouquet_id, int requested_quantity, String note, Integer quoted_price, Integer total_price, LocalDate quoted_at, LocalDate responded_at, LocalDate created_at, String status, Integer expense) {
         this.id = id;
         this.user_id = user_id;
         this.bouquet_id = bouquet_id;
@@ -43,9 +44,10 @@ public class WholeSale {
         this.responded_at = responded_at;
         this.created_at = created_at;
         this.status = status;
+        this.expense = expense;
     }
     
-    public WholeSale(int user_id, int bouquet_id, int requested_quantity, String note, Integer quoted_price, Integer total_price, LocalDate quoted_at, LocalDate responded_at, LocalDate created_at, String status) {
+    public WholeSale(int user_id, int bouquet_id, int requested_quantity, String note, Integer quoted_price, Integer total_price, LocalDate quoted_at, LocalDate responded_at, LocalDate created_at, String status, Integer expense) {
         this.user_id = user_id;
         this.bouquet_id = bouquet_id;
         this.requested_quantity = requested_quantity;
@@ -56,6 +58,7 @@ public class WholeSale {
         this.responded_at = responded_at;
         this.created_at = created_at;
         this.status = status;
+        this.expense = expense;
     }
     
     public WholeSale(int user_id, LocalDate created_at, LocalDate quoted_at, LocalDate responded_at, String status) {
@@ -154,11 +157,17 @@ public class WholeSale {
         this.status = status;
     }
 
-    @Override
-    public String toString() {
-        return "WholeSale{" + "id=" + id + ", user_id=" + user_id + ", bouquet_id=" + bouquet_id + ", requested_quantity=" + requested_quantity + ", note=" + note + ", quoted_price=" + quoted_price + ", total_price=" + total_price + ", quoted_at=" + quoted_at + ", responded_at=" + responded_at + ", created_at=" + created_at + ", status=" + status + '}';
+    public Integer getExpense() {
+        return expense;
     }
 
-    
+    public void setExpense(Integer expense) {
+        this.expense = expense;
+    }
 
+    @Override
+    public String toString() {
+        return "WholeSale{" + "id=" + id + ", user_id=" + user_id + ", bouquet_id=" + bouquet_id + ", requested_quantity=" + requested_quantity + ", note=" + note + ", quoted_price=" + quoted_price + ", total_price=" + total_price + ", quoted_at=" + quoted_at + ", responded_at=" + responded_at + ", created_at=" + created_at + ", status=" + status + ", expense=" + expense + '}';
+    }
+    
 }

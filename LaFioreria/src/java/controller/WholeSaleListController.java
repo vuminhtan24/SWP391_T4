@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import model.Bouquet;
 import model.BouquetImage;
@@ -86,9 +87,14 @@ public class WholeSaleListController extends HttpServlet {
                 status = null;
             }
         }
-
+        List<WholeSale> listWS = new ArrayList<>();
+        
+        if(status != null || requestDate != null){
         // Gọi DAO có filter
-        List<WholeSale> listWS = wsDao.getWholeSaleSummary(requestDate, status);
+           listWS = wsDao.filterWholeSaleSummary(requestDate, status);
+        }else{
+           listWS = wsDao.getWholeSaleSummary();
+        }
 
         // Gửi dữ liệu sang view
         request.setAttribute("listWS", listWS);
