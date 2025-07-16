@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Date;
+import model.WholeSaleFlower;
 
 /**
  *
@@ -40,8 +41,9 @@ public class WholeSaleDAO extends BaseDao {
                 LocalDate responded_at = rs.getDate("responded_at").toLocalDate();
                 LocalDate created_at = rs.getDate("created_at").toLocalDate();
                 String status = rs.getString("status");
+                int expense = rs.getInt("expense");
 
-                WholeSale ws = new WholeSale(id, user_id, bouquet_id, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, created_at, status);
+                WholeSale ws = new WholeSale(id, user_id, bouquet_id, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, created_at, status, expense);
                 list.add(ws);
             }
         } catch (SQLException e) {
@@ -66,8 +68,9 @@ public class WholeSaleDAO extends BaseDao {
                 + " `quoted_at`,\n"
                 + " `responded_at`,\n"
                 + " `created_at`,\n"
-                + " `status`)\n"
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                + " `status`,\n"
+                + " `expense`)"
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
         try {
             connection = dbc.getConnection();
@@ -101,6 +104,12 @@ public class WholeSaleDAO extends BaseDao {
                 ps.setDate(8, java.sql.Date.valueOf(ws.getResponded_at()));
             } else {
                 ps.setNull(8, java.sql.Types.DATE);
+            }
+
+            if (ws.getExpense() != null) {
+                ps.setInt(9, ws.getExpense());
+            } else {
+                ps.setNull(9, java.sql.Types.INTEGER);
             }
 
             ps.setDate(9, java.sql.Date.valueOf(ws.getCreated_at()));
@@ -144,8 +153,9 @@ public class WholeSaleDAO extends BaseDao {
                 java.sql.Date createdDateSql = rs.getDate("created_at");
                 LocalDate created_at = (createdDateSql != null) ? createdDateSql.toLocalDate() : null;
                 String status = rs.getString("status");
+                int expense = rs.getInt("expense");
 
-                WholeSale ws = new WholeSale(id, uid, bouquet_id, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, created_at, status);
+                WholeSale ws = new WholeSale(id, uid, bouquet_id, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, created_at, status, expense);
                 list.add(ws);
             }
         } catch (SQLException e) {
@@ -185,8 +195,9 @@ public class WholeSaleDAO extends BaseDao {
                 java.sql.Date createdDateSql = rs.getDate("created_at");
                 LocalDate created_at = (createdDateSql != null) ? createdDateSql.toLocalDate() : null;
                 String status = rs.getString("status");
+                int expense = rs.getInt("expense");
 
-                WholeSale ws = new WholeSale(id, uid, bouquet_id, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, created_at, status);
+                WholeSale ws = new WholeSale(id, uid, bouquet_id, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, created_at, status, expense);
                 list.add(ws);
             }
         } catch (SQLException e) {
@@ -241,45 +252,34 @@ public class WholeSaleDAO extends BaseDao {
         }
     }
 
-    public List<WholeSale> getWholeSaleSummary(LocalDate createdAt, String status) {
+    public List<WholeSale> getWholeSaleSummary() {
         List<WholeSale> list = new ArrayList<>();
 
-        StringBuilder sql = new StringBuilder(
-                "SELECT \n"
+        String sql = "SELECT \n"
                 + "    user_id,\n"
                 + "    created_at,\n"
                 + "    MIN(quoted_at) AS quoted_at,\n"
                 + "    MIN(responded_at) AS responded_at,\n"
-                + "    status\n"
+                + "\n"
+                + "    CASE \n"
+                + "        WHEN SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) > 0 THEN 'PENDING'\n"
+                + "        WHEN SUM(CASE WHEN status = 'QUOTED' THEN 1 ELSE 0 END) > 0\n"
+                + "             AND SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) = 0 THEN 'QUOTED'\n"
+                + "        WHEN SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) > 0\n"
+                + "             AND SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) = 0 THEN 'COMPLETED'\n"
+                + "        ELSE 'UNKNOWN'\n"
+                + "    END AS `status`\n"
+                + "\n"
                 + "FROM \n"
                 + "    wholesale_quote_request\n"
                 + "WHERE \n"
                 + "    status <> 'SHOPPING'\n"
-        );
-
-        List<Object> parameters = new ArrayList<>();
-
-        if (createdAt != null) {
-            sql.append("AND created_at = ?\n");
-            parameters.add(java.sql.Date.valueOf(createdAt));
-        }
-
-        if (status != null && !status.trim().isEmpty()) {
-            sql.append("AND status = ?\n");
-            parameters.add(status.trim());
-        }
-
-        sql.append("GROUP BY user_id, created_at, status");
+                + "GROUP BY \n"
+                + "    user_id, created_at;";
 
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql.toString());
-
-            // Set parameter values theo thứ tự
-            for (int i = 0; i < parameters.size(); i++) {
-                ps.setObject(i + 1, parameters.get(i));
-            }
-
             rs = ps.executeQuery();
             while (rs.next()) {
                 int user_id = rs.getInt("user_id");
@@ -315,19 +315,100 @@ public class WholeSaleDAO extends BaseDao {
         return list;
     }
 
-    public List<WholeSale> getWholeSaleList(int uid, LocalDate requestDate, String status) {
+    public List<WholeSale> filterWholeSaleSummary(LocalDate createdAt, String statusFilter) {
+        List<WholeSale> list = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT \n"
+                + "    user_id,\n"
+                + "    created_at,\n"
+                + "    MIN(quoted_at) AS quoted_at,\n"
+                + "    MIN(responded_at) AS responded_at,\n"
+                + "    CASE \n"
+                + "        WHEN SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) > 0 THEN 'PENDING'\n"
+                + "        WHEN SUM(CASE WHEN status = 'SHOPPING' THEN 1 ELSE 0 END) > 0 THEN 'SHOPPING'\n"
+                + "        WHEN SUM(CASE WHEN status = 'QUOTED' THEN 1 ELSE 0 END) > 0\n"
+                + "             AND SUM(CASE WHEN status IN ('PENDING', 'SHOPPING') THEN 1 ELSE 0 END) = 0 THEN 'QUOTED'\n"
+                + "        WHEN SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) > 0\n"
+                + "             AND SUM(CASE WHEN status IN ('PENDING', 'SHOPPING') THEN 1 ELSE 0 END) = 0 THEN 'COMPLETED'\n"
+                + "        ELSE 'UNKNOWN'\n"
+                + "    END AS status\n"
+                + "FROM \n"
+                + "    wholesale_quote_request\n"
+                + "WHERE 1=1\n"
+        );
+
+        List<Object> parameters = new ArrayList<>();
+
+        if (createdAt != null) {
+            sql.append("AND created_at = ?\n");
+            parameters.add(java.sql.Date.valueOf(createdAt));
+        }
+
+        sql.append("GROUP BY user_id, created_at\n");
+
+        // Lọc theo status sau khi tổng hợp, nên phải dùng HAVING
+        if (statusFilter != null && !statusFilter.trim().isEmpty()) {
+            sql.append("HAVING status = ?\n");
+            parameters.add(statusFilter.trim());
+        }
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql.toString());
+
+            for (int i = 0; i < parameters.size(); i++) {
+                ps.setObject(i + 1, parameters.get(i));
+            }
+
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int userId = rs.getInt("user_id");
+
+                LocalDate quotedAt = null;
+                java.sql.Date quotedAtSql = rs.getDate("quoted_at");
+                if (quotedAtSql != null) {
+                    quotedAt = quotedAtSql.toLocalDate();
+                }
+
+                LocalDate respondedAt = null;
+                java.sql.Date respondedAtSql = rs.getDate("responded_at");
+                if (respondedAtSql != null) {
+                    respondedAt = respondedAtSql.toLocalDate();
+                }
+
+                LocalDate createdAtVal = rs.getDate("created_at").toLocalDate();
+                String resultStatus = rs.getString("status");
+
+                WholeSale ws = new WholeSale(userId, createdAtVal, quotedAt, respondedAt, resultStatus);
+                list.add(ws);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("SQL Error: " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return list;
+    }
+
+    public List<WholeSale> getWholeSaleList(int uid, LocalDate requestDate) {
         List<WholeSale> list = new ArrayList<>();
         String sql = "SELECT * FROM la_fioreria.wholesale_quote_request \n"
                 + "WHERE user_id = ? \n"
-                + "AND created_at = ? \n"
-                + "AND TRIM(status) = ?;";
+                + "AND status <> 'SHOPPING' \n"
+                + "AND created_at = ?;";
 
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setInt(1, uid);
             ps.setDate(2, java.sql.Date.valueOf(requestDate));
-            ps.setString(3, status);
             rs = ps.executeQuery();
             while (rs.next()) {
                 int id = rs.getInt("id");
@@ -342,7 +423,10 @@ public class WholeSaleDAO extends BaseDao {
                 java.sql.Date respondedDateSql = rs.getDate("responded_at");
                 LocalDate responded_at = (respondedDateSql != null) ? respondedDateSql.toLocalDate() : null;
 
-                WholeSale ws = new WholeSale(id, uid, bouquet_id, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, requestDate, status);
+                String status = rs.getString("status");
+                int expense = rs.getInt("expense");
+
+                WholeSale ws = new WholeSale(id, uid, bouquet_id, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, requestDate, status, expense);
                 list.add(ws);
             }
         } catch (SQLException e) {
@@ -382,8 +466,9 @@ public class WholeSaleDAO extends BaseDao {
 
                 java.sql.Date respondedDateSql = rs.getDate("responded_at");
                 LocalDate responded_at = (respondedDateSql != null) ? respondedDateSql.toLocalDate() : null;
+                int expense = rs.getInt("expense");
 
-                return new WholeSale(id, uid, bid, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, requestDate, status);
+                return new WholeSale(id, uid, bid, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, requestDate, status, expense);
             }
         } catch (SQLException e) {
             System.out.println(e);
@@ -427,8 +512,9 @@ public class WholeSaleDAO extends BaseDao {
                 java.sql.Date createdDateSql = rs.getDate("created_at");
                 LocalDate created_at = (createdDateSql != null) ? createdDateSql.toLocalDate() : null;
                 String status = rs.getString("status");
+                int expense = rs.getInt("expense");
 
-                WholeSale ws = new WholeSale(id, user_id, bouquet_id, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, created_at, status);
+                WholeSale ws = new WholeSale(id, user_id, bouquet_id, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, created_at, status, expense);
                 list.add(ws);
             }
         } catch (SQLException e) {
@@ -442,28 +528,86 @@ public class WholeSaleDAO extends BaseDao {
         return list;
     }
 
-    public void AssignQuotedPrice(int totalPrice, LocalDate quotedDate, int quotedPrice, int uid, LocalDate requestDate, String status, int bid) {
+    public void AssignQuotedPrice(int totalPrice, LocalDate quotedDate, int quotedPrice, int uid, LocalDate requestDate, String status, int bid, int expense) {
         String sql = "UPDATE `la_fioreria`.`wholesale_quote_request`\n"
                 + "SET\n"
                 + "`quoted_price` = ?,\n"
                 + "`total_price` = ?,\n"
                 + "`quoted_at` = ?,\n"
-                + "`status` = 'QUOTED'\n"
+                + "`status` = 'QUOTED',\n"
+                + "`expense` = ?\n"
                 + "WHERE user_id = ?\n"
                 + "AND created_at = ?\n"
                 + "AND status = ?\n"
                 + "AND bouquet_id = ?";
-        
+
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setInt(1, quotedPrice);
             ps.setInt(2, totalPrice);
             ps.setDate(3, java.sql.Date.valueOf(quotedDate));
-            ps.setInt(4, uid);
-            ps.setDate(5, java.sql.Date.valueOf(requestDate));
-            ps.setString(6, status);
-            ps.setInt(7, bid);
+            ps.setInt(4, expense);
+            ps.setInt(5, uid);
+            ps.setDate(6, java.sql.Date.valueOf(requestDate));
+            ps.setString(7, status);
+            ps.setInt(8, bid);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    public List<WholeSaleFlower> listFlowerInRequest() {
+        List<WholeSaleFlower> listWsFlower = new ArrayList<>();
+        String sql = "SELECT * FROM la_fioreria.wholesale_quote_flower_detail;";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                int wsId = rs.getInt("wholesale_request_id");
+                int bouquetId = rs.getInt("bouquet_id");
+                int flower_id = rs.getInt("flower_id");
+                int flowerPrice = rs.getInt("flower_ws_price");
+
+                WholeSaleFlower wsFlower = new WholeSaleFlower(id, wsId, bouquetId, flower_id, flowerPrice);
+                listWsFlower.add(wsFlower);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return listWsFlower;
+    }
+
+    public void insertIntoFlowerWS(WholeSaleFlower wsFlower) {
+        String sql = "INSERT INTO `la_fioreria`.`wholesale_quote_flower_detail`\n"
+                + "(`wholesale_request_id`,\n"
+                + "`bouquet_id`,\n"
+                + "`flower_id`,\n"
+                + "`flower_ws_price`)\n"
+                + "VALUES\n"
+                + "(?,?,?,?);";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, wsFlower.getWholesale_request_id());
+            ps.setInt(2, wsFlower.getBouquet_id());
+            ps.setInt(3, wsFlower.getFlower_id());
+            ps.setInt(4, wsFlower.getFlower_ws_price());
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e);
@@ -478,6 +622,9 @@ public class WholeSaleDAO extends BaseDao {
     public static void main(String[] args) {
         WholeSaleDAO dao = new WholeSaleDAO();
         List<WholeSale> list = dao.getWholeSaleRequestByUserID(13);
-        System.out.println(dao.getWholeSaleRequestByFlowerID(1));
+        WholeSale ws = new WholeSale();
+
+        System.out.println(dao.getWholeSaleDetail(13, LocalDate.parse("2025-07-14"), "QUOTED", 2));
+
     }
 }

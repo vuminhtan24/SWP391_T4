@@ -174,7 +174,8 @@ public class ProductDetailController extends HttpServlet {
                     note,
                     null, null, null, null,
                     LocalDate.now(),
-                    "SHOPPING"
+                    "SHOPPING",
+                    null
             );
 
             WholeSaleDAO wsDAO = new WholeSaleDAO();

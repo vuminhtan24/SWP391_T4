@@ -28,6 +28,7 @@ import model.FlowerBatch;
 import model.FlowerType;
 import model.User;
 import model.WholeSale;
+import model.WholeSaleFlower;
 
 /**
  *
@@ -96,7 +97,9 @@ public class WholeSaleQuotationController extends HttpServlet {
         List<FlowerBatch> allBatchs = batchdao.getAllFlowerBatches();
         List<FlowerType> allFlowers = flowerdao.getAllFlowerTypes();
         String cateName = cdao.getCategoryNameByBouquet(bouquetId);
+        List<WholeSaleFlower> listWsFlower = wsDao.listFlowerInRequest();
 
+        request.setAttribute("ListWsFlower", listWsFlower);
         request.setAttribute("userId", userId);
         request.setAttribute("requestDate", requestDate);
         request.setAttribute("status", status);
@@ -112,14 +115,6 @@ public class WholeSaleQuotationController extends HttpServlet {
         request.getRequestDispatcher("./DashMin/wholeSaleQuotation.jsp").forward(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -130,7 +125,11 @@ public class WholeSaleQuotationController extends HttpServlet {
         String wholesalePriceStr = request.getParameter("wholesalePrice");
         String totalWholesaleStr = request.getParameter("totalWholesale");
         String wholesaleExpenseStr = request.getParameter("wholesaleExpense");
+        String wholeSaleId = request.getParameter("wsId");
+        String[] flowerIdStrs = request.getParameterValues("flowerIds[]");
+        String[] assignExpenseStrs = request.getParameterValues("assignExpense[]");
 
+        Integer wsId = Integer.parseInt(wholeSaleId);
         Integer userId = Integer.parseInt(userIdStr);
         LocalDate requestDate = LocalDate.parse(requestDateStr);
         Integer bouquetId = Integer.parseInt(bouquetIdStr);
@@ -142,13 +141,22 @@ public class WholeSaleQuotationController extends HttpServlet {
 
         WholeSaleDAO wsDao = new WholeSaleDAO();
 
-        wsDao.AssignQuotedPrice(totalWholesale, quotedDate, wholesalePrice, userId, requestDate, status, bouquetId);
+        for (int i = 0; i < flowerIdStrs.length; i++) {
+            int flowerId = Integer.parseInt(flowerIdStrs[i]);
+            Integer flowerPrice = (int) Double.parseDouble(assignExpenseStrs[i]);
+
+            WholeSaleFlower wsFlower = new WholeSaleFlower();
+            wsFlower.setWholesale_request_id(wsId);
+            wsFlower.setBouquet_id(bouquetId);
+            wsFlower.setFlower_id(flowerId);
+            wsFlower.setFlower_ws_price(flowerPrice);
+
+            wsDao.insertIntoFlowerWS(wsFlower);
+        }
+
+        wsDao.AssignQuotedPrice(totalWholesale, quotedDate, wholesalePrice, userId, requestDate, status, bouquetId, wholesaleExpense);
 
         request.setAttribute("alert", "You have successfully entered the wholesale price!!!");
-        request.setAttribute("assignExpenseList", request.getParameterValues("assignExpense[]"));
-        request.setAttribute("wholesaleExpense", wholesaleExpense);     // tính ở controller nếu cần
-        request.setAttribute("wholesalePrice", wholesalePrice);
-        request.setAttribute("totalWholesale", totalWholesale);
         doGet(request, response);
     }
 

@@ -346,6 +346,7 @@
 
                                     <div class="table-responsive mb-3">
                                         <form action="wholeSaleQuotation" method="post">
+                                            <input type="hidden" name="wsId" value="${ws.getId()}">   
                                             <input type="hidden" name="userId" value="${param.userId}" />
                                             <input type="hidden" name="requestDate" value="${param.requestDate}" />
                                             <input type="hidden" name="status" value="${param.status}" />
@@ -354,7 +355,7 @@
                                                 <thead class="table-light">
                                                     <tr>
                                                         <th>Flower</th>
-                                                        <th>Flower Batch</th> <!-- ✅ Thêm -->
+                                                        <th>Flower Batch</th> 
                                                         <th>Current Price per Stem</th>
                                                         <th>Quantity</th>
                                                         <th>Assign expense</th>
@@ -366,7 +367,6 @@
                                                         <tr>
                                                             <!-- Flower -->
                                                             <td>
-                                                                <input type="hidden" name="flowerIds" value="${br.getBatchId()}" />
                                                                 <select class="form-select form-select-sm flower-select" disabled>
                                                                     <c:forEach var="fb" items="${allBatchs}">
                                                                         <option
@@ -412,25 +412,32 @@
                                                                     />
                                                             </td>
                                                             <td>
-                                                                <c:choose>
-                                                                    <c:when test="${not empty assignExpenseList}">
+                                                                <c:forEach var="fb" items="${allBatchs}">
+                                                                    <c:if test="${fb.getBatchId() eq br.getBatchId()}">
+
+                                                                        <!-- 1. Hidden input: gửi flowerId -->
+                                                                        <input type="hidden" name="flowerIds[]" value="${fb.getFlowerId()}" />
+
+                                                                        <!-- 2. Gán giá trị mặc định cho assignedExpense -->
+                                                                        <c:set var="assignedExpense" value="0" />
+                                                                        <c:forEach var="wsPrice" items="${ListWsFlower}">
+                                                                            <c:if test="${fb.getFlowerId() eq wsPrice.getFlower_id()}">
+                                                                                <c:set var="assignedExpense" value="${wsPrice.getFlower_ws_price()}" />
+                                                                            </c:if>
+                                                                        </c:forEach>
+
+                                                                        <!-- 3. Luôn render input có giá trị mặc định nếu có -->
                                                                         <input type="number"
                                                                                class="form-control form-control-sm"
                                                                                name="assignExpense[]"
-                                                                               value="${assignExpenseList[status.index]}"
+                                                                               value="${assignedExpense}"
                                                                                min="0"
                                                                                step="1" />
-                                                                    </c:when>
-                                                                    <c:otherwise>
-                                                                        <input type="number"
-                                                                               class="form-control form-control-sm"
-                                                                               name="assignExpense[]"
-                                                                               value="0"
-                                                                               min="0"
-                                                                               step="1" />
-                                                                    </c:otherwise>
-                                                                </c:choose>
+                                                                    </c:if>
+                                                                </c:forEach>
                                                             </td>
+
+
                                                         </tr>
                                                     </c:forEach>
                                                 </tbody>
@@ -456,35 +463,35 @@
                                                                     WholeSale Expense:
                                                                     <span id="wholesaleExpenseDisplay">
                                                                         <c:choose>
-                                                                            <c:when test="${not empty wholesaleExpense}">
-                                                                                <fmt:formatNumber value="${wholesaleExpense}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫                                                   
+                                                                            <c:when test="${not empty ws.getExpense()}">
+                                                                                <fmt:formatNumber value="${ws.getExpense()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫                                                  
                                                                             </c:when>
                                                                             <c:otherwise>0 ₫</c:otherwise>
                                                                         </c:choose>
                                                                     </span><br />
-                                                                    <input type="hidden" id="wholesaleExpenseInput" name="wholesaleExpense" value="${wholesaleExpense}" />
+                                                                    <input type="hidden" id="wholesaleExpenseInput" name="wholesaleExpense" value="${ws.getExpense()}" />
 
                                                                     WholeSale Price:
                                                                     <span id="wholesalePriceDisplay">
                                                                         <c:choose>
-                                                                            <c:when test="${not empty wholesalePrice}">
-                                                                                <fmt:formatNumber value="${wholesalePrice}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫
+                                                                            <c:when test="${not empty ws.getQuoted_price()}">
+                                                                                <fmt:formatNumber value="${ws.getQuoted_price()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫
                                                                             </c:when>
                                                                             <c:otherwise>0 ₫</c:otherwise>
                                                                         </c:choose>
                                                                     </span><br />
-                                                                    <input type="hidden" id="wholesalePriceInput" name="wholesalePrice" value="${wholesalePrice}" />
+                                                                    <input type="hidden" id="wholesalePriceInput" name="wholesalePrice" value="${ws.getQuoted_price()}" />
 
                                                                     Total WholeSale Price:
                                                                     <span id="totalWholesaleDisplay">
                                                                         <c:choose>
-                                                                            <c:when test="${not empty totalWholesale}">
-                                                                                <fmt:formatNumber value="${totalWholesale}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫
+                                                                            <c:when test="${not empty ws.getTotal_price()}">
+                                                                                <fmt:formatNumber value="${ws.getTotal_price()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫
                                                                             </c:when>
                                                                             <c:otherwise>0 ₫</c:otherwise>
                                                                         </c:choose>
                                                                     </span>
-                                                                    <input type="hidden" id="totalWholesaleInput" name="totalWholesale" value="${totalWholesale}" />
+                                                                    <input type="hidden" id="totalWholesaleInput" name="totalWholesale" value="${ws.getTotal_price()}" />
                                                                 </div>
                                                             </div>
                                                         </td>
@@ -497,7 +504,19 @@
                                                 <button class="btn btn-primary" id="calculateWholesaleBtn" type="button">Calculate Wholesale Price</button>
                                                 <button class="btn btn-success" type="submit">Submit Quotation</button>
                                             </div>
-                                        </form>    
+                                            <a href="${pageContext.request.contextPath}/requestWholeSaleDetails?userId=${param.userId}&requestDate=${param.requestDate}&status=${param.status}"
+                                               style="display: inline-block;
+                                               padding: 8px 16px;
+                                               background-color: #6c757d;
+                                               color: white;
+                                               text-decoration: none;
+                                               border-radius: 8px;
+                                               margin-top: 5px;">
+                                                Back to List
+                                            </a>
+
+                                        </form> 
+
                                     </div>
                                 </div>
                             </div>

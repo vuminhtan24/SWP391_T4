@@ -6,9 +6,10 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List,model.Bouquet, model.Category, model.RawFlower"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<fmt:setLocale value="vi_VN" />
 <!DOCTYPE html>
 <html>
     <head>
@@ -350,19 +351,19 @@
                     <div class="row">
                         <!-- Cột 1: Thông tin cá nhân -->
                         <div class="col-md-6">
-                            <p><strong>User's fullname:</strong> ${requestScope.userInfo.getFullname()}</p>
-                            <p><strong>User's email:</strong> ${requestScope.userInfo.getEmail()}</p>
-                            <p><strong>Phone number:</strong> ${requestScope.userInfo.getPhone()}</p>
-                            <p><strong>Address:</strong> ${requestScope.userInfo.getAddress()}</p>
+                            <p style="margin-bottom: 5px;"><strong>User's fullname:</strong> ${requestScope.userInfo.getFullname()}</p>
+                            <p style="margin-bottom: 5px;"><strong>User's email:</strong> ${requestScope.userInfo.getEmail()}</p>
+                            <p style="margin-bottom: 5px;"><strong>Phone number:</strong> ${requestScope.userInfo.getPhone()}</p>
+                            <p style="margin-bottom: 5px;"><strong>Address:</strong> ${requestScope.userInfo.getAddress()}</p>
                         </div>
 
                         <!-- Cột 2: Thông tin đơn hàng -->
                         <c:if test="${not empty listWS}">
                             <c:set var="generalItem" value="${listWS[0]}" />
                             <div class="col-md-6">
-                                <p><strong>Request Date:</strong> ${generalItem.getCreated_at()}</p>
+                                <p style="margin-bottom: 5px;"><strong>Request Date:</strong> ${generalItem.getCreated_at()}</p>
 
-                                <p><strong>Quoted Date:</strong>
+                                <p style="margin-bottom: 5px;"><strong>Quoted Date:</strong>
                                     <c:choose>
                                         <c:when test="${generalItem.getQuoted_at() == null}">
                                             not quoted yet
@@ -373,7 +374,7 @@
                                     </c:choose>
                                 </p>
 
-                                <p><strong>Customer Responded at:</strong>
+                                <p style="margin-bottom: 5px;"><strong>Customer Responded at:</strong>
                                     <c:choose>
                                         <c:when test="${generalItem.getResponded_at() == null}">
                                             not responded yet
@@ -462,9 +463,10 @@
                                     </c:url>
                                     <a href="${sortedUrl}">Requested Quantity</a>
                                 </td>
-
                                 <td>Note</td>
-
+                                <td>WholeSale Expense</td>
+                                <td>WholeSale Price</td>
+                                <td>Total WholeSale Price</td>                                
                                 <%
                                     String newStatusOrder = "asc";
                                     if ("status".equals(request.getAttribute("sortBy")) && "asc".equals(request.getAttribute("sortOrder"))) {
@@ -482,7 +484,6 @@
                                     </c:url>
                                     <a href="${sortedStatusUrl}">Status</a>
                                 </td>
-                                <td>WholeSale Price</td>
                                 <td></td>
                             </tr>
                         </thead>  
@@ -510,18 +511,36 @@
                                     <td>
                                         ${item.getNote()}
                                     </td>
-                                    <td>${item.getStatus()}</td>
+
                                     <td>
                                         <c:choose>
-                                            <c:when test="${item.getQuoted_price() == null or item.getQuoted_price() == 0}">
-                                                not quoted yet
+                                            <c:when test="${not empty item.getExpense() and item.getExpense() != 0}">
+                                                <fmt:formatNumber value="${item.getExpense()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫
                                             </c:when>
-                                            <c:otherwise>
-                                                ${item.getQuoted_price()}
-                                            </c:otherwise>
+                                            <c:otherwise>Not Quoted yet</c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td><a href="${pageContext.request.contextPath}/wholeSaleQuotation?userId=${item.getUser_id()}&requestDate=${item.getCreated_at()}&status=${item.getStatus()}&bouquetId=${item.getBouquet_id()}">WholeSale Quotation</a></td>
+
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${not empty item.getQuoted_price() and item.getQuoted_price() != 0}">
+                                                <fmt:formatNumber value="${item.getQuoted_price()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫
+                                            </c:when>
+                                            <c:otherwise>Not Quoted yet</c:otherwise>
+                                        </c:choose>
+                                    </td>
+
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${not empty item.getTotal_price() and item.getTotal_price() != 0}">
+                                                <fmt:formatNumber value="${item.getTotal_price()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫
+                                            </c:when>
+                                            <c:otherwise>Not Quoted yet</c:otherwise>
+                                        </c:choose>
+                                    </td>
+
+                                    <td>${item.getStatus()}</td>
+                                    <td><a href="${pageContext.request.contextPath}/wholeSaleQuotation?userId=${item.getUser_id()}&requestDate=${item.getCreated_at()}&status=${item.getStatus()}&bouquetId=${item.getBouquet_id()}">Quotation</a></td>
                                 </tr>  
                             </c:forEach>
                         </tbody>   
