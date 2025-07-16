@@ -70,6 +70,41 @@ public class FeedbackDAO extends BaseDao {
         }
         return feedbacks;
     }
+    
+    public Feedback getFeedbackById(int feedbackId) {
+        Feedback feedback = null;
+        String sql = "SELECT f.feedback_id, f.customer_id, f.bouquet_id, f.order_id, f.rating, f.comment, f.created_at, f.status, " +
+                     "COALESCE(u.Fullname, o.customer_name) AS customer_name " +
+                     "FROM feedback f " +
+                     "LEFT JOIN `order` o ON f.customer_id = o.customer_id AND f.order_id = o.order_id " +
+                     "LEFT JOIN `user` u ON f.customer_id = u.User_ID " +
+                     "WHERE f.feedback_id = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, feedbackId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                feedback = new Feedback();
+                feedback.setFeedbackId(rs.getInt("feedback_id"));
+                feedback.setCustomerId(rs.getInt("customer_id"));
+                feedback.setBouquetId(rs.getInt("bouquet_id"));
+                feedback.setOrderId(rs.getInt("order_id"));
+                feedback.setRating(rs.getInt("rating"));
+                feedback.setComment(rs.getString("comment"));
+                Timestamp timestamp = rs.getTimestamp("created_at");
+                feedback.setCreated_at(timestamp != null ? timestamp.toLocalDateTime() : null);
+                feedback.setStatus(rs.getString("status"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {}
+        }
+        return feedback;
+    }
 
     public boolean hasCustomerPurchasedBouquet(int customerId, int bouquetId) {
         String sql = "SELECT COUNT(*) FROM `order` o "
@@ -280,9 +315,7 @@ public class FeedbackDAO extends BaseDao {
 
     public static void main(String[] args) {
         FeedbackDAO dao = new FeedbackDAO();
-        List<Feedback> list = dao.getFeedbacksByBouquetId(1);
-        for (Feedback f : list) {
-            System.out.println(f.getComment());
-        }
+        List<String> list = dao.getFeedbackImageUrls(1);
+        System.out.println(list);
     }
 }
