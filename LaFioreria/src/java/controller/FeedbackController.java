@@ -77,6 +77,16 @@ public class FeedbackController extends HttpServlet {
             int bouquetId = Integer.parseInt(request.getParameter("bouquetId"));
             int rating = Integer.parseInt(request.getParameter("rating"));
             String comment = request.getParameter("comment");
+            
+            // Kiểm tra giới hạn 300 từ phía server
+            String[] words = comment.trim().split("\\s+");
+            if (words.length > 300) {
+                request.setAttribute("error", "Comment must not exceed 300 words. Please shorten your review.");
+                request.setAttribute("orderId", orderId);
+                request.setAttribute("bouquetId", bouquetId);
+                request.getRequestDispatcher("/ZeShopper/feedback-form.jsp").forward(request, response);
+                return;
+            }
 
             FeedbackDAO feedbackDAO = new FeedbackDAO();
             if (!feedbackDAO.canWriteFeedback(currentUser.getUserid(), bouquetId, orderId)) {

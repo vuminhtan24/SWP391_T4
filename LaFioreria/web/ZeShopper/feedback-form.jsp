@@ -1,7 +1,7 @@
 <%-- 
     Document   : feedback-form
     Created on : Jul 09, 2025
-    Author     : xAI (via Grok)
+    Author     : Admin
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -129,5 +129,28 @@
         </div>
 
         <jsp:include page="/ZeShopper/footer.jsp"/>
+        <script>
+        function updateWordCount() {
+            const comment = document.getElementById('comment').value.trim();
+            const words = comment.split(/\s+/).filter(word => word.length > 0);
+            const count = words.length;
+            document.getElementById('wordCount').textContent = `Số từ: ${count}/300`;
+            if (count > 300) {
+                document.getElementById('wordCount').style.color = 'red';
+            } else {
+                document.getElementById('wordCount').style.color = '#666';
+            }
+        }
+
+        function validateComment() {
+            const comment = document.getElementById('comment').value.trim();
+            const words = comment.split(/\s+/).filter(word => word.length > 0);
+            if (words.length > 300) {
+                alert("Comment must not exceed 300 words. Please shorten your review.");
+                return false;
+            }
+            return true;
+        }
+    </script>
     </body>
 </html>

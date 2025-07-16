@@ -431,7 +431,7 @@
                                                 <p class="feedback-comment">${feedback.comment}</p>
                                                 <div class="feedback-images">
                                                     <c:forEach var="img" items="${feedbackImages[feedback.feedbackId]}">
-                                                        <img src="${pageContext.request.contextPath}/upload/FeedbackIMG/${img.imageUrl}" alt="Feedback Image">
+                                                        <img src="${pageContext.request.contextPath}/upload/FeedbackIMG/${img}" alt="Feedback Image">
                                                     </c:forEach>
                                                 </div>
                                             </div>

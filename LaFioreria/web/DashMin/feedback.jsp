@@ -1,13 +1,14 @@
 <%-- 
     Document   : admin-feedback
     Created on : Jul 10, 2025, 03:32 PM
-    Author     : xAI (via Grok)
+    Author     : Admin
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List, model.Feedback, model.FeedbackImg, model.Bouquet"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <fmt:setLocale value="en_US" />
 <!DOCTYPE html>
 <html>
@@ -44,9 +45,24 @@
             .table-responsive {
                 margin-top: 20px;
             }
+            .table {
+                border-collapse: collapse; /* Đảm bảo không có khoảng cách giữa các ô */
+            }
             .table thead th {
                 background-color: #007bff;
-                color: white;
+                color: #ffffff;
+                font-weight: bold;
+                text-align: center;
+                padding: 12px;
+                opacity: 1 !important;
+                box-sizing: border-box; /* Đảm bảo kích thước tính toán nhất quán */
+                vertical-align: middle; /* Căn giữa theo chiều dọc */
+            }
+            .table tbody td {
+                padding: 12px; /* Đồng bộ padding với th */
+                text-align: center; /* Đồng bộ căn giữa với th */
+                box-sizing: border-box; /* Đảm bảo kích thước tính toán nhất quán */
+                vertical-align: middle; /* Căn giữa theo chiều dọc */
             }
             .table tbody tr:hover {
                 background-color: #f8f9fa;
@@ -110,9 +126,11 @@
             }
             th.sortable.asc::after {
                 content: " ▲";
+                color: #ffffff;
             }
             th.sortable.desc::after {
                 content: " ▼";
+                color: #ffffff;
             }
             .table thead th a {
                 color: white !important;
@@ -246,226 +264,229 @@
 
                 <!-- Feedback Management Start -->
                 <div class="container-fluid pt-4 px-4">
-                    <div class="bg-light rounded h-100 p-4">
-                        <h4 class="mb-4">Feedback Management</h4>
-                        <c:if test="${not empty message}">
-                            <div class="alert alert-success">${message}</div>
-                        </c:if>
-                        <form action="${pageContext.request.contextPath}/adminFeedback" method="get" class="search-form">
-                            <div style="display:flex; align-items:center;">
-                                <label for="bouquetId" style="margin-right: 8px; white-space: nowrap;">Bouquet:</label>
-                                <select name="bouquetId" id="bouquetId" onchange="this.form.submit()"
-                                        style="width:auto; min-width:max-content; padding:0.25rem 0.5rem; border:1px solid #ccc; border-radius:0.5rem; background-color:#fff;">
-                                    <option value="" ${empty bouquetId ? 'selected' : ''}>-- Default --</option>
-                                    <c:forEach var="bouquet" items="${bouquetList}">
-                                        <option value="${bouquet.bouquetId}"
-                                                ${bouquetId eq bouquet.bouquetId ? 'selected' : ''}>
-                                            ${bouquet.bouquetName}
-                                        </option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-                            <div style="display:flex; align-items:center; margin-left:50px;">
-                                <label for="rating" style="margin-right: 8px; white-space: nowrap;">Rating:</label>
-                                <select name="rating" id="rating" onchange="this.form.submit()"
-                                        style="width:auto; min-width:max-content; padding:0.25rem 0.5rem; border:1px solid #ccc; border-radius:0.5rem; background-color:#fff;">
-                                    <option value="" ${empty rating ? 'selected' : ''}>-- Default --</option>
-                                    <c:forEach var="i" begin="1" end="5">
-                                        <option value="${i}" ${rating eq i ? 'selected' : ''}>${i} Star(s)</option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-                            <input type="text" name="feedbackSearch" placeholder="Search feedback" value="${feedbackSearch}"
-                                   style="width:200px; padding:0.25rem 0.5rem; border:1px solid #ccc; border-radius:0.5rem; margin-right:0.5rem;" />
-                            <button type="submit" style="padding:0.25rem 0.75rem; border:none; border-radius:0.5rem; background-color:#007bff; color:#fff; cursor:pointer;">
-                                Search
-                            </button>
-                        </form>
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th class="sortable" data-type="number">
-                                            <a href="?page=${currentPage}&sortField=feedbackId&sortDir=${sortField eq 'feedbackId' and sortDir eq 'asc' ? 'desc' : 'asc'}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}">
-                                                ID
-                                                <c:if test="${sortField eq 'feedbackId'}">
-                                                    <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
-                                                </c:if>
-                                            </a>
-                                        </th>
-                                        <th class="sortable" data-type="string">
-                                            <a href="?page=${currentPage}&sortField=bouquetName&sortDir=${sortField eq 'bouquetName' and sortDir eq 'asc' ? 'desc' : 'asc'}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}">
-                                                Bouquet Name
-                                                <c:if test="${sortField eq 'bouquetName'}">
-                                                    <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
-                                                </c:if>
-                                            </a>
-                                        </th>
-                                        <th class="sortable" data-type="string">
-                                            <a href="?page=${currentPage}&sortField=customerName&sortDir=${sortField eq 'customerName' and sortDir eq 'asc' ? 'desc' : 'asc'}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}">
-                                                Customer
-                                                <c:if test="${sortField eq 'customerName'}">
-                                                    <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
-                                                </c:if>
-                                            </a>
-                                        </th>
-                                        <th class="sortable" data-type="number">
-                                            <a href="?page=${currentPage}&sortField=rating&sortDir=${sortField eq 'rating' and sortDir eq 'asc' ? 'desc' : 'asc'}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}">
-                                                Rating
-                                                <c:if test="${sortField eq 'rating'}">
-                                                    <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
-                                                </c:if>
-                                            </a>
-                                        </th>
-                                        <th class="sortable" data-type="string">
-                                            <a href="?page=${currentPage}&sortField=comment&sortDir=${sortField eq 'comment' and sortDir eq 'asc' ? 'desc' : 'asc'}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}">
-                                                Comment
-                                                <c:if test="${sortField eq 'comment'}">
-                                                    <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
-                                                </c:if>
-                                            </a>
-                                        </th>
-                                        <th class="sortable" data-type="date">
-                                            <a href="?page=${currentPage}&sortField=created_at&sortDir=${sortField eq 'created_at' and sortDir eq 'asc' ? 'desc' : 'asc'}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}">
-                                                Created Date
-                                                <c:if test="${sortField eq 'created_at'}">
-                                                    <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
-                                                </c:if>
-                                            </a>
-                                        </th>
-                                        <th class="sortable" data-type="string">
-                                            <a href="?page=${currentPage}&sortField=status&sortDir=${sortField eq 'status' and sortDir eq 'asc' ? 'desc' : 'asc'}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}">
-                                                Status
-                                                <c:if test="${sortField eq 'status'}">
-                                                    <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
-                                                </c:if>
-                                            </a>
-                                        </th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <c:forEach var="feedback" items="${feedbackList}" varStatus="status">
-                                        <tr>
-                                            <td>${feedback.feedbackId}</td>
-                                            <td>${feedback.bouquetName}</td>
-                                            <td>${feedbackCustomerNames[feedback.feedbackId]}</td>
-                                            <td>
-                                                <c:forEach begin="1" end="${feedback.rating}">
-                                                    <i class="fas fa-star star-rating"></i>
-                                                </c:forEach>
-                                            </td>
-                                            <td>${feedback.comment}</td>
-                                            <td><fmt:formatDate value="${feedback.createdAtAsDate}" pattern="dd/MM/yyyy HH:mm"/></td>
-                                            <td>${feedback.status}</td>
-                                            <td>
-                                                <c:if test="${feedback.status == 'pending'}">
-                                                    <a href="${pageContext.request.contextPath}/adminFeedback?action=approve&id=${feedback.feedbackId}" class="btn btn-success btn-sm action-btn">Approve</a>
-                                                    <a href="${pageContext.request.contextPath}/adminFeedback?action=reject&id=${feedback.feedbackId}" class="btn btn-danger btn-sm action-btn">Reject</a>
-                                                </c:if>
-                                                <c:if test="${feedback.status != 'pending'}">
-                                                    <span class="badge bg-secondary">Processed</span>
-                                                </c:if>
-                                            </td>
-                                        </tr>
-                                        <c:if test="${not empty feedbackImages[feedback.feedbackId]}">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="bg-light rounded h-100 p-4">
+                                <h4 class="mb-4">Feedback Management</h4>
+                                <c:if test="${not empty message}">
+                                    <div class="alert alert-success">${message}</div>
+                                </c:if>
+                                <form action="${pageContext.request.contextPath}/adminFeedback" method="get" class="search-form">
+                                    <div style="display:flex; align-items:center;">
+                                        <label for="bouquetId">Bouquet:</label>
+                                        <select name="bouquetId" id="bouquetId" onchange="this.form.submit()"
+                                                style="width:auto; min-width:max-content; padding:0.25rem 0.5rem; border:1px solid #ccc; border-radius:0.5rem; background-color:#fff;">
+                                            <option value="" ${empty bouquetId ? 'selected' : ''}>-- All --</option>
+                                            <c:forEach var="bouquet" items="${bouquetList}">
+                                                <option value="${bouquet.bouquetId}"
+                                                        ${bouquetId eq bouquet.bouquetId ? 'selected' : ''}>
+                                                    ${bouquet.bouquetName}
+                                                </option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                    <div style="display:flex; align-items:center; margin-left:50px;">
+                                        <label for="rating">Rating:</label>
+                                        <select name="rating" id="rating" onchange="this.form.submit()"
+                                                style="width:auto; min-width:max-content; padding:0.25rem 0.5rem; border:1px solid #ccc; border-radius:0.5rem; background-color:#fff;">
+                                            <option value="" ${empty rating ? 'selected' : ''}>-- All --</option>
+                                            <c:forEach var="i" begin="1" end="5">
+                                                <option value="${i}" ${rating eq i ? 'selected' : ''}>${i} Star(s)</option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                    <input type="text" name="feedbackSearch" placeholder="Search feedback" value="${feedbackSearch}"
+                                           style="width:200px; padding:0.25rem 0.5rem; border:1px solid #ccc; border-radius:0.5rem; margin-right:0.5rem;" />
+                                    <button type="submit" style="padding:0.25rem 0.75rem; border:none; border-radius:0.5rem; background-color:#007bff; color:#fff; cursor:pointer;">
+                                        Search
+                                    </button>
+                                </form>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
                                             <tr>
-                                                <td colspan="8">
-                                                    <div class="feedback-images">
-                                                        <c:forEach var="img" items="${feedbackImages[feedback.feedbackId]}">
-                                                            <img src="${pageContext.request.contextPath}/upload/FeedbackIMG/${img.imageUrl}" alt="Feedback Image">
-                                                        </c:forEach>
-                                                    </div>
-                                                </td>
+                                                <th class="sortable" data-type="number">
+                                                    <a href="?page=${currentPage}&sortField=feedbackId&sortDir=${sortField eq 'feedbackId' and sortDir eq 'asc' ? 'desc' : 'asc'}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}">
+                                                        ID
+                                                        <c:if test="${sortField eq 'feedbackId'}">
+                                                            <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
+                                                        </c:if>
+                                                    </a>
+                                                </th>
+                                                <th class="sortable" data-type="string">
+                                                    <a href="?page=${currentPage}&sortField=bouquetName&sortDir=${sortField eq 'bouquetName' and sortDir eq 'asc' ? 'desc' : 'asc'}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}">
+                                                        Bouquet Name
+                                                        <c:if test="${sortField eq 'bouquetName'}">
+                                                            <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
+                                                        </c:if>
+                                                    </a>
+                                                </th>
+                                                <th class="sortable" data-type="string">
+                                                    <a href="?page=${currentPage}&sortField=customerName&sortDir=${sortField eq 'customerName' and sortDir eq 'asc' ? 'desc' : 'asc'}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}">
+                                                        Customer
+                                                        <c:if test="${sortField eq 'customerName'}">
+                                                            <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
+                                                        </c:if>
+                                                    </a>
+                                                </th>
+                                                <th class="sortable" data-type="number">
+                                                    <a href="?page=${currentPage}&sortField=rating&sortDir=${sortField eq 'rating' and sortDir eq 'asc' ? 'desc' : 'asc'}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}">
+                                                        Rating
+                                                        <c:if test="${sortField eq 'rating'}">
+                                                            <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
+                                                        </c:if>
+                                                    </a>
+                                                </th>
+                                                <th class="sortable" data-type="string">
+                                                    <a href="?page=${currentPage}&sortField=comment&sortDir=${sortField eq 'comment' and sortDir eq 'asc' ? 'desc' : 'asc'}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}">
+                                                        Comment (First 10 words)
+                                                        <c:if test="${sortField eq 'comment'}">
+                                                            <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
+                                                        </c:if>
+                                                    </a>
+                                                </th>
+                                                <th class="sortable" data-type="date">
+                                                    <a href="?page=${currentPage}&sortField=created_at&sortDir=${sortField eq 'created_at' and sortDir eq 'asc' ? 'desc' : 'asc'}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}">
+                                                        Created Date
+                                                        <c:if test="${sortField eq 'created_at'}">
+                                                            <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
+                                                        </c:if>
+                                                    </a>
+                                                </th>
+                                                <th class="sortable" data-type="string">
+                                                    <a href="?page=${currentPage}&sortField=status&sortDir=${sortField eq 'status' and sortDir eq 'asc' ? 'desc' : 'asc'}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}">
+                                                        Status
+                                                        <c:if test="${sortField eq 'status'}">
+                                                            <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
+                                                        </c:if>
+                                                    </a>
+                                                </th>
+                                                <th>Actions</th>
                                             </tr>
-                                        </c:if>
-                                    </c:forEach>
-                                    <c:if test="${empty feedbackList}">
-                                        <tr>
-                                            <td colspan="8" class="text-center">No feedback available.</td>
-                                        </tr>
-                                    </c:if>
-                                </tbody>
-                            </table>
-                        </div>
-                        <c:if test="${totalPages > 1}">
-                            <div class="mt-auto">
-                                <nav>
-                                    <ul class="pagination">
-                                        <!-- Previous -->
-                                        <c:url var="prevUrl" value="/adminFeedback">
-                                            <c:param name="page" value="${currentPage - 1}"/>
-                                            <c:param name="feedbackSearch" value="${feedbackSearch}"/>
-                                            <c:param name="bouquetId" value="${bouquetId}"/>
-                                            <c:param name="rating" value="${rating}"/>
-                                            <c:param name="sortField" value="${sortField}"/>
-                                            <c:param name="sortDir" value="${sortDir}"/>
-                                        </c:url>
-                                        <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                            <a class="page-link" href="${prevUrl}">Previous</a>
-                                        </li>
-
-                                        <!-- First Page -->
-                                        <li class="page-item ${currentPage == 1 ? 'active' : ''}">
-                                            <a class="page-link"
-                                               href="?page=1&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}&sortField=${sortField}&sortDir=${sortDir}">
-                                                1
-                                            </a>
-                                        </li>
-
-                                        <!-- Ellipsis -->
-                                        <c:if test="${currentPage > 3}">
-                                            <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+                                        </thead>
+                                        <tbody>
+                                            <c:forEach var="feedback" items="${feedbackList}" varStatus="status">
+                                                <tr>
+                                                    <td>
+                                                        <a href="${pageContext.request.contextPath}/DashMin/feedbackDetail?id=${feedback.feedbackId}">
+                                                            ${feedback.feedbackId}
+                                                        </a>
+                                                    </td>
+                                                    <td>${feedback.bouquetName}</td>
+                                                    <td>${feedbackCustomerNames[feedback.feedbackId]}</td>
+                                                    <td>
+                                                        <c:forEach begin="1" end="${feedback.rating}">
+                                                            <i class="fas fa-star star-rating"></i>
+                                                        </c:forEach>
+                                                    </td>
+                                                    <td>
+                                                        <c:set var="words" value="${fn:split(feedback.comment, ' ')}"/>
+                                                        <c:forEach var="word" items="${words}" begin="0" end="9">
+                                                            ${word} 
+                                                        </c:forEach>
+                                                        <c:if test="${fn:length(words) > 10}">...</c:if>
+                                                        </td>
+                                                        <td><fmt:formatDate value="${feedback.createdAtAsDate}" pattern="dd/MM/yyyy HH:mm"/></td>
+                                                    <td>${feedback.status}</td>
+                                                    <td>
+                                                        <c:if test="${feedback.status == 'pending'}">
+                                                            <a href="${pageContext.request.contextPath}/adminFeedback?action=approve&id=${feedback.feedbackId}" class="btn btn-success btn-sm action-btn">Approve</a>
+                                                            <a href="${pageContext.request.contextPath}/adminFeedback?action=reject&id=${feedback.feedbackId}" class="btn btn-danger btn-sm action-btn">Reject</a>
+                                                        </c:if>
+                                                        <c:if test="${feedback.status != 'pending'}">
+                                                            <span class="badge bg-secondary">Processed</span>
+                                                        </c:if>
+                                                    </td>
+                                                </tr>                                                
+                                            </c:forEach>
+                                            <c:if test="${empty feedbackList}">
+                                                <tr>
+                                                    <td colspan="8" class="text-center">No feedback available.</td>
+                                                </tr>
                                             </c:if>
-
-                                        <!-- Page range (currentPage -1, currentPage, currentPage +1) -->
-                                        <c:forEach var="i" begin="${currentPage - 1}" end="${currentPage + 1}">
-                                            <c:if test="${i > 1 && i < totalPages}">
-                                                <c:url var="pageUrl" value="/adminFeedback">
-                                                    <c:param name="page" value="${i}"/>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <c:if test="${totalPages > 1}">
+                                    <div class="mt-auto">
+                                        <nav>
+                                            <ul class="pagination">
+                                                <!-- Previous -->
+                                                <c:url var="prevUrl" value="/adminFeedback">
+                                                    <c:param name="page" value="${currentPage - 1}"/>
                                                     <c:param name="feedbackSearch" value="${feedbackSearch}"/>
                                                     <c:param name="bouquetId" value="${bouquetId}"/>
                                                     <c:param name="rating" value="${rating}"/>
                                                     <c:param name="sortField" value="${sortField}"/>
                                                     <c:param name="sortDir" value="${sortDir}"/>
                                                 </c:url>
-                                                <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                                    <a class="page-link" href="${pageUrl}">${i}</a>
+                                                <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                                    <a class="page-link" href="${prevUrl}">Previous</a>
                                                 </li>
-                                            </c:if>
-                                        </c:forEach>
 
-                                        <!-- Ellipsis -->
-                                        <c:if test="${currentPage < totalPages - 2}">
-                                            <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                                            </c:if>
+                                                <!-- First Page -->
+                                                <li class="page-item ${currentPage == 1 ? 'active' : ''}">
+                                                    <a class="page-link"
+                                                       href="?page=1&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}&sortField=${sortField}&sortDir=${sortDir}">
+                                                        1
+                                                    </a>
+                                                </li>
 
-                                        <!-- Last Page -->
-                                        <c:if test="${totalPages > 1}">
-                                            <li class="page-item ${currentPage == totalPages ? 'active' : ''}">
-                                                <a class="page-link"
-                                                   href="?page=${totalPages}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}&sortField=${sortField}&sortDir=${sortDir}">
-                                                    ${totalPages}
-                                                </a>
-                                            </li>
-                                        </c:if>
+                                                <!-- Ellipsis -->
+                                                <c:if test="${currentPage > 3}">
+                                                    <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+                                                    </c:if>
 
-                                        <!-- Next -->
-                                        <c:url var="nextUrl" value="/adminFeedback">
-                                            <c:param name="page" value="${currentPage + 1}"/>
-                                            <c:param name="feedbackSearch" value="${feedbackSearch}"/>
-                                            <c:param name="bouquetId" value="${bouquetId}"/>
-                                            <c:param name="rating" value="${rating}"/>
-                                            <c:param name="sortField" value="${sortField}"/>
-                                            <c:param name="sortDir" value="${sortDir}"/>
-                                        </c:url>
-                                        <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                            <a class="page-link" href="${nextUrl}">Next</a>
-                                        </li>
-                                    </ul>
-                                </nav>
+                                                <!-- Page range (currentPage -1, currentPage, currentPage +1) -->
+                                                <c:forEach var="i" begin="${currentPage - 1}" end="${currentPage + 1}">
+                                                    <c:if test="${i > 1 && i < totalPages}">
+                                                        <c:url var="pageUrl" value="/adminFeedback">
+                                                            <c:param name="page" value="${i}"/>
+                                                            <c:param name="feedbackSearch" value="${feedbackSearch}"/>
+                                                            <c:param name="bouquetId" value="${bouquetId}"/>
+                                                            <c:param name="rating" value="${rating}"/>
+                                                            <c:param name="sortField" value="${sortField}"/>
+                                                            <c:param name="sortDir" value="${sortDir}"/>
+                                                        </c:url>
+                                                        <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                                            <a class="page-link" href="${pageUrl}">${i}</a>
+                                                        </li>
+                                                    </c:if>
+                                                </c:forEach>
+
+                                                <!-- Ellipsis -->
+                                                <c:if test="${currentPage < totalPages - 2}">
+                                                    <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+                                                    </c:if>
+
+                                                <!-- Last Page -->
+                                                <c:if test="${totalPages > 1}">
+                                                    <li class="page-item ${currentPage == totalPages ? 'active' : ''}">
+                                                        <a class="page-link"
+                                                           href="?page=${totalPages}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}&sortField=${sortField}&sortDir=${sortDir}">
+                                                            ${totalPages}
+                                                        </a>
+                                                    </li>
+                                                </c:if>
+
+                                                <!-- Next -->
+                                                <c:url var="nextUrl" value="/adminFeedback">
+                                                    <c:param name="page" value="${currentPage + 1}"/>
+                                                    <c:param name="feedbackSearch" value="${feedbackSearch}"/>
+                                                    <c:param name="bouquetId" value="${bouquetId}"/>
+                                                    <c:param name="rating" value="${rating}"/>
+                                                    <c:param name="sortField" value="${sortField}"/>
+                                                    <c:param name="sortDir" value="${sortDir}"/>
+                                                </c:url>
+                                                <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                                                    <a class="page-link" href="${nextUrl}">Next</a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </c:if>
                             </div>
-                        </c:if>
+                        </div>
                     </div>
                 </div>
                 <!-- Feedback Management End -->

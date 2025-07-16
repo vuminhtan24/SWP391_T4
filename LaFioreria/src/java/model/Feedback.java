@@ -17,6 +17,7 @@ public class Feedback {
     int feedbackId;
     int customerId;
     int bouquetId;
+    int orderId;
     int rating;
     String comment;
     LocalDateTime created_at;
@@ -26,10 +27,11 @@ public class Feedback {
     public Feedback() {
     }
 
-    public Feedback(int feedbackId, int customerId, int bouquetId, int rating, String comment, LocalDateTime created_at, String status, String bouquetName) {
+    public Feedback(int feedbackId, int customerId, int bouquetId, int orderId, int rating, String comment, LocalDateTime created_at, String status, String bouquetName) {
         this.feedbackId = feedbackId;
         this.customerId = customerId;
         this.bouquetId = bouquetId;
+        this.orderId = orderId;
         this.rating = rating;
         this.comment = comment;
         this.created_at = created_at;
@@ -106,10 +108,20 @@ public class Feedback {
         this.bouquetName = bouquetName;
     }
 
+    public int getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(int orderId) {
+        this.orderId = orderId;
+    }
+
     @Override
     public String toString() {
-        return "Feedback{" + "feedbackId=" + feedbackId + ", customerId=" + customerId + ", bouquetId=" + bouquetId + ", rating=" + rating + ", comment=" + comment + ", created_at=" + created_at + ", status=" + status + ", bouquetName=" + bouquetName + '}';
+        return "Feedback{" + "feedbackId=" + feedbackId + ", customerId=" + customerId + ", bouquetId=" + bouquetId + ", orderId=" + orderId + ", rating=" + rating + ", comment=" + comment + ", created_at=" + created_at + ", status=" + status + ", bouquetName=" + bouquetName + '}';
     }
+
+    
         
     
 }
