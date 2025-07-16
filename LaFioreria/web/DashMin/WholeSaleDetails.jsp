@@ -521,7 +521,7 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td><a href="#">WholeSale Quotation</a></td>
+                                    <td><a href="${pageContext.request.contextPath}/wholeSaleQuotation?userId=${item.getUser_id()}&requestDate=${item.getCreated_at()}&status=${item.getStatus()}&bouquetId=${item.getBouquet_id()}">WholeSale Quotation</a></td>
                                 </tr>  
                             </c:forEach>
                         </tbody>   

@@ -33,7 +33,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import javax.mail.Session;
+import jakarta.mail.Session;
 import model.BouquetImage;
 import model.FlowerBatch;
 import model.FlowerType;

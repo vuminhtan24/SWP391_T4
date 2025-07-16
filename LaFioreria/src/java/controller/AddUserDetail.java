@@ -107,18 +107,44 @@ public class AddUserDetail extends HttpServlet {
         boolean customerError = false;
         boolean employeeError = false;
 
+        System.out.println("=== SUBMIT ADD USER ===");
+        System.out.println("Username: " + name);
+        System.out.println("Role: " + finalRole);
+
         if ("Customer".equals(finalRole)) {
             customerError = validateCustomer(request);
+
+            // Nếu không lỗi định dạng thì mới kiểm tra trùng
+            if (!customerError && ud.isCustomerCodeExist(request.getParameter("customerCode"))) {
+                request.setAttribute("errorCustomerCode", "This customer code already exists. Please use a different one.");
+                customerError = true;
+            }
+
         } else if (!"Guest".equals(finalRole)) {
             employeeError = validateEmployee(request);
+
+            // Nếu không lỗi định dạng thì mới kiểm tra trùng
+            if (!employeeError && ud.isEmployeeCodeExist(request.getParameter("employeeCode"))) {
+                request.setAttribute("errorEmployeeCode", "This employee code already exists. Please use a different one.");
+                employeeError = true;
+            }
+        } // Nếu validateUser không có lỗi, mới check username trùng
+        if (!userError && ud.isUsernameExist(name)) {
+            request.setAttribute("errorName", "This username is already taken. Please choose another one.");
+            userError = true;
         }
 
+        System.out.println("User validation error: " + userError);
+        System.out.println("Customer validation error: " + customerError);
+        System.out.println("Employee validation error: " + employeeError);
 // B3. Nếu không có lỗi thì insert DB
         if (!userError && !customerError && !employeeError) {
 
+            System.out.println(">>> All validation passed. Proceeding to insert...");
             // 1. Check lại nếu username đã tồn tại (do lần trước lỗi nhưng vẫn insert user)
             if (ud.isUsernameExist(name)) {
-                request.setAttribute("errorName", "Tên đăng nhập đã tồn tại (có thể do lần gửi trước đã insert user).");
+                System.out.println(">>> Username already exists in DB");
+                request.setAttribute("errorName", "The login name already exists (maybe because the previous submission inserted a user).");
                 setAttributes(request, name, password, fullName, email, phone, address, finalRole);
                 request.setAttribute("roleNames", ud.getRoleNames());
                 request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
@@ -129,8 +155,13 @@ public class AddUserDetail extends HttpServlet {
             User user = new User(name, password, fullName, email, phone, address, getRoleId(finalRole));
             int newUserId = ud.insertUserAndReturnId(user);
 
+            System.out.println(">>> Inserted user ID: " + newUserId);
+
             if (newUserId == -1) {
-                request.setAttribute("error", "Không thể thêm user vào CSDL.");
+
+                System.out.println(">>> Failed to insert user.");
+
+                request.setAttribute("error", "Unable to add user to database.");
                 setAttributes(request, name, password, fullName, email, phone, address, finalRole);
                 request.setAttribute("roleNames", ud.getRoleNames());
                 request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
@@ -166,6 +197,7 @@ public class AddUserDetail extends HttpServlet {
             response.sendRedirect("viewuserdetail");
 
         } else {
+            System.out.println(">>> Validation failed. Re-displaying form.");
             // Giữ lại dữ liệu
             setAttributes(request, name, password, fullName, email, phone, address, finalRole);
             if ("Customer".equals(finalRole)) {
@@ -187,105 +219,191 @@ public class AddUserDetail extends HttpServlet {
             request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
         }
 
+        if (userError || customerError || employeeError) {
+            System.out.println("There are validation errors:");
+            request.getParameterMap().forEach((k, v) -> System.out.println(k + " = " + String.join(",", v)));
+        }
+
     }
 
     private boolean validateUser(HttpServletRequest request, String name, String password,
             String fullName, String email, String phone, String address, UserDAO ud) {
         boolean hasError = false;
 
-        if (!name.matches("^(?=.{2,50}$)(?! )[a-zA-Z]+(?: [a-zA-Z]+)*$")) {
-            request.setAttribute("errorName", "Tên không hợp lệ.");
+        System.out.println("=== START validateUser ===");
+        System.out.println("Input - Username: " + name);
+        System.out.println("Input - Password: " + password);
+        System.out.println("Input - Full Name: " + fullName);
+        System.out.println("Input - Email: " + email);
+        System.out.println("Input - Phone: " + phone);
+        System.out.println("Input - Address: " + address);
+
+        // Validate Username
+        if (name == null || name.trim().isEmpty()) {
+            request.setAttribute("errorName", "Please enter a username.");
+            System.out.println("❌ Username is empty");
             hasError = true;
-        } else if (ud.isUsernameExist(name)) {
-            request.setAttribute("errorName", "Tên đăng nhập đã tồn tại.");
+        } else if (name.length() < 3 || name.length() > 30) {
+            request.setAttribute("errorName", "Username must be between 3 and 30 characters.");
+            System.out.println("❌ Username length invalid");
+            hasError = true;
+        } else if (!name.matches("^[a-zA-Z0-9._-]+$")) {
+            request.setAttribute("errorName", "Username can only contain letters, numbers, dots (.), hyphens (-), and underscores (_).");
+            System.out.println("❌ Username format invalid");
             hasError = true;
         }
 
-        if (password.length() < 8 || password.length() > 32) {
-            request.setAttribute("error", "Mật khẩu phải từ 8-32 ký tự.");
+        // Validate Password
+        if (password == null || password.isEmpty()) {
+            request.setAttribute("errorPassword", "Please enter a password.");
+            System.out.println("❌ Password is empty");
+            hasError = true;
+        } else if (password.length() < 8 || password.length() > 32) {
+            request.setAttribute("errorPassword", "Password must be between 8 and 32 characters.");
+            System.out.println("❌ Password length invalid");
+            hasError = true;
+        } else if (!password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$")) {
+            request.setAttribute("errorPassword", "Password must include at least one uppercase letter, one lowercase letter, and one number.");
+            System.out.println("❌ Password format invalid (missing upper/lower/number)");
             hasError = true;
         }
 
+        // Validate Full Name
         if (fullName == null || fullName.trim().isEmpty()) {
-            request.setAttribute("errorFullname", "Họ tên bắt buộc.");
+            request.setAttribute("errorFullname", "Please enter your full name.");
+            System.out.println("❌ Full name is empty");
+            hasError = true;
+        } else if (fullName.length() < 2 || fullName.length() > 50) {
+            request.setAttribute("errorFullname", "Full name must be between 2 and 50 characters.");
+            System.out.println("❌ Full name length invalid");
+            hasError = true;
+        } else if (!fullName.matches("^[a-zA-Z]+( [a-zA-Z]+)*$")) {
+            request.setAttribute("errorFullname", "Full name can only contain letters and spaces (e.g., John Smith).");
+            System.out.println("❌ Full name format invalid");
             hasError = true;
         }
 
-        if (email == null || email.trim().length() > 100 || email.contains(" ")
-                || !email.matches("^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-            request.setAttribute("errorEmail", "Email không hợp lệ.");
+        // Validate Email
+        if (email == null || email.trim().isEmpty()) {
+            request.setAttribute("errorEmail", "Please enter your email address.");
+            System.out.println("❌ Email is empty");
+            hasError = true;
+        } else if (email.length() > 100) {
+            request.setAttribute("errorEmail", "Email must not exceed 100 characters.");
+            System.out.println("❌ Email too long");
+            hasError = true;
+        } else if (email.contains(" ") || !email.matches("^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+            request.setAttribute("errorEmail", "Please enter a valid email address (e.g., example@mail.com) without spaces.");
+            System.out.println("❌ Email format invalid");
             hasError = true;
         }
 
-        if (!phone.matches("^(0)\\d{9}$") || ud.isPhoneExist(phone)) {
-            request.setAttribute("errorPhone", "Số điện thoại không hợp lệ hoặc đã tồn tại.");
+        // Validate Phone
+        if (phone == null || phone.trim().isEmpty()) {
+            request.setAttribute("errorPhone", "Please enter your phone number.");
+            System.out.println("❌ Phone is empty");
+            hasError = true;
+        } else if (!phone.matches("^0\\d{9}$")) {
+            request.setAttribute("errorPhone", "Phone number must start with 0 and contain exactly 10 digits (e.g., 0901234567).");
+            System.out.println("❌ Phone format invalid");
+            hasError = true;
+        } else if (ud.isPhoneExist(phone)) {
+            request.setAttribute("errorPhone", "This phone number is already in use. Please use another number.");
+            System.out.println("❌ Phone already exists in DB");
             hasError = true;
         }
 
-        if (address == null || address.trim().length() < 5) {
-            request.setAttribute("errorAddress", "Địa chỉ không hợp lệ.");
+        // Validate Address
+        if (address == null || address.trim().isEmpty()) {
+            request.setAttribute("errorAddress", "Please enter your address.");
+            System.out.println("❌ Address is empty");
+            hasError = true;
+        } else if (address.length() < 5 || address.length() > 255) {
+            request.setAttribute("errorAddress", "Address must be between 5 and 255 characters.");
+            System.out.println("❌ Address length invalid");
             hasError = true;
         }
 
+        System.out.println("✅ validateUser finished. hasError = " + hasError);
         return hasError;
     }
 
     private boolean validateCustomer(HttpServletRequest request) {
         boolean hasError = false;
 
+        UserDAO ud = new UserDAO();
         String code = request.getParameter("customerCode");
         String joinDate = request.getParameter("joinDate");
         String loyaltyPointStr = request.getParameter("loyaltyPoint");
         String birthday = request.getParameter("birthday");
         String gender = request.getParameter("gender");
 
-        if (code == null || !code.matches("^CUST\\d{4,10}$")) {
-            request.setAttribute("errorCustomerCode", "Mã khách hàng bắt đầu bằng 'CUST' theo sau là 4-10 chữ số.");
+        // Validate Customer Code
+        if (code == null || code.trim().isEmpty()) {
+            request.setAttribute("errorCustomerCode", "Please enter a customer code.");
+            hasError = true;
+        } else if (!code.matches("^CUST\\d{4,10}$")) {
+            request.setAttribute("errorCustomerCode", "Customer code must start with 'CUST' followed by 4 to 10 digits (e.g., CUST1234).");
+            hasError = true;
+        } else if (ud.isCustomerCodeExist(code)) { // Bạn cần tự viết hàm này trong DAO
+            request.setAttribute("errorCustomerCode", "This customer code already exists. Please use a different one.");
             hasError = true;
         }
 
-        if (joinDate == null || joinDate.isEmpty()) {
-            request.setAttribute("errorJoinDate", "Ngày tham gia không được bỏ trống.");
+        // Validate Join Date
+        if (joinDate == null || joinDate.trim().isEmpty()) {
+            request.setAttribute("errorJoinDate", "Please enter the join date.");
             hasError = true;
         } else {
             try {
                 LocalDate join = LocalDate.parse(joinDate);
                 if (join.isAfter(LocalDate.now())) {
-                    request.setAttribute("errorJoinDate", "Ngày tham gia không được ở tương lai.");
+                    request.setAttribute("errorJoinDate", "Join date cannot be in the future.");
                     hasError = true;
                 }
             } catch (Exception e) {
-                request.setAttribute("errorJoinDate", "Định dạng ngày tham gia không hợp lệ.");
+                request.setAttribute("errorJoinDate", "Invalid date format for join date. Please use YYYY-MM-DD.");
                 hasError = true;
             }
         }
 
-        try {
-            int point = Integer.parseInt(loyaltyPointStr);
-            if (point < 0 || point > 100000) {
-                request.setAttribute("errorLoyaltyPoint", "Điểm phải từ 0 đến 100000.");
-                hasError = true;
-            }
-        } catch (Exception e) {
-            request.setAttribute("errorLoyaltyPoint", "Điểm phải là số.");
+        // Validate Loyalty Point
+        if (loyaltyPointStr == null || loyaltyPointStr.trim().isEmpty()) {
+            request.setAttribute("errorLoyaltyPoint", "Please enter loyalty points.");
             hasError = true;
+        } else {
+            try {
+                int point = Integer.parseInt(loyaltyPointStr);
+                if (point < 0 || point > 100000) {
+                    request.setAttribute("errorLoyaltyPoint", "Loyalty points must be between 0 and 100,000.");
+                    hasError = true;
+                }
+            } catch (NumberFormatException e) {
+                request.setAttribute("errorLoyaltyPoint", "Loyalty points must be a valid integer.");
+                hasError = true;
+            }
         }
 
-        if (birthday != null && !birthday.isEmpty()) {
+        // Validate Birthday (optional, but must be valid if provided)
+        if (birthday != null && !birthday.trim().isEmpty()) {
             try {
                 LocalDate bday = LocalDate.parse(birthday);
                 if (bday.isAfter(LocalDate.now().minusYears(10))) {
-                    request.setAttribute("errorBirthday", "Phải ít nhất 10 tuổi.");
+                    request.setAttribute("errorBirthday", "Customer must be at least 10 years old.");
                     hasError = true;
                 }
             } catch (Exception e) {
-                request.setAttribute("errorBirthday", "Ngày sinh không hợp lệ.");
+                request.setAttribute("errorBirthday", "Invalid date format for birthday. Please use YYYY-MM-DD.");
                 hasError = true;
             }
         }
 
-        if (gender == null || !(gender.equals("Male") || gender.equals("Female") || gender.equals("Other"))) {
-            request.setAttribute("errorGender", "Vui lòng chọn giới tính.");
+        // Validate Gender
+        if (gender == null || gender.trim().isEmpty()) {
+            request.setAttribute("errorGender", "Please select a gender.");
+            hasError = true;
+        } else if (!(gender.equals("Male") || gender.equals("Female") || gender.equals("Other"))) {
+            request.setAttribute("errorGender", "Invalid gender selected. Please choose Male, Female, or Other.");
             hasError = true;
         }
 
@@ -295,6 +413,7 @@ public class AddUserDetail extends HttpServlet {
     private boolean validateEmployee(HttpServletRequest request) {
         boolean hasError = false;
 
+        UserDAO ud = new UserDAO();
         String code = request.getParameter("employeeCode");
         String contractType = request.getParameter("contractType");
         String startDateStr = request.getParameter("startDate");
@@ -302,48 +421,74 @@ public class AddUserDetail extends HttpServlet {
         String department = request.getParameter("department");
         String position = request.getParameter("position");
 
-        if (code == null || !code.matches("^EMP\\d{4,10}$")) {
-            request.setAttribute("errorEmployeeCode", "Mã nhân viên phải bắt đầu bằng 'EMP' theo sau là 4-10 chữ số.");
+        // Validate Employee Code
+        if (code == null || code.trim().isEmpty()) {
+            request.setAttribute("errorEmployeeCode", "Please enter an employee code.");
+            hasError = true;
+        } else if (!code.matches("^EMP\\d{4,10}$")) {
+            request.setAttribute("errorEmployeeCode", "Employee code must start with 'EMP' followed by 4 to 10 digits (e.g., EMP1234).");
+            hasError = true;
+        } else if (ud.isEmployeeCodeExist(code)) {
+            request.setAttribute("errorEmployeeCode", "This employee code already exists. Please use a different one.");
             hasError = true;
         }
 
-        if (contractType == null || !contractType.matches("^(Full-time|Part-time|Freelance|Contract)$")) {
-            request.setAttribute("errorContractType", "Loại hợp đồng không hợp lệ.");
+        // Validate Contract Type
+        if (contractType == null || contractType.trim().isEmpty()) {
+            request.setAttribute("errorContractType", "Please select a contract type.");
+            hasError = true;
+        } else if (!contractType.matches("^(Full-time|Part-time|Freelance|Contract)$")) {
+            request.setAttribute("errorContractType", "Invalid contract type. Please select from: Full-time, Part-time, Freelance, or Contract.");
             hasError = true;
         }
 
-        try {
-            LocalDate start = LocalDate.parse(startDateStr);
-            if (start.isAfter(LocalDate.now().plusDays(1))) {
-                request.setAttribute("errorStartDate", "Ngày bắt đầu không được ở tương lai.");
-                hasError = true;
-            }
-        } catch (Exception e) {
-            request.setAttribute("errorStartDate", "Ngày bắt đầu không hợp lệ.");
+        // Validate Start Date
+        if (startDateStr == null || startDateStr.trim().isEmpty()) {
+            request.setAttribute("errorStartDate", "Please enter a start date.");
             hasError = true;
-        }
-
-        if (endDateStr != null && !endDateStr.isEmpty()) {
+        } else {
             try {
-                LocalDate end = LocalDate.parse(endDateStr);
                 LocalDate start = LocalDate.parse(startDateStr);
-                if (end.isBefore(start)) {
-                    request.setAttribute("errorEndDate", "Ngày kết thúc phải sau ngày bắt đầu.");
+                if (start.isAfter(LocalDate.now().plusDays(1))) {
+                    request.setAttribute("errorStartDate", "Start date cannot be in the future.");
                     hasError = true;
                 }
             } catch (Exception e) {
-                request.setAttribute("errorEndDate", "Ngày kết thúc không hợp lệ.");
+                request.setAttribute("errorStartDate", "Invalid start date format. Please use YYYY-MM-DD.");
                 hasError = true;
             }
         }
 
-        if (department == null || department.trim().length() < 2 || department.length() > 50) {
-            request.setAttribute("errorDepartment", "Phòng ban phải từ 2–50 ký tự.");
+        // Validate End Date (optional)
+        if (endDateStr != null && !endDateStr.trim().isEmpty()) {
+            try {
+                LocalDate start = LocalDate.parse(startDateStr);
+                LocalDate end = LocalDate.parse(endDateStr);
+                if (end.isBefore(start)) {
+                    request.setAttribute("errorEndDate", "End date must be after the start date.");
+                    hasError = true;
+                }
+            } catch (Exception e) {
+                request.setAttribute("errorEndDate", "Invalid end date format. Please use YYYY-MM-DD.");
+                hasError = true;
+            }
+        }
+
+        // Validate Department
+        if (department == null || department.trim().isEmpty()) {
+            request.setAttribute("errorDepartment", "Please enter the department.");
+            hasError = true;
+        } else if (department.length() < 2 || department.length() > 50) {
+            request.setAttribute("errorDepartment", "Department name must be between 2 and 50 characters.");
             hasError = true;
         }
 
-        if (position == null || position.trim().length() < 2 || position.length() > 50) {
-            request.setAttribute("errorPosition", "Chức vụ phải từ 2–50 ký tự.");
+        // Validate Position
+        if (position == null || position.trim().isEmpty()) {
+            request.setAttribute("errorPosition", "Please enter the position.");
+            hasError = true;
+        } else if (position.length() < 2 || position.length() > 50) {
+            request.setAttribute("errorPosition", "Position name must be between 2 and 50 characters.");
             hasError = true;
         }
 
