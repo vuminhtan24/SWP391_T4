@@ -618,6 +618,49 @@ public class WholeSaleDAO extends BaseDao {
             }
         }
     }
+    
+    public List<WholeSale> getWholeSaleQuotedList(int uid, LocalDate requestDate) {
+        List<WholeSale> list = new ArrayList<>();
+        String sql = "SELECT * FROM la_fioreria.wholesale_quote_request \n"
+                + "WHERE user_id = ? \n"
+                + "AND status = 'QUOTED' \n"
+                + "AND created_at = ?;";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, uid);
+            ps.setDate(2, java.sql.Date.valueOf(requestDate));
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                int bouquet_id = rs.getInt("bouquet_id");
+                int requested_quantity = rs.getInt("requested_quantity");
+                String note = rs.getString("note");
+                int quoted_price = rs.getInt("quoted_price");
+                int total_price = rs.getInt("total_price");
+                java.sql.Date quotedDateSql = rs.getDate("quoted_at");
+                LocalDate quoted_at = (quotedDateSql != null) ? quotedDateSql.toLocalDate() : null;
+
+                java.sql.Date respondedDateSql = rs.getDate("responded_at");
+                LocalDate responded_at = (respondedDateSql != null) ? respondedDateSql.toLocalDate() : null;
+
+                String status = rs.getString("status");
+                int expense = rs.getInt("expense");
+
+                WholeSale ws = new WholeSale(id, uid, bouquet_id, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, requestDate, status, expense);
+                list.add(ws);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return list;
+    }
 
     public static void main(String[] args) {
         WholeSaleDAO dao = new WholeSaleDAO();

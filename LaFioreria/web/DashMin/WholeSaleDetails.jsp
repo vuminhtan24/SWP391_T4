@@ -390,6 +390,17 @@
                     </div>
                     <!-- End General Information -->
 
+                    <c:if test="${param.sendEmail eq 'true'}">
+                        <div class="alert alert-success" style="margin-top: 10px;">
+                            Quotation has been successfully sent to customer!
+                        </div>
+                    </c:if>
+
+                    <c:if test="${param.sendEmail eq 'fail'}">
+                        <div class="alert alert-danger" style="margin-top: 10px;">
+                            Quotation sending failed. Please check your email configuration.
+                        </div>
+                    </c:if>
 
 
                     <h6 class="heading">List WholeSale Request</h6>
@@ -439,6 +450,31 @@
                         </div>
                     </form>
 
+                    <c:set var="canSendQuotation" value="true" />
+                    <c:choose>
+                        <c:when test="${param.sendEmail eq 'true'}">
+                            <c:set var="canSendQuotation" value="false" />
+                        </c:when>
+
+                        <c:otherwise>
+                            <c:set var="canSendQuotation" value="true" />
+                            <c:forEach var="item" items="${listWS}">
+                                <c:if test="${item.status ne 'QUOTED'}">
+                                    <c:set var="canSendQuotation" value="false" />
+                                </c:if>
+                            </c:forEach>
+                        </c:otherwise>
+                    </c:choose>
+
+
+                    <c:if test="${canSendQuotation}">
+                        <form action="sendQuotation" method="post" style="margin-top: 20px;">
+                            <input type="hidden" name="userId" value="${fn:trim(param.userId)}" />
+                            <input type="hidden" name="requestDate" value="${fn:trim(param.requestDate)}" />
+                            <input type="hidden" name="userEmail" value="${requestScope.userInfo.getEmail()}" />
+                            <button type="submit" class="btn btn-success">Send Quotation</button>
+                        </form>
+                    </c:if>
 
                     <table class="styled-table">
                         <thead>
@@ -545,6 +581,7 @@
                             </c:forEach>
                         </tbody>   
                     </table>
+
                     <!-- Hiển thị phân trang -->
                     <div class="pagination-container text-center mt-3">
                         <c:forEach begin="1" end="${totalPages}" var="i">
