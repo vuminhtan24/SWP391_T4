@@ -90,7 +90,41 @@ public class DAOAccount extends BaseDao {
         }
         return false;
     }
+     public User validateEmail(String email, String inputPassword) {
+        String sql = "SELECT * FROM la_fioreria.user WHERE email = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, email);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                String hashedPasswordFromDB = rs.getString("password").trim();
 
+                // So sánh mật khẩu người dùng nhập với mật khẩu đã mã hóa trong DB
+                if (BCrypt.checkpw(inputPassword, hashedPasswordFromDB)) {
+                    return new User(
+                            rs.getInt("User_ID"),
+                            rs.getString("username").trim(),
+                            rs.getString("password").trim(), // hoặc hashedPasswordFromDB
+                            rs.getString("fullname").trim(),
+                            rs.getString("email").trim(),
+                            rs.getString("phone").trim(),
+                            rs.getString("address").trim(),
+                            rs.getInt("Role")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return null;
+    }
     public User validate(String username, String inputPassword) {
         String sql = "SELECT * FROM la_fioreria.user WHERE username = ?";
         try {
@@ -295,24 +329,23 @@ public class DAOAccount extends BaseDao {
     }
 
     public static void main(String[] args) {
-        User newUser = new User();
-        newUser.setUsername("quangShipper");
-        newUser.setPassword("123456"); // sẽ được băm bên trong DAO
-        newUser.setFullname("Vũ Quang");
-        newUser.setEmail("quangvmhe181542@fpt.edu.vn");
-        newUser.setPhone("0123456789");
-        newUser.setAddress("Hà Nội");
-        newUser.setRole(8); // ví dụ: 0 = user, 1 = admin
+        // Tạo đối tượng DAO
+        DAOAccount userDAO = new DAOAccount();
 
-        // Gọi DAO để tạo tài khoản
-        DAOAccount dao = new DAOAccount(); // đảm bảo constructor này không null dbc
-        boolean result = dao.createAccount(newUser);
+        // Thông tin test
+        String testUsername = "admin01";
+        String testPassword = "admin123"; // đây là mật khẩu gốc chưa băm
 
-        // Kết quả
-        if (result) {
-            System.out.println("Tạo tài khoản thành công.");
+        // Gọi hàm validate
+        User user = userDAO.validate(testUsername, testPassword);
+
+        // In kết quả
+        if (user != null) {
+            System.out.println("Đăng nhập thành công:");
+            System.out.println("Username: " + user.getUsername());
+            System.out.println("Full Name: " + user.getFullname());
         } else {
-            System.out.println("Tạo tài khoản thất bại.");
+            System.out.println("Sai tài khoản hoặc mật khẩu.");
         }
     }
 }

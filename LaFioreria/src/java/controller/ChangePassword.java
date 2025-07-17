@@ -76,7 +76,7 @@ public class ChangePassword extends HttpServlet {
         String confirmNewPassword = request.getParameter("confirmNewPassword");
 
         DAOAccount userDAO = new DAOAccount();
-        User user = userDAO.validate(email,currentPassword);
+        User user = userDAO.validateEmail(email,currentPassword);
 
         String message;
 

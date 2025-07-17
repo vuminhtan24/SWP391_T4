@@ -45,29 +45,6 @@
                             <div class="logo pull-left">
                                 <a href="${pageContext.request.contextPath}/home"><img src="${pageContext.request.contextPath}/ZeShopper/images/home/logo1.jpg" style="width:150px;" alt="" /></a>
                             </div>
-                            <div class="btn-group pull-right">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default dropdown-toggle usa" data-toggle="dropdown">
-                                        USA
-                                        <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a href="#">Canada</a></li>
-                                        <li><a href="#">UK</a></li>
-                                    </ul>
-                                </div>
-
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default dropdown-toggle usa" data-toggle="dropdown">
-                                        DOLLAR
-                                        <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a href="#">Canadian Dollar</a></li>
-                                        <li><a href="#">Pound</a></li>
-                                    </ul>
-                                </div>
-                            </div>
                         </div>
                         <div class="col-sm-8">
                             <div class="shop-menu pull-right">
@@ -128,10 +105,7 @@
                                             <li><a href="${pageContext.request.contextPath}/ZeShopper/login">Login</a></li> 
                                         </ul>
                                     </li> 
-                                    <li class="dropdown"><a href="${pageContext.request.contextPath}/blog">Blog<i class="fa fa-angle-down"></i></a>
-                                        <ul role="menu" class="sub-menu">
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/blog.jsp">Blog List</a></li>
-                                        </ul>
+                                    <li><a href="${pageContext.request.contextPath}/blog">Blog</a>
                                     </li> 
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/contact-us.jsp">Contact</a></li>
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/about-us.jsp">About us</a></li>
