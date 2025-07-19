@@ -9,16 +9,16 @@ import model.Feedback;
 import model.FeedbackImg;
 
 public class FeedbackDAO extends BaseDao {
-    
+
     public List<Feedback> getAllFeedbacks(String search, Integer bouquetId, Integer rating) {
         List<Feedback> feedbacks = new ArrayList<>();
-        String sql = "SELECT DISTINCT f.feedback_id, f.customer_id, f.bouquet_id, f.rating, f.comment, f.created_at, f.status, " +
-                     "COALESCE(u.Fullname, o.customer_name) AS customer_name " +
-                     "FROM feedback f " +
-                     "LEFT JOIN `order` o ON f.customer_id = o.customer_id AND f.order_id = o.order_id " +
-                     "LEFT JOIN `user` u ON f.customer_id = u.User_ID " +
-                     "WHERE 1=1 ";
-        
+        String sql = "SELECT DISTINCT f.feedback_id, f.customer_id, f.bouquet_id, f.rating, f.comment, f.created_at, f.status, "
+                + "COALESCE(u.Fullname, o.customer_name) AS customer_name "
+                + "FROM feedback f "
+                + "LEFT JOIN `order` o ON f.customer_id = o.customer_id AND f.order_id = o.order_id "
+                + "LEFT JOIN `user` u ON f.customer_id = u.User_ID "
+                + "WHERE 1=1 ";
+
         // Add search condition
         if (search != null && !search.trim().isEmpty()) {
             sql += "AND (f.comment LIKE ? OR COALESCE(u.Fullname, o.customer_name) LIKE ?) ";
@@ -31,9 +31,9 @@ public class FeedbackDAO extends BaseDao {
         if (rating != null && rating > 0) {
             sql += "AND f.rating = ? ";
         }
-        
+
         sql += "ORDER BY f.created_at DESC";
-        
+
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -66,19 +66,21 @@ public class FeedbackDAO extends BaseDao {
         } finally {
             try {
                 this.closeResources();
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
         return feedbacks;
     }
-    
+
     public Feedback getFeedbackById(int feedbackId) {
         Feedback feedback = null;
-        String sql = "SELECT f.feedback_id, f.customer_id, f.bouquet_id, f.order_id, f.rating, f.comment, f.created_at, f.status, " +
-                     "COALESCE(u.Fullname, o.customer_name) AS customer_name " +
-                     "FROM feedback f " +
-                     "LEFT JOIN `order` o ON f.customer_id = o.customer_id AND f.order_id = o.order_id " +
-                     "LEFT JOIN `user` u ON f.customer_id = u.User_ID " +
-                     "WHERE f.feedback_id = ?";
+        String sql = "SELECT f.feedback_id, f.customer_id, f.bouquet_id, f.order_id, f.rating, f.comment, f.created_at, f.status, "
+                + "COALESCE(u.Fullname, o.customer_name, 'Khách') AS customer_name, b.bouquet_name "
+                + "FROM feedback f "
+                + "LEFT JOIN `order` o ON f.customer_id = o.customer_id AND f.order_id = o.order_id "
+                + "LEFT JOIN `user` u ON f.customer_id = u.User_ID "
+                + "LEFT JOIN bouquet b ON f.bouquet_id = b.bouquet_id "
+                + "WHERE f.feedback_id = ?";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -95,13 +97,16 @@ public class FeedbackDAO extends BaseDao {
                 Timestamp timestamp = rs.getTimestamp("created_at");
                 feedback.setCreated_at(timestamp != null ? timestamp.toLocalDateTime() : null);
                 feedback.setStatus(rs.getString("status"));
+                feedback.setBouquetName(rs.getString("bouquet_name") != null ? rs.getString("bouquet_name") : "Unknown Bouquet");
+                feedback.setCustomerName(rs.getString("customer_name")); // Thêm thuộc tính customerName
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             try {
                 this.closeResources();
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
         return feedback;
     }
@@ -262,7 +267,8 @@ public class FeedbackDAO extends BaseDao {
         } finally {
             try {
                 this.closeResources();
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
         return imageUrls;
     }
