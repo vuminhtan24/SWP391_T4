@@ -435,8 +435,8 @@
                                 </div>
                             </div>
 
-                        <div>
-                            <a href="${pageContext.request.contextPath}/viewemployeeservlet" class="btn btn-primary">
+                            <div>
+                                <a href="${pageContext.request.contextPath}/viewemployeeservlet" class="btn btn-primary">
                                 <i class="fas fa-users"></i> Employee Manager
                             </a>
 
@@ -466,7 +466,10 @@
                                                 <tr>
                                                     <td>${user.userid}</td>
                                                     <td>${user.username}</td>
-                                                    <td>${user.password}</td>
+                                                    <td>
+                                                        <input type="password" value="${user.password}" readonly style="border: none; background: none;" />
+                                                    </td>
+
                                                     <td>${user.fullname}</td>
                                                     <td>${user.email}</td>
                                                     <td>${user.phone}</td>

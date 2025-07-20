@@ -35,6 +35,18 @@
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
+
+        <script>
+            function toggleUserList() {
+                const listDiv = document.getElementById('userList');
+                if (listDiv.style.display === 'none') {
+                    listDiv.style.display = 'block';
+                } else {
+                    listDiv.style.display = 'none';
+                }
+            }
+        </script>
+
     </head>
 
     <body>
@@ -111,14 +123,22 @@
 
                 <!-- Table Start -->
                 <div class="row">
+
+                    <div>
+                        <button class="btn btn-info mb-3" onclick="toggleUserList()">ID</button>
+                    </div>
+
                     <div class="col-sm-12 col-xl-4">
-                        <div class="bg-light rounded p-4" style="max-height: 400px; overflow-y: auto;">
-                            <div class="d-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
-                                <c:forEach items="${userIds}" var="id">
-                                    <a class="btn btn-primary text-center" href="viewuserdetail?id=${id}">${id}</a>
-                                </c:forEach>
+                        <div id="userList" style="display: none;">
+                            <div class="bg-light rounded p-4" style="max-height: 400px; overflow-y: auto;">
+                                <div class="d-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
+                                    <c:forEach items="${userIds}" var="id">
+                                        <a class="btn btn-primary text-center" href="viewuserdetail?id=${id}">${id}</a>
+                                    </c:forEach>
+                                </div>
                             </div>
                         </div>
+
                     </div>
 
                     <div class="col-sm-12 col-xl-8">
