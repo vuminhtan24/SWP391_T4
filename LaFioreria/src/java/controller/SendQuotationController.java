@@ -4,6 +4,8 @@
  */
 package controller;
 
+import dal.BouquetDAO;
+import dal.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -18,6 +20,9 @@ import java.time.LocalDate;
 import java.util.*;
 import model.WholeSale;
 import dal.WholeSaleDAO;
+import model.Bouquet;
+import model.BouquetImage;
+import model.User;
 
 /**
  *
@@ -94,23 +99,7 @@ public class SendQuotationController extends HttpServlet {
             return;
         }
 
-        StringBuilder content = new StringBuilder();
-        content.append("<h2>Order quotation information on ").append(requestDate).append("</h2>");
-        content.append("<table border='1' cellpadding='6' cellspacing='0' style='border-collapse: collapse;'>")
-                .append("<tr style='background-color:#f2f2f2;'>")
-                .append("<th>STT</th><th>Bouquet Name</th><th>Requested Quantity</th><th>Price per unit</th><th>Total Value</th></tr>");
-
-        int stt = 1;
-        for (WholeSale ws : quotedList) {
-            content.append("<tr>")
-                    .append("<td>").append(stt++).append("</td>")
-                    .append("<td>").append("Bouquet #").append(ws.getBouquet_id()).append("</td>")
-                    .append("<td>").append(ws.getRequested_quantity()).append("</td>")
-                    .append("<td>").append(String.format("%,d ₫", ws.getQuoted_price())).append("</td>")
-                    .append("<td>").append(String.format("%,d ₫", ws.getTotal_price())).append("</td>")
-                    .append("</tr>");
-        }
-        content.append("</table>");
+        String emailContent = generateEmailContent(request, requestDate, quotedList);
 
         final String fromEmail = "quangvmhe181542@fpt.edu.vn";
         final String password = "nhcq rkmw uulk nkwm";
@@ -131,11 +120,11 @@ public class SendQuotationController extends HttpServlet {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(fromEmail, "La Fioreria"));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
-            message.setSubject("Báo giá đơn hàng theo lô ngày " + requestDate);
-            message.setContent(content.toString(), "text/html; charset=UTF-8");
+            message.setSubject("Order quotation information on " + requestDate);
+            message.setContent(emailContent, "text/html; charset=UTF-8");
 
             Transport.send(message);
-
+            dao.markAsEmailedForQuotedList(userId, requestDate);
             // Gửi thành công → redirect về lại trang gốc + thêm sendEmail=true
             response.sendRedirect("requestWholeSaleDetails?userId=" + userId
                     + "&requestDate=" + requestDate
@@ -147,6 +136,70 @@ public class SendQuotationController extends HttpServlet {
                     + "&requestDate=" + requestDate
                     + "&status=QUOTED&sendEmail=fail");
         }
+    }
+
+    private String generateEmailContent(HttpServletRequest request, LocalDate requestDate, List<WholeSale> quotedList) {
+        BouquetDAO bDao = new BouquetDAO();
+        UserDAO uDao = new UserDAO();
+        List<Bouquet> listBQ = bDao.getAll();
+        List<BouquetImage> listIMG = bDao.getAllBouquetImage();
+        User userInfo = uDao.getUserByID(quotedList.get(0).getUser_id());
+        String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+
+        StringBuilder content = new StringBuilder();
+        content.append("<h2>Order quotation information on ").append(requestDate).append("</h2>");
+        content.append("<p style='font-size:14px; margin-bottom:15px;'>")
+                .append("Dear ").append(userInfo.getFullname()).append("! ")
+                .append("La Fioreria would like to send you a quote request on ")
+                .append(requestDate).append(".</p>");
+        content.append("<table border='1' cellpadding='6' cellspacing='0' style='border-collapse: collapse;'>")
+                .append("<tr style='background-color:#f2f2f2;'>")
+                .append("<th>STT</th>")
+                .append("<th>Bouquet Name</th>")
+                .append("<th>Requested Quantity</th>")
+                .append("<th>Price per Unit</th>")
+                .append("<th>Total Value</th>")
+                .append("</tr>");
+
+        int stt = 1;
+        long totalOrderPrice = 0;
+
+        for (WholeSale ws : quotedList) {
+            // Tìm tên hoa
+            String bouquetName = "Unknown";
+            for (Bouquet bq : listBQ) {
+                if (bq.getBouquetId() == ws.getBouquet_id()) {
+                    bouquetName = bq.getBouquetName();
+                    break;
+                }
+            }
+
+            totalOrderPrice += ws.getTotal_price();  // Cộng dồn tổng giá trị
+
+            content.append("<tr>")
+                    .append("<td>").append(stt++).append("</td>")
+                    .append("<td>").append(bouquetName).append("</td>")
+                    .append("<td>").append(ws.getRequested_quantity()).append("</td>")
+                    .append("<td>").append(String.format("%,d ₫", ws.getQuoted_price())).append("</td>")
+                    .append("<td>").append(String.format("%,d ₫", ws.getTotal_price())).append("</td>")
+                    .append("</tr>");
+        }
+
+        // tổng giá trị đơn hàng
+        content.append("<tr style='font-weight:bold;'>")
+                .append("<td colspan='6' style='text-align:right;'>")
+                .append("Total WholeSale Order: ").append(String.format("%,d ₫", totalOrderPrice))
+                .append("</td>")
+                .append("</tr>");
+        content.append("</table>");
+
+        content.append("<p style='margin-top:20px;'>")
+                .append("<a href='").append(baseUrl).append("' ")
+                .append("style='display:inline-block; padding:10px 15px; background-color:#28a745; color:#fff; text-decoration:none; border-radius:5px;'>")
+                .append("Go to La Fioreria Shop</a>")
+                .append("</p>");
+
+        return content.toString();
     }
 
     /**

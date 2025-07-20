@@ -5,6 +5,10 @@
 package controller;
 
 import dal.BouquetDAO;
+import dal.CategoryDAO;
+import dal.FlowerBatchDAO;
+import dal.FlowerTypeDAO;
+import dal.UserDAO;
 import dal.WholeSaleDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -13,19 +17,26 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import model.Bouquet;
 import model.BouquetImage;
+import model.BouquetRaw;
+import model.FlowerBatch;
+import model.FlowerType;
 import model.User;
 import model.WholeSale;
+import model.WholeSaleFlower;
 
 /**
  *
  * @author ADMIN
  */
-@WebServlet(name = "CustomerWholeSaleController", urlPatterns = {"/wholeSale"})
-public class CustomerWholeSaleController extends HttpServlet {
+@WebServlet(name = "CustomerQuotationListController", urlPatterns = {"/listQuotation"})
+public class CustomerQuotationListController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -44,10 +55,10 @@ public class CustomerWholeSaleController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet CustomerWholeSaleController</title>");
+            out.println("<title>Servlet CustomerQuotationListController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet CustomerWholeSaleController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet CustomerQuotationListController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -65,6 +76,7 @@ public class CustomerWholeSaleController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession();
         User acc = (User) request.getSession().getAttribute("currentAcc");
         if (acc == null) {
             response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet");
@@ -77,13 +89,13 @@ public class CustomerWholeSaleController extends HttpServlet {
         BouquetDAO bDao = new BouquetDAO();
 
         List<BouquetImage> images = bDao.getAllBouquetImage();
-        List<WholeSale> listWSRequest = wsDao.getWholeSaleRequestShoppingByUserID(userId);
+        List<WholeSale> listWSRequest = wsDao.getWholeSaleSummary();
         List<Bouquet> listBouquet = bDao.getAll();
 
         request.setAttribute("listBouquet", listBouquet);
         request.setAttribute("images", images);
         request.setAttribute("wholesaleList", listWSRequest);
-        request.getRequestDispatcher("./ZeShopper/wholeSale.jsp").forward(request, response);
+        request.getRequestDispatcher("./ZeShopper/listQuotation.jsp").forward(request, response);
     }
 
     /**
@@ -97,44 +109,7 @@ public class CustomerWholeSaleController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String action = request.getParameter("action");
-        String act = request.getParameter("act"); // từ query string ?act=confirm
-
-        try {
-            WholeSaleDAO wsDao = new WholeSaleDAO();
-
-            if ("update".equalsIgnoreCase(action)) {
-                // Xử lý cập nhật đơn hàng
-                int userId = Integer.parseInt(request.getParameter("user_id"));
-                int bouquetId = Integer.parseInt(request.getParameter("bouquet_id"));
-                int quantity = Integer.parseInt(request.getParameter("requested_quantity"));
-                String note = request.getParameter("note");
-
-                wsDao.UpdateWholeSaleRequest(userId, bouquetId, quantity, note);
-                response.sendRedirect(request.getContextPath() + "/wholeSale");
-
-            } else if ("confirm".equalsIgnoreCase(act)) {
-                // Xử lý xác nhận yêu cầu báo giá (chuyển tất cả đơn SHOPPING -> PENDING)
-                int userId = Integer.parseInt(request.getParameter("user_id"));
-
-                wsDao.confirmAllRequests(userId); // bạn cần viết hàm này trong DAO
-                response.sendRedirect(request.getContextPath() + "/wholeSale?confirmed=true");
-
-            } else if("delete".equalsIgnoreCase(action)){
-                int userId = Integer.parseInt(request.getParameter("user_id"));
-                int bouquetId = Integer.parseInt(request.getParameter("bouquet_id"));
-                wsDao.deleteWholeSaleShoppingByUserID(userId, bouquetId);
-                response.sendRedirect(request.getContextPath() + "/wholeSale");
-            }
-            else {
-                // Mặc định nếu không rõ action
-                response.sendRedirect(request.getContextPath() + "/wholeSale");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/error.jsp");
-        }
+        processRequest(request, response);
     }
 
     /**

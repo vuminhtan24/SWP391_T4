@@ -95,6 +95,8 @@ public class ProductDetailController extends HttpServlet {
         List<BouquetImage> images = bqdao.getBouquetImage(id);
         String cateDes = cdao.getCategoryDesByBouquet(id);
         List<BouquetImage> allImage = bqdao.getAllBouquetImage();
+        fbdao.cleanupExpiredSoftHolds();
+        int available = bqdao.bouquetAvailable(id);
         // Xử lý feedback
         List<Feedback> feedback = new ArrayList<>();
         try {
@@ -108,7 +110,7 @@ public class ProductDetailController extends HttpServlet {
         Map<Integer, List<String>> feedbackImages = new HashMap<>();
         for (Feedback f : feedback) {
             feedbackImages.put(f.getFeedbackId(), fdao.getFeedbackImageUrls(f.getFeedbackId()));
-        }        
+        }
 
         // Lấy tên khách hàng cho từng feedback
         Map<Integer, String> feedbackCustomerNames = new HashMap<>();
@@ -127,7 +129,7 @@ public class ProductDetailController extends HttpServlet {
 
         // Đặt các thuộc tính vào request
         request.setAttribute("productId", id);
-        request.setAttribute("bouquetAvailable", bqdao.bouquetAvailable(id));
+        request.setAttribute("bouquetAvailable", available);
         request.setAttribute("allImage", allImage);
         request.setAttribute("allBatchs", allBatchs);
         request.setAttribute("images", images);
@@ -167,6 +169,8 @@ public class ProductDetailController extends HttpServlet {
             Integer bouquetId = Integer.parseInt(bouquetIdStr);
             Integer requestedQuantity = Integer.parseInt(requestedQuantityStr);
 
+            WholeSaleDAO wsDao = new WholeSaleDAO();
+            List<WholeSale> listWS = wsDao.getWholeSaleRequestShoppingByUserID(userId);
             WholeSale ws = new WholeSale(
                     userId,
                     bouquetId,
@@ -178,12 +182,25 @@ public class ProductDetailController extends HttpServlet {
                     null
             );
 
-            WholeSaleDAO wsDAO = new WholeSaleDAO();
-            wsDAO.insertWholeSaleRequest(ws);
+            boolean isDuplicate = false;
 
-            // Redirect về product-details.jsp kèm thông báo
-            response.sendRedirect(request.getContextPath() + "/productDetail?id=" + productId + "&addedWholesale=true");
+            for (WholeSale wholeSale : listWS) {
+                if (wholeSale.getStatus().equalsIgnoreCase("SHOPPING")
+                        && wholeSale.getUser_id() == userId
+                        && wholeSale.getBouquet_id() == bouquetId) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
 
+            if (isDuplicate) {
+                response.sendRedirect(request.getContextPath() + "/productDetail?id=" + productId + "&addedWholesale=false");
+                return;
+            } else {
+                wsDao.insertWholeSaleRequest(ws);
+                response.sendRedirect(request.getContextPath() + "/productDetail?id=" + productId + "&addedWholesale=true");
+                return;
+            }
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect("error.jsp"); // hoặc redirect về trang báo lỗi

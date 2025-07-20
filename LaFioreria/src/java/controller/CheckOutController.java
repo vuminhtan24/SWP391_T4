@@ -2,6 +2,8 @@ package controller;
 
 import dal.BouquetDAO;
 import dal.CartDAO;
+import dal.CartWholeSaleDAO;
+import dal.FlowerBatchDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -14,9 +16,11 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects; // Import Objects để so sánh an toàn hơn
+import model.Bouquet;
 
 import model.BouquetImage;
 import model.CartDetail;
+import model.CartWholeSaleDetail;
 import model.Order; // Import lớp Order
 import model.OrderItem; // Import lớp OrderItem
 import model.User;
@@ -39,82 +43,89 @@ public class CheckOutController extends HttpServlet {
      * @throws IOException
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
-        List<CartDetail> cartDetails = new ArrayList<>();
-        BouquetDAO bouDao = new BouquetDAO();
+        String mode = request.getParameter("mode"); // retail hoặc wholesale
+        if (mode == null) {
+            mode = "retail"; // mặc định
+        }
+        // Các DAO
+        BouquetDAO bouquetDAO = new BouquetDAO();
+        CartDAO cartDAO = new CartDAO();
+        CartWholeSaleDAO wholesaleDAO = new CartWholeSaleDAO();
 
-        // Xử lý giỏ hàng cho khách vãng lai (chưa đăng nhập)
         if (currentUser == null) {
-            BouquetDAO bDao = new BouquetDAO();
+            // Người dùng chưa đăng nhập → xử lý giỏ hàng khách vãng lai
             List<CartDetail> sessionCart = (List<CartDetail>) request.getSession().getAttribute("cart");
+            List<BouquetImage> bqImages = bouquetDAO.getAllBouquetImage();
+            double totalAmount = 0;
+            int totalItems = 0;
+
             if (sessionCart != null) {
-                cartDetails = sessionCart;
-            }
+                for (CartDetail item : sessionCart) {
+                    item.setBouquet(bouquetDAO.getBouquetFullInfoById(item.getBouquetId()));
+                    totalItems += item.getQuantity();
+                    if (item.getBouquet() != null) {
+                        totalAmount += item.getQuantity() * item.getBouquet().getSellPrice();
+                    }
 
-            List<List<BouquetImage>> bqImages = new ArrayList<>();
-
-            if (!cartDetails.isEmpty()) {
-                for (CartDetail cd : cartDetails) {
-                    // Lấy thông tin chi tiết của Bouquet để hiển thị giá, mô tả, v.v.
-                    cd.setBouquet(bDao.getBouquetFullInfoById(cd.getBouquetId()));
-                    bqImages.add(bouDao.getBouquetImage(cd.getBouquetId()));
                 }
             }
 
-            // Đặt các thuộc tính cho JSP
-            request.setAttribute("cartDetails", cartDetails);
+            request.setAttribute("cartDetails", sessionCart);
             request.setAttribute("cartImages", bqImages);
-            request.setAttribute("user", null); // Người dùng là khách
+            request.setAttribute("totalAmount", totalAmount);
+            request.setAttribute("totalItems", totalItems);
+            request.setAttribute("user", null);
             request.setAttribute("isGuest", true);
 
-        } else { // Xử lý giỏ hàng cho người dùng đã đăng nhập
-            try {
-                int customerId = currentUser.getUserid();
-                CartDAO cartDAO = new CartDAO();
-                cartDetails = cartDAO.getCartDetailsByCustomerId(customerId);
+        } else {
+            // Người dùng đã đăng nhập
+            int userId = currentUser.getUserid();
+            request.setAttribute("user", currentUser);
+            request.setAttribute("isGuest", false);
 
-                List<List<BouquetImage>> bqImages = new ArrayList<>();
+            if (mode.equals("retail")) {
+                // Đơn hàng thông thường
+                List<CartDetail> cartDetails = cartDAO.getCartDetailsByCustomerId(userId);
+                List<BouquetImage> bqImages = bouquetDAO.getAllBouquetImage();
+                double totalAmount = 0;
+                int totalItems = 0;
 
-                if (!cartDetails.isEmpty()) {
-                    for (CartDetail cd : cartDetails) {
-                        // Lấy thông tin chi tiết của Bouquet nếu chưa được load
-                        if (cd.getBouquet() == null) {
-                            BouquetDAO bDao = new BouquetDAO(); // Tạo lại DAO nếu cần
-                            cd.setBouquet(bDao.getBouquetFullInfoById(cd.getBouquetId()));
-                        }
-                        bqImages.add(bouDao.getBouquetImage(cd.getBouquetId()));
+                for (CartDetail item : cartDetails) {
+                    if (item.getBouquet() == null) {
+                        item.setBouquet(bouquetDAO.getBouquetFullInfoById(item.getBouquetId()));
                     }
+                    totalItems += item.getQuantity();
+                    totalAmount += item.getQuantity() * item.getBouquet().getSellPrice();
+
                 }
 
-                request.setAttribute("cartImages", bqImages);
                 request.setAttribute("cartDetails", cartDetails);
-                request.setAttribute("user", currentUser);
-                request.setAttribute("isGuest", false);
+                request.setAttribute("cartImages", bqImages);
+                request.setAttribute("totalAmount", totalAmount);
+                request.setAttribute("totalItems", totalItems);
 
-            } catch (Exception e) {
-                System.err.println("Lỗi khi tải giỏ hàng cho khách hàng " + currentUser.getUserid() + ": " + e.getMessage());
-                request.setAttribute("error", "Failed to load cart items");
-                request.setAttribute("cartDetails", new ArrayList<>()); // Trả về giỏ hàng trống nếu có lỗi
-                request.setAttribute("user", currentUser);
-                request.setAttribute("isGuest", false);
+            } else if (mode.equals("wholesale")) {
+                // Đơn hàng theo lô
+                List<CartWholeSaleDetail> cartDetail = wholesaleDAO.getCartWholeSaleByUser(userId);
+                List<Bouquet> listBouquet = bouquetDAO.getAll();
+                List<BouquetImage> images = bouquetDAO.getAllBouquetImage();
+
+                int totalOrderValue = 0;
+                for (CartWholeSaleDetail item : cartDetail) {
+                    totalOrderValue += item.getTotalValue();
+                }
+
+                request.setAttribute("listCartWholeSale", cartDetail);
+                request.setAttribute("listBQ", listBouquet);
+                request.setAttribute("listIMG", images);
+                request.setAttribute("totalOrderValue", totalOrderValue);
             }
         }
 
-        double totalAmount = 0.0;
-        int totalItems = 0;
-
-        // Tính toán tổng số tiền và tổng số lượng item
-        for (CartDetail item : cartDetails) {
-            totalItems += item.getQuantity();
-            if (item.getBouquet() != null) {
-                totalAmount += item.getQuantity() * item.getBouquet().getSellPrice(); // Sử dụng sellPrice
-            }
-        }
-
-        request.setAttribute("totalItems", totalItems);
-        request.setAttribute("totalAmount", totalAmount); // Đặt totalAmount để JSP có thể truy cập
-
+        // Luôn forward về checkout.jsp
         request.getRequestDispatcher("./ZeShopper/checkout.jsp").forward(request, response);
     }
 
@@ -137,6 +148,7 @@ public class CheckOutController extends HttpServlet {
         response.setContentType("application/json"); // Luôn đặt Content-Type cho phản hồi JSON
 
         String action = request.getParameter("action");
+        String mode = request.getParameter("mode");
 
         if (action == null || action.isEmpty()) {
             // Nếu không có action, giả định đây là yêu cầu đặt hàng (placeOrder)
@@ -153,8 +165,13 @@ public class CheckOutController extends HttpServlet {
                     delete(request, response);
                     break;
                 case "placeOrder": // Case cho hành động đặt hàng
-                    processOrder(request, response);
-                    break;
+                    if (mode == null || mode.equals("retail")) {
+                        processOrder(request, response);
+                        break;
+                    } else if (mode.equals("wholesale")) {
+                        processWholesaleOrder(request, response);
+                        break;
+                    }
                 default:
                     // Gửi lỗi nếu action không hợp lệ
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -190,7 +207,7 @@ public class CheckOutController extends HttpServlet {
 
         System.out.println("DEBUG: Customer Info - Name: " + fullName + ", Phone: " + phoneNumber);
 
-        // Địa chỉ chỉ lấy district và province
+        // Địa chỉ
         StringBuilder fullAddressBuilder = new StringBuilder();
         if (addressLine != null && !addressLine.trim().isEmpty()) {
             fullAddressBuilder.append(addressLine.trim());
@@ -198,19 +215,19 @@ public class CheckOutController extends HttpServlet {
         if (ward != null && !ward.trim().isEmpty()) {
             if (fullAddressBuilder.length() > 0) {
                 fullAddressBuilder.append(", ");
-        }
+            }
             fullAddressBuilder.append(ward.trim());
         }
         if (district != null && !district.trim().isEmpty()) {
             if (fullAddressBuilder.length() > 0) {
                 fullAddressBuilder.append(", ");
-        }
+            }
             fullAddressBuilder.append(district.trim());
         }
         if (province != null && !province.trim().isEmpty()) {
             if (fullAddressBuilder.length() > 0) {
                 fullAddressBuilder.append(", ");
-        }
+            }
             fullAddressBuilder.append(province.trim());
         }
         String fullAddress = fullAddressBuilder.toString();
@@ -239,6 +256,7 @@ public class CheckOutController extends HttpServlet {
         order.setTotalImport(String.valueOf(actualTotalSell / 5)); // Giả định lợi nhuận 20%
         order.setPaymentMethod(paymentMethod);
         order.setStatusId(1); // Chờ xử lý
+        order.setType("retail");
 
         CartDAO cartDAO = new CartDAO();
         try {
@@ -249,7 +267,6 @@ public class CheckOutController extends HttpServlet {
                 throw new Exception("Không thể tạo đơn hàng");
             }
             System.out.println("DEBUG: Order inserted successfully. Order ID: " + orderId);
-
 
             List<CartDetail> cartItems;
             if (currentUser != null) {
@@ -267,7 +284,6 @@ public class CheckOutController extends HttpServlet {
                 return;
             }
             System.out.println("DEBUG: Cart items count: " + cartItems.size());
-
 
             for (CartDetail cartItem : cartItems) {
                 System.out.println("DEBUG: Processing cart item Bouquet ID: " + cartItem.getBouquetId() + ", Quantity: " + cartItem.getQuantity());
@@ -288,6 +304,13 @@ public class CheckOutController extends HttpServlet {
                 System.out.println("DEBUG: Order item inserted successfully.");
             }
 
+            // ✅ Xác nhận soft hold thành confirmed (chỉ cho user đã login)
+            if (currentUser != null) {
+                FlowerBatchDAO fbdao = new FlowerBatchDAO();
+                fbdao.confirmSoftHoldByCustomerId(customerId, orderId);
+                System.out.println("DEBUG: Soft hold đã được chuyển thành confirmed cho customerId=" + customerId);
+            }
+
             // Xoá giỏ hàng sau khi đặt
             if (currentUser != null) {
                 System.out.println("DEBUG: Deleting cart for logged-in user: " + customerId);
@@ -301,13 +324,12 @@ public class CheckOutController extends HttpServlet {
 
             // Always return JSON response
             if ("vietqr".equals(paymentMethod)) {
-                // Store orderId and amount in session for secure retrieval by ConfirmVietQRPayment
                 session.setAttribute("currentOrderId", orderId);
-                session.setAttribute("currentOrderAmount", (int) actualTotalSell); // Cast to int if amount is always integer for QR
-                System.out.println("DEBUG: Stored orderId " + orderId + " and amount " + (int)actualTotalSell + " in session.");
-                // Return JSON with redirect URL
+                session.setAttribute("currentOrderAmount", (int) actualTotalSell);
+                System.out.println("DEBUG: Stored orderId " + orderId + " and amount " + (int) actualTotalSell + " in session.");
+
                 String redirectUrl = request.getContextPath() + "/ConfirmVietQRPayment";
-                response.getWriter().write("{\"status\": \"success\", \"paymentMethod\": \"vietqr\", \"orderId\": " + orderId + ", \"amount\": " + (int)actualTotalSell + ", \"redirectUrl\": \"" + redirectUrl + "\"}");
+                response.getWriter().write("{\"status\": \"success\", \"paymentMethod\": \"vietqr\", \"orderId\": " + orderId + ", \"amount\": " + (int) actualTotalSell + ", \"redirectUrl\": \"" + redirectUrl + "\"}");
                 System.out.println("DEBUG: Sent JSON success response with redirectUrl for VietQR payment.");
 
             } else {
@@ -317,7 +339,7 @@ public class CheckOutController extends HttpServlet {
 
         } catch (Exception e) {
             System.err.println("ERROR: An unexpected error occurred during order processing. Details: " + e.getMessage());
-            e.printStackTrace(); // In toàn bộ stack trace để gỡ lỗi chi tiết
+            e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("{\"status\": \"error\", \"message\": \"Có lỗi khi đặt hàng: " + e.getMessage() + "\"}");
             System.out.println("DEBUG: Sent JSON error response.");
@@ -491,6 +513,112 @@ public class CheckOutController extends HttpServlet {
             System.err.println("Lỗi khi xóa giỏ hàng (DB): " + e.getMessage());
         }
         // Chuyển hướng lại trang checkout để cập nhật hiển thị
-        request.getRequestDispatcher("./ZeShopper/checkout.jsp").forward(request, response);
+        response.sendRedirect(request.getContextPath() + "/checkout");
     }
+
+    private void processWholesaleOrder(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        User currentUser = (User) request.getSession().getAttribute("currentAcc");
+
+        if (currentUser == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Bạn cần đăng nhập để đặt đơn hàng theo lô.\"}");
+            return;
+        }
+
+        int userId = currentUser.getUserid();
+        String fullName = request.getParameter("fullName");
+        String phoneNumber = request.getParameter("phoneNumber");
+        String addressLine = request.getParameter("addressLine");
+        String province = request.getParameter("province");
+        String district = request.getParameter("district");
+        String ward = request.getParameter("ward");
+        String paymentMethod = request.getParameter("paymentMethod");
+        HttpSession session = request.getSession();
+
+        // Ghép full địa chỉ
+        StringBuilder fullAddressBuilder = new StringBuilder();
+        if (addressLine != null && !addressLine.trim().isEmpty()) {
+            fullAddressBuilder.append(addressLine.trim());
+        }
+        if (ward != null && !ward.trim().isEmpty()) {
+            fullAddressBuilder.append(", ").append(ward.trim());
+        }
+        if (district != null && !district.trim().isEmpty()) {
+            fullAddressBuilder.append(", ").append(district.trim());
+        }
+        if (province != null && !province.trim().isEmpty()) {
+            fullAddressBuilder.append(", ").append(province.trim());
+        }
+        String fullAddress = fullAddressBuilder.toString();
+
+        // Lấy giỏ hàng theo lô
+        CartWholeSaleDAO cwsDAO = new CartWholeSaleDAO();
+        List<CartWholeSaleDetail> cartItems = cwsDAO.getCartWholeSaleByUser(userId);
+
+        if (cartItems == null || cartItems.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Giỏ hàng theo lô đang trống.\"}");
+            return;
+        }
+
+        // Tính tổng bán và tổng nhập (giá nhập thực tế)
+        int totalSell = 0;
+        int totalImport = 0;
+
+        for (CartWholeSaleDetail item : cartItems) {
+            totalSell += item.getTotalValue(); // Tổng tiền khách trả
+            totalImport += item.getExpense(); // Giá nhập
+        }
+
+        // Tạo đơn hàng
+        Order order = new Order();
+        order.setCustomerId(userId);
+        order.setCustomerName(fullName);
+        order.setCustomerPhone(phoneNumber);
+        order.setCustomerAddress(fullAddress);
+        order.setOrderDate(LocalDate.now().toString());
+        order.setTotalSell(String.valueOf(totalSell));
+        order.setTotalImport(String.valueOf(totalImport));
+        order.setPaymentMethod(paymentMethod);
+        order.setStatusId(1); // Chờ xử lý
+        order.setType("wholesale");
+
+        CartDAO cartDAO = new CartDAO();
+
+        try {
+            int orderId = cartDAO.insertOrder(order);
+            if (orderId == -1) {
+                throw new Exception("Không thể tạo đơn hàng.");
+            }
+
+            for (CartWholeSaleDetail item : cartItems) {
+                OrderItem orderItem = new OrderItem();
+                orderItem.setOrderId(orderId);
+                orderItem.setBouquetId(item.getBouquetID());
+                orderItem.setQuantity(item.getQuantity());
+                orderItem.setUnitPrice(item.getPricePerUnit());
+                orderItem.setSellPrice(item.getPricePerUnit()); // Có thể là đơn giá bán theo lô
+                cartDAO.insertOrderItem(orderItem);
+            }
+
+            // Xoá giỏ hàng wholesale sau khi đặt hàng thành công
+            cwsDAO.clearCartWholeSaleByUser(userId);
+
+            // Lưu thông tin để xử lý VietQR nếu cần
+            if ("vietqr".equalsIgnoreCase(paymentMethod)) {
+                session.setAttribute("currentOrderId", orderId);
+                session.setAttribute("currentOrderAmount", totalSell);
+                String redirectUrl = request.getContextPath() + "/ConfirmVietQRPayment";
+                response.getWriter().write("{\"status\": \"success\", \"paymentMethod\": \"vietqr\", \"orderId\": " + orderId + ", \"amount\": " + totalSell + ", \"redirectUrl\": \"" + redirectUrl + "\"}");
+            } else {
+                response.getWriter().write("{\"status\": \"success\", \"message\": \"Đơn hàng theo lô đã được đặt thành công! Mã đơn: " + orderId + "\"}");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Lỗi xử lý đơn hàng theo lô: " + e.getMessage() + "\"}");
+        }
+    }
+
 }

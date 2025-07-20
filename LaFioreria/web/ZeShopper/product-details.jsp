@@ -343,11 +343,22 @@
                                     <p><b>Thương hiệu:</b> La Fioreria</p>
                                     <a href=""><img src="${pageContext.request.contextPath}/ZeShopper/images/product-details/share.png" class="share img-responsive" alt="" /></a>
                                 </div>
-                                <c:if test="${param.addedWholesale eq 'true'}">
-                                    <div class="alert alert-success">
-                                        ✅ Đã thêm vào đơn đặt số lượng lớn thành công. Bạn có thể xem lại trong mục
-                                        <a href="${pageContext.request.contextPath}/wholeSale">Yêu cầu báo giá</a>.
-                                    </div>
+                                <c:if test="${not empty param.addedWholesale}">
+                                    <c:choose>    
+                                        <c:when test="${param.addedWholesale eq 'true'}">
+                                            <div class="alert alert-success">
+                                                Đã thêm vào đơn đặt số lượng lớn thành công. Bạn có thể xem lại trong mục
+                                                <a href="${pageContext.request.contextPath}/wholeSale">Yêu cầu báo giá</a>.
+                                            </div>
+                                        </c:when>    
+                                        <c:otherwise>
+                                            <div class="alert alert-warning">
+                                                Bạn đã đặt đơn hàng này rồi! Vui lòng vào mục 
+                                                <a href="${pageContext.request.contextPath}/wholeSale">Yêu cầu báo giá</a>
+                                                để cập nhật.
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </c:if>
                             </div>
                         </div>
@@ -493,6 +504,7 @@
                             <h5 class="modal-title">Yêu cầu báo giá theo lô</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
                         </div>
+
                         <form id="wholesaleForm" method="post" action="${pageContext.request.contextPath}/productDetail">
                             <input type="hidden" name="productId" value="${productId}" />
                             <input type="hidden" name="user_id" value="${sessionScope.currentAcc.userid}" />
@@ -521,6 +533,7 @@
                                 <button type="submit" class="btn btn-warning">Yêu cầu báo giá</button>
                             </div>
                         </form>
+
                     </div>
                 </div>
             </div>
@@ -595,11 +608,12 @@
                     successBox.style.display = "none";
                 }, 3000);
             }
-
+        </script>        
+        <script>
             $(function () {
                 var imageUrls = [
             <c:forEach items="${images}" var="img" varStatus="status">
-                "${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}"<c:if test="${!status.last}">,</c:if>
+            "${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}"<c:if test="${!status.last}">,</c:if>
             </c:forEach>
                         ];
                         var currentIndex = 0;

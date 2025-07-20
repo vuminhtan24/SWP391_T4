@@ -11,7 +11,7 @@
 
 <html>
     <head>
-        <title>Cảm ơn vì đơn hàng của bạn</title>
+        <title>WholeSale Request</title>
         <link href="${pageContext.request.contextPath}/ZeShopper/css/bootstrap.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/font-awesome.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/prettyPhoto.css" rel="stylesheet">
@@ -138,88 +138,99 @@
                 <c:otherwise>
                     <div class="text-center p-5 bg-light rounded shadow">
                         <input type="hidden" name="user_id" value="${sessionScope.currentAcc.userid}" />
-                        <h4 class="mb-4">Danh sách giỏ hoa đặt theo lô</h4>
-
-                        <c:if test="${not empty requestScope.wholesaleList}">
-                            <table class="table table-bordered table-hover bg-white">
-                                <thead class="thead-dark">
-                                    <tr>
-                                        <th class="text-center">STT</th>
-                                        <th class="text-center">Tên giỏ</th>
-                                        <th class="text-center">Ảnh</th>
-                                        <th class="text-center">Số lượng</th>
-                                        <th class="text-center">Ghi chú</th>
-                                        <th class="text-center" colspan="2">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <c:set var="count" value="0" />
-                                    <c:forEach var="item" items="${wholesaleList}">
-                                        <c:if test="${item.getStatus() eq 'SHOPPING'}">
-                                            <c:set var="count" value="${count + 1}" />
+                        <c:choose>
+                            <c:when test="${not empty requestScope.wholesaleList}">
+                                <h4 class="mb-4">Danh sách giỏ hoa đặt theo lô</h4>
+                                <c:if test="${not empty requestScope.wholesaleList}">
+                                    <table class="table table-bordered table-hover bg-white">
+                                        <thead class="thead-dark">
                                             <tr>
-                                                <td>${count}</td>
-
-                                                <!-- TÊN GIỎ HOA -->
-                                                <td>
-                                                    <c:set var="bouquetName" value="" />
-                                                    <c:forEach var="bouquet" items="${listBouquet}">
-                                                        <c:if test="${item.getBouquet_id() eq bouquet.getBouquetId()}">
-                                                            <c:set var="bouquetName" value="${bouquet.getBouquetName()}" />
-                                                            ${bouquet.getBouquetName()}
-                                                        </c:if>
-                                                    </c:forEach>
-                                                </td>
-
-                                                <!-- ẢNH GIỎ HOA -->
-                                                <td>
-                                                    <c:set var="imageUrl" value="" />
-                                                    <c:set var="imageShown" value="false" />
-                                                    <c:forEach var="img" items="${images}">
-                                                        <c:if test="${!imageShown and item.getBouquet_id() == img.getbouquetId()}">
-                                                            <c:set var="imageUrl" value="${img.getImage_url()}" />
-                                                            <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" alt="alt"
-                                                                 style="width: 60px; height: 60px;" />
-                                                            <c:set var="imageShown" value="true" />
-                                                        </c:if>
-                                                    </c:forEach>
-                                                </td>
-
-                                                <!-- SỐ LƯỢNG + GHI CHÚ -->
-                                                <td>${item.requested_quantity}</td>
-                                                <td class="note-cell" style="text-align: left; padding-left: 12px;">${item.note}</td>
-
-                                                <!-- ACTION BUTTONS -->
-                                                <td style="white-space: nowrap; min-width: 150px; text-align: center;">
-                                                    <button type="button"
-                                                            class="btn-update"
-                                                            data-toggle="modal"
-                                                            data-target="#updateModal"
-                                                            data-name="${bouquetName}"
-                                                            data-image="${pageContext.request.contextPath}/upload/BouquetIMG/${imageUrl}"
-                                                            data-quantity="${item.requested_quantity}"
-                                                            data-bouquet-id="${item.bouquet_id}"
-                                                            data-note="${item.note}">
-                                                        Update
-                                                    </button>
-
-                                                    <button type="button" class="btn-delete">Delete</button>
-                                                </td>
+                                                <th class="text-center">STT</th>
+                                                <th class="text-center">Tên giỏ</th>
+                                                <th class="text-center">Ảnh</th>
+                                                <th class="text-center">Số lượng</th>
+                                                <th class="text-center">Ghi chú</th>
+                                                <th class="text-center" colspan="2">Action</th>
                                             </tr>
-                                        </c:if>
-                                    </c:forEach>
+                                        </thead>
+                                        <tbody>
+                                            <c:set var="count" value="0" />
+                                            <c:forEach var="item" items="${wholesaleList}">
+                                                <c:if test="${item.getStatus() eq 'SHOPPING'}">
+                                                    <c:set var="count" value="${count + 1}" />
+                                                    <tr>
+                                                        <td>${count}</td>
 
-                                </tbody>
-                            </table>
-                        </c:if>
+                                                        <!-- TÊN GIỎ HOA -->
+                                                        <td>
+                                                            <c:set var="bouquetName" value="" />
+                                                            <c:forEach var="bouquet" items="${listBouquet}">
+                                                                <c:if test="${item.getBouquet_id() eq bouquet.getBouquetId()}">
+                                                                    <c:set var="bouquetName" value="${bouquet.getBouquetName()}" />
+                                                                    ${bouquet.getBouquetName()}
+                                                                </c:if>
+                                                            </c:forEach>
+                                                        </td>
 
-                        <!-- Nút xác nhận gửi danh sách đặt theo lô -->
-                        <form method="post" action="${pageContext.request.contextPath}/wholeSale?act=confirm">
-                            <input type="hidden" name="user_id" value="${sessionScope.currentAcc.userid}" />
-                            <button type="submit" class="btn btn-success btn-lg mt-3">
-                                ✅ Xác nhận yêu cầu báo giá
-                            </button>
-                        </form>    
+                                                        <!-- ẢNH GIỎ HOA -->
+                                                        <td>
+                                                            <c:set var="imageUrl" value="" />
+                                                            <c:set var="imageShown" value="false" />
+                                                            <c:forEach var="img" items="${images}">
+                                                                <c:if test="${!imageShown and item.getBouquet_id() == img.getbouquetId()}">
+                                                                    <c:set var="imageUrl" value="${img.getImage_url()}" />
+                                                                    <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" alt="alt"
+                                                                         style="width: 60px; height: 60px;" />
+                                                                    <c:set var="imageShown" value="true" />
+                                                                </c:if>
+                                                            </c:forEach>
+                                                        </td>
+
+                                                        <!-- SỐ LƯỢNG + GHI CHÚ -->
+                                                        <td>${item.requested_quantity}</td>
+                                                        <td class="note-cell" style="text-align: left; padding-left: 12px;">${item.note}</td>
+
+                                                        <!-- ACTION BUTTONS -->
+                                                        <td style="white-space: nowrap; min-width: 150px; text-align: center;">
+                                                            <button type="button"
+                                                                    class="btn-update"
+                                                                    data-toggle="modal"
+                                                                    data-target="#updateModal"
+                                                                    data-name="${bouquetName}"
+                                                                    data-image="${pageContext.request.contextPath}/upload/BouquetIMG/${imageUrl}"
+                                                                    data-quantity="${item.requested_quantity}"
+                                                                    data-bouquet-id="${item.bouquet_id}"
+                                                                    data-note="${item.note}">
+                                                                Update
+                                                            </button>
+                                                            <form action="${pageContext.request.contextPath}/wholeSale" method="post">
+                                                                <input type="hidden" name="user_id" value="${sessionScope.currentAcc.userid}" />
+                                                                <input type="hidden" name="bouquet_id" value="${item.getBouquet_id()}">
+                                                                <button name="action" type="submit" value="delete" class="btn-delete">Delete</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                </c:if>
+                                            </c:forEach>
+
+                                        </tbody>
+                                    </table>
+                                </c:if>
+
+                                <!-- Nút xác nhận gửi danh sách đặt theo lô -->
+                                <form method="post" action="${pageContext.request.contextPath}/wholeSale?act=confirm">
+                                    <input type="hidden" name="user_id" value="${sessionScope.currentAcc.userid}" />
+                                    <button type="submit" class="btn btn-success btn-lg mt-3">
+                                        Confirm quote request
+                                    </button>
+                                </form>   
+                            </c:when>    
+                            <c:otherwise>
+                                <h3>
+                                    You have not placed any quote requests yet!
+                                </h3>
+                            </c:otherwise>
+                        </c:choose>    
 
                         <!-- Modal -->
                         <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
