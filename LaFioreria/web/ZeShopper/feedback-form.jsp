@@ -100,29 +100,39 @@
                 <c:if test="${not empty message}">
                     <div class="alert alert-success">${message}</div>
                 </c:if>
-                <form action="${pageContext.request.contextPath}/ZeShopper/feedback" method="post" enctype="multipart/form-data">
+                <form action="${pageContext.request.contextPath}/ZeShopper/feedback"
+                      method="post"
+                      enctype="multipart/form-data"
+                      onsubmit="return validateComment()">
+
                     <input type="hidden" name="action" value="submitFeedback">
                     <input type="hidden" name="orderId" value="${orderId}">
                     <input type="hidden" name="bouquetId" value="${bouquetId}">
+
                     <div class="form-group">
                         <label>Đánh giá:</label>
                         <div class="star-rating">
-                            <input type="radio" id="star5" name="rating" value="5" required><label for="star5">★</label>
-                            <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
-                            <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
-                            <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
-                            <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                            <input type="radio" id="star5" name="rating" value="5" required <c:if test="${param.rating == '5'}">checked</c:if>><label for="star5">★</label>
+                            <input type="radio" id="star4" name="rating" value="4" <c:if test="${param.rating == '4'}">checked</c:if>><label for="star4">★</label>
+                            <input type="radio" id="star3" name="rating" value="3" <c:if test="${param.rating == '3'}">checked</c:if>><label for="star3">★</label>
+                            <input type="radio" id="star2" name="rating" value="2" <c:if test="${param.rating == '2'}">checked</c:if>><label for="star2">★</label>
+                            <input type="radio" id="star1" name="rating" value="1" <c:if test="${param.rating == '1'}">checked</c:if>><label for="star1">★</label>
                         </div>
                     </div>
+
                     <div class="form-group">
                         <label for="comment">Nhận xét:</label>
-                        <textarea id="comment" name="comment" required></textarea>
+                        <textarea id="comment" name="comment" required oninput="updateCharCount()" maxlength="300">${param.comment}</textarea>
+                        <small id="wordCount" style="display:block; margin-top: 5px; color: #666;">Số ký tự: 0/300</small>
+                        <div id="errorMessage" style="color: red; display: none;"></div>
                     </div>
+
                     <div class="form-group">
                         <label for="images">Hình ảnh (tối đa 3 ảnh, định dạng .jpg, .jpeg, .png):</label>
                         <input type="file" id="images" name="imageFiles" multiple accept=".jpg,.jpeg,.png">
                         <small class="form-text text-muted">Bạn chỉ có thể upload tối đa 3 ảnh.</small>
                     </div>
+
                     <button type="submit" class="submit-button">Gửi đánh giá</button>
                 </form>
             </div>
@@ -130,27 +140,38 @@
 
         <jsp:include page="/ZeShopper/footer.jsp"/>
         <script>
-        function updateWordCount() {
-            const comment = document.getElementById('comment').value.trim();
-            const words = comment.split(/\s+/).filter(word => word.length > 0);
-            const count = words.length;
-            document.getElementById('wordCount').textContent = `Số từ: ${count}/300`;
-            if (count > 300) {
-                document.getElementById('wordCount').style.color = 'red';
-            } else {
-                document.getElementById('wordCount').style.color = '#666';
+            function updateCharCount() {
+                const comment = document.getElementById('comment').value;
+                const charCount = comment.length;
+                const wordCountElement = document.getElementById('wordCount');
+                wordCountElement.textContent = `Số ký tự: ${charCount}/300`;
+                wordCountElement.style.color = charCount > 300 ? 'red' : '#666';
             }
-        }
 
-        function validateComment() {
-            const comment = document.getElementById('comment').value.trim();
-            const words = comment.split(/\s+/).filter(word => word.length > 0);
-            if (words.length > 300) {
-                alert("Comment must not exceed 300 words. Please shorten your review.");
-                return false;
+            function validateComment() {
+                const comment = document.getElementById('comment').value;
+                const errorMessage = document.getElementById('errorMessage');
+
+                if (!comment.trim()) {
+                    errorMessage.textContent = "Vui lòng nhập nhận xét.";
+                    errorMessage.style.display = 'block';
+                    return false;
+                }
+
+                if (comment.length > 300) {
+                    errorMessage.textContent = "Nhận xét không được vượt quá 300 ký tự (kể cả khoảng trắng).";
+                    errorMessage.style.display = 'block';
+                    return false;
+                }
+
+                errorMessage.style.display = 'none';
+                return true;
             }
-            return true;
-        }
-    </script>
+
+            // Cập nhật số ký tự ban đầu khi tải trang
+            window.onload = function() {
+                updateCharCount();
+            };
+        </script>
     </body>
 </html>

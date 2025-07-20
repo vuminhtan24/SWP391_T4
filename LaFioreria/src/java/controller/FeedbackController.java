@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import jakarta.servlet.http.Part;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import model.Feedback;
 import model.FeedbackImg;
@@ -24,9 +25,9 @@ import model.User;
 
 @WebServlet(name = "FeedbackController", urlPatterns = {"/ZeShopper/feedback"})
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024, // 1MB lưu tạm vào disk nếu vượt
-    maxFileSize = 1024 * 1024 * 5,  // 5MB giới hạn mỗi file
-    maxRequestSize = 1024 * 1024 * 15 // 15MB giới hạn tổng request
+        fileSizeThreshold = 1024 * 1024, // 1MB lưu tạm vào disk nếu vượt
+        maxFileSize = 1024 * 1024 * 5, // 5MB giới hạn mỗi file
+        maxRequestSize = 1024 * 1024 * 15 // 15MB giới hạn tổng request
 )
 public class FeedbackController extends HttpServlet {
 
@@ -73,34 +74,64 @@ public class FeedbackController extends HttpServlet {
                 return;
             }
 
-            int orderId = Integer.parseInt(request.getParameter("orderId"));
-            int bouquetId = Integer.parseInt(request.getParameter("bouquetId"));
-            int rating = Integer.parseInt(request.getParameter("rating"));
+            // Kiểm tra và parse các tham số
+            String orderIdStr = request.getParameter("orderId");
+            String bouquetIdStr = request.getParameter("bouquetId");
+            String ratingStr = request.getParameter("rating");
             String comment = request.getParameter("comment");
-            
-            // Kiểm tra giới hạn 300 từ phía server
-            String[] words = comment.trim().split("\\s+");
-            if (words.length > 300) {
-                request.setAttribute("error", "Comment must not exceed 300 words. Please shorten your review.");
+
+            // Kiểm tra tham số rỗng hoặc null
+            if (orderIdStr == null || orderIdStr.trim().isEmpty()
+                    || bouquetIdStr == null || bouquetIdStr.trim().isEmpty()
+                    || ratingStr == null || ratingStr.trim().isEmpty()) {
+                request.setAttribute("error", "Dữ liệu không hợp lệ. Vui lòng thử lại.");
+                request.getRequestDispatcher("/ZeShopper/feedback-form.jsp").forward(request, response);
+                return;
+            }
+
+            // Parse tham số
+            int orderId, bouquetId, rating;
+            try {
+                orderId = Integer.parseInt(orderIdStr);
+                bouquetId = Integer.parseInt(bouquetIdStr);
+                rating = Integer.parseInt(ratingStr);
+            } catch (NumberFormatException e) {
+                request.setAttribute("error", "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại thông tin.");
+                request.getRequestDispatcher("/ZeShopper/feedback-form.jsp").forward(request, response);
+                return;
+            }
+
+            // Kiểm tra số ký tự của comment
+            if (comment == null || comment.trim().isEmpty()) {
+                request.setAttribute("error", "Vui lòng nhập nhận xét.");
                 request.setAttribute("orderId", orderId);
                 request.setAttribute("bouquetId", bouquetId);
                 request.getRequestDispatcher("/ZeShopper/feedback-form.jsp").forward(request, response);
                 return;
             }
 
+            if (comment.length() > 300) {
+                request.setAttribute("error", "Nhận xét không được vượt quá 300 ký tự (kể cả khoảng trắng).");
+                request.setAttribute("orderId", orderId);
+                request.setAttribute("bouquetId", bouquetId);
+                request.getRequestDispatcher("/ZeShopper/feedback-form.jsp").forward(request, response);
+                return;
+            }
+
+            // Kiểm tra điều kiện viết feedback
             FeedbackDAO feedbackDAO = new FeedbackDAO();
             if (!feedbackDAO.canWriteFeedback(currentUser.getUserid(), bouquetId, orderId)) {
                 request.setAttribute("error", "Bạn không đủ điều kiện để viết phản hồi.");
                 request.getRequestDispatcher("/ZeShopper/order.jsp").forward(request, response);
                 return;
             }
-            
-            // Check if feedback already exists and is approved or rejected
-            List<Feedback> existingFeedbacks = feedbackDAO.getFeedbacksByBouquetId(bouquetId); // Non-static call
+
+            // Kiểm tra feedback đã tồn tại
+            List<Feedback> existingFeedbacks = feedbackDAO.getFeedbacksByBouquetId(bouquetId);
             for (Feedback f : existingFeedbacks) {
-                if (f.getCustomerId() == currentUser.getUserid() && 
-                    ("approved".equals(f.getStatus()) || "rejected".equals(f.getStatus()))) {
-                    request.setAttribute("error", "You have already submitted feedback for this product.");
+                if (f.getCustomerId() == currentUser.getUserid()
+                        && ("approved".equals(f.getStatus()) || "rejected".equals(f.getStatus()))) {
+                    request.setAttribute("error", "Bạn đã gửi phản hồi cho sản phẩm này rồi.");
                     request.getRequestDispatcher("/ZeShopper/order.jsp").forward(request, response);
                     return;
                 }
@@ -111,7 +142,9 @@ public class FeedbackController extends HttpServlet {
             String uploadPath = request.getServletContext().getRealPath("/upload/FeedbackIMG");
             File uploadDir = new File(uploadPath);
             if (!uploadDir.exists() && !uploadDir.mkdirs()) {
-                request.setAttribute("error", "Không thể tạo thư mục upload cho ảnh feedback.");
+                request.setAttribute("error", "Không thể tạo thư mục upload.");
+                request.setAttribute("orderId", orderId);
+                request.setAttribute("bouquetId", bouquetId);
                 request.getRequestDispatcher("/ZeShopper/feedback-form.jsp").forward(request, response);
                 return;
             }
@@ -124,6 +157,8 @@ public class FeedbackController extends HttpServlet {
 
             if (fileParts.size() > 3) {
                 request.setAttribute("error", "Bạn chỉ được upload tối đa 3 ảnh.");
+                request.setAttribute("orderId", orderId);
+                request.setAttribute("bouquetId", bouquetId);
                 request.getRequestDispatcher("/ZeShopper/feedback-form.jsp").forward(request, response);
                 return;
             }
@@ -148,6 +183,8 @@ public class FeedbackController extends HttpServlet {
             int feedbackId = feedbackDAO.insertFeedback(currentUser.getUserid(), bouquetId, orderId, rating, comment);
             if (feedbackId == -1) {
                 request.setAttribute("error", "Không thể gửi phản hồi.");
+                request.setAttribute("orderId", orderId);
+                request.setAttribute("bouquetId", bouquetId);
                 request.getRequestDispatcher("/ZeShopper/feedback-form.jsp").forward(request, response);
                 return;
             }
@@ -157,7 +194,7 @@ public class FeedbackController extends HttpServlet {
                 FeedbackImg img = new FeedbackImg();
                 img.setFeedbackId(feedbackId);
                 img.setImageUrl(url);
-                feedbackDAO.insertFeedbackImage(feedbackId, url); // Giả sử có phương thức này
+                feedbackDAO.insertFeedbackImage(feedbackId, url);
             }
 
             request.setAttribute("message", "Cảm ơn bạn đã dành thời gian đánh giá sản phẩm của shop!(ΦзΦ) ❤️");

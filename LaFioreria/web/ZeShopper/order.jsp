@@ -207,7 +207,8 @@
                                      style="max-width: 100px; max-height: 100px; margin: 5px 0;">
                                 <c:if test="${order.statusId == 4}">
                                     <div class="action-buttons">
-                                        <c:set var="canWrite" value="${canWriteFeedbackMap[item.bouquetId]}"/>
+                                        <c:set var="feedbackKey" value="${order.orderId}-${item.bouquetId}" />
+                                        <c:set var="canWrite" value="${canWriteFeedbackMap[feedbackKey]}" />
                                         <c:if test="${canWrite}">
                                             <a href="${pageContext.request.contextPath}/ZeShopper/feedback?action=write&orderId=${order.orderId}&bouquetId=${item.bouquetId}" 
                                                class="btn btn-primary btn-sm"><i class="fa fa-comment"></i> Viết đánh giá</a>
