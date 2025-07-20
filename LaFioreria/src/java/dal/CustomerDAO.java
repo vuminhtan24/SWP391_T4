@@ -60,8 +60,18 @@ public class CustomerDAO extends BaseDao {
             ps.setString(2, c.getCustomerCode());
             ps.setString(3, c.getJoinDate());
             ps.setInt(4, c.getLoyaltyPoint());
-            ps.setString(5, c.getBirthday());
-            ps.setString(6, c.getGender());
+            if (c.getBirthday() != null && !c.getBirthday().isEmpty()) {
+                ps.setDate(5, java.sql.Date.valueOf(c.getBirthday()));
+            } else {
+                ps.setNull(5, java.sql.Types.DATE);
+            }
+
+            if (c.getGender() != null && !c.getGender().isEmpty()) {
+                ps.setString(6, c.getGender());
+            } else {
+                ps.setNull(6, java.sql.Types.VARCHAR);
+            }
+
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Lỗi insert (CustomerDAO): " + e.getMessage());
@@ -109,6 +119,23 @@ public class CustomerDAO extends BaseDao {
         } catch (SQLException e) {
             System.out.println("Lỗi update (CustomerDAO): " + e.getMessage());
         }
+    }
+
+    public int getLatestCustomerId() throws SQLException {
+        String sql = "SELECT MAX(ID) FROM Customer_info"; // giả sử bạn có ID tự tăng
+        try {
+            connection = dbc.getConnection();  // dbc là đối tượng DatabaseContext hoặc tương đương
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1); // trả về giá trị MAX(ID)
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return 0;
     }
 
     public static void main(String[] args) {
