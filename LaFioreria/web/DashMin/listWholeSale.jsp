@@ -346,6 +346,7 @@
                                     <option value="QUOTED" ${param.status == 'QUOTED' ? 'selected' : ''}>Quoted</option>
                                     <option value="ACCEPTED" ${param.status == 'ACCEPTED' ? 'selected' : ''}>Accepted</option>
                                     <option value="REJECTED" ${param.status == 'REJECTED' ? 'selected' : ''}>Rejected</option>
+                                    <option value="EMAILED" ${param.status == 'EMAILED' ? 'selected' : ''}>Emailed</option>
                                 </select>
                             </div>
                         </div>

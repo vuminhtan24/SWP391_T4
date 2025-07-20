@@ -115,6 +115,12 @@ public class WholeSaleDAO extends BaseDao {
             ps.setDate(9, java.sql.Date.valueOf(ws.getCreated_at()));
             ps.setString(10, ws.getStatus());
 
+            if (ws.getExpense() != null) {
+                ps.setInt(11, ws.getExpense());
+            } else {
+                ps.setNull(11, java.sql.Types.INTEGER);
+            }
+
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error insertWholeSaleRequest: " + e.getMessage());
@@ -127,10 +133,52 @@ public class WholeSaleDAO extends BaseDao {
         }
     }
 
+    public List<WholeSale> getWholeSaleRequestShoppingByUserID(int uid) {
+        List<WholeSale> list = new ArrayList<>();
+
+        String sql = "SELECT * FROM la_fioreria.wholesale_quote_request WHERE user_id = ? AND status = 'SHOPPING'";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, uid);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                int bouquet_id = rs.getInt("bouquet_id");
+                int requested_quantity = rs.getInt("requested_quantity");
+                String note = rs.getString("note");
+                int quoted_price = rs.getInt("quoted_price");
+                int total_price = rs.getInt("total_price");
+                java.sql.Date quotedDateSql = rs.getDate("quoted_at");
+                LocalDate quoted_at = (quotedDateSql != null) ? quotedDateSql.toLocalDate() : null;
+
+                java.sql.Date respondedDateSql = rs.getDate("responded_at");
+                LocalDate responded_at = (respondedDateSql != null) ? respondedDateSql.toLocalDate() : null;
+
+                java.sql.Date createdDateSql = rs.getDate("created_at");
+                LocalDate created_at = (createdDateSql != null) ? createdDateSql.toLocalDate() : null;
+                String status = rs.getString("status");
+                int expense = rs.getInt("expense");
+
+                WholeSale ws = new WholeSale(id, uid, bouquet_id, requested_quantity, note, quoted_price, total_price, quoted_at, responded_at, created_at, status, expense);
+                list.add(ws);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return list;
+    }
+
     public List<WholeSale> getWholeSaleRequestByUserID(int uid) {
         List<WholeSale> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM la_fioreria.wholesale_quote_request WHERE user_id = ?";
+        String sql = "SELECT * FROM la_fioreria.wholesale_quote_request WHERE user_id = ? AND status <> 'SHOPPING'";
 
         try {
             connection = dbc.getConnection();
@@ -262,6 +310,10 @@ public class WholeSaleDAO extends BaseDao {
                 + "    MIN(responded_at) AS responded_at,\n"
                 + "\n"
                 + "    CASE \n"
+                + "        WHEN SUM(CASE WHEN status = 'ACCEPTED' THEN 1 ELSE 0 END) > 0\n"
+                + "             AND SUM(CASE WHEN status NOT IN ('ACCEPTED') THEN 1 ELSE 0 END) = 0 THEN 'ACCEPTED'\n"
+                + "        WHEN SUM(CASE WHEN status = 'EMAILED' THEN 1 ELSE 0 END) > 0\n"
+                + "             AND SUM(CASE WHEN status NOT IN ('EMAILED') THEN 1 ELSE 0 END) = 0 THEN 'EMAILED'\n"
                 + "        WHEN SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) > 0 THEN 'PENDING'\n"
                 + "        WHEN SUM(CASE WHEN status = 'QUOTED' THEN 1 ELSE 0 END) > 0\n"
                 + "             AND SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) = 0 THEN 'QUOTED'\n"
@@ -269,13 +321,9 @@ public class WholeSaleDAO extends BaseDao {
                 + "             AND SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) = 0 THEN 'COMPLETED'\n"
                 + "        ELSE 'UNKNOWN'\n"
                 + "    END AS `status`\n"
-                + "\n"
-                + "FROM \n"
-                + "    wholesale_quote_request\n"
-                + "WHERE \n"
-                + "    status <> 'SHOPPING'\n"
-                + "GROUP BY \n"
-                + "    user_id, created_at;";
+                + "FROM wholesale_quote_request\n"
+                + "WHERE status <> 'SHOPPING'\n"
+                + "GROUP BY user_id, created_at;";
 
         try {
             connection = dbc.getConnection();
@@ -324,17 +372,20 @@ public class WholeSaleDAO extends BaseDao {
                 + "    created_at,\n"
                 + "    MIN(quoted_at) AS quoted_at,\n"
                 + "    MIN(responded_at) AS responded_at,\n"
+                + "\n"
                 + "    CASE \n"
+                + "        WHEN SUM(CASE WHEN status = 'ACCEPTED' THEN 1 ELSE 0 END) > 0\n"
+                + "             AND SUM(CASE WHEN status NOT IN ('ACCEPTED') THEN 1 ELSE 0 END) = 0 THEN 'ACCEPTED'\n"
+                + "        WHEN SUM(CASE WHEN status = 'EMAILED' THEN 1 ELSE 0 END) > 0\n"
+                + "             AND SUM(CASE WHEN status NOT IN ('EMAILED') THEN 1 ELSE 0 END) = 0 THEN 'EMAILED'\n"
                 + "        WHEN SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) > 0 THEN 'PENDING'\n"
-                + "        WHEN SUM(CASE WHEN status = 'SHOPPING' THEN 1 ELSE 0 END) > 0 THEN 'SHOPPING'\n"
                 + "        WHEN SUM(CASE WHEN status = 'QUOTED' THEN 1 ELSE 0 END) > 0\n"
-                + "             AND SUM(CASE WHEN status IN ('PENDING', 'SHOPPING') THEN 1 ELSE 0 END) = 0 THEN 'QUOTED'\n"
+                + "             AND SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) = 0 THEN 'QUOTED'\n"
                 + "        WHEN SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) > 0\n"
-                + "             AND SUM(CASE WHEN status IN ('PENDING', 'SHOPPING') THEN 1 ELSE 0 END) = 0 THEN 'COMPLETED'\n"
+                + "             AND SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) = 0 THEN 'COMPLETED'\n"
                 + "        ELSE 'UNKNOWN'\n"
-                + "    END AS status\n"
-                + "FROM \n"
-                + "    wholesale_quote_request\n"
+                + "    END AS `status`\n"
+                + "FROM wholesale_quote_request\n"
                 + "WHERE 1=1\n"
         );
 
@@ -345,13 +396,12 @@ public class WholeSaleDAO extends BaseDao {
             parameters.add(java.sql.Date.valueOf(createdAt));
         }
 
-        sql.append("GROUP BY user_id, created_at\n");
-
-        // Lọc theo status sau khi tổng hợp, nên phải dùng HAVING
         if (statusFilter != null && !statusFilter.trim().isEmpty()) {
-            sql.append("HAVING status = ?\n");
+            sql.append("AND status = ?\n");
             parameters.add(statusFilter.trim());
         }
+
+        sql.append("GROUP BY user_id, created_at\n");
 
         try {
             connection = dbc.getConnection();
@@ -618,7 +668,7 @@ public class WholeSaleDAO extends BaseDao {
             }
         }
     }
-    
+
     public List<WholeSale> getWholeSaleQuotedList(int uid, LocalDate requestDate) {
         List<WholeSale> list = new ArrayList<>();
         String sql = "SELECT * FROM la_fioreria.wholesale_quote_request \n"
@@ -662,6 +712,76 @@ public class WholeSaleDAO extends BaseDao {
         return list;
     }
 
+    public void markAsEmailedForQuotedList(int uid, LocalDate requestDate) {
+        String sql = "UPDATE la_fioreria.wholesale_quote_request \n"
+                + "SET status = 'EMAILED' \n"
+                + "WHERE user_id = ? \n"
+                + "AND created_at = ? \n"
+                + "AND status = 'QUOTED';";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, uid);
+            ps.setDate(2, java.sql.Date.valueOf(requestDate));
+
+            int updatedRows = ps.executeUpdate();
+            System.out.println("Updated rows to EMAILED: " + updatedRows);
+        } catch (SQLException e) {
+            System.out.println("Error updating status to EMAILED: " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.out.println("Error closing resources: " + e.getMessage());
+            }
+        }
+    }
+
+    public void updateWholeSaleStatus(int uid, LocalDate requestDate, String status) {
+        String sql = "UPDATE la_fioreria.wholesale_quote_request \n"
+                + "SET status = ? \n"
+                + "WHERE user_id = ? \n"
+                + "AND created_at = ? \n"
+                + "AND status = 'EMAILED';";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, status);
+            ps.setInt(2, uid);
+            ps.setDate(3, java.sql.Date.valueOf(requestDate));
+            int updatedRows = ps.executeUpdate();
+            System.out.println("Updated rows to EMAILED: " + updatedRows);
+        } catch (SQLException e) {
+            System.out.println("Error updating status to EMAILED: " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.out.println("Error closing resources: " + e.getMessage());
+            }
+        }
+    }
+    
+    public void deleteWholeSaleShoppingByUserID(int userId, int bouquetId) {
+        String sql = "DELETE FROM la_fioreria.wholesale_quote_request WHERE user_id = ? AND status = 'SHOPPING' AND bouquet_id = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, userId);
+            ps.setInt(2, bouquetId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+    }
+    
     public static void main(String[] args) {
         WholeSaleDAO dao = new WholeSaleDAO();
         List<WholeSale> list = dao.getWholeSaleRequestByUserID(13);

@@ -67,20 +67,13 @@ public class OrderController extends HttpServlet {
             }
             
             // Check feedback eligibility for each order item
-            Map<Integer, Boolean> canWriteFeedbackMap = new HashMap<>();
+            Map<String, Boolean> canWriteFeedbackMap = new HashMap<>();
             for (Order order : orders) {
                 for (OrderDetail detail : orderDAO.getOrderItemsByOrderId(order.getOrderId())) {
                     int bouquetId = detail.getBouquetId();
-                    List<Feedback> existingFeedbacks = feedbackDAO.getFeedbacksByBouquetId(bouquetId); // Non-static call
-                    boolean canWrite = true;
-                    for (Feedback f : existingFeedbacks) {
-                        if (f.getCustomerId() == customerId && 
-                            ("approved".equals(f.getStatus()) || "rejected".equals(f.getStatus()))) {
-                            canWrite = false;
-                            break;
-                        }
-                    }
-                    canWriteFeedbackMap.put(bouquetId, canWrite);
+                    boolean canWrite = feedbackDAO.canWriteFeedback(currentUser.getUserid(), bouquetId, order.getOrderId());
+                    String key = order.getOrderId() + "-" + bouquetId; 
+                    canWriteFeedbackMap.put(key, canWrite);
                 }
             }
 
@@ -88,7 +81,7 @@ public class OrderController extends HttpServlet {
             request.setAttribute("orders", orders);
             request.setAttribute("orderDetailsList", orderDetailsList);
             request.setAttribute("selectedStatus", status != null ? status : "all");
-
+            request.setAttribute("canWriteFeedbackMap", canWriteFeedbackMap);
         } catch (Exception e) {
             request.setAttribute("error", "Không thể tải danh sách đơn hàng: " + e.getMessage());
         }

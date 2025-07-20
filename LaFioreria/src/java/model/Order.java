@@ -4,6 +4,8 @@
  */
 package model;
 
+import java.sql.Timestamp;
+
 /**
  *
  * @author Legion
@@ -27,9 +29,31 @@ public class Order {
     private String rejectReason;
     private String paymentMethod;
     private java.sql.Timestamp createdAt;
+    private String type;
 
     // Constructors
     public Order() {
+    }
+
+    public Order(int orderId, String orderDate, Integer customerId, String customerName, String customerPhone, String customerAddress, String totalSell, String totalImport, int statusId, String statusName, Integer shipperId, String shipperName, String deliveryProofImage, String rejectImage, String rejectReason, String paymentMethod, Timestamp createdAt, String type) {
+        this.orderId = orderId;
+        this.orderDate = orderDate;
+        this.customerId = customerId;
+        this.customerName = customerName;
+        this.customerPhone = customerPhone;
+        this.customerAddress = customerAddress;
+        this.totalSell = totalSell;
+        this.totalImport = totalImport;
+        this.statusId = statusId;
+        this.statusName = statusName;
+        this.shipperId = shipperId;
+        this.shipperName = shipperName;
+        this.deliveryProofImage = deliveryProofImage;
+        this.rejectImage = rejectImage;
+        this.rejectReason = rejectReason;
+        this.paymentMethod = paymentMethod;
+        this.createdAt = createdAt;
+        this.type = type;
     }
 
     public Order(int orderId, String orderDate, Integer customerId, String customerName,
@@ -209,9 +233,17 @@ public class Order {
         this.totalImport = totalImport;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     @Override
     public String toString() {
-        return "Order{" + "orderId=" + orderId + ", orderDate=" + orderDate + ", customerId=" + customerId + ", customerName=" + customerName + ", customerPhone=" + customerPhone + ", customerAddress=" + customerAddress + ", totalSell=" + totalSell + ", totalImport=" + totalImport + ", statusId=" + statusId + ", statusName=" + statusName + ", shipperId=" + shipperId + ", shipperName=" + shipperName + ", deliveryProofImage=" + deliveryProofImage + ", rejectImage=" + rejectImage + ", rejectReason=" + rejectReason + '}';
+        return "Order{" + "orderId=" + orderId + ", orderDate=" + orderDate + ", customerId=" + customerId + ", customerName=" + customerName + ", customerPhone=" + customerPhone + ", customerAddress=" + customerAddress + ", totalSell=" + totalSell + ", totalImport=" + totalImport + ", statusId=" + statusId + ", statusName=" + statusName + ", shipperId=" + shipperId + ", shipperName=" + shipperName + ", deliveryProofImage=" + deliveryProofImage + ", rejectImage=" + rejectImage + ", rejectReason=" + rejectReason + ", paymentMethod=" + paymentMethod + ", createdAt=" + createdAt + ", type=" + type + '}';
     }
 
 }

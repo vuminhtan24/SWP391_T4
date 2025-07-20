@@ -18,6 +18,11 @@ import java.util.List;
 import model.BouquetImage;
 import model.CartDetail;
 import model.User;
+import model.WholeSale;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import dal.FlowerBatchDAO;
+import java.util.Map;
 
 /**
  *
@@ -109,6 +114,8 @@ public class CartController extends HttpServlet {
                 update(request, response);
             case "delete" ->
                 delete(request, response);
+            case "addQuoted" ->
+                addQuoted(request, response);
             default ->
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action: " + action);
         }
@@ -155,25 +162,85 @@ public class CartController extends HttpServlet {
 
         int customerId = currentUser.getUserid();
         CartDAO dao = new CartDAO();
-        BouquetDAO bdao = new BouquetDAO();
+        FlowerBatchDAO fbdao = new FlowerBatchDAO();
 
         try {
+            // Cleanup soft hold hết hạn trước
+            fbdao.cleanupExpiredSoftHolds();
+
             CartDetail existing = dao.getCartItem(customerId, bouquetId);
             if (existing != null) {
                 int newQuantity = existing.getQuantity() + quantity;
                 dao.updateQuantity(customerId, bouquetId, newQuantity);
-                bdao.cleanupExpiredSoftHolds(customerId);
             } else {
-                bdao.cleanupExpiredSoftHolds(customerId);
                 dao.insertItem(customerId, bouquetId, quantity);
-                bdao.insertSoftHold(customerId);
-                bdao.recalculateRealTimeQuantities();
             }
 
+            // Insert soft hold mới từ toàn bộ cart hiện tại
+            fbdao.insertSoftHold(customerId);
+
             response.getWriter().write("{\"status\": \"added\", \"message\": \"Item added to cart\"}");
-        } catch (IOException e) {
+        } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("{\"status\": \"error\", \"message\": \"Failed to add item to cart\"}");
+        }
+    }
+
+    private void addQuoted(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        User currentUser = (User) request.getSession().getAttribute("currentAcc");
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        // ❌ Nếu chưa đăng nhập, không cho phép
+        if (currentUser == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Bạn cần đăng nhập để sử dụng chức năng này.\"}");
+            return;
+        }
+
+        try {
+            String itemsJson = request.getParameter("items");
+            Gson gson = new Gson();
+
+            List<Map<String, Object>> quotedItems = gson.fromJson(
+                    itemsJson,
+                    new TypeToken<List<Map<String, Object>>>() {
+                    }.getType()
+            );
+
+            int customerId = currentUser.getUserid();
+            CartDAO dao = new CartDAO();
+            List<CartDetail> itemsToAdd = new ArrayList<>();
+
+            for (Map<String, Object> item : quotedItems) {
+                int bouquetId = ((Number) item.get("bouquetId")).intValue();
+                int quantity = ((Number) item.get("quantity")).intValue();
+
+                CartDetail existing = dao.getCartItem(customerId, bouquetId);
+                if (existing != null) {
+                    continue; // bỏ qua nếu đã tồn tại trong giỏ
+                }
+
+                CartDetail newItem = new CartDetail();
+                newItem.setCustomerId(customerId);
+                newItem.setBouquetId(bouquetId);
+                newItem.setQuantity(quantity);
+
+                itemsToAdd.add(newItem);
+            }
+
+            if (!itemsToAdd.isEmpty()) {
+                dao.insertQuotedToCart(itemsToAdd);
+                response.getWriter().write("{\"status\": \"added\", \"message\": \"Tất cả sản phẩm đã được thêm vào giỏ hàng!\"}");
+            } else {
+                response.getWriter().write("{\"status\": \"exists\", \"message\": \"Tất cả sản phẩm đã có trong giỏ hàng.\"}");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace(); // để tiện debug
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Đã xảy ra lỗi khi thêm vào giỏ hàng.\"}");
         }
     }
 
@@ -187,13 +254,10 @@ public class CartController extends HttpServlet {
 
                 List<CartDetail> cart = (List<CartDetail>) request.getSession().getAttribute("cart");
                 if (cart != null) {
+                    cart.removeIf(item -> item.getBouquetId() == bouquetId && quantity <= 0);
                     for (CartDetail item : cart) {
-                        if (item.getBouquetId() == bouquetId) {
-                            if (quantity <= 0) {
-                                cart.remove(item);
-                            } else {
-                                item.setQuantity(quantity);
-                            }
+                        if (item.getBouquetId() == bouquetId && quantity > 0) {
+                            item.setQuantity(quantity);
                             break;
                         }
                     }
@@ -213,17 +277,25 @@ public class CartController extends HttpServlet {
             int quantity = Integer.parseInt(request.getParameter("quantity"));
 
             CartDAO dao = new CartDAO();
-            BouquetDAO bdao = new BouquetDAO();
+            FlowerBatchDAO fbdao = new FlowerBatchDAO();
+
+            // Cleanup soft hold hết hạn trước
+            fbdao.cleanupExpiredSoftHolds();
+
+            int cartId = dao.getCartIdByCustomerAndBouquet(customerId, bouquetId);
+
+            // Huỷ soft hold cũ
+            fbdao.cancelSoftHoldByCartId(cartId);
 
             if (quantity <= 0) {
-                int cartId = dao.getCartIdByCustomerAndBouquet(customerId, bouquetId);
                 dao.deleteItem(customerId, bouquetId);
-                bdao.cancelSoftHoldByCartId(cartId);
             } else {
                 dao.updateQuantity(customerId, bouquetId, quantity);
-                bdao.cleanupExpiredSoftHolds(customerId);
+
+                // Insert soft hold mới từ toàn bộ cart hiện tại
+                fbdao.insertSoftHold(customerId);
             }
-            bdao.recalculateRealTimeQuantities();
+
         } catch (NumberFormatException e) {
             request.setAttribute("error", "Invalid input format");
         } catch (Exception e) {
@@ -258,14 +330,18 @@ public class CartController extends HttpServlet {
             int bouquetId = Integer.parseInt(request.getParameter("bouquetId"));
 
             CartDAO dao = new CartDAO();
-            BouquetDAO bdao = new BouquetDAO();
-            
+            FlowerBatchDAO fbdao = new FlowerBatchDAO();
+
+            // Cleanup soft hold hết hạn trước
+            fbdao.cleanupExpiredSoftHolds();
+
             int cartId = dao.getCartIdByCustomerAndBouquet(customerId, bouquetId);
-            
+
+            // Huỷ soft hold trước
+            fbdao.cancelSoftHoldByCartId(cartId);
+
+            // Xoá item khỏi cart
             dao.deleteItem(customerId, bouquetId);
-            bdao.cancelSoftHoldByCartId(cartId);
-            
-            bdao.recalculateRealTimeQuantities();
 
         } catch (NumberFormatException e) {
             request.setAttribute("error", "Invalid bouquet ID format");
@@ -275,4 +351,5 @@ public class CartController extends HttpServlet {
 
         response.sendRedirect("cart");
     }
+
 }

@@ -1,6 +1,6 @@
 <%-- 
-    Document   : cart
-    Created on : May 19, 2025, 8:44:15 AM
+    Document   : cartWholeSale
+    Created on : Jul 19, 2025, 2:32:56 AM
     Author     : ADMIN
 --%>
 
@@ -172,7 +172,6 @@
                     <a href="${pageContext.request.contextPath}/cartWholeSale" class="btn-wholesale">Wholesale Cart</a>
                 </div>
 
-
                 <!-- Guest User Notice -->
                 <c:if test="${isGuest}">
                     <div class="guest-notice">
@@ -189,7 +188,7 @@
                 </c:if>
 
                 <!-- Empty Cart Message -->
-                <c:if test="${empty cartDetails}">
+                <c:if test="${empty listCartWholeSale}">
                     <div class="empty-cart">
                         <i class="fa fa-shopping-cart fa-5x" style="color: #ccc;"></i>
                         <h3>Your cart is empty</h3>
@@ -201,7 +200,7 @@
                 </c:if>
 
                 <!-- Cart Items Table -->
-                <c:if test="${not empty cartDetails}">
+                <c:if test="${not empty listCartWholeSale}">
                     <div class="table-responsive cart_info">
                         <table class="table table-condensed">
                             <thead>
@@ -216,48 +215,36 @@
                             </thead>
                             <tbody>
                                 <c:set var="total" value="0"/>
-                                <c:forEach var="item" items="${cartDetails}">
+                                <c:forEach var="item" items="${listCartWholeSale}">
                                     <tr>
                                         <td class="cart_product">
-                                            <c:forEach items="${cartImages}" var="imgLst" varStatus="loop">
-                                                <c:set var="count" value="1" />
-                                                <c:forEach items="${imgLst}" var="img">
-                                                    <c:if test="${img.bouquetId == item.bouquetId && count != 2}">
-                                                        <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}" alt="${item.bouquet.bouquetName}" width="100">
-                                                        <c:set var="count" value="2" />
-                                                    </c:if>
-                                                </c:forEach>
+                                            <c:set var="imageShown" value="false" />
+                                            <c:forEach var="img" items="${listIMG}">
+                                                <c:if test="${!imageShown and item.getBouquetID() eq img.getbouquetId()}">
+                                                    <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" alt="alt" style="width: 100px;"/>
+                                                    <c:set var="imageShown" value="true" />
+                                                </c:if>
                                             </c:forEach>
                                         </td>
+
                                         <td class="cart_description">
-                                            <h4>${item.bouquet.bouquetName}</h4>
-                                            <p>${item.bouquet.description}</p>
+                                            <c:forEach var="bouquet" items="${listBQ}">
+                                                <c:if test="${item.getBouquetID() eq bouquet.getBouquetId()}">
+                                                    <h4>${bouquet.getBouquetName()}</h4>
+                                                    <p>${bouquet.getDescription()}</p>
+                                                </c:if>
+                                            </c:forEach>
                                         </td>
                                         <td class="cart_price">
-                                            <p><fmt:formatNumber value="${item.bouquet.sellPrice}" pattern="#,##0" /> ₫</p>
+                                            <fmt:formatNumber value="${item.getPricePerUnit()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫
                                         </td>
                                         <td class="cart_quantity">
-                                            <div class="cart_quantity_button">
-                                                <form action="cart" method="post" style="display: flex;">
-                                                    <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
-                                                    <input type="hidden" name="action" value="update">
-                                                    <input class="cart_quantity_input" type="number" name="quantity" value="${item.quantity}" min="1" style="width: 50px; text-align: center;">
-                                                    <button type="submit" class="btn btn-xs">Update</button>
-                                                </form>
-                                            </div>
+                                            ${item.getQuantity()}
                                         </td>
                                         <td class="cart_total">
-                                            <p class="cart_total_price"><fmt:formatNumber value="${item.bouquet.sellPrice * item.quantity}" pattern="#,##0" /> ₫</p>
-                                        </td>
-                                        <td class="cart_delete">
-                                            <form action="cart" method="post">
-                                                <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
-                                                <input type="hidden" name="action" value="delete">
-                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
-                                            </form>
+                                            <fmt:formatNumber value="${item.getTotalValue()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫
                                         </td>
                                     </tr>
-                                    <c:set var="total" value="${total + item.bouquet.sellPrice * item.quantity}"/>
                                 </c:forEach>
                             </tbody>
                         </table>
@@ -266,17 +253,17 @@
         </section> <!--/#cart_items-->
 
         <!-- Checkout Section - Only show if cart has items -->
-        <c:if test="${not empty cartDetails}">
+        <c:if test="${not empty listCartWholeSale}">
             <section id="do_action">
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-6" style="float: right; border: none">
                             <div class="total_area" style="border: none">
                                 <ul>
-                                    <li style="background-color: white"><strong>Total</strong> <span><p><fmt:formatNumber value="${total}" pattern="#,##0" /> ₫</p></span></li>
+                                    <li style="background-color: white"><strong>Total</strong> <span><p><fmt:formatNumber value="${totalOrderValue}" pattern="#,##0" /> ₫</p></span></li>
                                 </ul>
                                 <div style="display: flex; justify-content: end;">
-                                    <a class="btn btn-default check_out" href="${pageContext.request.contextPath}/checkout">Check Out</a>
+                                    <a class="btn btn-default check_out" href="${pageContext.request.contextPath}/checkout?mode=wholesale">Check Out</a>
                                 </div>
                             </div>
                         </div>

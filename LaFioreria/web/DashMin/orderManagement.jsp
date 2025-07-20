@@ -4,10 +4,11 @@
     Author     : VU MINH TAN
 --%>
 
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<fmt:setLocale value="vi_VN" />
 
 <!DOCTYPE html>
 <html>
@@ -317,6 +318,7 @@
                                                 </c:if>
                                             </a>
                                         </th>
+                                        <th>Type<th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -331,8 +333,10 @@
                                             <td>${order.orderId}</td>
                                             <td>${order.orderDate}</td>
                                             <td>${order.customerName}</td>
-                                            <td>${order.totalImport}</td>
-                                            <td>${order.totalSell}</td>
+                                            <td><fmt:formatNumber value="${order.totalImport}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</td>
+                                            
+                                            <td><fmt:formatNumber value="${order.totalSell}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</td>
+                                            
                                             <td>${order.statusName}</td>
                                             <td>${order.shipperName != null ? order.shipperName : "Not Assigned"}</td>
                                             <td>
@@ -342,6 +346,7 @@
                                                     <c:otherwise>Null</c:otherwise>
                                                 </c:choose>
                                             </td>
+                                            <td>${order.getType()}</td>
 
                                             <td>
                                                 <a class="btn btn-sm btn-primary"

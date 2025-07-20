@@ -631,60 +631,61 @@ public class BouquetDAO extends BaseDao {
         }
 
         return b;
-    }
+    }  
 
     public int bouquetAvailable(int bouquetId) {
         int available = 0;
-        String sql = "    SELECT \n"
-                + "    MIN(FLOOR(fb.real_time_quantity / br.quantity)) AS max_bouquet_count\n"
-                + "FROM \n"
-                + "    bouquet b\n"
-                + "JOIN \n"
-                + "    bouquet_raw br ON b.bouquet_id = br.bouquet_id\n"
-                + "JOIN \n"
-                + "    flower_batch fb ON br.batch_id = fb.batch_id\n"
-                + "WHERE b.Bouquet_ID = ?    \n"
-                + "GROUP BY \n"
-                + "    b.bouquet_id, b.bouquet_name\n"
-                + "ORDER BY \n"
-                + "    max_bouquet_count ASC;";
+        String sql = """
+        SELECT MIN(sub.possible_bouquet) AS max_bouquet_count
+        FROM (
+            SELECT br.bouquet_id,
+                   FLOOR((
+                       fb.quantity
+                       - COALESCE(SUM(CASE WHEN fba.status = 'soft_hold' AND fba.created_at >= NOW() - INTERVAL 30 MINUTE THEN fba.quantity ELSE 0 END), 0)
+                       - COALESCE(SUM(CASE WHEN fba.status = 'confirmed' THEN fba.quantity ELSE 0 END), 0)
+                   ) / br.quantity) AS possible_bouquet
+            FROM bouquet_raw br
+            JOIN flower_batch fb ON br.batch_id = fb.batch_id
+            LEFT JOIN flower_batch_allocation fba ON fb.batch_id = fba.batch_id
+            WHERE br.bouquet_id = ?
+            GROUP BY br.batch_id, br.quantity
+        ) AS sub
+        """;
 
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setInt(1, bouquetId);
             rs = ps.executeQuery();
-            while (rs.next()) {
+            if (rs.next()) {
                 available = rs.getInt("max_bouquet_count");
             }
         } catch (SQLException e) {
-            System.err.println("BouquetDAO: Error in isFlowerInBouquet - " + e.getMessage());
+            System.err.println("BouquetDAO: Error in bouquetAvailable - " + e.getMessage());
         } finally {
             try {
                 this.closeResources();
             } catch (Exception e) {
             }
         }
-
         return available;
-
     }
 
     public List<Bouquet> allBouquetAvailable() {
-        List<Bouquet> available = new ArrayList<>();
-        String sql = "    SELECT \n"
-                + "                     b.bouquet_id,\n"
-                + "                     MIN(FLOOR(fb.real_time_quantity / br.quantity)) AS max_bouquet_count\n"
-                + "                 FROM \n"
-                + "                     bouquet b\n"
-                + "                 JOIN \n"
-                + "                     bouquet_raw br ON b.bouquet_id = br.bouquet_id\n"
-                + "                 JOIN \n"
-                + "                     flower_batch fb ON br.batch_id = fb.batch_id\n"
-                + "                 GROUP BY \n"
-                + "                     b.bouquet_id, b.bouquet_name\n"
-                + "                 ORDER BY \n"
-                + "                     b.Bouquet_ID ASC;";
+        List<Bouquet> availableList = new ArrayList<>();
+        String sql = """
+            SELECT b.bouquet_id,
+                   MIN(FLOOR(
+                       (fb.quantity 
+                        - COALESCE(SUM(CASE WHEN fba.status = 'soft_hold' AND fba.created_at >= NOW() - INTERVAL 30 MINUTE THEN fba.quantity ELSE 0 END), 0)
+                        - COALESCE(SUM(CASE WHEN fba.status = 'confirmed' THEN fba.quantity ELSE 0 END), 0)
+                       ) / br.quantity)) AS max_bouquet_count
+            FROM bouquet b
+            JOIN bouquet_raw br ON b.bouquet_id = br.bouquet_id
+            JOIN flower_batch fb ON br.batch_id = fb.batch_id
+            LEFT JOIN flower_batch_allocation fba ON fb.batch_id = fba.batch_id
+            GROUP BY b.bouquet_id
+        """;
 
         try {
             connection = dbc.getConnection();
@@ -693,180 +694,17 @@ public class BouquetDAO extends BaseDao {
             while (rs.next()) {
                 int bouquetId = rs.getInt("bouquet_id");
                 int quantity = rs.getInt("max_bouquet_count");
-                Bouquet b = new Bouquet(bouquetId, quantity);
-                available.add(b);
+                availableList.add(new Bouquet(bouquetId, quantity));
             }
         } catch (SQLException e) {
-            System.err.println("BouquetDAO: Error in isFlowerInBouquet - " + e.getMessage());
+            System.err.println("BouquetDAO: Error in allBouquetAvailable - " + e.getMessage());
         } finally {
             try {
                 this.closeResources();
             } catch (Exception e) {
             }
         }
-
-        return available;
-
-    }
-
-    public void insertSoftHold(int customerId) {
-        String sql = """
-        INSERT INTO flower_batch_allocation (
-            batch_id, flower_id, order_id, quantity, status, created_at, cart_id
-        )
-        SELECT
-            fb.batch_id,
-            fb.flower_id,
-            NULL AS order_id,
-            br.quantity * cd.quantity AS quantity,
-            'soft_hold' AS status,
-            NOW() AS created_at,
-            cd.cart_id
-        FROM cartdetails cd
-        JOIN bouquet_raw br ON cd.bouquet_id = br.bouquet_id
-        JOIN flower_batch fb ON fb.batch_id = br.batch_id
-        WHERE cd.customer_id = ?;
-    """;
-
-        try {
-            connection = dbc.getConnection();
-            ps = connection.prepareStatement(sql);
-            ps.setInt(1, customerId);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            System.err.println("FlowerBatchDAO: SQLException in insertSoftHold - " + e.getMessage());
-            throw new RuntimeException("Failed to insert soft hold allocation", e);
-        } finally {
-            try {
-                this.closeResources();
-            } catch (Exception e) {
-                // ignore silently
-            }
-        }
-    }
-
-    public List<FlowerBatchAllocation> getAllocatedQuantities() {
-        String sql = """
-        SELECT batch_id, flower_id, SUM(quantity) AS total
-        FROM flower_batch_allocation
-        WHERE status != 'cancelled'
-        GROUP BY batch_id, flower_id;
-    """;
-
-        List<FlowerBatchAllocation> list = new ArrayList<>();
-
-        try {
-            connection = dbc.getConnection();
-            ps = connection.prepareStatement(sql);
-            rs = ps.executeQuery();
-
-            while (rs.next()) {
-                int batchId = rs.getInt("batch_id");
-                int flowerId = rs.getInt("flower_id");
-                int total = rs.getInt("total");
-
-                list.add(new FlowerBatchAllocation(batchId, flowerId, total));
-            }
-        } catch (SQLException e) {
-            System.err.println("FlowerBatchDAO: SQLException in getAllocatedQuantities - " + e.getMessage());
-            throw new RuntimeException("Failed to retrieve allocated quantities", e);
-        } finally {
-            try {
-                this.closeResources();
-            } catch (Exception e) {
-                // ignore silently
-            }
-        }
-
-        return list;
-    }
-
-    public void updateRealTimeQuantityFromAllocated(List<FlowerBatchAllocation> allocations) {
-        String sql = """
-        UPDATE flower_batch
-        SET real_time_quantity = quantity - ?
-        WHERE batch_id = ? AND flower_id = ?;
-    """;
-
-        try {
-            connection = dbc.getConnection();
-            ps = connection.prepareStatement(sql);
-
-            for (FlowerBatchAllocation alloc : allocations) {
-                ps.setInt(1, alloc.getQuantity()); // total quantity
-                ps.setInt(2, alloc.getBatch_id());
-                ps.setInt(3, alloc.getFlower_id());
-                ps.addBatch();
-            }
-
-            ps.executeBatch();
-        } catch (SQLException e) {
-            System.err.println("FlowerBatchDAO: SQLException in updateRealTimeQuantityFromAllocated - " + e.getMessage());
-            throw new RuntimeException("Failed to update real_time_quantity", e);
-        } finally {
-            try {
-                this.closeResources();
-            } catch (Exception e) {
-                // ignore silently
-            }
-        }
-    }
-
-    public void recalculateRealTimeQuantities() {
-        List<FlowerBatchAllocation> allocations = getAllocatedQuantities();
-        updateRealTimeQuantityFromAllocated(allocations);
-    }
-
-    public void cancelSoftHoldByCartId(int cartId) {
-        String sql = """
-        UPDATE flower_batch_allocation
-        SET status = 'cancelled'
-        WHERE cart_id = ? AND status = 'soft_hold'
-    """;
-
-        try {
-            connection = dbc.getConnection();
-            ps = connection.prepareStatement(sql);
-            ps.setInt(1, cartId);
-
-            int affectedRows = ps.executeUpdate();
-            System.out.println("Đã chuyển " + affectedRows + " bản ghi soft_hold thành cancelled theo cart_id=" + cartId);
-        } catch (SQLException e) {
-            System.err.println("FlowerBatchAllocationDAO: SQLException in cancelSoftHoldByCartId - " + e.getMessage());
-        } finally {
-            try {
-                closeResources();
-            } catch (Exception e) {
-                // Ignore silently
-            }
-        }
-    }
-
-    public void cleanupExpiredSoftHolds(int customerId) {
-        String sql = """
-        UPDATE flower_batch_allocation
-        SET status = 'cancelled'
-        WHERE status = 'soft_hold'
-          AND cart_id IN (
-              SELECT cart_id FROM cartdetails WHERE customer_id = ?
-          )
-          AND created_at < NOW() - INTERVAL 30 MINUTE
-    """;
-
-        try {
-            connection = dbc.getConnection();
-            ps = connection.prepareStatement(sql);
-            ps.setInt(1, customerId);
-            int updated = ps.executeUpdate();
-            System.out.println("Đã hủy " + updated + " bản ghi soft_hold hết hạn cho customer_id = " + customerId);
-        } catch (SQLException e) {
-            System.err.println("Lỗi khi cleanup soft_hold: " + e.getMessage());
-        } finally {
-            try {
-                closeResources();
-            } catch (Exception e) {
-            }
-        }
+        return availableList;
     }
 
     public static void main(String[] args) {
@@ -878,11 +716,7 @@ public class BouquetDAO extends BaseDao {
 //        BouquetImage big = dao.getBouquetImage(1);
         List<BouquetImage> big = dao.getBouquetImage(5);
 //        System.out.println(big);
-        System.out.println(dao.getBouquetFullInfoById(1));
-        System.out.println(dao.isFlowerInBouquet(1));
-        System.out.println(dao.bouquetAvailable(2));
-
-        System.out.println(dao.allBouquetAvailable());
+        System.out.println(dao.bouquetAvailable(1));
     }
 
 }

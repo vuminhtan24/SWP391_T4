@@ -455,11 +455,15 @@
                         <c:when test="${param.sendEmail eq 'true'}">
                             <c:set var="canSendQuotation" value="false" />
                         </c:when>
-
                         <c:otherwise>
                             <c:set var="canSendQuotation" value="true" />
                             <c:forEach var="item" items="${listWS}">
+                                <!-- Nếu status khác QUOTED -->
                                 <c:if test="${item.status ne 'QUOTED'}">
+                                    <c:set var="canSendQuotation" value="false" />
+                                </c:if>
+
+                                <c:if test="${item.status eq 'EMAIL'}">
                                     <c:set var="canSendQuotation" value="false" />
                                 </c:if>
                             </c:forEach>

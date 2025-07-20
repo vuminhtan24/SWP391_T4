@@ -270,10 +270,11 @@
                                                 <textarea name="bqDescription" class="form-control" rows="4" required>${bouquetDetail.getDescription()}</textarea>
                                             </div>
                                             <label class="form-label fw-semibold">Status:</label>
-                                            <select name="status" class="form-select" disabled>
+                                            <select class="form-select" disabled>
                                                 <option value="valid" ${bouquetDetail.getStatus() == 'valid' ? 'selected' : ''}>valid</option>
-                                                <option value="invalid" ${bouquetDetail.getStatus() == 'needs_repair' ? 'selected' : ''}>needs repair</option>
+                                                <option value="needs_repair" ${bouquetDetail.getStatus() == 'needs_repair' ? 'selected' : ''}>needs repair</option>
                                             </select>
+                                            <input type="hidden" name="status" value="${bouquetDetail.getStatus()}">
                                             <h5 class="mb-3 text-secondary">Flower in bouquet</h5>
                                             <div class="table-responsive mb-3">
                                                 <table id="flowerTable" class="table table-bordered align-middle">

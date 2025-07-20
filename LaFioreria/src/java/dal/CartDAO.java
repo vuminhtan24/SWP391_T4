@@ -122,6 +122,32 @@ public class CartDAO extends BaseDao {
         }
     }
 
+    public void insertQuotedToCart(List<CartDetail> items) {
+        String sql = "INSERT INTO cartdetails (customer_id, bouquet_id, quantity) VALUES (?, ?, ?)";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+
+            for (CartDetail item : items) {
+                ps.setInt(1, item.getCustomerId());
+                ps.setInt(2, item.getBouquetId());
+                ps.setInt(3, item.getQuantity());
+                ps.addBatch(); // Thêm vào batch
+            }
+
+            ps.executeBatch(); // Thực thi toàn bộ batch
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public List<CartDetail> getCartDetailsByCustomerId(int customerId) {
         List<CartDetail> list = new ArrayList<>();
         String sql = "SELECT \n"
@@ -202,45 +228,63 @@ public class CartDAO extends BaseDao {
 
     public int insertOrder(Order order) {
         int orderId = -1;
+        String sql = """
+        INSERT INTO `order` (order_date, customer_id, customer_name, customer_phone, customer_address,
+                             total_sell, total_import, status_id, payment_method, type)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """;
 
-        String sql = "INSERT INTO `order` (order_date, customer_id, customer_name, customer_phone, customer_address, total_sell, total_import, status_id, payment_method) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
-            ps.setString(1, order.getOrderDate());
+            ps.setDate(1, Date.valueOf(order.getOrderDate()));
 
             if (order.getCustomerId() != null && order.getCustomerId() != -1) {
                 ps.setInt(2, order.getCustomerId());
             } else {
-                ps.setNull(2, Types.INTEGER); // Khách vãng lai
+                ps.setNull(2, Types.INTEGER);
             }
 
             ps.setString(3, order.getCustomerName());
             ps.setString(4, order.getCustomerPhone());
             ps.setString(5, order.getCustomerAddress());
-            ps.setString(6, order.getTotalSell());
-            ps.setString(7, order.getTotalImport());
-            ps.setInt(8, 1);
+
+            // Parse int safely
+            int totalSell = Integer.parseInt(order.getTotalSell().replaceAll("[^\\d]", ""));
+            int totalImport = Integer.parseInt(order.getTotalImport().replaceAll("[^\\d]", ""));
+            ps.setInt(6, totalSell);
+            ps.setInt(7, totalImport);
+
+            ps.setInt(8, order.getStatusId());
             ps.setString(9, order.getPaymentMethod());
+            ps.setString(10, order.getType());
+
+            System.out.println("[DEBUG] Executing insertOrder with: "
+                    + "date=" + order.getOrderDate()
+                    + ", customerId=" + order.getCustomerId()
+                    + ", totalSell=" + totalSell
+                    + ", totalImport=" + totalImport);
 
             int rowsAffected = ps.executeUpdate();
+            System.out.println("[DEBUG] insertOrder → rowsAffected = " + rowsAffected);
 
             if (rowsAffected > 0) {
                 rs = ps.getGeneratedKeys();
                 if (rs.next()) {
                     orderId = rs.getInt(1);
+                    System.out.println("[DEBUG] insertOrder → Generated orderId = " + orderId);
                 }
             }
 
         } catch (SQLException e) {
-            System.err.println("insertOrder ERROR: " + e.getMessage());
+            System.err.println("[ERROR] insertOrder → " + e.getMessage());
+            e.printStackTrace();
         } finally {
             try {
                 closeResources();
             } catch (Exception e) {
-                System.err.println("Error closing resources: " + e.getMessage());
+                System.err.println("[WARN] insertOrder → Failed to close resources: " + e.getMessage());
             }
         }
 
@@ -269,22 +313,44 @@ public class CartDAO extends BaseDao {
         return null;
     }
 
-    public void insertOrderItem(OrderItem item) {
-        String sql = "INSERT INTO order_item (order_id, bouquet_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
+    public boolean insertOrderItem(OrderItem item) {
+        String sql = """
+        INSERT INTO order_item (order_id, bouquet_id, quantity, unit_price)
+        VALUES (?, ?, ?, ?)
+    """;
+
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
+
             ps.setInt(1, item.getOrderId());
             ps.setInt(2, item.getBouquetId());
             ps.setInt(3, item.getQuantity());
             ps.setDouble(4, item.getUnitPrice());
-            ps.executeUpdate();
+
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("[DEBUG] insertOrderItem → Inserted: orderId=" + item.getOrderId()
+                        + ", bouquetId=" + item.getBouquetId()
+                        + ", quantity=" + item.getQuantity()
+                        + ", unitPrice=" + item.getUnitPrice());
+                return true;
+            } else {
+                System.err.println("[ERROR] insertOrderItem → No rows inserted for orderId=" + item.getOrderId()
+                        + ", bouquetId=" + item.getBouquetId());
+                return false;
+            }
+
         } catch (SQLException e) {
+            System.err.println("[ERROR] insertOrderItem → " + e.getMessage());
             e.printStackTrace();
+            return false;
         } finally {
             try {
                 this.closeResources();
             } catch (Exception e) {
+                System.err.println("[WARN] insertOrderItem → Error closing resources: " + e.getMessage());
             }
         }
     }

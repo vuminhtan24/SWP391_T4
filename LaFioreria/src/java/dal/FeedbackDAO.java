@@ -321,7 +321,7 @@ public class FeedbackDAO extends BaseDao {
 
     public static void main(String[] args) {
         FeedbackDAO dao = new FeedbackDAO();
-        List<String> list = dao.getFeedbackImageUrls(1);
+        boolean list = dao.canWriteFeedback(12, 12, 51);
         System.out.println(list);
     }
 }
