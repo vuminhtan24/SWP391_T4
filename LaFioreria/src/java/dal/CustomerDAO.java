@@ -44,7 +44,7 @@ public class CustomerDAO extends BaseDao {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
 
-            java.sql.Date birthday = java.sql.Date.valueOf(birthdayStr); 
+            java.sql.Date birthday = java.sql.Date.valueOf(birthdayStr);
 
             ps.setDate(1, birthday);
             ps.setString(2, gender);
@@ -53,6 +53,46 @@ public class CustomerDAO extends BaseDao {
         } catch (IllegalArgumentException e) {
             System.err.println("Birthday format must be yyyy-MM-dd");
             e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public int getLoyaltyPointByUserId(int userId) {
+        String sql = "SELECT Loyalty_Point FROM customer_info WHERE User_ID = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+
+            ps.setInt(1, userId);
+            try {
+                rs = ps.executeQuery();
+                if (rs.next()) {
+                    return rs.getInt("Loyalty_Point");
+                }
+            } catch (Exception e) {
+                e.getMessage();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public boolean updateLoyaltyPointByUserId(int userId, int newLoyaltyPoint) {
+        String sql = "UPDATE customer_info SET Loyalty_Point = ? WHERE User_ID = ?";
+        try {
+
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, newLoyaltyPoint);
+            ps.setInt(2, userId);
+
+            int rowsUpdated = ps.executeUpdate();
+            return rowsUpdated > 0;
+
         } catch (SQLException e) {
             e.printStackTrace();
         }

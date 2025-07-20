@@ -120,7 +120,7 @@ public class VerifyOTP extends HttpServlet {
                 customer.setUserId(user.getUserid());
                 customer.setCustomerCode(generateCustomerCode());
                 customer.setJoinDate(LocalDate.now().toString()); // ISO format yyyy-MM-dd
-                customer.setLoyaltyPoint(0);
+                customer.setLoyaltyPoint(100);
                 customerDAO.insert(customer);
             }
         }
