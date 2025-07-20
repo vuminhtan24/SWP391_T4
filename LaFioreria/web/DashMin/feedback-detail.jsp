@@ -332,7 +332,7 @@
 
                                     <div class="mb-3">
                                         <label class="form-label fw-semibold">Customer:</label>
-                                        <h6>${feedbackCustomerNames[feedback.feedbackId]}</h6>
+                                        <h6>${feedback.customerName}</h6>
                                     </div>
 
                                     <div class="mb-3">

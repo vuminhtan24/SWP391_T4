@@ -1,10 +1,9 @@
 package dal;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Vector;
 import model.User;
+import java.sql.Statement;
 import org.mindrot.jbcrypt.BCrypt;
 
 public class DAOAccount extends BaseDao {
@@ -69,7 +68,8 @@ public class DAOAccount extends BaseDao {
         String sql = "INSERT INTO la_fioreria.user (username, password, fullname, email, phone, address, Role) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try {
             connection = dbc.getConnection();
-            ps = connection.prepareStatement(sql);
+            ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
             ps.setString(1, acc.getUsername());
             String hashedPassword = BCrypt.hashpw(acc.getPassword(), BCrypt.gensalt());
             ps.setString(2, hashedPassword);
@@ -78,7 +78,16 @@ public class DAOAccount extends BaseDao {
             ps.setString(5, acc.getPhone());
             ps.setString(6, acc.getAddress());
             ps.setInt(7, acc.getRole());
-            return ps.executeUpdate() > 0;
+            int rows = ps.executeUpdate();
+
+            if (rows > 0) {
+                rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    int generatedId = rs.getInt(1);
+                    acc.setUserid(generatedId);
+                }
+                return true;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {

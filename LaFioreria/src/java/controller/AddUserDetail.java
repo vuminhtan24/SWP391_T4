@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Random;
 import model.CustomerInfo;
 import model.EmployeeInfo;
 import model.User;
@@ -68,12 +69,29 @@ public class AddUserDetail extends HttpServlet {
         List<String> roleNames = ud.getRoleNames();
 
         // GỌI ID MỚI
-        int nextUserId = ud.getNextUserId();  // ➤ Hàm này bạn phải tự viết trong DAO
+        int nextUserId = ud.getNextUserId();
 
         request.setAttribute("roleNames", roleNames);
-        request.setAttribute("idValue", nextUserId);  // ➤ Gửi ID sang JSP
+        request.setAttribute("idValue", nextUserId);
+
+        String employeeCode = generateEmployeeCode();
+        request.setAttribute("employeeCode", employeeCode);
+        String customerCode = generateCustomerCode();
+        request.setAttribute("customerCode", customerCode);
 
         request.getRequestDispatcher("DashMin/addnewuserdetail.jsp").forward(request, response);
+    }
+
+    private String generateEmployeeCode() {
+        String prefix = "EMP";
+        int randomNum = new Random().nextInt(90000) + 10000; // Tạo số từ 10000–99999
+        return prefix + randomNum; // Ví dụ: EMP58392
+    }
+
+    private String generateCustomerCode() {
+        String prefix = "CUST";
+        int randomNum = new Random().nextInt(10000); // 0 đến 9999
+        return prefix + String.format("%04d", randomNum); // zero-padded 4 số
     }
 
     /**
@@ -342,8 +360,8 @@ public class AddUserDetail extends HttpServlet {
         if (code == null || code.trim().isEmpty()) {
             request.setAttribute("errorCustomerCode", "Please enter a customer code.");
             hasError = true;
-        } else if (!code.matches("^CUST\\d{4,10}$")) {
-            request.setAttribute("errorCustomerCode", "Customer code must start with 'CUST' followed by 4 to 10 digits (e.g., CUST1234).");
+        } else if (!code.matches("^CUST\\d{4}$")) {
+            request.setAttribute("errorCustomerCode", "Customer code must start with 'CUST' followed by 4 digits (e.g., CUST1234).");
             hasError = true;
         } else if (ud.isCustomerCodeExist(code)) { // Bạn cần tự viết hàm này trong DAO
             request.setAttribute("errorCustomerCode", "This customer code already exists. Please use a different one.");

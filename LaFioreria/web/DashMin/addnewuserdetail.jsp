@@ -229,8 +229,8 @@
                                         <td>
                                             <input type="text" name="pass" class="form-control" placeholder="Password"
                                                    value="${param.pass}" aria-label="Password">
-                                            <small class="form-text text-muted">
-                                                Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường và 1 chữ số. Độ dài 8-32 ký tự.
+                                            <small class="form-text text-success">
+                                                Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number. Length 8-32 characters.
                                             </small>
                                             <c:if test="${not empty errorPassword}">
                                                 <p style="color:red;">${errorPassword}</p>
