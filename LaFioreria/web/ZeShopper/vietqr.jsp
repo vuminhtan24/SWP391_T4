@@ -23,13 +23,13 @@
         <div class="container mt-5">
             <div class="text-center">
                 <h2 class="mb-4">Quét mã QR để thanh toán</h2>
-
-                <%-- Retrieve parameters from request attributes, set by ConfirmVietQRPayment servlet --%>
-                <c:set var="bankCode" value="${requestScope.bankCode}" />
-                <c:set var="accountNumber" value="${requestScope.accountNumber}" />
-                <c:set var="accountName" value="${requestScope.accountName}" />
-                <c:set var="amount" value="${requestScope.amount}" />
-                <c:set var="orderId" value="${requestScope.orderId}" />
+                <%
+                    String bankCode = "MB";
+                    String accountNumber = "2628612348888";
+                    String accountName = "LaFioreria";
+                    int amount = (Integer) request.getAttribute("amount");
+                    String orderId = request.getParameter("orderId");
+                %>
 
                 <img class="mb-4"
                      src="https://img.vietqr.io/image/<c:out value="${bankCode}"/>-<c:out value="${accountNumber}"/>-compact2.png?amount=<c:out value="${amount}"/>&addInfo=ORDER<c:out value="${orderId}"/>&accountName=<c:out value="${accountName}"/>"

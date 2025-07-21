@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.Arrays;
 
 @WebServlet(name = "ShipperOrderManagement", urlPatterns = {"/shipperDashboard"})
 public class ShipperOrderManagement extends HttpServlet {
@@ -25,7 +26,7 @@ public class ShipperOrderManagement extends HttpServlet {
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("currentAcc");
 
-        if (currentUser == null || currentUser.getRole() != 8) { 
+        if (currentUser == null || currentUser.getRole() != 8) {
             response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet?error=unauthorized");
             return;
         }
@@ -41,15 +42,35 @@ public class ShipperOrderManagement extends HttpServlet {
         // --- Kết thúc phần lấy trạng thái chung ---
 
         if (action == null || action.isEmpty() || "list".equals(action)) {
-            List<Integer> statusFilter = new ArrayList<>();
-            statusFilter.add(3); // Shipping 
-            statusFilter.add(4); // Delivered 
-            statusFilter.add(5); // Cancel 
+            List<Integer> statusFilter = Arrays.asList(3, 4, 5);
 
-            List<Order> orders = orderDAO.getOrdersByShipperIdAndStatuses(shipperId, statusFilter);
+            // Phân trang
+            int pageSize = 5;
+            int currentPage = 1;
+            try {
+                String pageParam = request.getParameter("page");
+                if (pageParam != null) {
+                    currentPage = Integer.parseInt(pageParam);
+                }
+            } catch (NumberFormatException e) {
+                currentPage = 1;
+            }
+
+            int offset = (currentPage - 1) * pageSize;
+
+            // Tổng số đơn hàng
+            int totalOrders = orderDAO.countOrdersByShipperIdAndStatuses(shipperId, statusFilter);
+            int totalPages = (int) Math.ceil((double) totalOrders / pageSize);
+
+            // Lấy danh sách đơn theo trang
+            List<Order> orders = orderDAO.getOrdersByShipperIdAndStatusesPaged(shipperId, statusFilter, offset, pageSize);
+
             request.setAttribute("orders", orders);
-            request.getRequestDispatcher("/DashMin/shipperOrderList.jsp").forward(request, response);
+            request.setAttribute("statuses", statuses); // dòng này giữ nguyên
+            request.setAttribute("currentPage", currentPage);
+            request.setAttribute("totalPages", totalPages);
 
+            request.getRequestDispatcher("/DashMin/shipperOrderList.jsp").forward(request, response);
         } else if ("viewDetail".equals(action)) {
             int orderId;
             try {
@@ -103,7 +124,7 @@ public class ShipperOrderManagement extends HttpServlet {
                 }
             }
             // Sau khi cập nhật trạng thái, chuyển hướng trở lại dashboard, điều này sẽ tải lại danh sách đơn hàng và trạng thái.
-            response.sendRedirect(request.getContextPath() + "/shipperDashboard"); 
+            response.sendRedirect(request.getContextPath() + "/shipperDashboard");
         } else {
             response.sendRedirect(request.getContextPath() + "/shipperDashboard");
         }

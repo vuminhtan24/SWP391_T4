@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
 package controller;
 
 import dal.CartDAO;
@@ -11,9 +15,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.security.Timestamp;
-import model.Order;
-import model.User; // Import User model
+import java.sql.Timestamp; // Đã sửa từ java.security.Timestamp sang java.sql.Timestamp
 
 /**
  *
@@ -61,68 +63,62 @@ public class ConfirmVietQRPayment extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession();
-        Integer orderId = (Integer) session.getAttribute("currentOrderId");
-        Integer amount = (Integer) session.getAttribute("currentOrderAmount");
+        String orderId = request.getParameter("orderId");
+        String amountStr = request.getParameter("amount");
 
-        System.out.println("DEBUG: ConfirmVietQRPayment - Entering doGet method.");
-        System.out.println("DEBUG: ConfirmVietQRPayment - Retrieved orderId from session: " + orderId);
-        System.out.println("DEBUG: ConfirmVietQRPayment - Retrieved amount from session: " + amount);
-
-        // Clear session attributes immediately after retrieval to prevent stale data
-        session.removeAttribute("currentOrderId");
-        session.removeAttribute("currentOrderAmount");
-        System.out.println("DEBUG: ConfirmVietQRPayment - Removed orderId and amount from session.");
-
-        if (orderId == null || amount == null) {
-            System.err.println("ERROR: ConfirmVietQRPayment - orderId or amount is null in session. Redirecting to error page.");
-            request.setAttribute("error", "Thông tin đơn hàng không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.");
-            request.getRequestDispatcher("/ZeShopper/error.jsp").forward(request, response); // Redirect to an error page
+        if (orderId == null || amountStr == null) {
+            // Sửa đường dẫn redirect để đảm bảo đúng context path
+            response.sendRedirect(request.getContextPath() + "/ZeShopper/checkout.jsp");
             return;
         }
 
-        // Set QR code specific parameters from the server-side
-        request.setAttribute("bankCode", "MB");
-        request.setAttribute("accountNumber", "2628612348888");
-        request.setAttribute("accountName", "LaFioreria");
-        System.out.println("DEBUG: ConfirmVietQRPayment - Set bank details as request attributes.");
-
-        // Get order creation time to check payment deadline
+        // Lấy thời gian tạo đơn hàng để kiểm tra hạn thanh toán
         CartDAO dao = new CartDAO();
-        java.sql.Timestamp createdAt = dao.getOrderCreatedAt(orderId); // Use the retrieved orderId
-        System.out.println("DEBUG: ConfirmVietQRPayment - Order created at: " + createdAt);
+        java.sql.Timestamp createdAt = dao.getOrderCreatedAt(Integer.parseInt(orderId));
 
         if (createdAt != null) {
             long nowMillis = System.currentTimeMillis();
             long orderMillis = createdAt.getTime();
+            System.out.println("Current time (nowMillis): " + nowMillis + " (" + new java.util.Date(nowMillis) + ")");
+            System.out.println("Order created at (createdAt from DB): " + createdAt + " (orderMillis: " + orderMillis + ")");
+
             long diffMillis = nowMillis - orderMillis;
-            long maxAllowedMillis = 15 * 60 * 1000; // 15 minutes in milliseconds
+            long maxAllowedMillis = 15 * 60 * 1000; // 15 phút
 
             if (diffMillis > maxAllowedMillis) {
-                System.err.println("ERROR: ConfirmVietQRPayment - Order " + orderId + " has expired. Redirecting to error page.");
-                request.setAttribute("error", "Đơn hàng đã hết thời gian thanh toán. Vui lòng đặt lại đơn mới.");
-                request.getRequestDispatcher("/ZeShopper/error.jsp").forward(request, response); // Redirect to an error page
+                request.setAttribute("errorMessage", "Đơn hàng đã hết thời gian thanh toán. Vui lòng đặt lại đơn mới.");
+                // Sửa đường dẫn forward để đảm bảo đúng context path
+                request.getRequestDispatcher("/ZeShopper/checkout.jsp").forward(request, response); // Forward về checkout.jsp
                 return;
             }
             long remainingTime = maxAllowedMillis - diffMillis;
+            System.out.println("Calculated remainingTime (millis): " + remainingTime);
             request.setAttribute("remainingTime", remainingTime);
-            System.out.println("DEBUG: ConfirmVietQRPayment - Remaining time for payment: " + remainingTime + " ms.");
         }
 
-        User user = (User) session.getAttribute("currentAcc"); // Assuming "currentAcc" is used for user object
+        // Parse số tiền
+        Integer amount = null; // Thay đổi kiểu dữ liệu thành Integer để tránh NumberFormatException
+        try {
+            // Chuyển đổi từ String sang Double, sau đó ép kiểu thành Integer
+            amount = (int) Double.parseDouble(amountStr); 
+        } catch (NumberFormatException e) {
+            // Sửa đường dẫn redirect để đảm bảo đúng context path
+            response.sendRedirect(request.getContextPath() + "/ZeShopper/checkout.jsp");
+            return;
+        }
+
+        HttpSession session = request.getSession();
+        Object user = session.getAttribute("user");
+
         if (user != null) {
             request.setAttribute("user", user);
-            System.out.println("DEBUG: ConfirmVietQRPayment - User found in session: " + user.getUserid());
-        } else {
-            System.out.println("DEBUG: ConfirmVietQRPayment - No user found in session.");
         }
 
+        // Đảm bảo rằng amount được đặt dưới dạng thuộc tính (attribute)
         request.setAttribute("orderId", orderId);
-        request.setAttribute("amount", amount);
-        System.out.println("DEBUG: ConfirmVietQRPayment - Set orderId and amount as request attributes.");
+        request.setAttribute("amount", amount); // Đặt amount đã được parse vào thuộc tính
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/ZeShopper/vietqr.jsp");
-        System.out.println("DEBUG: ConfirmVietQRPayment - Forwarding to /ZeShopper/vietqr.jsp.");
         dispatcher.forward(request, response);
     }
 
@@ -138,24 +134,21 @@ public class ConfirmVietQRPayment extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int orderId = Integer.parseInt(request.getParameter("orderId"));
-        System.out.println("DEBUG: ConfirmVietQRPayment - Entering doPost method for order ID: " + orderId);
 
         try {
             OrderDAO orderDAO = new OrderDAO();
-            orderDAO.updateOrderStatus(orderId, 1); // Update order status to 1 (confirmed payment)
-            System.out.println("DEBUG: ConfirmVietQRPayment - Order " + orderId + " status updated to 1 (confirmed payment).");
+            // Cập nhật trạng thái đơn hàng. Nếu 1 là chờ xử lý, có thể bạn muốn đặt là 2 (đã thanh toán) hoặc 3 (đang giao)
+            // Tùy thuộc vào logic kinh doanh của bạn. Tôi giữ nguyên 1 theo code cũ.
+            orderDAO.updateOrderStatus(orderId, 1); 
 
             System.out.println("Đơn hàng " + orderId + " đã được khách xác nhận chuyển khoản.");
 
-            // Redirect to a thank you page with the order ID
-            System.out.println("DEBUG: ConfirmVietQRPayment - Redirecting to " + request.getContextPath() + "/ZeShopper/thanks-you.jsp?orderId=" + orderId);
+            // Sửa đường dẫn redirect để sử dụng request.getContextPath()
             response.sendRedirect(request.getContextPath() + "/ZeShopper/thanks-you.jsp?orderId=" + orderId);
 
         } catch (Exception e) {
-            System.err.println("ERROR: ConfirmVietQRPayment - An error occurred during POST for order " + orderId + ". Details: " + e.getMessage());
-            e.printStackTrace(); // In toàn bộ stack trace để gỡ lỗi chi tiết
-            // Redirect to an error page if something goes wrong
-            System.out.println("DEBUG: ConfirmVietQRPayment - Redirecting to " + request.getContextPath() + "/ZeShopper/error.jsp");
+            e.printStackTrace();
+            // Sửa đường dẫn redirect để đảm bảo đúng context path
             response.sendRedirect(request.getContextPath() + "/ZeShopper/error.jsp");
         }
     }

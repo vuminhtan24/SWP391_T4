@@ -201,25 +201,25 @@
                     <%-- THAY ĐỔI: Thêm enctype="multipart/form-data" --%>
                     <form action="${pageContext.request.contextPath}/RejectDeliveryServlet" method="post" enctype="multipart/form-data">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="rejectDeliveryModalLabel">Từ chối giao hàng</h5>
+                            <h5 class="modal-title" id="rejectDeliveryModalLabel">Refuse delivery</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <input type="hidden" name="orderId" value="${order.orderId}" />
                             <div class="mb-3">
-                                <label for="rejectReason" class="form-label">Lý do từ chối</label>
+                                <label for="rejectReason" class="form-label">Reason for refusal</label>
                                 <textarea class="form-control" id="rejectReason" name="rejectReason" rows="3" required></textarea>
                             </div>
                             <%-- THAY ĐỔI: Thêm input để upload ảnh --%>
                             <div class="mb-3">
-                                <label for="cancellationImage" class="form-label">Ảnh minh chứng từ chối</label>
+                                <label for="cancellationImage" class="form-label">Photo evidence of refusal</label>
                                 <input class="form-control" type="file" id="cancellationImage" name="cancellationImage" accept="image/*" />
-                                <small class="form-text text-muted">Vui lòng tải lên ảnh liên quan đến việc từ chối giao hàng.</small>
+                                <small class="form-text text-muted">Please upload photos related to the delivery refusal.</small>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-danger">Gửi lý do</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-danger">Send</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         </div>
                     </form>
                 </div>
