@@ -5,6 +5,7 @@
 package dal;
 
 import java.sql.SQLException;
+import java.util.Date;
 import model.CustomerInfo;
 
 /**
@@ -37,6 +38,67 @@ public class CustomerDAO extends BaseDao {
         return ci;
     }
 
+    public boolean updateBirthdayAndGender(int userId, String birthdayStr, String gender) {
+        String sql = "UPDATE customer_info SET Birthday = ?, Gender = ? WHERE User_ID = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+
+            java.sql.Date birthday = java.sql.Date.valueOf(birthdayStr);
+
+            ps.setDate(1, birthday);
+            ps.setString(2, gender);
+            ps.setInt(3, userId);
+            return ps.executeUpdate() > 0;
+        } catch (IllegalArgumentException e) {
+            System.err.println("Birthday format must be yyyy-MM-dd");
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public int getLoyaltyPointByUserId(int userId) {
+        String sql = "SELECT Loyalty_Point FROM customer_info WHERE User_ID = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+
+            ps.setInt(1, userId);
+            try {
+                rs = ps.executeQuery();
+                if (rs.next()) {
+                    return rs.getInt("Loyalty_Point");
+                }
+            } catch (Exception e) {
+                e.getMessage();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public boolean updateLoyaltyPointByUserId(int userId, int newLoyaltyPoint) {
+        String sql = "UPDATE customer_info SET Loyalty_Point = ? WHERE User_ID = ?";
+        try {
+
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, newLoyaltyPoint);
+            ps.setInt(2, userId);
+
+            int rowsUpdated = ps.executeUpdate();
+            return rowsUpdated > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public boolean exist(int userId) {
         String sql = "SELECT 1 FROM customer_info WHERE User_ID = ?";
         try {
@@ -60,8 +122,18 @@ public class CustomerDAO extends BaseDao {
             ps.setString(2, c.getCustomerCode());
             ps.setString(3, c.getJoinDate());
             ps.setInt(4, c.getLoyaltyPoint());
-            ps.setString(5, c.getBirthday());
-            ps.setString(6, c.getGender());
+            if (c.getBirthday() != null && !c.getBirthday().isEmpty()) {
+                ps.setDate(5, java.sql.Date.valueOf(c.getBirthday()));
+            } else {
+                ps.setNull(5, java.sql.Types.DATE);
+            }
+
+            if (c.getGender() != null && !c.getGender().isEmpty()) {
+                ps.setString(6, c.getGender());
+            } else {
+                ps.setNull(6, java.sql.Types.VARCHAR);
+            }
+
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Lỗi insert (CustomerDAO): " + e.getMessage());
@@ -109,6 +181,23 @@ public class CustomerDAO extends BaseDao {
         } catch (SQLException e) {
             System.out.println("Lỗi update (CustomerDAO): " + e.getMessage());
         }
+    }
+
+    public int getLatestCustomerId() throws SQLException {
+        String sql = "SELECT MAX(ID) FROM Customer_info"; // giả sử bạn có ID tự tăng
+        try {
+            connection = dbc.getConnection();  // dbc là đối tượng DatabaseContext hoặc tương đương
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1); // trả về giá trị MAX(ID)
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return 0;
     }
 
     public static void main(String[] args) {

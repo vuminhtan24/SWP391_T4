@@ -10,6 +10,7 @@ import dal.FlowerBatchDAO;
 import dal.FlowerTypeDAO;
 import dal.RawFlowerDAO;
 import dal.FeedbackDAO;
+import dal.WholeSaleDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -17,6 +18,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ import model.FlowerBatch;
 import model.FlowerType;
 import model.RawFlower;
 import model.Feedback;
+import model.WholeSale;
 
 /**
  *
@@ -92,6 +95,8 @@ public class ProductDetailController extends HttpServlet {
         List<BouquetImage> images = bqdao.getBouquetImage(id);
         String cateDes = cdao.getCategoryDesByBouquet(id);
         List<BouquetImage> allImage = bqdao.getAllBouquetImage();
+        fbdao.cleanupExpiredSoftHolds();
+        int available = bqdao.bouquetAvailable(id);
         // Xử lý feedback
         List<Feedback> feedback = new ArrayList<>();
         try {
@@ -100,6 +105,11 @@ public class ProductDetailController extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error fetching feedback for bouquetId " + id + ": " + e.getMessage());
+        }
+        // Prepare map of feedback images
+        Map<Integer, List<String>> feedbackImages = new HashMap<>();
+        for (Feedback f : feedback) {
+            feedbackImages.put(f.getFeedbackId(), fdao.getFeedbackImageUrls(f.getFeedbackId()));
         }
 
         // Lấy tên khách hàng cho từng feedback
@@ -118,7 +128,8 @@ public class ProductDetailController extends HttpServlet {
         }
 
         // Đặt các thuộc tính vào request
-        request.setAttribute("bouquetAvailable", bqdao.bouquetAvailable(id));
+        request.setAttribute("productId", id);
+        request.setAttribute("bouquetAvailable", available);
         request.setAttribute("allImage", allImage);
         request.setAttribute("allBatchs", allBatchs);
         request.setAttribute("images", images);
@@ -131,6 +142,7 @@ public class ProductDetailController extends HttpServlet {
         request.setAttribute("flowerInBQ", bqRaws);
         request.setAttribute("feedback", feedback);
         request.setAttribute("feedbackCustomerNames", feedbackCustomerNames);
+        request.setAttribute("feedbackImages", feedbackImages);
 
         request.getRequestDispatcher("./ZeShopper/product-details.jsp").forward(request, response);
     }
@@ -146,7 +158,61 @@ public class ProductDetailController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            String userIdStr = request.getParameter("user_id");
+            String bouquetIdStr = request.getParameter("bouquet_id");
+            String requestedQuantityStr = request.getParameter("requested_quantity");
+            String note = request.getParameter("note");
+            String productId = request.getParameter("productId"); // dùng để redirect về đúng trang
+
+            Integer userId = Integer.parseInt(userIdStr);
+            Integer bouquetId = Integer.parseInt(bouquetIdStr);
+            Integer requestedQuantity = Integer.parseInt(requestedQuantityStr);
+
+            WholeSaleDAO wsDao = new WholeSaleDAO();
+
+            // Lấy danh sách SHOPPING hiện có của user
+            List<WholeSale> listWS = wsDao.getWholeSaleRequestShoppingByUserID(userId);
+
+            // Generate request_group_id (nếu cần gom nhóm theo session)
+            String requestGroupId = wsDao.generateOrGetCurrentRequestGroupId(userId);
+
+            // Tạo object mới
+            WholeSale ws = new WholeSale(
+                    userId,
+                    bouquetId,
+                    requestedQuantity,
+                    note,
+                    null, // quoted_price
+                    null, // total_price
+                    null, // quoted_at
+                    null, // responded_at
+                    LocalDate.now(),
+                    "SHOPPING",
+                    null, // expense
+                    requestGroupId
+            );
+
+            boolean isDuplicate = false;
+
+            for (WholeSale wholeSale : listWS) {
+                if (wholeSale.getBouquet_id() == bouquetId) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+
+            if (isDuplicate) {
+                response.sendRedirect(request.getContextPath() + "/productDetail?id=" + productId + "&addedWholesale=false");
+            } else {
+                wsDao.insertWholeSaleRequest(ws);
+                response.sendRedirect(request.getContextPath() + "/productDetail?id=" + productId + "&addedWholesale=true");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect("error.jsp");
+        }
     }
 
     /**

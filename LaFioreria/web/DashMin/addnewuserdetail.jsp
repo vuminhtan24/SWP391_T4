@@ -36,21 +36,6 @@
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
         <title>Add New User</title>
-        <script>
-            function handleRoleChange(select) {
-                var role = select.value;
-                var customerFields = document.getElementById("customerFields");
-                var employeeFields = document.getElementById("employeeFields");
-
-                if (role === "Customer") {
-                    customerFields.style.display = "table-row-group";
-                    employeeFields.style.display = "none";
-                } else {
-                    customerFields.style.display = "none";
-                    employeeFields.style.display = "table-row-group";
-                }
-            }
-        </script>
     </head>
 
     <body>
@@ -226,92 +211,96 @@
                         <form action="adduserdetail" method="post">
                             <table class="table table-striped">
                                 <tbody>
+                                    <!-- Username -->
                                     <tr>
-                                        <td>User Name: </td>
+                                        <td>User Name:</td>
                                         <td>
                                             <input type="text" name="name" class="form-control" placeholder="User Name"
-                                                   value="${param.name}" aria-label="User Name" aria-describedby="basic-addon1">
+                                                   value="${param.name}" aria-label="User Name">
                                             <c:if test="${not empty errorName}">
-                                                <p style="color:red">${errorName}</p>
+                                                <p style="color:red;">${errorName}</p>
                                             </c:if>
                                         </td>
                                     </tr>
 
+                                    <!-- Password -->
                                     <tr>
-                                        <td>Password: </td>
+                                        <td>Password:</td>
                                         <td>
                                             <input type="text" name="pass" class="form-control" placeholder="Password"
-                                                   value="${param.pass}" aria-label="Password" aria-describedby="basic-addon1">
-                                            <c:if test="${not empty passwordStrength}">
-                                                <div style="font-size: small;
-                                                     color: ${passwordStrength == 'Mạnh' ? 'green' :
-                                                              passwordStrength == 'Trung bình' ? 'orange' : 'red'};">
-                                                    Mật khẩu: ${passwordStrength}
-                                                </div>
-                                            </c:if>
-                                            <c:if test="${not empty error}">
-                                                <p style="color:red">${error}</p>
+                                                   value="${param.pass}" aria-label="Password">
+                                            <small class="form-text text-success">
+                                                Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number. Length 8-32 characters.
+                                            </small>
+                                            <c:if test="${not empty errorPassword}">
+                                                <p style="color:red;">${errorPassword}</p>
                                             </c:if>
                                         </td>
                                     </tr>
 
+                                    <!-- Full Name -->
                                     <tr>
-                                        <td>Full Name: </td>
+                                        <td>Full Name:</td>
                                         <td>
                                             <input type="text" name="FullName" class="form-control" placeholder="Full Name"
-                                                   value="${param.FullName}" aria-label="Full Name" aria-describedby="basic-addon1">
+                                                   value="${param.FullName}" aria-label="Full Name">
                                             <c:if test="${not empty errorFullname}">
-                                                <p style="color:red">${errorFullname}</p>
+                                                <p style="color:red;">${errorFullname}</p>
                                             </c:if>
                                         </td>
                                     </tr>
 
+                                    <!-- Email -->
                                     <tr>
-                                        <td>Email: </td>
+                                        <td>Email:</td>
                                         <td>
                                             <input type="text" name="email" class="form-control" placeholder="Email"
-                                                   value="${param.email}" aria-label="Email" aria-describedby="basic-addon1">
+                                                   value="${param.email}" aria-label="Email">
                                             <c:if test="${not empty errorEmail}">
-                                                <p style="color:red">${errorEmail}</p>
+                                                <p style="color:red;">${errorEmail}</p>
                                             </c:if>
                                         </td>
                                     </tr>
 
+                                    <!-- Phone Number -->
                                     <tr>
-                                        <td>Phone Number: </td>
+                                        <td>Phone Number:</td>
                                         <td>
                                             <input type="text" name="phone" class="form-control" placeholder="Phone Number"
-                                                   value="${param.phone}" aria-label="Phone Number" aria-describedby="basic-addon1">
+                                                   value="${param.phone}" aria-label="Phone Number">
                                             <c:if test="${not empty errorPhone}">
-                                                <p style="color:red">${errorPhone}</p>
+                                                <p style="color:red;">${errorPhone}</p>
                                             </c:if>
                                         </td>
                                     </tr>
 
+                                    <!-- Address -->
                                     <tr>
-                                        <td>Address: </td>
+                                        <td>Address:</td>
                                         <td>
                                             <input type="text" name="address" class="form-control" placeholder="Address"
-                                                   value="${param.address}" aria-label="Address" aria-describedby="basic-addon1">
+                                                   value="${param.address}" aria-label="Address">
                                             <c:if test="${not empty errorAddress}">
-                                                <p style="color:red">${errorAddress}</p>
+                                                <p style="color:red;">${errorAddress}</p>
                                             </c:if>
                                         </td>
                                     </tr>
 
-                                    <!-- 🧩 Role chọn để quyết định hiện Customer/Employee -->
+                                    <!-- Role Selection -->
                                     <tr>
                                         <td>Role:</td>
                                         <td>
                                             <select name="option" class="form-select" onchange="handleRoleChange(this)">
                                                 <c:forEach items="${roleNames}" var="role">
-                                                    <option value="${role}">${role}</option>
+                                                    <option value="${role}" ${role == selectedRole ? 'selected' : ''}>${role}</option>
                                                 </c:forEach>
                                             </select>
                                         </td>
                                     </tr>
+                                </tbody>
 
-                                    <!-- 👤 Trường Customer -->
+
+                                <!-- 👤 Trường Customer -->
                                 <tbody id="customerFields" style="display:none;">
                                     <tr>
                                         <td>Customer Code:</td>
@@ -418,12 +407,29 @@
                             </c:if>
                         </form>
                         <script>
-                            // Khởi tạo: ẩn/hiện đúng phần khi reload lại (dựa vào role cũ nếu có)
                             window.onload = function () {
-                                const role = document.querySelector("select[name='option']").value;
-                                handleRoleChange({value: role});
+                                const selectedRole = "${selectedRole}";
+                                handleRoleChange({value: selectedRole});
                             };
+
+                            function handleRoleChange(e) {
+                                const role = e.value;
+                                const customerFields = document.getElementById("customerFields");
+                                const employeeFields = document.getElementById("employeeFields");
+
+                                if (role === "Customer") {
+                                    customerFields.style.display = "table-row-group";
+                                    employeeFields.style.display = "none";
+                                } else if (role === "Guest") {
+                                    customerFields.style.display = "none";
+                                    employeeFields.style.display = "none";
+                                } else {
+                                    customerFields.style.display = "none";
+                                    employeeFields.style.display = "table-row-group";
+                                }
+                            }
                         </script>
+
                     </div>
                 </div>  
 

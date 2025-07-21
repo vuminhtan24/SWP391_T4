@@ -307,6 +307,34 @@ public class UserDAO extends BaseDao {
         return false;
     }
 
+    public boolean isCustomerCodeExist(String code) {
+        String sql = "SELECT 1 FROM Customer_info WHERE customer_code = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, code);
+            rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean isEmployeeCodeExist(String code) {
+        String sql = "SELECT 1 FROM Employee_info WHERE employee_code = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, code);
+            rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public List<UserManager> getUserByRoleId(int role_id) {
         List<UserManager> list = new ArrayList<>();
         String sql
@@ -622,17 +650,24 @@ public class UserDAO extends BaseDao {
     }
 
     public void insertNewUser(User u) {
-        String sql = "INSERT INTO la_fioreria.user "
-                + "(Username, Password, Fullname, Email, Phone, Address, Role) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO `la_fioreria`.`user`\n"
+                + "(`Username`,\n"
+                + "`Password`,\n"
+                + "`Fullname`,\n"
+                + "`Email`,\n"
+                + "`Phone`,\n"
+                + "`Address`,\n"
+                + "`Role`)\n"
+                + "VALUES\n"
+                + "(?, ?, ?, ?, ?, ?, ?);";
 
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setString(1, u.getUsername().trim());
-            ps.setString(2, u.getPassword().trim());
             String hashedPassword = BCrypt.hashpw(u.getPassword(), BCrypt.gensalt());
-            ps.setString(3, hashedPassword);
+            ps.setString(2, hashedPassword);
+            ps.setString(3, u.getFullname().trim());
             ps.setString(4, u.getEmail().trim());
             ps.setString(5, u.getPhone().trim());
             ps.setString(6, u.getAddress().trim());
@@ -682,7 +717,8 @@ public class UserDAO extends BaseDao {
             System.out.println("Username: " + u.getUsername());
             System.out.println("Email: " + u.getEmail());
             System.out.println("Phone: " + u.getPhone());
-            e.printStackTrace(); // Quan trọng// Bạn có thể log ra file log
+            System.out.println("SQL ERROR in insertUserAndReturnId(): " + e.getMessage());
+            return -1;
         } finally {
             try {
                 closeResources();
@@ -793,19 +829,16 @@ public class UserDAO extends BaseDao {
         UserDAO ud = new UserDAO();
 
         User user1 = new User(
-                13, // User_ID duy nhất
-                "shipper",
-                "123",
-                "Vu Minh Tan",
-                "vuminhtan2004@gmail.com",
-                "0901234567",
-                "123 Main St, Anytown",
-                8
+                17, // User_ID duy nhất
+                "quangAdmin",
+                "123456",
+                "Vu Minh Quang",
+                "vmqbov@gmail.com",
+                "0786709182",
+                "Ha Dong, Ha Noi",
+                1
         );
-//        ud.insertNewUser(user1);
-
-        System.out.println(ud.getUserByID(1));
-
+        ud.insertNewUser(user1);
     }
 
 }

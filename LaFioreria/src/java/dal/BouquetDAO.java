@@ -12,6 +12,7 @@ import java.util.List;
 import model.Bouquet;
 import model.BouquetImage;
 import model.BouquetRaw;
+import model.FlowerBatchAllocation;
 
 /**
  *
@@ -115,11 +116,11 @@ public class BouquetDAO extends BaseDao {
             params.add("%" + name + "%");
         }
         if (minPrice != null) {
-            sql.append("AND b.price >= ? ");
+            sql.append("AND b.sellPrice >= ? ");
             params.add(minPrice);
         }
         if (maxPrice != null) {
-            sql.append("AND b.price <= ? ");
+            sql.append("AND b.sellPrice <= ? ");
             params.add(maxPrice);
         }
         if (categoryID != null) {
@@ -630,43 +631,80 @@ public class BouquetDAO extends BaseDao {
         }
 
         return b;
-    }
+    }  
 
     public int bouquetAvailable(int bouquetId) {
         int available = 0;
-        String sql = "    SELECT \n"
-                + "    MIN(FLOOR(fb.quantity / br.quantity)) AS max_bouquet_count\n"
-                + "FROM \n"
-                + "    bouquet b\n"
-                + "JOIN \n"
-                + "    bouquet_raw br ON b.bouquet_id = br.bouquet_id\n"
-                + "JOIN \n"
-                + "    flower_batch fb ON br.batch_id = fb.batch_id\n"
-                + "WHERE b.Bouquet_ID = ?    \n"
-                + "GROUP BY \n"
-                + "    b.bouquet_id, b.bouquet_name\n"
-                + "ORDER BY \n"
-                + "    max_bouquet_count ASC;";
+        String sql = """
+        SELECT MIN(sub.possible_bouquet) AS max_bouquet_count
+        FROM (
+            SELECT br.bouquet_id,
+                   FLOOR((
+                       fb.quantity
+                       - COALESCE(SUM(CASE WHEN fba.status = 'soft_hold' AND fba.created_at >= NOW() - INTERVAL 30 MINUTE THEN fba.quantity ELSE 0 END), 0)
+                       - COALESCE(SUM(CASE WHEN fba.status = 'confirmed' THEN fba.quantity ELSE 0 END), 0)
+                   ) / br.quantity) AS possible_bouquet
+            FROM bouquet_raw br
+            JOIN flower_batch fb ON br.batch_id = fb.batch_id
+            LEFT JOIN flower_batch_allocation fba ON fb.batch_id = fba.batch_id
+            WHERE br.bouquet_id = ?
+            GROUP BY br.batch_id, br.quantity
+        ) AS sub
+        """;
 
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setInt(1, bouquetId);
             rs = ps.executeQuery();
-            while (rs.next()) {
-                 available = rs.getInt("max_bouquet_count");
+            if (rs.next()) {
+                available = rs.getInt("max_bouquet_count");
             }
         } catch (SQLException e) {
-            System.err.println("BouquetDAO: Error in isFlowerInBouquet - " + e.getMessage());
+            System.err.println("BouquetDAO: Error in bouquetAvailable - " + e.getMessage());
         } finally {
             try {
                 this.closeResources();
             } catch (Exception e) {
             }
         }
-
         return available;
+    }
 
+    public List<Bouquet> allBouquetAvailable() {
+        List<Bouquet> availableList = new ArrayList<>();
+        String sql = """
+            SELECT b.bouquet_id,
+                   MIN(FLOOR(
+                       (fb.quantity 
+                        - COALESCE(SUM(CASE WHEN fba.status = 'soft_hold' AND fba.created_at >= NOW() - INTERVAL 30 MINUTE THEN fba.quantity ELSE 0 END), 0)
+                        - COALESCE(SUM(CASE WHEN fba.status = 'confirmed' THEN fba.quantity ELSE 0 END), 0)
+                       ) / br.quantity)) AS max_bouquet_count
+            FROM bouquet b
+            JOIN bouquet_raw br ON b.bouquet_id = br.bouquet_id
+            JOIN flower_batch fb ON br.batch_id = fb.batch_id
+            LEFT JOIN flower_batch_allocation fba ON fb.batch_id = fba.batch_id
+            GROUP BY b.bouquet_id
+        """;
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int bouquetId = rs.getInt("bouquet_id");
+                int quantity = rs.getInt("max_bouquet_count");
+                availableList.add(new Bouquet(bouquetId, quantity));
+            }
+        } catch (SQLException e) {
+            System.err.println("BouquetDAO: Error in allBouquetAvailable - " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return availableList;
     }
 
     public static void main(String[] args) {
@@ -678,9 +716,7 @@ public class BouquetDAO extends BaseDao {
 //        BouquetImage big = dao.getBouquetImage(1);
         List<BouquetImage> big = dao.getBouquetImage(5);
 //        System.out.println(big);
-        System.out.println(dao.getBouquetFullInfoById(1));
-        System.out.println(dao.isFlowerInBouquet(1));
-        System.out.println(dao.bouquetAvailable(2));
+        System.out.println(dao.bouquetAvailable(1));
     }
 
 }

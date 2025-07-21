@@ -2,18 +2,20 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 package controller;
 
+import dal.CustomerDAO;
 import dal.DAOAccount;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.time.LocalDate;
+import java.util.Random;
+import model.CustomerInfo;
 import model.User;
 
 /**
@@ -24,14 +26,16 @@ import model.User;
 public class VerifyOTP extends HttpServlet {
 
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         // Phần này dành cho việc hiển thị ban đầu của biểu mẫu OTP
         // Bạn nên chuyển tiếp đến JSP ở đây, chứ không phải in HTML thô
@@ -41,6 +45,7 @@ public class VerifyOTP extends HttpServlet {
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -48,20 +53,21 @@ public class VerifyOTP extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response); // Bây giờ sẽ chuyển tiếp đến verifyOTP.jsp
     }
 
     /**
      * Handles the HTTP <code>POST</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
     @Override
-     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-         throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
         HttpSession session = request.getSession();
         String enteredOtp = request.getParameter("otp");
@@ -75,8 +81,6 @@ public class VerifyOTP extends HttpServlet {
             return;
         }
 
-        // Tốt hơn là so sánh Integer với String bằng cách chuyển Integer sang String trước
-        // Hoặc tốt hơn nữa, phân tích enteredOtp thành một số nguyên nếu bạn mong đợi OTP là số.
         try {
             int enteredOtpInt = Integer.parseInt(enteredOtp);
             if (enteredOtpInt != sessionOtp) {
@@ -90,11 +94,13 @@ public class VerifyOTP extends HttpServlet {
             return;
         }
 
-
         DAOAccount dao = new DAOAccount();
         boolean success = dao.createAccount(tempUser);
 
         if (success) {
+            // ✅ Gọi đảm bảo tạo CustomerInfo nếu role = 7 (customer)
+            ensureCustomerInfoExists(tempUser);
+
             session.removeAttribute("otp");
             session.removeAttribute("tempUser");
             session.setAttribute("currentAcc", tempUser);
@@ -105,8 +111,31 @@ public class VerifyOTP extends HttpServlet {
         }
     }
 
+// ✅ HÀM THÊM CUSTOMER_INFO (gọi bên trên)
+    private void ensureCustomerInfoExists(User user) {
+        if (user.getRole() == 7) {
+            CustomerDAO customerDAO = new CustomerDAO();
+            if (!customerDAO.exist(user.getUserid())) {
+                CustomerInfo customer = new CustomerInfo();
+                customer.setUserId(user.getUserid());
+                customer.setCustomerCode(generateCustomerCode());
+                customer.setJoinDate(LocalDate.now().toString()); // ISO format yyyy-MM-dd
+                customer.setLoyaltyPoint(100);
+                customerDAO.insert(customer);
+            }
+        }
+    }
+
+// ✅ HÀM TẠO MÃ KHÁCH HÀNG
+    private String generateCustomerCode() {
+        String prefix = "CUST";
+        int randomNum = new Random().nextInt(10000); // 0 đến 9999
+        return prefix + String.format("%04d", randomNum); // CUST0001, CUST2345, ...
+    }
+
     /**
      * Returns a short description of the servlet.
+     *
      * @return a String containing servlet description
      */
     @Override

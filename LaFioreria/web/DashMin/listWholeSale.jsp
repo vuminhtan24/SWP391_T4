@@ -1,10 +1,14 @@
 <%-- 
-    Document   : blank
-    Created on : May 19, 2025, 2:34:20 PM
+    Document   : listWholeSale
+    Created on : Jul 14, 2025, 1:13:34 PM
     Author     : ADMIN
 --%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="java.util.List,model.Bouquet, model.Category, model.RawFlower"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -15,7 +19,7 @@
         <meta content="" name="description">
 
         <!-- Favicon -->
-        <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
+        <link href="img/favicon.ico" rel="icon">
 
         <!-- Google Web Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,6 +39,125 @@
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
+        <style>
+            .container {
+                margin: 20px auto 0 auto;
+                padding: 24px;
+                background-color: #f4f6f8;
+                border-radius: 12px;
+                font-family: 'Segoe UI', sans-serif;
+
+                max-width: calc(100% - 40px);
+                width: 100%;
+                box-sizing: border-box;
+
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+
+                height: 730px; /* ngăn scroll trang, đủ không gian */
+                overflow-y: auto;                /* bảng cuộn nếu quá cao */
+            }
+
+            .heading {
+                font-size: 18px;
+                font-weight: 600;
+                margin-bottom: 16px;
+                color: #222;
+            }
+
+            .styled-table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+                font-size: 14px;
+                background-color: #f9fbfc;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            }
+
+            .styled-table thead {
+                background-color: #f0f2f5;
+            }
+
+            .styled-table thead td {
+                font-weight: 600;
+                color: #444;
+                padding: 12px 16px;
+                border-bottom: 1px solid #e0e0e0;
+                text-align: left;
+            }
+
+            .styled-table tbody td {
+                padding: 12px 16px;
+                color: #333;
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .styled-table tbody tr:hover td {
+                background-color: #e9f3ff;
+                transition: background-color 0.2s ease;
+            }
+
+            .styled-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .filter-form {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            .filter-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                align-items: flex-end;
+            }
+
+            .filter-item {
+                display: flex;
+                flex-direction: column;
+                min-width: 200px;
+            }
+
+            .filter-item label {
+                font-weight: bold;
+                margin-bottom: 4px;
+            }
+
+            .filter-item input,
+            .filter-item select {
+                padding: 6px 8px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+            .button-row {
+                margin-top: 15px;
+                display: flex;
+                gap: 12px;
+            }
+
+            .button-row button {
+                padding: 8px 16px;
+                border: none;
+                background-color: #1976d2;
+                color: white;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            .button-row button[type="button"] {
+                background-color: #757575;
+            }
+
+            .button-row button:hover {
+                opacity: 0.9;
+            }
+
+        </style>
     </head>
 
     <body>
@@ -56,7 +179,7 @@
                     </a>
                     <div class="d-flex align-items-center ms-4 mb-4">
                         <div class="position-relative">
-                            <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                            <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
                             <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
                         </div>
                         <div class="ms-3">
@@ -65,7 +188,7 @@
                         </div>
                     </div>
                     <div class="navbar-nav w-100">
-                        <a href="${pageContext.request.contextPath}/DashMin/admin.jsp" class="nav-item nav-link"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/admin" class="nav-item nav-link"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Elements</a>
                             <div class="dropdown-menu bg-transparent border-0">
@@ -76,19 +199,32 @@
                         </div>
                         <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
                         <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/table.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Tables</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/product.jsp" class="nav-item nav-link active"><i class="fa fa-table me-2"></i>Bouquet</a>
+                        <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link"><i class="fa fa-table me-2"></i>User</a>
+                        <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
+                        <a href="${pageContext.request.contextPath}/orderManagement" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Order</a>
+                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
+                        <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
                         <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-table me-2"></i>Repair Center</a>
+                            <div class="dropdown-menu bg-transparent border-0">
+                                <a href="${pageContext.request.contextPath}/repairOrders" class="dropdown-item">Repair Orders</a>
+                                <a href="${pageContext.request.contextPath}/repairHistory" class="dropdown-item">Repair History</a>
+                                <a href="${pageContext.request.contextPath}/listRequest" class="dropdown-item">List Request</a>
+                            </div>
+                        </div>
+                        <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
-                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item active">Blank Page</a>
-                                <a href="${pageContext.request.contextPath}/ViewUserList" class="dropdown-item active">View User List</a>
-                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item active">View User </a>
+                                <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
+                                <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item">View User Detail</a>
+                                <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item">Add new User </a>
                             </div>
                         </div>
                     </div>
+                </nav>
                 </nav>
             </div>
             <!-- Sidebar End -->
@@ -116,7 +252,7 @@
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -126,7 +262,7 @@
                                 <hr class="dropdown-divider">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -136,7 +272,7 @@
                                 <hr class="dropdown-divider">
                                 <a href="#" class="dropdown-item">
                                     <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                         <div class="ms-2">
                                             <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                             <small>15 minutes ago</small>
@@ -173,7 +309,7 @@
                         </div>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                <img class="rounded-circle me-lg-2" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                <img class="rounded-circle me-lg-2" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                 <span class="d-none d-lg-inline-flex">John Doe</span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
@@ -186,114 +322,95 @@
                 </nav>
                 <!-- Navbar End -->
 
-                <!-- Table Start -->
-                <div class="row">
-                    <div class="col-sm-12 col-xl-2">
-                        <div class="bg-light rounded h-100 p-4">
-                            <h6 class="mb-4">View User List Table</h6>
+                <!-- List Request Start -->
+                <div class="container">
 
-                            <table border="1">
+                    <!-- Form Search, Filter -->
+                    <form action="listWholeSaleRequest" method="get" class="filter-form">
+                        <div class="filter-row">
+                            <!-- Request Date -->
+                            <div class="filter-item">
+                                <label for="requestDate">Request Date:</label>
+                                <input type="date" 
+                                       name="requestDate" 
+                                       id="requestDate"
+                                       value="${param.requestDate != null ? param.requestDate : ''}" />
+                            </div>
 
-                                <tbody>
-                                    <c:forEach items="${userIds}" var="id">
-                                        <tr>
-                                            <td>
-                                                <a href="viewuserdetail?id=${id}">${id}</a>
-                                            </td>
-                                        </tr>           
-                                    </c:forEach> 
-                                </tbody>
-                            </table>
-
+                            <!-- Status Dropdown -->
+                            <div class="filter-item">
+                                <label for="status">Status:</label>
+                                <select name="status" id="status">
+                                    <option value="" ${empty param.status ? 'selected' : ''}>Default</option>
+                                    <option value="PENDING" ${param.status == 'PENDING' ? 'selected' : ''}>Pending</option>
+                                    <option value="QUOTED" ${param.status == 'QUOTED' ? 'selected' : ''}>Quoted</option>
+                                    <option value="ACCEPTED" ${param.status == 'ACCEPTED' ? 'selected' : ''}>Accepted</option>
+                                    <option value="REJECTED" ${param.status == 'REJECTED' ? 'selected' : ''}>Rejected</option>
+                                    <option value="EMAILED" ${param.status == 'EMAILED' ? 'selected' : ''}>Emailed</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col-sm-12 col-xl-10">
-                        <div class="bg-light rounded h-100 p-4">
-                            <h6 class="mb-4">View User Detail Table</h6>
-                            <c:if test="${empty userIds}">
-                                <p>No userIds found</p>
-                            </c:if>
-                            <c:if test="${not empty userIds}">
-                                <p>User IDs are available</p>
-                            </c:if>
-
-                            <h3>
-                                <a href="${pageContext.request.contextPath}/adduserdetail">Add new User detail</a>
-                            </h3>
-
-                            <form action="${pageContext.request.contextPath}/viewuserdetail" method="POST">
-                                <table border="1">
-
-                                    <tbody>
-                                        <tr>
-                                            <td>User ID: </td>
-                                            <td>
-                                                <input type="text" name="id" value="${userManager.userid}" readonly="">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>User Name: </td>
-                                            <td>
-                                                <input type="text" name="name" value="${userManager.username}">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Password: </td>
-                                            <td>
-                                                <input type="text" name="pass" value="${userManager.password}">
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Full Name: </td>
-                                            <td>
-                                                <input type="text" name="FullName" value="${userManager.fullname}">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Email: </td>
-                                            <td>
-                                                <input type="text" name="email" value="${userManager.email}">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Phone Number: </td>
-                                            <td>
-                                                <input type="type" name="phone" value="${userManager.phone}">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Address: </td>
-                                            <td>
-                                                <input type="type" name="address" value="${userManager.address}">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Role: </td>
-                                            <td>
-                                                <input type="type" name="role" value="${userManager.role}" readonly="">
-                                            </td>
-                                        </tr>
-                                        <tr>
-
-                                            <td>
-                                                <select name="option">
-                                                    <c:forEach items="${roleNames}" var="role">
-                                                        <option value="${role}">${role}</option>
-                                                    </c:forEach>
-                                                </select>
-                                            </td>
-                                            <td><input type="submit" name="ud" value="UPDATE"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>           
-                            </form>
+                        <!-- Button Row -->
+                        <div class="button-row">
+                            <button type="submit">Filter</button>
+                            <a href="${pageContext.request.contextPath}/listWholeSaleRequest">
+                                <button type="button">Reset</button>
+                            </a>
                         </div>
-                    </div>   
+                    </form>
+                    <!-- End Form -->
+
+
+                    <h6 class="heading">List WholeSale Request</h6>
+
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <td>STT</td>
+                                <td>User ID</td>
+                                <td>Request Date</td>
+                                <td>Quoted Date</td>
+                                <td>Customer Responded at</td>
+                                <td>Status</td>
+                                <td></td>
+                            </tr>
+                        </thead>  
+                        <tbody>
+                            <c:forEach var="item" items="${listWS}">
+                                <tr>
+                                    <td>STT</td>
+                                    <td>${item.getUser_id()}</td>
+                                    <td>${item.getCreated_at()}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${item.getQuoted_at() == null}">
+                                                not quoted yet
+                                            </c:when>
+                                            <c:otherwise>
+                                                ${item.getQuoted_at()}
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${item.getResponded_at() == null}">
+                                                not responded yet
+                                            </c:when>
+                                            <c:otherwise>
+                                                ${item.getResponded_at()}
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>${item.getStatus()}</td>
+                                    <td><a href="${pageContext.request.contextPath}/requestWholeSaleDetails?userId=${item.getUser_id()}&requestDate=${item.getCreated_at()}&status=${item.getStatus()}&requestGroupId=${item.getRequest_group_id()}">View Details</a></td>
+                                </tr>  
+                            </c:forEach>
+                        </tbody>   
+                    </table>
                 </div>
 
-                <!-- Blank End -->
+                <!-- List Request End -->
 
 
                 <!-- Footer Start -->
@@ -332,5 +449,9 @@
 
         <!-- Template Javascript -->
         <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     </body>
 </html>
+
+

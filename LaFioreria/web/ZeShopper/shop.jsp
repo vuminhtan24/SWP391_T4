@@ -6,9 +6,10 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List,model.Bouquet" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<fmt:setLocale value="vi_VN" />
 <!DOCTYPE html>
 <html>
     <head>
@@ -330,6 +331,7 @@
                              border-radius: 10px;
                              margin-bottom: 20px;
                              ">
+
                             <!-- Min Price -->
                             <label for="minPrice" style="display: block; margin-bottom: 5px; color: #555;">Min Price</label>
                             <input
@@ -337,14 +339,14 @@
                                 id="minPrice"
                                 name="minPrice"
                                 min="0"
-                                max="2000000"
+                                max="10000000"
                                 step="1000"
                                 value="${minPrice != null ? minPrice : 0}"
-                                oninput="this.nextElementSibling.value = this.value"
+                                oninput="updateFormattedPrice('minPrice', 'minPriceOutput')"
                                 style="width: 80%; accent-color: orange; margin-bottom: 5px;"
                                 >
-                            <output style="display: block; margin-bottom: 15px; color: #555;">
-                                ${minPrice != null ? minPrice : 0}
+                            <output id="minPriceOutput" style="display: block; margin-bottom: 20px; color: #555;">
+                                <fmt:formatNumber value="${minPrice != null ? minPrice : 0}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫
                             </output>
 
                             <!-- Max Price -->
@@ -354,14 +356,14 @@
                                 id="maxPrice"
                                 name="maxPrice"
                                 min="0"
-                                max="2000000"
+                                max="10000000"
                                 step="1000"
-                                value="${maxPrice != null ? maxPrice : 2000000}"
-                                oninput="this.nextElementSibling.value = this.value"
+                                value="${maxPrice != null ? maxPrice : 1000000}"
+                                oninput="updateFormattedPrice('maxPrice', 'maxPriceOutput')"
                                 style="width: 80%; accent-color: orange; margin-bottom: 5px;"
                                 >
-                            <output style="display: block; margin-bottom: 20px; color: #555;">
-                                ${maxPrice != null ? maxPrice : 2000000}
+                            <output id="maxPriceOutput" style="display: block; margin-bottom: 20px; color: #555;">
+                                <fmt:formatNumber value="${maxPrice != null ? maxPrice : 1000000}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫
                             </output>
 
                             <div id="error" style="color: red; margin-bottom: 10px;"></div>
@@ -460,7 +462,7 @@
                                                     ${lb.getBouquetName()}
                                                 </a>
                                             </h2>
-                                            <p style="margin-bottom: 10px;">Price: ${lb.getSellPrice()} VND</p>
+                                            <p style="margin-bottom: 10px;">Price: <fmt:formatNumber value="${lb.getSellPrice()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</p>
                                             <!-- Đây là nút Add to Cart gốc, không thay đổi -->
                                             <button
                                                 type="button"
@@ -471,7 +473,7 @@
                                                                         '${lb.getBouquetId()}',
                                                                         '${lb.getBouquetName()}',
                                                                         '${pageContext.request.contextPath}/upload/BouquetIMG/${cimg.getImage_url()}',
-                                                                                        '${lb.getPrice()}',
+                                                                                        '${lb.getSellPrice()}',
                                                                                         )"
                                                     </c:if>            
                                                 </c:forEach>                
@@ -590,7 +592,13 @@
 
             <div id="success-popup" class="success-toast">Added to cart successfully!</div>
 
-
+            <script>
+                function updateFormattedPrice(inputId, outputId) {
+                    const value = document.getElementById(inputId).value;
+                    const formatted = new Intl.NumberFormat('vi-VN').format(value) + ' ₫';
+                    document.getElementById(outputId).textContent = formatted;
+                }
+            </script>
             <script>
                 function validateRange() {
                     var min = parseInt(document.getElementById("minPrice").value);
@@ -608,11 +616,18 @@
             </script>
 
             <script>
+                function formatVND(price) {
+                    return new Intl.NumberFormat('vi-VN', {
+                        style: 'decimal',
+                        maximumFractionDigits: 0
+                    }).format(price) + ' ₫';
+                }
+                
                 function openPopup(id, name, imageUrl, price, description) {
                     document.getElementById("popup-id").value = id;
                     document.getElementById("popup-name").textContent = name;
                     document.getElementById("popup-image").src = imageUrl;
-                    document.getElementById("popup-price").textContent = "Price: " + price + " VND";
+                    document.getElementById("popup-price").textContent = "Price: " + formatVND(price);
                     document.getElementById("popup-description").textContent = description;
                     document.getElementById("popup").style.display = "flex";
                 }

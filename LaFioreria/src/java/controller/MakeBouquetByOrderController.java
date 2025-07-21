@@ -153,7 +153,9 @@ public class MakeBouquetByOrderController extends HttpServlet {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid Order Item ID");
             return;
         }
-
+        
+        String orderType = request.getParameter("orderType");
+                
         OrderDAO oddao = new OrderDAO();
         BouquetDAO bqdao = new BouquetDAO();
         FlowerTypeDAO ftdao = new FlowerTypeDAO();
@@ -183,7 +185,7 @@ public class MakeBouquetByOrderController extends HttpServlet {
                 }
             }
         }
-
+        
         request.setAttribute("BouquetId", bouquetId);
         request.setAttribute("OrderId", orderId);
         request.setAttribute("OrderItemID", orderItemId);

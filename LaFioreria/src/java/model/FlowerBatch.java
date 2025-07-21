@@ -105,7 +105,7 @@ public class FlowerBatch {
     public void setStatus(String status) {
         this.status = status;
     }
-   
+
     @Override
     public String toString() {
         return "FlowerBatch{" + "batchId=" + batchId + ", flowerId=" + flowerId + ", quantity=" + quantity + ", unitPrice=" + unitPrice + ", importDate=" + importDate + ", expirationDate=" + expirationDate + ", hold=" + hold + ", warehouse=" + warehouse + ", status=" + status + '}';

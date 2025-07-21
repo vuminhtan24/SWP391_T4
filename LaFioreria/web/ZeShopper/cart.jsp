@@ -119,6 +119,39 @@
                 padding: 50px;
                 color: #666;
             }
+
+            .cart-switch-buttons {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .btn-retail, .btn-wholesale {
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-weight: bold;
+                text-decoration: none;
+                color: white;
+                display: inline-block;
+                transition: background-color 0.3s ease;
+            }
+
+            .btn-retail {
+                background-color: #5bc0de; /* xanh dương nhạt */
+            }
+
+            .btn-retail:hover {
+                background-color: #31b0d5;
+            }
+
+            .btn-wholesale {
+                background-color: #f0ad4e; /* vàng cam */
+            }
+
+            .btn-wholesale:hover {
+                background-color: #ec971f;
+            }
         </style>
     </head><!--/head-->
 
@@ -133,6 +166,12 @@
                         <li class="active">Shopping Cart</li>
                     </ol>
                 </div>
+
+                <div class="cart-switch-buttons">
+                    <a href="${pageContext.request.contextPath}/ZeShopper/cart" class="btn-retail">Retail Cart</a>
+                    <a href="${pageContext.request.contextPath}/cartWholeSale" class="btn-wholesale">Wholesale Cart</a>
+                </div>
+
 
                 <!-- Guest User Notice -->
                 <c:if test="${isGuest}">
@@ -237,7 +276,7 @@
                                     <li style="background-color: white"><strong>Total</strong> <span><p><fmt:formatNumber value="${total}" pattern="#,##0" /> ₫</p></span></li>
                                 </ul>
                                 <div style="display: flex; justify-content: end;">
-                                    <a class="btn btn-default check_out" href="${pageContext.request.contextPath}/checkout">Check Out</a>
+                                    <a class="btn btn-default check_out" href="${pageContext.request.contextPath}/checkout?mode=retail">Check Out</a>
                                 </div>
                             </div>
                         </div>

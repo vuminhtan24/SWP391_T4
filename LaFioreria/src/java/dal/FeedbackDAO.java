@@ -9,16 +9,16 @@ import model.Feedback;
 import model.FeedbackImg;
 
 public class FeedbackDAO extends BaseDao {
-    
+
     public List<Feedback> getAllFeedbacks(String search, Integer bouquetId, Integer rating) {
         List<Feedback> feedbacks = new ArrayList<>();
-        String sql = "SELECT DISTINCT f.feedback_id, f.customer_id, f.bouquet_id, f.rating, f.comment, f.created_at, f.status, " +
-                     "COALESCE(u.Fullname, o.customer_name) AS customer_name " +
-                     "FROM feedback f " +
-                     "LEFT JOIN `order` o ON f.customer_id = o.customer_id AND f.order_id = o.order_id " +
-                     "LEFT JOIN `user` u ON f.customer_id = u.User_ID " +
-                     "WHERE 1=1 ";
-        
+        String sql = "SELECT DISTINCT f.feedback_id, f.customer_id, f.bouquet_id, f.rating, f.comment, f.created_at, f.status, "
+                + "COALESCE(u.Fullname, o.customer_name) AS customer_name "
+                + "FROM feedback f "
+                + "LEFT JOIN `order` o ON f.customer_id = o.customer_id AND f.order_id = o.order_id "
+                + "LEFT JOIN `user` u ON f.customer_id = u.User_ID "
+                + "WHERE 1=1 ";
+
         // Add search condition
         if (search != null && !search.trim().isEmpty()) {
             sql += "AND (f.comment LIKE ? OR COALESCE(u.Fullname, o.customer_name) LIKE ?) ";
@@ -31,9 +31,9 @@ public class FeedbackDAO extends BaseDao {
         if (rating != null && rating > 0) {
             sql += "AND f.rating = ? ";
         }
-        
+
         sql += "ORDER BY f.created_at DESC";
-        
+
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -66,9 +66,49 @@ public class FeedbackDAO extends BaseDao {
         } finally {
             try {
                 this.closeResources();
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
         return feedbacks;
+    }
+
+    public Feedback getFeedbackById(int feedbackId) {
+        Feedback feedback = null;
+        String sql = "SELECT f.feedback_id, f.customer_id, f.bouquet_id, f.order_id, f.rating, f.comment, f.created_at, f.status, "
+                + "COALESCE(u.Fullname, o.customer_name, 'Khách') AS customer_name, b.bouquet_name "
+                + "FROM feedback f "
+                + "LEFT JOIN `order` o ON f.customer_id = o.customer_id AND f.order_id = o.order_id "
+                + "LEFT JOIN `user` u ON f.customer_id = u.User_ID "
+                + "LEFT JOIN bouquet b ON f.bouquet_id = b.bouquet_id "
+                + "WHERE f.feedback_id = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, feedbackId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                feedback = new Feedback();
+                feedback.setFeedbackId(rs.getInt("feedback_id"));
+                feedback.setCustomerId(rs.getInt("customer_id"));
+                feedback.setBouquetId(rs.getInt("bouquet_id"));
+                feedback.setOrderId(rs.getInt("order_id"));
+                feedback.setRating(rs.getInt("rating"));
+                feedback.setComment(rs.getString("comment"));
+                Timestamp timestamp = rs.getTimestamp("created_at");
+                feedback.setCreated_at(timestamp != null ? timestamp.toLocalDateTime() : null);
+                feedback.setStatus(rs.getString("status"));
+                feedback.setBouquetName(rs.getString("bouquet_name") != null ? rs.getString("bouquet_name") : "Unknown Bouquet");
+                feedback.setCustomerName(rs.getString("customer_name")); // Thêm thuộc tính customerName
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+        return feedback;
     }
 
     public boolean hasCustomerPurchasedBouquet(int customerId, int bouquetId) {
@@ -211,19 +251,16 @@ public class FeedbackDAO extends BaseDao {
         return feedbacks;
     }
 
-    public List<FeedbackImg> getFeedbackImages(int feedbackId) {
-        List<FeedbackImg> images = new ArrayList<>();
-        String sql = "SELECT feedback_id, image_url FROM feedback_images WHERE feedback_id = ?";
+    public List<String> getFeedbackImageUrls(int feedbackId) {
+        List<String> imageUrls = new ArrayList<>();
+        String sql = "SELECT image_url FROM feedback_images WHERE feedback_id = ?";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setInt(1, feedbackId);
             rs = ps.executeQuery();
             while (rs.next()) {
-                FeedbackImg img = new FeedbackImg();
-                img.setFeedbackId(rs.getInt("feedback_id"));
-                img.setImageUrl(rs.getString("image_url"));
-                images.add(img);
+                imageUrls.add(rs.getString("image_url"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -233,7 +270,7 @@ public class FeedbackDAO extends BaseDao {
             } catch (Exception e) {
             }
         }
-        return images;
+        return imageUrls;
     }
 
     public String getCustomerNameFromOrderOrUser(int customerId) {
@@ -284,9 +321,7 @@ public class FeedbackDAO extends BaseDao {
 
     public static void main(String[] args) {
         FeedbackDAO dao = new FeedbackDAO();
-        List<Feedback> list = dao.getFeedbacksByBouquetId(1);
-        for (Feedback f : list) {
-            System.out.println(f.getComment());
-        }
+        boolean list = dao.canWriteFeedback(12, 12, 51);
+        System.out.println(list);
     }
 }

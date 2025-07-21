@@ -3,8 +3,8 @@ package util;
 import dal.EmployeeDAO;
 import model.EmployeeInfo;
 import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
+import jakarta.mail.*;
+import jakarta.mail.internet.*;
 
 public class ContractReminderApp {
 

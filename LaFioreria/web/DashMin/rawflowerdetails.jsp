@@ -318,14 +318,14 @@
                                         </div>
                                     </div>
                                 </form>
-                               <!-- Flower Batches Table -->
-                               <h5 class="mb-3 text-secondary">Batch List of ${item.flowerName}</h5>
-                               <div class="add-batch-container">
-                                   <button type="button" class="btn btn-primary" 
-                                           onclick="location.href='${pageContext.request.contextPath}/add_batch?flower_id=${item.flowerId}'">
-                                       + Add Batch
-                                   </button>
-                               </div>
+                                <!-- Flower Batches Table -->
+                                <h5 class="mb-3 text-secondary">Batch List of ${item.flowerName}</h5>
+                                <div class="add-batch-container">
+                                    <button type="button" class="btn btn-primary" 
+                                            onclick="location.href = '${pageContext.request.contextPath}/add_batch?flower_id=${item.flowerId}'">
+                                        + Add Batch
+                                    </button>
+                                </div>
                                 <c:if test="${not empty item.flowerId}">
                                     <%@ include file="flowerbatch.jsp" %>
                                 </c:if>
@@ -336,7 +336,7 @@
                                     <button type="button"
                                             class="btn btn-delete"
                                             onclick="if (confirm('Do you want to delete?'))
-                                                                location.href = '${pageContext.request.contextPath}/hideRawFlower?flower_id=${item.flowerId}';">
+                                                        location.href = '${pageContext.request.contextPath}/hideRawFlower?flower_id=${item.flowerId}';">
                                         Hide
                                     </button>
                                     <button type="button"

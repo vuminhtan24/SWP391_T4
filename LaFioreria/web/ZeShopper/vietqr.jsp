@@ -1,4 +1,4 @@
-<%-- 
+<%--
     Document   : vietqr
     Created on : Jun 29, 2025, 9:24:59 PM
     Author     : VU MINH TAN
@@ -15,7 +15,7 @@
         <link href="${pageContext.request.contextPath}/ZeShopper/css/price-range.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/animate.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/ZeShopper/css/main.css" rel="stylesheet">
-        <link href="${pageContext.request.contextPath}/ZeShopper/css/responsive.css" rel="stylesheet"> 
+        <link href="${pageContext.request.contextPath}/ZeShopper/css/responsive.css" rel="stylesheet">
         <title>Thanh toán VietQR</title>
     </head>
     <body>
@@ -23,7 +23,6 @@
         <div class="container mt-5">
             <div class="text-center">
                 <h2 class="mb-4">Quét mã QR để thanh toán</h2>
-
                 <%
                     String bankCode = "MB";
                     String accountNumber = "2628612348888";
@@ -32,8 +31,10 @@
                     String orderId = request.getParameter("orderId");
                 %>
 
-                <img class="mb-4" src="https://img.vietqr.io/image/<%=bankCode%>-<%=accountNumber%>-compact2.png?amount=<%=amount%>&addInfo=ORDER<%=orderId%>&accountName=<%=accountName%>"
+                <img class="mb-4"
+                     src="https://img.vietqr.io/image/<c:out value="${bankCode}"/>-<c:out value="${accountNumber}"/>-compact2.png?amount=<c:out value="${amount}"/>&addInfo=ORDER<c:out value="${orderId}"/>&accountName=<c:out value="${accountName}"/>"
                      alt="QR Code chuyển khoản" width="300" />
+
                 <c:if test="${not empty remainingTime}">
                     <div class="alert alert-warning mt-3">
                         Vui lòng xác nhận chuyển khoản trong vòng <span id="countdown"></span>.
@@ -47,8 +48,14 @@
                             if (remainingTime <= 0) {
                                 countdownEl.innerText = "Hết thời gian!";
                                 const form = document.querySelector("form");
-                                form.querySelector("button").disabled = true;
-                                form.classList.add("d-none");
+                                // Disable the button and hide the form when time runs out
+                                if (form) { // Check if form exists before trying to access its elements
+                                    const submitButton = form.querySelector("button[type='submit']");
+                                    if (submitButton) {
+                                        submitButton.disabled = true;
+                                    }
+                                    form.classList.add("d-none");
+                                }
                                 return;
                             }
 
@@ -65,7 +72,7 @@
 
 
                 <form action="ConfirmVietQRPayment" method="post">
-                    <input type="hidden" name="orderId" value="<%=orderId%>" />
+                    <input type="hidden" name="orderId" value="<c:out value="${orderId}"/>" />
                     <button type="submit" class="btn btn-success">Tôi đã chuyển khoản</button>
                 </form>
             </div>

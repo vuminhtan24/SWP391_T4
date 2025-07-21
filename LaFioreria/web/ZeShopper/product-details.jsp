@@ -180,10 +180,93 @@
                 animation: fadein 0.5s;
             }
             @keyframes fadein {
-                from { opacity: 0; bottom: 10px; }
-                to { opacity: 1; bottom: 30px; }
+                from {
+                    opacity: 0;
+                    bottom: 10px;
+                }
+                to {
+                    opacity: 1;
+                    bottom: 30px;
+                }
+            }
+
+            #wholesaleModal .modal-dialog {
+                max-width: 450px;
+                border-radius: 12px;
+            }
+
+            #wholesaleModal .modal-content {
+                border-radius: 12px;
+                padding: 24px 24px 16px;
+            }
+
+            #wholesaleModal .modal-title {
+                font-size: 22px;
+                font-weight: 600;
+                margin-bottom: 12px;
+                text-align: center;
+            }
+
+            #wholesaleModal h4 {
+                font-size: 18px;
+                font-weight: 500;
+                margin-bottom: 12px;
+            }
+
+            #wholesaleModal img {
+                width: 220px;
+                height: 220px;
+                object-fit: cover;
+                border-radius: 8px;
+                margin: 0 auto 16px;
+                display: block;
+            }
+
+            #wholesaleModal .form-group {
+                margin-bottom: 16px;
+            }
+
+            #wholesaleModal input[type="number"] {
+                width: 100%;
+                max-width: 100%;
+                text-align: center;
+                padding: 8px;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+            }
+
+            #wholesaleModal .modal-footer {
+                display: flex;
+                justify-content: space-between;
+                padding-top: 16px;
+            }
+
+            #wholesaleModal .modal-footer button {
+                width: 48%;
+                font-size: 15px;
+                padding: 10px 0;
+                border-radius: 6px;
+            }
+
+            #wholesaleModal .btn-secondary {
+                background-color: #e74c3c;
+                border-color: #e74c3c;
+                color: white;
+            }
+
+            #wholesaleModal .btn-warning {
+                background-color: #f39c12;
+                border-color: #f39c12;
+                color: white;
+            }
+
+            #wholesaleError {
+                margin-top: 6px;
+                display: block;
+                font-size: 13px;
             }
         </style>
+
     </head>
     <body>
         <jsp:include page="/ZeShopper/header.jsp"/>
@@ -234,11 +317,24 @@
                                             <label class="popup-label">Số lượng:</label>
                                             <input id="popup-quantity" type="number" name="quantity" value="1" min="1" max="${bouquetAvailable}" required class="popup-input">
                                             <input type="hidden" name="bouquetId" id="popup-id" value="${bouquetDetail.bouquetId}">
-                                            <div class="popup-buttons">
-                                                <button type="submit" class="btn btn-fefault cart">
-                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ hàng
+                                            <div class="popup-buttons" style="white-space: nowrap;">
+                                                <button type="submit"
+                                                        class="btn btn-fefault cart"
+                                                        style="display: inline-block; padding: 8px 12px; white-space: nowrap;">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm
                                                 </button>
+
+                                                <a href="#"
+                                                   class="btn btn-fefault cart"
+                                                   style="display: inline-block; padding: 8px 12px; white-space: nowrap;"
+                                                   data-toggle="modal"
+                                                   data-target="#wholesaleModal">
+                                                    <i class="fa fa-shopping-cart"></i> Đặt nhiều
+                                                </a>
+
                                             </div>
+
+
                                             <p id="quantity-error" style="color: red; font-weight: bold">${error}</p>
                                         </form>
                                     </span>
@@ -247,6 +343,23 @@
                                     <p><b>Thương hiệu:</b> La Fioreria</p>
                                     <a href=""><img src="${pageContext.request.contextPath}/ZeShopper/images/product-details/share.png" class="share img-responsive" alt="" /></a>
                                 </div>
+                                <c:if test="${not empty param.addedWholesale}">
+                                    <c:choose>    
+                                        <c:when test="${param.addedWholesale eq 'true'}">
+                                            <div class="alert alert-success">
+                                                Đã thêm vào đơn đặt số lượng lớn thành công. Bạn có thể xem lại trong mục
+                                                <a href="${pageContext.request.contextPath}/wholeSale">Yêu cầu báo giá</a>.
+                                            </div>
+                                        </c:when>    
+                                        <c:otherwise>
+                                            <div class="alert alert-warning">
+                                                Bạn đã đặt đơn hàng này rồi! Vui lòng vào mục 
+                                                <a href="${pageContext.request.contextPath}/wholeSale">Yêu cầu báo giá</a>
+                                                để cập nhật.
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:if>
                             </div>
                         </div>
 
@@ -329,7 +442,7 @@
                                                 <p class="feedback-comment">${feedback.comment}</p>
                                                 <div class="feedback-images">
                                                     <c:forEach var="img" items="${feedbackImages[feedback.feedbackId]}">
-                                                        <img src="${pageContext.request.contextPath}/upload/FeedbackIMG/${img.imageUrl}" alt="Feedback Image">
+                                                        <img src="${pageContext.request.contextPath}/upload/FeedbackIMG/${img}" alt="Feedback Image">
                                                     </c:forEach>
                                                 </div>
                                             </div>
@@ -359,7 +472,7 @@
                                                         </div>
                                                         <div class="product-card__body">
                                                             <h3 class="product-card__title">
-                                                                <a href="${pageContext.request.contextPath}/ZeShopper/productDetail?id=${lb.bouquetId}">${lb.bouquetName}</a>
+                                                                <a href="${pageContext.request.contextPath}/productDetail?id=${lb.bouquetId}">${lb.bouquetName}</a>
                                                             </h3>
                                                             <p class="product-card__price">Giá: <fmt:formatNumber value="${lb.sellPrice}" pattern="#,##0" /> ₫</p>
                                                             <a href="#" class="btn product-card__button"><i class="fa fa-shopping-cart"></i> Thêm vào giỏ</a>
@@ -383,6 +496,49 @@
                     </div>
                 </div>
             </div>
+
+            <div class="modal fade" id="wholesaleModal" tabindex="-1" role="dialog" aria-labelledby="wholesaleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Yêu cầu báo giá theo lô</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+                        </div>
+
+                        <form id="wholesaleForm" method="post" action="${pageContext.request.contextPath}/productDetail">
+                            <input type="hidden" name="productId" value="${productId}" />
+                            <input type="hidden" name="user_id" value="${sessionScope.currentAcc.userid}" />
+                            <div class="modal-body text-center">
+                                <h4 style="margin-bottom: 10px;">${bouquetDetail.bouquetName}</h4>
+                                <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${images[0].image_url}"
+                                     alt="Bouquet"
+                                     style="width: 200px; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;" />
+
+                                <div class="form-group">
+                                    <label for="wholesaleQuantity"><strong>Số lượng muốn đặt:</strong></label>
+                                    <input type="number" min="50" name="requested_quantity" class="form-control text-center" id="wholesaleQuantity" required />
+                                    <small class="text-danger d-none" id="wholesaleError">Vui lòng nhập số lượng >= 50</small>
+                                </div>
+
+                                <!-- GHI CHÚ -->
+                                <div class="form-group">
+                                    <label for="wholesaleNote"><strong>Ghi chú thêm (nếu có):</strong></label>
+                                    <textarea name="note" id="wholesaleNote" class="form-control" rows="3" placeholder="Ví dụ: cần giao gấp, hoa phải tươi, giao theo nhiều đợt, v.v."></textarea>
+                                </div>
+
+                                <input type="hidden" name="bouquet_id" value="${bouquetDetail.bouquetId}" />
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                                <button type="submit" class="btn btn-warning">Yêu cầu báo giá</button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+
         </section>
 
         <jsp:include page="/ZeShopper/footer.jsp"/>
@@ -391,6 +547,20 @@
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script>
+            document.getElementById("wholesaleForm").addEventListener("submit", function (e) {
+                const qty = parseInt(document.getElementById("wholesaleQuantity").value);
+                const error = document.getElementById("wholesaleError");
+
+                if (isNaN(qty) || qty < 50) {
+                    e.preventDefault();
+                    error.classList.remove("d-none");
+                } else {
+                    error.classList.add("d-none");
+                }
+            });
+        </script>
+
         <script>
             document.getElementById("addToCartForm").addEventListener("submit", function (e) {
                 e.preventDefault();
@@ -405,6 +575,11 @@
                     errorDisplay.innerText = `Bạn chỉ có thể đặt tối đa ${availableQuantity} sản phẩm.`;
                     return;
                 }
+                
+                if (quantity > 49) {
+                    errorDisplay.innerText = `Bạn chỉ có thể đặt tối đa 49 sản phẩm. Hãy sử dụng đặt nhiều để đặt 50 sản phẩm trở lên`;
+                    return;
+                }
 
                 const formData = new URLSearchParams();
                 formData.append("action", "add");
@@ -413,81 +588,84 @@
 
                 fetch("${pageContext.request.contextPath}/ZeShopper/cart", {
                     method: "POST",
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
                     body: formData.toString()
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "added") {
-                        showSuccessPopup("Đã thêm vào giỏ hàng thành công!");
-                    } else {
-                        errorDisplay.innerText = "Lỗi: " + data.message;
-                    }
-                })
-                .catch(err => {
-                    console.error("Error adding to cart:", err);
-                    errorDisplay.innerText = "Có lỗi xảy ra.";
-                });
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === "added") {
+                                showSuccessPopup("Đã thêm vào giỏ hàng thành công!");
+                            } else {
+                                errorDisplay.innerText = "Lỗi: " + data.message;
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Error adding to cart:", err);
+                            errorDisplay.innerText = "Có lỗi xảy ra.";
+                        });
             });
 
             function showSuccessPopup(message) {
                 const successBox = document.getElementById("success-popup");
                 successBox.innerText = message;
                 successBox.style.display = "block";
-                setTimeout(() => { successBox.style.display = "none"; }, 3000);
+                setTimeout(() => {
+                    successBox.style.display = "none";
+                }, 3000);
             }
-
+        </script>        
+        <script>
             $(function () {
                 var imageUrls = [
-                    <c:forEach items="${images}" var="img" varStatus="status">
-                        "${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}"<c:if test="${!status.last}">,</c:if>
-                    </c:forEach>
-                ];
-                var currentIndex = 0;
-                var $mainImage = $('#mainImage');
-                var $prevBtn = $('#prevImage');
-                var $nextBtn = $('#nextImage');
-                var $modal = $('#allImagesModal');
-                var $modalImage = $('#modalImage');
-                var $modalPrev = $('#modalPrev');
-                var $modalNext = $('#modalNext');
+            <c:forEach items="${images}" var="img" varStatus="status">
+            "${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}"<c:if test="${!status.last}">,</c:if>
+            </c:forEach>
+                        ];
+                        var currentIndex = 0;
+                        var $mainImage = $('#mainImage');
+                        var $prevBtn = $('#prevImage');
+                        var $nextBtn = $('#nextImage');
+                        var $modal = $('#allImagesModal');
+                        var $modalImage = $('#modalImage');
+                        var $modalPrev = $('#modalPrev');
+                        var $modalNext = $('#modalNext');
 
-                $prevBtn.on('click', function () {
-                    if (currentIndex > 0) {
-                        currentIndex--;
-                        $mainImage.attr('src', imageUrls[currentIndex]);
-                    }
-                });
-                $nextBtn.on('click', function () {
-                    if (currentIndex < imageUrls.length - 1) {
-                        currentIndex++;
-                        $mainImage.attr('src', imageUrls[currentIndex]);
-                    }
-                });
+                        $prevBtn.on('click', function () {
+                            if (currentIndex > 0) {
+                                currentIndex--;
+                                $mainImage.attr('src', imageUrls[currentIndex]);
+                            }
+                        });
+                        $nextBtn.on('click', function () {
+                            if (currentIndex < imageUrls.length - 1) {
+                                currentIndex++;
+                                $mainImage.attr('src', imageUrls[currentIndex]);
+                            }
+                        });
 
-                $mainImage.on('click', function () {
-                    $modalImage.attr('src', imageUrls[currentIndex]);
-                });
+                        $mainImage.on('click', function () {
+                            $modalImage.attr('src', imageUrls[currentIndex]);
+                        });
 
-                $modal.on('show.bs.modal', function () {
-                    $modalImage.attr('src', imageUrls[currentIndex]);
-                });
+                        $modal.on('show.bs.modal', function () {
+                            $modalImage.attr('src', imageUrls[currentIndex]);
+                        });
 
-                $modalPrev.on('click', function () {
-                    if (currentIndex > 0) {
-                        currentIndex--;
-                        $modalImage.attr('src', imageUrls[currentIndex]);
-                        $mainImage.attr('src', imageUrls[currentIndex]);
-                    }
-                });
-                $modalNext.on('click', function () {
-                    if (currentIndex < imageUrls.length - 1) {
-                        currentIndex++;
-                        $modalImage.attr('src', imageUrls[currentIndex]);
-                        $mainImage.attr('src', imageUrls[currentIndex]);
-                    }
-                });
-            });
+                        $modalPrev.on('click', function () {
+                            if (currentIndex > 0) {
+                                currentIndex--;
+                                $modalImage.attr('src', imageUrls[currentIndex]);
+                                $mainImage.attr('src', imageUrls[currentIndex]);
+                            }
+                        });
+                        $modalNext.on('click', function () {
+                            if (currentIndex < imageUrls.length - 1) {
+                                currentIndex++;
+                                $modalImage.attr('src', imageUrls[currentIndex]);
+                                $mainImage.attr('src', imageUrls[currentIndex]);
+                            }
+                        });
+                    });
         </script>
     </body>
 </html>

@@ -72,6 +72,7 @@ public class HomeController extends HttpServlet {
         List<Category> listCategoryBQ = new ArrayList<>();
         List<FlowerType> listFlower = new ArrayList<>();
         List<Bouquet> listMostSellBouquet = new ArrayList<>();
+        List<Bouquet> available = new ArrayList<>();
         
         BouquetDAO bdao = new BouquetDAO();
         CategoryDAO cdao = new CategoryDAO();
@@ -81,10 +82,12 @@ public class HomeController extends HttpServlet {
         request.setAttribute("listFlowerHome", listFlower);
 
         listBouquet = bdao.getAll();
+        available = bdao.allBouquetAvailable();
         listCategoryBQ = cdao.getBouquetCategory();
         listMostSellBouquet = bdao.getMostSellBouquet();
         List<BouquetImage> images = bdao.getAllBouquetImage();
         
+        request.setAttribute("available", available);
         request.setAttribute("images", images);
         request.setAttribute("listMostSellBouquet", listMostSellBouquet);
         request.setAttribute("listBouquetHome", listBouquet);

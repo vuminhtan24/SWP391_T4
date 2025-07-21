@@ -6,9 +6,10 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List,model.Bouquet" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<fmt:setLocale value="vi_VN" />
 <!DOCTYPE html>
 <html>
     <head>
@@ -549,7 +550,7 @@
                                                                         </a>
                                                                     </h2>
 
-                                                                    <p style="margin-bottom: 10px;">Price: ${lb.getSellPrice()} VND</p>
+                                                                    <p style="margin-bottom: 10px;">Price: <fmt:formatNumber value="${lb.getSellPrice()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</p>
 
                                                                     <button type="button"
                                                                             class="btn btn-default add-to-cart"
@@ -559,7 +560,7 @@
                                                                                                     '${lb.getBouquetId()}',
                                                                                                     '${lb.getBouquetName()}',
                                                                                                     '${pageContext.request.contextPath}/upload/BouquetIMG/${cimg.getImage_url()}',
-                                                                                                                    '${lb.getPrice()}')"
+                                                                                                                    '${lb.getSellPrice()}')"
                                                                                 </c:if>
                                                                             </c:forEach>
                                                                             style="background-color: #5cb85c; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">
@@ -616,11 +617,18 @@
             </script>
 
             <script>
+                function formatVND(price) {
+                    return new Intl.NumberFormat('vi-VN', {
+                        style: 'decimal',
+                        maximumFractionDigits: 0
+                    }).format(price) + ' ₫';
+                }
+                
                 function openPopup(id, name, imageUrl, price, description) {
                     document.getElementById("popup-id").value = id;
                     document.getElementById("popup-name").textContent = name;
                     document.getElementById("popup-image").src = imageUrl;
-                    document.getElementById("popup-price").textContent = "Price: " + price + " VND";
+                    document.getElementById("popup-price").textContent = "Price: " + formatVND(price);
                     document.getElementById("popup-description").textContent = description;
                     document.getElementById("popup").style.display = "flex";
                 }
