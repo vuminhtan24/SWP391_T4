@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dal.CustomerDAO;
 import dal.DAOAccount;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -63,7 +64,7 @@ public class LoginServlet extends HttpServlet {
             User user = (User) session.getAttribute("currentAcc");
             DAOAccount daoAcc = new DAOAccount();
             String role = daoAcc.getRoleNameById(user.getRole());
-            
+
             // Redirect based on role to prevent re-displaying login.jsp
             redirectBasedOnRole(request, response, role);
             return;
@@ -137,8 +138,14 @@ public class LoginServlet extends HttpServlet {
                 emailCookie.setMaxAge(60 * 60 * 24 * 7); // 7 days
                 response.addCookie(emailCookie);
             }
-            
-            String role = daoAcc.getRoleNameById(user.getRole());            
+
+            CustomerDAO customerDao = new CustomerDAO();
+            int currentPoint = customerDao.getLoyaltyPointByUserId(user.getUserid());
+            boolean updated = customerDao.updateLoyaltyPointByUserId(user.getUserid(), currentPoint + 25);
+            if (!updated) {
+                System.err.println("Fail Update loyaltyPoint!!!");
+            }
+            String role = daoAcc.getRoleNameById(user.getRole());
             redirectBasedOnRole(request, response, role); // Call helper method for redirection
 
         } else {
@@ -150,6 +157,7 @@ public class LoginServlet extends HttpServlet {
 
     /**
      * Helper method to redirect user based on their role.
+     *
      * @param request servlet request
      * @param response servlet response
      * @param role The role name of the logged-in user.

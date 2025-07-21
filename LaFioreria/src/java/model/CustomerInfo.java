@@ -6,7 +6,7 @@ package model;
 
 public class CustomerInfo {
 
-    private int customerId;     // Thêm nếu cần xử lý khóa chính
+    private int customerId;    
     private int userId;
     private String customerCode;
     private String joinDate;
