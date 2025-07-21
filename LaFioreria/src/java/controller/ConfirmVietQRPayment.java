@@ -114,7 +114,11 @@ public class ConfirmVietQRPayment extends HttpServlet {
             request.setAttribute("user", user);
         }
 
-        // Đảm bảo rằng amount được đặt dưới dạng thuộc tính (attribute)
+        // Đặt các thông tin cần thiết cho VietQR vào request attributes
+        request.setAttribute("bankCode", "MB");
+        request.setAttribute("accountNumber", "2628612348888");
+        request.setAttribute("accountName", "LaFioreria");
+        
         request.setAttribute("orderId", orderId);
         request.setAttribute("amount", amount); // Đặt amount đã được parse vào thuộc tính
 

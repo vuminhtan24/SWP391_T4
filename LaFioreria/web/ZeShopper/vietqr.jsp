@@ -23,14 +23,9 @@
         <div class="container mt-5">
             <div class="text-center">
                 <h2 class="mb-4">Quét mã QR để thanh toán</h2>
-                <%
-                    String bankCode = "MB";
-                    String accountNumber = "2628612348888";
-                    String accountName = "LaFioreria";
-                    int amount = (Integer) request.getAttribute("amount");
-                    String orderId = request.getParameter("orderId");
-                %>
-
+                <%-- Xóa các khai báo biến Java và thay bằng việc truy cập attributes từ request --%>
+                <%-- Các biến này đã được đặt trong ConfirmVietQRPayment.java --%>
+                
                 <img class="mb-4"
                      src="https://img.vietqr.io/image/<c:out value="${bankCode}"/>-<c:out value="${accountNumber}"/>-compact2.png?amount=<c:out value="${amount}"/>&addInfo=ORDER<c:out value="${orderId}"/>&accountName=<c:out value="${accountName}"/>"
                      alt="QR Code chuyển khoản" width="300" />
