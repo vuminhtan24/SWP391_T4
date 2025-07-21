@@ -17,6 +17,7 @@ import dal.DiscountCodeDAO;
 import jakarta.servlet.http.HttpSession;
 import model.BouquetImage;
 import model.CartDetail;
+import model.CheckoutFormData; // Import model mới
 import model.DiscountCode;
 import model.Order; // Import lớp Order
 import model.OrderItem; // Import lớp OrderItem
@@ -116,6 +117,15 @@ public class CheckOutController extends HttpServlet {
         request.setAttribute("totalItems", totalItems);
         request.setAttribute("totalAmount", totalAmount); // Đặt totalAmount để JSP có thể truy cập
 
+        // Lấy dữ liệu form đã lưu trong session (nếu có) để điền lại
+        CheckoutFormData savedFormData = (CheckoutFormData) request.getSession().getAttribute("checkoutFormData");
+        if (savedFormData != null) {
+            request.setAttribute("savedFormData", savedFormData);
+            request.getSession().removeAttribute("checkoutFormData"); // Xóa khỏi session sau khi lấy
+            System.out.println("DEBUG (doGet): Loaded saved form data from session and removed it.");
+        }
+
+
         request.getRequestDispatcher("./ZeShopper/checkout.jsp").forward(request, response);
     }
 
@@ -189,11 +199,11 @@ public class CheckOutController extends HttpServlet {
         String fullName = request.getParameter("fullName");
         String phoneNumber = request.getParameter("phoneNumber");
         String addressLine = request.getParameter("addressLine");
-        String province = request.getParameter("province");
-        String district = request.getParameter("district");
-        String ward = request.getParameter("ward");
+        String province = request.getParameter("province"); // Tên tỉnh
+        String district = request.getParameter("district"); // Tên huyện
+        String ward = request.getParameter("ward");         // Tên xã/phường
 
-        // Địa chỉ chỉ lấy district và province
+        // Địa chỉ đầy đủ
         StringBuilder fullAddressBuilder = new StringBuilder();
         if (addressLine != null && !addressLine.trim().isEmpty()) {
             fullAddressBuilder.append(addressLine.trim());
@@ -310,11 +320,12 @@ public class CheckOutController extends HttpServlet {
             } else {
                 request.getSession().removeAttribute("cart");
             }
-            // Xóa tất cả các thuộc tính liên quan đến giảm giá khỏi session sau khi đặt hàng thành công
+            // Xóa tất cả các thuộc tính liên quan đến giảm giá và dữ liệu form khỏi session sau khi đặt hàng thành công
             request.getSession().removeAttribute("appliedDiscount"); 
             request.getSession().removeAttribute("calculatedDiscountAmount");
             request.getSession().removeAttribute("finalOrderTotal");
-            System.out.println("DEBUG (processOrder): Discount-related session attributes cleared.");
+            request.getSession().removeAttribute("checkoutFormData"); // Xóa dữ liệu form đã lưu
+            System.out.println("DEBUG (processOrder): Discount and form data session attributes cleared.");
 
 
             if ("vietqr".equals(paymentMethod)) {
@@ -341,8 +352,28 @@ public class CheckOutController extends HttpServlet {
     private void handleApplyDiscount(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
         String discountCode = request.getParameter("discountCode");
 
+        // --- Lưu dữ liệu form hiện tại vào session trước khi xử lý giảm giá ---
+        CheckoutFormData formData = new CheckoutFormData();
+        formData.setEmail(request.getParameter("email"));
+        formData.setFullName(request.getParameter("fullName"));
+        formData.setAddressLine(request.getParameter("addressLine"));
+        // Lấy mã (value) của select box, không phải text
+        formData.setProvinceCode(request.getParameter("provinceCode")); 
+        formData.setDistrictCode(request.getParameter("districtCode"));
+        formData.setWardCode(request.getParameter("wardCode"));
+        formData.setPhoneNumber(request.getParameter("phoneNumber"));
+        formData.setNotes(request.getParameter("notes"));
+        formData.setPaymentMethod(request.getParameter("paymentMethod"));
+        // formData.setShipToBilling(request.getParameter("shipToBilling") != null); // Nếu bạn có checkbox này
+
+        session.setAttribute("checkoutFormData", formData);
+        System.out.println("DEBUG (handleApplyDiscount): Saved form data to session.");
+        // --- Kết thúc lưu dữ liệu form ---
+
+
         if (discountCode == null || discountCode.trim().isEmpty()) {
             request.setAttribute("discountError", "Mã giảm giá không được để trống.");
+            // Giữ lại dữ liệu form trong session để doGet có thể lấy
             return;
         }
 
@@ -388,6 +419,7 @@ public class CheckOutController extends HttpServlet {
             session.removeAttribute("appliedDiscount"); // Clear any previously applied discount
             session.removeAttribute("calculatedDiscountAmount"); // Clear related attributes
             session.removeAttribute("finalOrderTotal"); // Clear related attributes
+            // Giữ lại dữ liệu form trong session để doGet có thể lấy
             return;
         }
 
@@ -574,15 +606,4 @@ public class CheckOutController extends HttpServlet {
         // No explicit forward here, doPost will handle the doGet call
         return;
     }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
 }

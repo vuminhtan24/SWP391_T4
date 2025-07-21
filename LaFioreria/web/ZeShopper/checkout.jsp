@@ -223,15 +223,21 @@
                                     <div class="form-one">
                                         <form id="billing-form">
                                             <div class="form-group">
-                                                <input name="email" type="email" placeholder="Email *" value="${user.email}" class="form-control" id="email-input">
+                                                <input name="email" type="email" placeholder="Email *" 
+                                                       value="${not empty savedFormData ? savedFormData.email : user.email}" 
+                                                       class="form-control" id="email-input">
                                                 <div class="error-message" id="email-error"></div>
                                             </div>
                                             <div class="form-group">
-                                                <input name="fullName" type="text" placeholder="Full Name *" value="${user.fullname}" class="form-control" id="fullname-input">
+                                                <input name="fullName" type="text" placeholder="Full Name *" 
+                                                       value="${not empty savedFormData ? savedFormData.fullName : user.fullname}" 
+                                                       class="form-control" id="fullname-input">
                                                 <div class="error-message" id="fullname-error"></div>
                                             </div>
                                             <div class="form-group">
-                                                <input name="addressLine" type="text" placeholder="Address Line *" value="${user.address}" class="form-control" id="address-input">
+                                                <input name="addressLine" type="text" placeholder="Address Line *" 
+                                                       value="${not empty savedFormData ? savedFormData.addressLine : user.address}" 
+                                                       class="form-control" id="address-input">
                                                 <div class="error-message" id="address-error"></div>
                                             </div>
                                         </form>
@@ -257,7 +263,9 @@
                                                 <div class="error-message" id="ward-error"></div>
                                             </div>
                                             <div class="form-group">
-                                                <input name="phoneNumber" type="text" placeholder="Phone Number *" value="${user.phone}" class="form-control" id="phone-input"> 
+                                                <input name="phoneNumber" type="text" placeholder="Phone Number *" 
+                                                       value="${not empty savedFormData ? savedFormData.phoneNumber : user.phone}" 
+                                                       class="form-control" id="phone-input"> 
                                                 <div class="error-message" id="phone-error"></div>
                                             </div>
                                         </form>
@@ -268,7 +276,8 @@
                                 <div class="order-message">
                                     <p>Shipping Order Notes</p>
                                     <div class="form-group">
-                                        <textarea name="message" placeholder="Notes about your order, special notes for delivery (e.g., preferred delivery time, leave at security desk)" rows="16" class="form-control" id="notes-input"></textarea>
+                                        <textarea name="message" placeholder="Notes about your order, special notes for delivery (e.g., preferred delivery time, leave at security desk)" 
+                                                  rows="16" class="form-control" id="notes-input">${not empty savedFormData ? savedFormData.notes : ''}</textarea>
                                         <div class="error-message" id="notes-error"></div>
                                     </div>
                                     <!--<label><input type="checkbox" id="ship-to-billing"> Ship to this billing address</label>-->
@@ -354,6 +363,18 @@
                                             <!-- NHẬP MÃ GIẢM GIÁ -->
                                             <form action="checkout" method="post" id="discountForm">
                                                 <input type="hidden" name="action" value="applyDiscount">
+                                                <!-- Thêm các input hidden để gửi dữ liệu form hiện tại -->
+                                                <input type="hidden" name="email" id="hidden-email-input">
+                                                <input type="hidden" name="fullName" id="hidden-fullname-input">
+                                                <input type="hidden" name="addressLine" id="hidden-address-input">
+                                                <input type="hidden" name="provinceCode" id="hidden-province-code">
+                                                <input type="hidden" name="districtCode" id="hidden-district-code">
+                                                <input type="hidden" name="wardCode" id="hidden-ward-code">
+                                                <input type="hidden" name="phoneNumber" id="hidden-phone-input">
+                                                <input type="hidden" name="notes" id="hidden-notes-input">
+                                                <input type="hidden" name="paymentMethod" id="hidden-payment-method">
+                                                <%-- <input type="hidden" name="shipToBilling" id="hidden-ship-to-billing"> --%>
+
                                                 <input type="text" name="discountCode" placeholder="Nhập mã giảm giá" id="discountCodeInput">
                                                 <button type="submit">Áp dụng</button>
                                             </form>
@@ -386,10 +407,10 @@
                 <c:if test="${not empty cartDetails}">
                     <div class="payment-options">
                         <span>
-                            <label><input name="paymentMethod" type="radio" value="cod" id="payment-cod"> Cash on Delivery (COD)</label>
+                            <label><input name="paymentMethod" type="radio" value="cod" id="payment-cod" ${not empty savedFormData && savedFormData.paymentMethod eq 'cod' ? 'checked' : ''}> Cash on Delivery (COD)</label>
                         </span>
                         <span>
-                            <label><input name="paymentMethod" type="radio" value="vietqr" id="payment-vietqr"> VietQR (Chuyển khoản bằng mã QR)</label>
+                            <label><input name="paymentMethod" type="radio" value="vietqr" id="payment-vietqr" ${not empty savedFormData && savedFormData.paymentMethod eq 'vietqr' ? 'checked' : ''}> VietQR (Chuyển khoản bằng mã QR)</label>
                         </span>
                         <div class="error-message" id="payment-error"></div>
                     </div>
@@ -745,6 +766,27 @@
                 let wardsData = {};
                 const basePath = "${pageContext.request.contextPath}/ZeShopper/data/";
                 setupRealTimeValidation();
+
+                // Hàm cập nhật các trường hidden trong form giảm giá
+                function updateHiddenFormFields() {
+                    $('#hidden-email-input').val($('#email-input').val());
+                    $('#hidden-fullname-input').val($('#fullname-input').val());
+                    $('#hidden-address-input').val($('#address-input').val());
+                    $('#hidden-province-code').val($('#provinceCitySelect').val()); // Lấy code
+                    $('#hidden-district-code').val($('#districtSelect').val());     // Lấy code
+                    $('#hidden-ward-code').val($('#wardSelect').val());             // Lấy code
+                    $('#hidden-phone-input').val($('#phone-input').val());
+                    $('#hidden-notes-input').val($('#notes-input').val());
+                    $('#hidden-payment-method').val($('input[name="paymentMethod"]:checked').val());
+                    // $('#hidden-ship-to-billing').val($('#ship-to-billing').is(':checked')); // Nếu có checkbox này
+                }
+
+                // Gán sự kiện submit cho form giảm giá để cập nhật các trường hidden
+                $('#discountForm').on('submit', function() {
+                    updateHiddenFormFields();
+                });
+
+
                 function loadData(url, type) {
                     return $.getJSON(url)
                             .done(function (data) {
@@ -805,13 +847,40 @@
                     $('#wardSelect').html(options).prop('disabled', filteredWards.length === 0);
                     ValidationUtils.clearValidation('wardSelect');
                 }
+                
+                // Load all data first
                 $.when(
                         loadData(basePath + 'tinh_tp.json', 'provinces'),
                         loadData(basePath + 'quan_huyen.json', 'districts'),
                         loadData(basePath + 'xa_phuong.json', 'wards')
                         ).done(function () {
-                    populateProvinces();
+                    populateProvinces(); // Populate initial provinces
+
+                    // Check for saved form data and pre-populate location fields
+                    const savedProvinceCode = "${savedFormData.provinceCode}";
+                    const savedDistrictCode = "${savedFormData.districtCode}";
+                    const savedWardCode = "${savedFormData.wardCode}";
+
+                    if (savedProvinceCode && savedProvinceCode !== "null" && savedProvinceCode !== "") {
+                        $('#provinceCitySelect').val(savedProvinceCode);
+                        // Sau khi set tỉnh, populate huyện dựa trên tỉnh
+                        populateDistricts(savedProvinceCode);
+                        // Đợi một chút để huyện được populate trước khi set giá trị cho huyện
+                        setTimeout(() => {
+                            if (savedDistrictCode && savedDistrictCode !== "null" && savedDistrictCode !== "") {
+                                $('#districtSelect').val(savedDistrictCode);
+                                // Sau khi set huyện, populate xã/phường dựa trên huyện
+                                populateWards(savedDistrictCode);
+                                setTimeout(() => {
+                                    if (savedWardCode && savedWardCode !== "null" && savedWardCode !== "") {
+                                        $('#wardSelect').val(savedWardCode);
+                                    }
+                                }, 50); // Độ trễ nhỏ
+                            }
+                        }, 50); // Độ trễ nhỏ
+                    }
                 });
+
                 $('#provinceCitySelect').on('change', function () {
                     const selectedProvinceCode = $(this).val();
                     if (selectedProvinceCode) {
