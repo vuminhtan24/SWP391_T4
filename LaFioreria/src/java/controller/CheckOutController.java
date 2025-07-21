@@ -135,7 +135,6 @@ public class CheckOutController extends HttpServlet {
         // Đảm bảo encoding để đọc dữ liệu tiếng Việt nếu có
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
-        // response.setContentType("application/json"); // Removed: Will forward to JSP instead of JSON
 
         HttpSession session = request.getSession();
         String action = request.getParameter("action");
@@ -161,8 +160,6 @@ public class CheckOutController extends HttpServlet {
                     handleApplyDiscount(request, response, session);
                     break;
                 default:
-                    // Gửi lỗi nếu action không hợp lệ
-                    // response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // Removed: Will use request attribute
                     request.setAttribute("error", "Hành động không hợp lệ: " + action);
             }
         }
@@ -221,25 +218,44 @@ public class CheckOutController extends HttpServlet {
         }
         String fullAddress = fullAddressBuilder.toString();
 
-        String totalSellStr = request.getParameter("totalAmount");
         double actualTotalSell;
-        // double discountAmount = 0.0; // Mặc định không giảm - this is calculated in JSP now
-        // String discountCode = request.getParameter("discountCode"); // This is handled by applyDiscount action now
+        // Lấy tổng tiền cuối cùng đã được tính toán (bao gồm giảm giá nếu có) từ session
+        Double finalOrderTotalFromSession = (Double) request.getSession().getAttribute("finalOrderTotal");
 
-        try {
-            actualTotalSell = Double.parseDouble(totalSellStr);
+        if (finalOrderTotalFromSession != null) {
+            actualTotalSell = finalOrderTotalFromSession;
+            System.out.println("DEBUG (processOrder): Using finalOrderTotal from session: " + actualTotalSell);
+        } else {
+            // Nếu không có finalOrderTotal trong session (ví dụ: không áp dụng giảm giá hoặc session đã bị xóa)
+            // Thì tính toán tổng tiền từ giỏ hàng hiện tại và phí vận chuyển
+            double currentCartTotal = 0.0;
+            List<CartDetail> cartItems;
+            User userFromSession = (User) request.getSession().getAttribute("currentAcc");
 
-            // Get applied discount from session if any
-            DiscountCode appliedDiscount = (DiscountCode) request.getSession().getAttribute("appliedDiscount");
-            if (appliedDiscount != null) {
-                double discountValue = appliedDiscount.getDiscountAmount(actualTotalSell);
-                actualTotalSell = Math.max(0, actualTotalSell - discountValue);
-                // No need to set discountSuccess here, it's already set by handleApplyDiscount or will be displayed on page reload
+            if (userFromSession != null) {
+                CartDAO cartDAO = new CartDAO();
+                try {
+                    cartItems = cartDAO.getCartDetailsByCustomerId(userFromSession.getUserid());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    request.setAttribute("orderError", "Lỗi khi tải giỏ hàng để đặt đơn.");
+                    return;
+                }
+            } else {
+                cartItems = (List<CartDetail>) request.getSession().getAttribute("cart");
             }
 
-        } catch (NumberFormatException e) {
-            request.setAttribute("orderError", "Tổng tiền không hợp lệ.");
-            return; // Return to let doPost handle the forward
+            if (cartItems != null) {
+                BouquetDAO bDao = new BouquetDAO();
+                for (CartDetail cd : cartItems) {
+                    if (cd.getBouquet() == null) {
+                        cd.setBouquet(bDao.getBouquetFullInfoById(cd.getBouquetId()));
+                    }
+                    currentCartTotal += cd.getQuantity() * cd.getBouquet().getSellPrice();
+                }
+            }
+            actualTotalSell = currentCartTotal + 30000; // Cộng thêm phí vận chuyển mặc định
+            System.out.println("DEBUG (processOrder): Recalculated actualTotalSell (no session final total): " + actualTotalSell);
         }
 
         // Tạo đơn hàng
@@ -249,7 +265,7 @@ public class CheckOutController extends HttpServlet {
         order.setCustomerPhone(phoneNumber);
         order.setCustomerAddress(fullAddress);
         order.setOrderDate(LocalDate.now().toString());
-        order.setTotalSell(String.valueOf(actualTotalSell));
+        order.setTotalSell(String.valueOf(actualTotalSell)); // Lưu tổng tiền đã được tính toán cuối cùng
         order.setTotalImport(String.valueOf(actualTotalSell / 5)); // Giả định lợi nhuận 20%
         order.setPaymentMethod(paymentMethod);
         order.setStatusId(1); // Chờ xử lý
@@ -294,7 +310,12 @@ public class CheckOutController extends HttpServlet {
             } else {
                 request.getSession().removeAttribute("cart");
             }
-            request.getSession().removeAttribute("appliedDiscount"); // Clear discount after order
+            // Xóa tất cả các thuộc tính liên quan đến giảm giá khỏi session sau khi đặt hàng thành công
+            request.getSession().removeAttribute("appliedDiscount"); 
+            request.getSession().removeAttribute("calculatedDiscountAmount");
+            request.getSession().removeAttribute("finalOrderTotal");
+            System.out.println("DEBUG (processOrder): Discount-related session attributes cleared.");
+
 
             if ("vietqr".equals(paymentMethod)) {
                 // Redirect to VietQR payment page
@@ -325,27 +346,25 @@ public class CheckOutController extends HttpServlet {
             return;
         }
 
-        DiscountCodeDAO discountCodeDAO = new DiscountCodeDAO();
+        dal.DiscountCodeDAO discountCodeDAO = new dal.DiscountCodeDAO(); // Sử dụng dal.DiscountCodeDAO
         DiscountCode discount = discountCodeDAO.getValidDiscountCode(discountCode);
 
         // Calculate current total amount from cart details
-        List<CartDetail> cartDetails = (List<CartDetail>) request.getSession().getAttribute("cartDetails"); // Assuming cartDetails is set in session or retrieved
-        if (cartDetails == null) {
-            User currentUser = (User) request.getSession().getAttribute("currentAcc");
-            if (currentUser != null) {
-                CartDAO cartDAO = new CartDAO();
-                try {
-                    cartDetails = cartDAO.getCartDetailsByCustomerId(currentUser.getUserid());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    request.setAttribute("discountError", "Lỗi khi tải giỏ hàng để áp dụng mã giảm giá.");
-                    return;
-                }
-            } else {
-                cartDetails = (List<CartDetail>) request.getSession().getAttribute("cart");
+        List<CartDetail> cartDetails = null; // Khởi tạo null
+        User currentUser = (User) request.getSession().getAttribute("currentAcc");
+        if (currentUser != null) {
+            CartDAO cartDAO = new CartDAO();
+            try {
+                cartDetails = cartDAO.getCartDetailsByCustomerId(currentUser.getUserid());
+            } catch (Exception e) {
+                e.printStackTrace();
+                request.setAttribute("discountError", "Lỗi khi tải giỏ hàng để áp dụng mã giảm giá.");
+                return;
             }
+        } else {
+            cartDetails = (List<CartDetail>) request.getSession().getAttribute("cart");
         }
-
+        
         double currentCartTotal = 0.0;
         if (cartDetails != null) {
             BouquetDAO bDao = new BouquetDAO();
@@ -353,19 +372,34 @@ public class CheckOutController extends HttpServlet {
                 if (cd.getBouquet() == null) {
                     cd.setBouquet(bDao.getBouquetFullInfoById(cd.getBouquetId()));
                 }
+                // DEBUG LOG: In ra giá trị từng sản phẩm
+                System.out.println("DEBUG (handleApplyDiscount - item): BouquetId: " + cd.getBouquetId() + 
+                                   ", Quantity: " + cd.getQuantity() + 
+                                   ", SellPrice: " + cd.getBouquet().getSellPrice() + 
+                                   ", Item Total: " + (cd.getQuantity() * cd.getBouquet().getSellPrice()));
                 currentCartTotal += cd.getQuantity() * cd.getBouquet().getSellPrice();
             }
         }
+        System.out.println("DEBUG (handleApplyDiscount): Calculated currentCartTotal (from items): " + currentCartTotal);
+
 
         if (discount == null || (discount.getMinOrderAmount() != null && currentCartTotal < discount.getMinOrderAmount().doubleValue())) {
             request.setAttribute("discountError", "Mã giảm giá không hợp lệ hoặc không đủ điều kiện.");
             session.removeAttribute("appliedDiscount"); // Clear any previously applied discount
+            session.removeAttribute("calculatedDiscountAmount"); // Clear related attributes
+            session.removeAttribute("finalOrderTotal"); // Clear related attributes
             return;
         }
 
         // Calculate discount amount and update total
         double discountAmount = discount.getDiscountAmount(currentCartTotal);
         double finalAmount = currentCartTotal + 30000 - discountAmount; // Assuming 30000 is shipping fee
+
+        // DEBUG LOGS
+        System.out.println("DEBUG (handleApplyDiscount): currentCartTotal: " + currentCartTotal);
+        System.out.println("DEBUG (handleApplyDiscount): discountAmount: " + discountAmount);
+        System.out.println("DEBUG (handleApplyDiscount): finalAmount (subtotal + ship - discount): " + finalAmount);
+
 
         // Store in session to be used in processOrder
         session.setAttribute("appliedDiscount", discount);
@@ -385,7 +419,6 @@ public class CheckOutController extends HttpServlet {
         int bouquetId = Integer.parseInt(request.getParameter("bouquetId"));
         int quantity = Integer.parseInt(request.getParameter("quantity"));
 
-        // response.setContentType("application/json"); // Removed
         response.setCharacterEncoding("UTF-8");
 
         if (currentUser == null) {
@@ -541,4 +574,15 @@ public class CheckOutController extends HttpServlet {
         // No explicit forward here, doPost will handle the doGet call
         return;
     }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
 }
