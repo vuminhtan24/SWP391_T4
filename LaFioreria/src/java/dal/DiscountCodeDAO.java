@@ -221,47 +221,72 @@ public class DiscountCodeDAO extends BaseDao {
         return null;
     }
 
+    public void insertDiscountCode(DiscountCode dc) {
+        String sql = "INSERT INTO discount_code (code, description, discount_type, discount_value, max_discount, "
+                + "min_order_amount, start_date, end_date, usage_limit, used_count, active) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, dc.getCode());
+            ps.setString(2, dc.getDescription());
+            ps.setString(3, dc.getType());
+            ps.setBigDecimal(4, dc.getValue());
+            ps.setBigDecimal(5, dc.getMaxDiscount());
+            ps.setBigDecimal(6, dc.getMinOrderAmount());
+            ps.setTimestamp(7, dc.getStartDate());
+            ps.setTimestamp(8, dc.getEndDate());
+            ps.setObject(9, dc.getUsageLimit());
+            ps.setInt(10, 0); // Ban đầu chưa dùng
+            ps.setBoolean(11, true); // Mặc định hoạt động
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateDiscountCode(DiscountCode dc) {
+        String sql = "UPDATE discount_code SET description = ?, discount_type = ?, discount_value = ?, "
+                + "max_discount = ?, min_order_amount = ?, start_date = ?, end_date = ?, usage_limit = ?, active = ? "
+                + "WHERE code = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, dc.getDescription());
+            ps.setString(2, dc.getType());
+            ps.setBigDecimal(3, dc.getValue());
+            ps.setBigDecimal(4, dc.getMaxDiscount());
+            ps.setBigDecimal(5, dc.getMinOrderAmount());
+            ps.setTimestamp(6, dc.getStartDate());
+            ps.setTimestamp(7, dc.getEndDate());
+            ps.setObject(8, dc.getUsageLimit());
+            ps.setBoolean(9, dc.isActive());
+            ps.setString(10, dc.getCode());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         DiscountCodeDAO dao = new DiscountCodeDAO();
-        String inputCode = "SUMMER2024";
-        BigDecimal orderTotal = new BigDecimal("1000000");
+         List<DiscountCode> list = dao.getAllDiscountCodes();
 
-        // 1. Kiểm tra mã hợp lệ không
-        System.out.println("🔎 Đang kiểm tra mã giảm giá: " + inputCode);
-        DiscountCode dc = dao.getValidDiscount(inputCode, orderTotal);
-        if (dc != null) {
-            System.out.println("✅ Mã hợp lệ: " + dc.getCode());
-            System.out.println("→ Kiểu: " + dc.getType());
-            System.out.println("→ Giá trị: " + dc.getValue());
-            System.out.println("→ Mô tả: " + dc.getDescription());
-            Integer usageLimit = dc.getUsageLimit();
-            System.out.println("→ Dùng tối đa: " + (usageLimit == null ? "Không giới hạn" : usageLimit));
-
-            System.out.println("→ Đã dùng: " + dc.getUsedCount());
-
-            // 2. Tính tiền giảm
-            BigDecimal discountAmount = dao.calculateDiscount(dc, orderTotal);
-            System.out.println("💸 Số tiền được giảm: " + discountAmount);
-
-            // 3. Cập nhật lượt dùng
-            dao.increaseUsedCount(dc.getId());
-            System.out.println("✅ Đã tăng lượt dùng mã");
-
-            // 4. Kiểm tra lại thông tin mã sau khi update
-            DiscountCode updated = dao.getByCode(inputCode);
-            System.out.println("📊 Lượt dùng sau cập nhật: " + updated.getUsedCount());
-        } else {
-            System.out.println("❌ Mã giảm giá không hợp lệ hoặc không đủ điều kiện.");
-        }
-
-        // 5. In ra tất cả các mã giảm giá hiện có
-        System.out.println("\n📋 Danh sách tất cả mã giảm giá:");
-        List<DiscountCode> allCodes = dao.getAllDiscountCodes();
-        for (DiscountCode d : allCodes) {
-            System.out.println("➡ " + d.getCode() + " | " + d.getDescription() + " | "
-                    + d.getType() + " | " + d.getValue()
-                    + " | Trạng thái: " + (d.isActive() ? "Đang hoạt động" : "Không hoạt động"));
-        }
+    System.out.println("📋 Danh sách mã giảm giá:");
+    for (DiscountCode d : list) {
+        System.out.println("——————————————");
+        System.out.println("🔑 Mã: " + d.getCode());
+        System.out.println("📝 Mô tả: " + d.getDescription());
+        System.out.println("💰 Kiểu: " + d.getType());
+        System.out.println("📉 Giá trị: " + d.getValue());
+        System.out.println("🔺 Giảm tối đa: " + d.getMaxDiscount());
+        System.out.println("🔻 Đơn tối thiểu: " + d.getMinOrderAmount());
+        System.out.println("📆 Bắt đầu: " + d.getStartDate());
+        System.out.println("📆 Kết thúc: " + d.getEndDate());
+        System.out.println("🔄 Dùng tối đa: " + d.getUsageLimit());
+        System.out.println("📊 Đã dùng: " + d.getUsedCount());
+        System.out.println("✅ Còn hoạt động: " + d.isActive());
+    }
     }
 
 }
