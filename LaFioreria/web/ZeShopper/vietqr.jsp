@@ -28,7 +28,7 @@
                     String bankCode = "MB";
                     String accountNumber = "2628612348888";
                     String accountName = "LaFioreria";
-                    int amount = Integer.parseInt(request.getParameter("amount"));
+                    int amount = (Integer) request.getAttribute("amount");
                     String orderId = request.getParameter("orderId");
                 %>
 

@@ -15,12 +15,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.security.Timestamp;
+import java.sql.Timestamp; // Đã sửa từ java.security.Timestamp sang java.sql.Timestamp
 
 /**
  *
  * @author VU MINH TAN
  */
+@WebServlet(name = "ConfirmVietQRPayment", urlPatterns = {"/ConfirmVietQRPayment"})
 public class ConfirmVietQRPayment extends HttpServlet {
 
     /**
@@ -66,7 +67,8 @@ public class ConfirmVietQRPayment extends HttpServlet {
         String amountStr = request.getParameter("amount");
 
         if (orderId == null || amountStr == null) {
-            response.sendRedirect("checkout.jsp");
+            // Sửa đường dẫn redirect để đảm bảo đúng context path
+            response.sendRedirect(request.getContextPath() + "/ZeShopper/checkout.jsp");
             return;
         }
 
@@ -77,15 +79,16 @@ public class ConfirmVietQRPayment extends HttpServlet {
         if (createdAt != null) {
             long nowMillis = System.currentTimeMillis();
             long orderMillis = createdAt.getTime();
-               System.out.println("Current time (nowMillis): " + nowMillis + " (" + new java.util.Date(nowMillis) + ")");
-    System.out.println("Order created at (createdAt from DB): " + createdAt + " (orderMillis: " + orderMillis + ")");
+            System.out.println("Current time (nowMillis): " + nowMillis + " (" + new java.util.Date(nowMillis) + ")");
+            System.out.println("Order created at (createdAt from DB): " + createdAt + " (orderMillis: " + orderMillis + ")");
 
             long diffMillis = nowMillis - orderMillis;
-            long maxAllowedMillis = 15 * 60 * 1000;
+            long maxAllowedMillis = 15 * 60 * 1000; // 15 phút
 
             if (diffMillis > maxAllowedMillis) {
-                request.setAttribute("error", "Đơn hàng đã hết thời gian thanh toán. Vui lòng đặt lại đơn mới.");
-                request.getRequestDispatcher("error.jsp").forward(request, response);
+                request.setAttribute("errorMessage", "Đơn hàng đã hết thời gian thanh toán. Vui lòng đặt lại đơn mới.");
+                // Sửa đường dẫn forward để đảm bảo đúng context path
+                request.getRequestDispatcher("/ZeShopper/checkout.jsp").forward(request, response); // Forward về checkout.jsp
                 return;
             }
             long remainingTime = maxAllowedMillis - diffMillis;
@@ -94,11 +97,13 @@ public class ConfirmVietQRPayment extends HttpServlet {
         }
 
         // Parse số tiền
-        int amount = 0;
+        Integer amount = null; // Thay đổi kiểu dữ liệu thành Integer để tránh NumberFormatException
         try {
-            amount = Integer.parseInt(amountStr);
+            // Chuyển đổi từ String sang Double, sau đó ép kiểu thành Integer
+            amount = (int) Double.parseDouble(amountStr); 
         } catch (NumberFormatException e) {
-            response.sendRedirect("checkout.jsp");
+            // Sửa đường dẫn redirect để đảm bảo đúng context path
+            response.sendRedirect(request.getContextPath() + "/ZeShopper/checkout.jsp");
             return;
         }
 
@@ -109,8 +114,9 @@ public class ConfirmVietQRPayment extends HttpServlet {
             request.setAttribute("user", user);
         }
 
+        // Đảm bảo rằng amount được đặt dưới dạng thuộc tính (attribute)
         request.setAttribute("orderId", orderId);
-        request.setAttribute("amount", amount);
+        request.setAttribute("amount", amount); // Đặt amount đã được parse vào thuộc tính
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/ZeShopper/vietqr.jsp");
         dispatcher.forward(request, response);
@@ -131,15 +137,19 @@ public class ConfirmVietQRPayment extends HttpServlet {
 
         try {
             OrderDAO orderDAO = new OrderDAO();
-            orderDAO.updateOrderStatus(orderId, 1);
+            // Cập nhật trạng thái đơn hàng. Nếu 1 là chờ xử lý, có thể bạn muốn đặt là 2 (đã thanh toán) hoặc 3 (đang giao)
+            // Tùy thuộc vào logic kinh doanh của bạn. Tôi giữ nguyên 1 theo code cũ.
+            orderDAO.updateOrderStatus(orderId, 1); 
 
             System.out.println("Đơn hàng " + orderId + " đã được khách xác nhận chuyển khoản.");
 
-            response.sendRedirect("/LaFioreria/ZeShopper/thanks-you.jsp?orderId=" + orderId);
+            // Sửa đường dẫn redirect để sử dụng request.getContextPath()
+            response.sendRedirect(request.getContextPath() + "/ZeShopper/thanks-you.jsp?orderId=" + orderId);
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("error.jsp");
+            // Sửa đường dẫn redirect để đảm bảo đúng context path
+            response.sendRedirect(request.getContextPath() + "/ZeShopper/error.jsp");
         }
     }
 

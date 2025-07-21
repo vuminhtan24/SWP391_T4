@@ -13,9 +13,11 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects; // Import Objects để so sánh an toàn hơn
-
+import dal.DiscountCodeDAO;
+import jakarta.servlet.http.HttpSession;
 import model.BouquetImage;
 import model.CartDetail;
+import model.DiscountCode;
 import model.Order; // Import lớp Order
 import model.OrderItem; // Import lớp OrderItem
 import model.User;
@@ -90,7 +92,7 @@ public class CheckOutController extends HttpServlet {
                 request.setAttribute("cartDetails", cartDetails);
                 request.setAttribute("user", currentUser);
                 request.setAttribute("isGuest", false);
-
+                 
             } catch (Exception e) {
                 System.err.println("Lỗi khi tải giỏ hàng cho khách hàng " + currentUser.getUserid() + ": " + e.getMessage());
                 request.setAttribute("error", "Failed to load cart items");
@@ -133,8 +135,9 @@ public class CheckOutController extends HttpServlet {
         // Đảm bảo encoding để đọc dữ liệu tiếng Việt nếu có
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
-        response.setContentType("application/json"); // Đặt Content-Type cho phản hồi JSON
+        // response.setContentType("application/json"); // Removed: Will forward to JSP instead of JSON
 
+        HttpSession session = request.getSession();
         String action = request.getParameter("action");
 
         if (action == null || action.isEmpty()) {
@@ -154,11 +157,21 @@ public class CheckOutController extends HttpServlet {
                 case "placeOrder": // Case cho hành động đặt hàng
                     processOrder(request, response);
                     break;
+                case "applyDiscount":
+                    handleApplyDiscount(request, response, session);
+                    break;
                 default:
                     // Gửi lỗi nếu action không hợp lệ
-                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    response.getWriter().write("{\"status\": \"error\", \"message\": \"Hành động không hợp lệ: " + action + "\"}");
+                    // response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // Removed: Will use request attribute
+                    request.setAttribute("error", "Hành động không hợp lệ: " + action);
             }
+        }
+        // Forward to checkout.jsp after processing to display messages
+        // This will be called if no specific redirect/forward happened in the action methods
+        // For 'placeOrder' with VietQR, a redirect happens, so this won't be reached.
+        // For 'add', 'update', 'delete', 'applyDiscount', this will ensure the page reloads with messages.
+        if (!response.isCommitted()) { // Check if response is already committed (e.g., by sendRedirect)
+            doGet(request, response); // Re-use doGet to populate cart details and forward to checkout.jsp
         }
     }
 
@@ -210,12 +223,23 @@ public class CheckOutController extends HttpServlet {
 
         String totalSellStr = request.getParameter("totalAmount");
         double actualTotalSell;
+        // double discountAmount = 0.0; // Mặc định không giảm - this is calculated in JSP now
+        // String discountCode = request.getParameter("discountCode"); // This is handled by applyDiscount action now
+
         try {
             actualTotalSell = Double.parseDouble(totalSellStr);
+
+            // Get applied discount from session if any
+            DiscountCode appliedDiscount = (DiscountCode) request.getSession().getAttribute("appliedDiscount");
+            if (appliedDiscount != null) {
+                double discountValue = appliedDiscount.getDiscountAmount(actualTotalSell);
+                actualTotalSell = Math.max(0, actualTotalSell - discountValue);
+                // No need to set discountSuccess here, it's already set by handleApplyDiscount or will be displayed on page reload
+            }
+
         } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"status\": \"error\", \"message\": \"Tổng tiền không hợp lệ.\"}");
-            return;
+            request.setAttribute("orderError", "Tổng tiền không hợp lệ.");
+            return; // Return to let doPost handle the forward
         }
 
         // Tạo đơn hàng
@@ -245,8 +269,7 @@ public class CheckOutController extends HttpServlet {
             }
 
             if (cartItems == null || cartItems.isEmpty()) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"status\": \"error\", \"message\": \"Giỏ hàng trống.\"}");
+                request.setAttribute("orderError", "Giỏ hàng trống.");
                 return;
             }
 
@@ -271,17 +294,19 @@ public class CheckOutController extends HttpServlet {
             } else {
                 request.getSession().removeAttribute("cart");
             }
+            request.getSession().removeAttribute("appliedDiscount"); // Clear discount after order
 
             if ("vietqr".equals(paymentMethod)) {
-                response.getWriter().write("{\"status\": \"success\", \"orderId\": " + orderId + "}");
+                // Redirect to VietQR payment page
+                response.sendRedirect(request.getContextPath() + "/ConfirmVietQRPayment?orderId=" + orderId + "&amount=" + actualTotalSell);
             } else {
-                response.getWriter().write("{\"status\": \"success\", \"message\": \"Đơn hàng đã được đặt thành công! Mã đơn hàng: " + orderId + "\"}");
+                request.setAttribute("orderSuccess", "Đơn hàng đã được đặt thành công! Mã đơn hàng: " + orderId);
+                request.getRequestDispatcher("./ZeShopper/thanks-you.jsp").forward(request, response);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"status\": \"error\", \"message\": \"Có lỗi khi đặt hàng: " + e.getMessage() + "\"}");
+            request.setAttribute("orderError", "Có lỗi khi đặt hàng: " + e.getMessage());
         }
     }
 
@@ -292,13 +317,75 @@ public class CheckOutController extends HttpServlet {
      * @param response HttpServletResponse
      * @throws IOException
      */
+    private void handleApplyDiscount(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
+        String discountCode = request.getParameter("discountCode");
+
+        if (discountCode == null || discountCode.trim().isEmpty()) {
+            request.setAttribute("discountError", "Mã giảm giá không được để trống.");
+            return;
+        }
+
+        DiscountCodeDAO discountCodeDAO = new DiscountCodeDAO();
+        DiscountCode discount = discountCodeDAO.getValidDiscountCode(discountCode);
+
+        // Calculate current total amount from cart details
+        List<CartDetail> cartDetails = (List<CartDetail>) request.getSession().getAttribute("cartDetails"); // Assuming cartDetails is set in session or retrieved
+        if (cartDetails == null) {
+            User currentUser = (User) request.getSession().getAttribute("currentAcc");
+            if (currentUser != null) {
+                CartDAO cartDAO = new CartDAO();
+                try {
+                    cartDetails = cartDAO.getCartDetailsByCustomerId(currentUser.getUserid());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    request.setAttribute("discountError", "Lỗi khi tải giỏ hàng để áp dụng mã giảm giá.");
+                    return;
+                }
+            } else {
+                cartDetails = (List<CartDetail>) request.getSession().getAttribute("cart");
+            }
+        }
+
+        double currentCartTotal = 0.0;
+        if (cartDetails != null) {
+            BouquetDAO bDao = new BouquetDAO();
+            for (CartDetail cd : cartDetails) {
+                if (cd.getBouquet() == null) {
+                    cd.setBouquet(bDao.getBouquetFullInfoById(cd.getBouquetId()));
+                }
+                currentCartTotal += cd.getQuantity() * cd.getBouquet().getSellPrice();
+            }
+        }
+
+        if (discount == null || (discount.getMinOrderAmount() != null && currentCartTotal < discount.getMinOrderAmount().doubleValue())) {
+            request.setAttribute("discountError", "Mã giảm giá không hợp lệ hoặc không đủ điều kiện.");
+            session.removeAttribute("appliedDiscount"); // Clear any previously applied discount
+            return;
+        }
+
+        // Calculate discount amount and update total
+        double discountAmount = discount.getDiscountAmount(currentCartTotal);
+        double finalAmount = currentCartTotal + 30000 - discountAmount; // Assuming 30000 is shipping fee
+
+        // Store in session to be used in processOrder
+        session.setAttribute("appliedDiscount", discount);
+        session.setAttribute("calculatedDiscountAmount", discountAmount);
+        session.setAttribute("finalOrderTotal", finalAmount);
+
+        request.setAttribute("discountSuccess", "Áp dụng mã giảm giá thành công! Giảm: " + String.format("%,.0f", discountAmount) + "₫");
+        request.setAttribute("discountAmount", String.format("%,.0f", discountAmount)); // For displaying on JSP
+        request.setAttribute("orderFinalTotal", String.format("%,.0f", finalAmount)); // For displaying on JSP
+
+        // The doPost will call doGet to refresh the page with these attributes
+    }
+
     private void add(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
 
         int bouquetId = Integer.parseInt(request.getParameter("bouquetId"));
         int quantity = Integer.parseInt(request.getParameter("quantity"));
 
-        response.setContentType("application/json");
+        // response.setContentType("application/json"); // Removed
         response.setCharacterEncoding("UTF-8");
 
         if (currentUser == null) {
@@ -326,8 +413,8 @@ public class CheckOutController extends HttpServlet {
             }
 
             request.getSession().setAttribute("cart", cart);
-            response.getWriter().write("{\"status\": \"added\", \"message\": \"Sản phẩm đã được thêm vào giỏ hàng (session)\"}");
-            return;
+            request.setAttribute("successMessage", "Sản phẩm đã được thêm vào giỏ hàng!"); // Set success message
+            return; // Return to let doPost handle the forward
         }
 
         Integer customerId = (currentUser == null) ? null : currentUser.getUserid();
@@ -342,12 +429,12 @@ public class CheckOutController extends HttpServlet {
                 dao.insertItem(customerId, bouquetId, quantity);
             }
 
-            response.getWriter().write("{\"status\": \"added\", \"message\": \"Sản phẩm đã được thêm vào giỏ hàng (DB)\"}");
+            request.setAttribute("successMessage", "Sản phẩm đã được thêm vào giỏ hàng!"); // Set success message
         } catch (Exception e) { // Bắt Exception chung để xử lý lỗi DB
             System.err.println("Lỗi khi thêm sản phẩm vào giỏ hàng (DB): " + e.getMessage());
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"status\": \"error\", \"message\": \"Không thể thêm sản phẩm vào giỏ hàng.\"}");
+            request.setAttribute("errorMessage", "Không thể thêm sản phẩm vào giỏ hàng."); // Set error message
         }
+        return; // Return to let doPost handle the forward
     }
 
     /**
@@ -379,12 +466,12 @@ public class CheckOutController extends HttpServlet {
                         return false;
                     });
                     request.getSession().setAttribute("cart", cart);
+                    request.setAttribute("successMessage", "Giỏ hàng đã được cập nhật!");
                 }
             } catch (NumberFormatException e) {
-                request.setAttribute("error", "Định dạng số lượng không hợp lệ.");
+                request.setAttribute("errorMessage", "Định dạng số lượng không hợp lệ.");
             }
-            // Chuyển hướng lại trang checkout để cập nhật hiển thị
-            response.sendRedirect("checkout");
+            // No explicit forward here, doPost will handle the doGet call
             return;
         }
 
@@ -400,15 +487,15 @@ public class CheckOutController extends HttpServlet {
             } else {
                 dao.updateQuantity(customerId, bouquetId, quantity);
             }
-
+            request.setAttribute("successMessage", "Giỏ hàng đã được cập nhật!");
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "Định dạng đầu vào không hợp lệ.");
+            request.setAttribute("errorMessage", "Định dạng đầu vào không hợp lệ.");
         } catch (Exception e) {
-            request.setAttribute("error", "Không thể cập nhật sản phẩm trong giỏ hàng.");
+            request.setAttribute("errorMessage", "Không thể cập nhật sản phẩm trong giỏ hàng.");
             System.err.println("Lỗi khi cập nhật giỏ hàng (DB): " + e.getMessage());
         }
-        // Chuyển hướng lại trang checkout để cập nhật hiển thị
-        response.sendRedirect("checkout");
+        // No explicit forward here, doPost will handle the doGet call
+        return;
     }
 
     /**
@@ -429,12 +516,12 @@ public class CheckOutController extends HttpServlet {
                 if (cart != null) {
                     cart.removeIf(item -> item.getBouquetId() == bouquetId);
                     request.getSession().setAttribute("cart", cart);
+                    request.setAttribute("successMessage", "Sản phẩm đã được xóa khỏi giỏ hàng!");
                 }
             } catch (NumberFormatException e) {
-                request.setAttribute("error", "Định dạng ID bó hoa không hợp lệ.");
+                request.setAttribute("errorMessage", "Định dạng ID bó hoa không hợp lệ.");
             }
-            // Chuyển hướng lại trang checkout để cập nhật hiển thị
-            request.getRequestDispatcher("./ZeShopper/checkout.jsp").forward(request, response);
+            // No explicit forward here, doPost will handle the doGet call
             return;
         }
 
@@ -444,14 +531,14 @@ public class CheckOutController extends HttpServlet {
 
             CartDAO dao = new CartDAO();
             dao.deleteItem(customerId, bouquetId);
-
+            request.setAttribute("successMessage", "Sản phẩm đã được xóa khỏi giỏ hàng!");
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "Định dạng ID bó hoa không hợp lệ.");
+            request.setAttribute("errorMessage", "Định dạng ID bó hoa không hợp lệ.");
         } catch (Exception e) {
-            request.setAttribute("error", "Không thể xóa sản phẩm khỏi giỏ hàng.");
+            request.setAttribute("errorMessage", "Không thể xóa sản phẩm khỏi giỏ hàng.");
             System.err.println("Lỗi khi xóa giỏ hàng (DB): " + e.getMessage());
         }
-        // Chuyển hướng lại trang checkout để cập nhật hiển thị
-        request.getRequestDispatcher("./ZeShopper/checkout.jsp").forward(request, response);
+        // No explicit forward here, doPost will handle the doGet call
+        return;
     }
 }
