@@ -73,20 +73,20 @@ public class CartWholeSaleController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
-        
+
         User currentUser = (User) session.getAttribute("currentAcc");
         CartWholeSaleDAO cwsDao = new CartWholeSaleDAO();
         BouquetDAO bDao = new BouquetDAO();
-        
+
         List<BouquetImage> images = bDao.getAllBouquetImage();
         List<CartWholeSaleDetail> cartDetail = cwsDao.getCartWholeSaleByUser(currentUser.getUserid());
         List<Bouquet> listBouquet = bDao.getAll();
-        
+
         int totalOrderValue = 0;
         for (CartWholeSaleDetail cartWholeSaleDetail : cartDetail) {
             totalOrderValue += cartWholeSaleDetail.getTotalValue();
         }
-        
+
         request.setAttribute("totalOrderValue", totalOrderValue);
         request.setAttribute("listBQ", listBouquet);
         request.setAttribute("listIMG", images);
@@ -100,9 +100,10 @@ public class CartWholeSaleController extends HttpServlet {
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("currentAcc");
         String requestDateStr = request.getParameter("requestDate");
-        
+        String requestGroupId = request.getParameter("requestGroupId").trim();  // ✅ mới
+
         LocalDate requestDate = LocalDate.parse(requestDateStr);
-        
+
         if (currentUser == null) {
             response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet");
             return;
@@ -112,7 +113,7 @@ public class CartWholeSaleController extends HttpServlet {
 
         if (listWS == null || listWS.isEmpty()) {
             request.setAttribute("error", "Không có sản phẩm nào để thêm vào giỏ.");
-            request.getRequestDispatcher(request.getContextPath() + "/cartWholeSale").forward(request, response);
+            request.getRequestDispatcher("/cartWholeSale").forward(request, response);
             return;
         }
 
@@ -122,27 +123,29 @@ public class CartWholeSaleController extends HttpServlet {
 
         int addedCount = 0;
         for (WholeSale item : listWS) {
-            if(item.getStatus().equalsIgnoreCase("EMAILED")){
-            boolean isValidQuote = item.getQuoted_price() > 0 && item.getTotal_price() > 0;
-            boolean isNotExist = !dao.hasPendingWholesale(userId, item.getBouquet_id());
+            if (item.getStatus().equalsIgnoreCase("EMAILED")) {
+                boolean isValidQuote = item.getQuoted_price() != null && item.getQuoted_price() > 0
+                        && item.getTotal_price() != null && item.getTotal_price() > 0;
+                boolean isNotExist = !dao.hasPendingWholesale(userId, item.getBouquet_id());
 
-            if (isValidQuote && isNotExist) {
-                dao.insertCartWholeSaleItem(
-                        userId,
-                        item.getBouquet_id(),
-                        item.getRequested_quantity(),
-                        item.getQuoted_price(),
-                        item.getTotal_price(),
-                        item.getExpense()
-                );
+                if (isValidQuote && isNotExist) {
+                    dao.insertCartWholeSaleItem(
+                            userId,
+                            item.getBouquet_id(),
+                            item.getRequested_quantity(),
+                            item.getQuoted_price(),
+                            item.getTotal_price(),
+                            item.getExpense()
+                    );
 
-                addedCount++;
-            }
+                    addedCount++;
+                }
             }
         }
 
         if (addedCount > 0) {
-            wsDao.updateWholeSaleStatus(userId, requestDate, "ACCEPTED");
+            // ✅ Update status to ACCEPTED WITH requestGroupId
+            wsDao.updateWholeSaleStatusAndRespond(userId, requestDate, requestGroupId, "ACCEPTED", LocalDate.now());
             response.sendRedirect(request.getContextPath() + "/cartWholeSale");
         } else {
             request.setAttribute("error", "Không có sản phẩm mới nào được thêm vì tất cả đã tồn tại trong giỏ.");

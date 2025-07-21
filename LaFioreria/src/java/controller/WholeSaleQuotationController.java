@@ -77,6 +77,7 @@ public class WholeSaleQuotationController extends HttpServlet {
             throws ServletException, IOException {
         String userIdStr = request.getParameter("userId").trim();
         String requestDateStr = request.getParameter("requestDate").trim();
+        String requestGroupId = request.getParameter("requestGroupId").trim();  // ✅ mới
         String status = request.getParameter("status").trim();
         String bouquetIdStr = request.getParameter("bouquetId");
 
@@ -86,29 +87,30 @@ public class WholeSaleQuotationController extends HttpServlet {
 
         WholeSaleDAO wsDao = new WholeSaleDAO();
         BouquetDAO bDao = new BouquetDAO();
-        FlowerBatchDAO batchdao = new FlowerBatchDAO();
-        FlowerTypeDAO flowerdao = new FlowerTypeDAO();
-        CategoryDAO cdao = new CategoryDAO();
+        FlowerBatchDAO batchDao = new FlowerBatchDAO();
+        FlowerTypeDAO flowerDao = new FlowerTypeDAO();
+        CategoryDAO cDao = new CategoryDAO();
 
-        WholeSale ws = wsDao.getWholeSaleDetail(userId, requestDate, status, bouquetId);
+        WholeSale ws = wsDao.getWholeSaleDetail(userId, requestDate, status, bouquetId, requestGroupId);  // ✅ thêm group id
         Bouquet b = bDao.getBouquetByID(bouquetId);
         List<BouquetImage> listImage = bDao.getBouquetImage(bouquetId);
         List<BouquetRaw> bqRaws = bDao.getFlowerBatchByBouquetID(bouquetId);
-        List<FlowerBatch> allBatchs = batchdao.getAllFlowerBatches();
-        List<FlowerType> allFlowers = flowerdao.getAllFlowerTypes();
-        String cateName = cdao.getCategoryNameByBouquet(bouquetId);
-        List<WholeSaleFlower> listWsFlower = wsDao.listFlowerInRequest();
+        List<FlowerBatch> allBatches = batchDao.getAllFlowerBatches();
+        List<FlowerType> allFlowers = flowerDao.getAllFlowerTypes();
+        String cateName = cDao.getCategoryNameByBouquet(bouquetId);
+        List<WholeSaleFlower> listWsFlower = wsDao.listFlowerInRequest(requestGroupId);
 
         request.setAttribute("ListWsFlower", listWsFlower);
         request.setAttribute("userId", userId);
         request.setAttribute("requestDate", requestDate);
+        request.setAttribute("requestGroupId", requestGroupId);  // ✅ mới
         request.setAttribute("status", status);
         request.setAttribute("bouquetId", bouquetId);
         request.setAttribute("ws", ws);
         request.setAttribute("bouquet", b);
         request.setAttribute("listImage", listImage);
         request.setAttribute("flowerInBQ", bqRaws);
-        request.setAttribute("allBatchs", allBatchs);
+        request.setAttribute("allBatchs", allBatches);
         request.setAttribute("allFlowers", allFlowers);
         request.setAttribute("cateName", cateName);
 
@@ -118,46 +120,64 @@ public class WholeSaleQuotationController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String userIdStr = request.getParameter("userId").trim();
-        String requestDateStr = request.getParameter("requestDate").trim();
-        String status = request.getParameter("status").trim();
-        String bouquetIdStr = request.getParameter("bouquetId");
-        String wholesalePriceStr = request.getParameter("wholesalePrice");
-        String totalWholesaleStr = request.getParameter("totalWholesale");
-        String wholesaleExpenseStr = request.getParameter("wholesaleExpense");
-        String wholeSaleId = request.getParameter("wsId");
+
+        int userId = Integer.parseInt(request.getParameter("userId"));
+        LocalDate requestDate = LocalDate.parse(request.getParameter("requestDate"));
+        String requestGroupId = request.getParameter("requestGroupId");
+        int bouquetId = Integer.parseInt(request.getParameter("bouquetId"));
+        int wsId = Integer.parseInt(request.getParameter("wsId"));
+        int requestedQuantity = Integer.parseInt(request.getParameter("requestedQuantity"));
+        String status = request.getParameter("status");
+
         String[] flowerIdStrs = request.getParameterValues("flowerIds[]");
         String[] assignExpenseStrs = request.getParameterValues("assignExpense[]");
-
-        Integer wsId = Integer.parseInt(wholeSaleId);
-        Integer userId = Integer.parseInt(userIdStr);
-        LocalDate requestDate = LocalDate.parse(requestDateStr);
-        Integer bouquetId = Integer.parseInt(bouquetIdStr);
-        Integer wholesalePrice = (int) Double.parseDouble(wholesalePriceStr);
-        Integer totalWholesale = (int) Double.parseDouble(totalWholesaleStr);
-        Integer wholesaleExpense = (int) Double.parseDouble(wholesaleExpenseStr);
-
-        LocalDate quotedDate = LocalDate.now();
+        String[] quantityStrs = request.getParameterValues("quantities[]");
 
         WholeSaleDAO wsDao = new WholeSaleDAO();
 
+        int wholesaleExpensePerUnit = 0;
+        int wholesalePricePerUnit = 0;
+        int totalWholesalePrice = 0;
+
         for (int i = 0; i < flowerIdStrs.length; i++) {
             int flowerId = Integer.parseInt(flowerIdStrs[i]);
-            Integer flowerPrice = (int) Double.parseDouble(assignExpenseStrs[i]);
+            int assignExpense = Integer.parseInt(assignExpenseStrs[i]);
+            int quantity = Integer.parseInt(quantityStrs[i]);
 
+            wholesaleExpensePerUnit += assignExpense * quantity;
+
+            // Lưu chi tiết hoa
             WholeSaleFlower wsFlower = new WholeSaleFlower();
             wsFlower.setWholesale_request_id(wsId);
             wsFlower.setBouquet_id(bouquetId);
             wsFlower.setFlower_id(flowerId);
-            wsFlower.setFlower_ws_price(flowerPrice);
+            wsFlower.setFlower_ws_price(assignExpense);
 
-            wsDao.insertIntoFlowerWS(wsFlower);
+            wsDao.upsertFlowerWS(wsFlower);
         }
 
-        wsDao.AssignQuotedPrice(totalWholesale, quotedDate, wholesalePrice, userId, requestDate, status, bouquetId, wholesaleExpense);
+        wholesalePricePerUnit = (int) (wholesaleExpensePerUnit * 3);
+        totalWholesalePrice = wholesalePricePerUnit * requestedQuantity;
 
-        request.setAttribute("alert", "You have successfully entered the wholesale price!!!");
-        doGet(request, response);
+        LocalDate quotedDate = LocalDate.now();
+        
+        if(status.equalsIgnoreCase("PENDING")){
+        wsDao.assignQuotedPrice(totalWholesalePrice, quotedDate, wholesalePricePerUnit, userId, requestDate, "PENDING", bouquetId, wholesaleExpensePerUnit, requestGroupId);
+        }else if(status.equalsIgnoreCase("QUOTED")){
+        wsDao.updateQuotedPrice(totalWholesalePrice, quotedDate, wholesalePricePerUnit, userId, requestDate, "QUOTED", bouquetId, wholesaleExpensePerUnit, requestGroupId);    
+        }
+        
+        request.setAttribute("wholesaleExpensePerUnit", wholesaleExpensePerUnit);
+        request.setAttribute("wholesalePricePerUnit", wholesalePricePerUnit);
+        request.setAttribute("totalWholesalePrice", totalWholesalePrice);
+
+        response.sendRedirect(request.getContextPath() + "/wholeSaleQuotation"
+                + "?userId=" + userId
+                + "&requestDate=" + requestDate
+                + "&requestGroupId=" + requestGroupId
+                + "&status=QUOTED"
+                + "&bouquetId=" + bouquetId);
+
     }
 
     /**

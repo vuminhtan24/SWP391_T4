@@ -55,7 +55,7 @@ public class CustomerQuotationDetailsController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet CustomerQuotationDetailsController</title>");            
+            out.println("<title>Servlet CustomerQuotationDetailsController</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet CustomerQuotationDetailsController at " + request.getContextPath() + "</h1>");
@@ -83,6 +83,7 @@ public class CustomerQuotationDetailsController extends HttpServlet {
         String sortBy = request.getParameter("sortBy"); // "quantity" hoặc "status"
         String sortOrder = request.getParameter("sortOrder"); // "asc" hoặc "desc"
         String flowerIDstr = request.getParameter("flowerS");
+        String requestGroupId = request.getParameter("requestGroupId").trim();
 
         Integer flowerID = null;
         if (flowerIDstr != null && !flowerIDstr.trim().isEmpty()) {
@@ -105,18 +106,21 @@ public class CustomerQuotationDetailsController extends HttpServlet {
         List<Bouquet> listBQ = bDao.getAll();
         List<BouquetImage> listIMG = bDao.getAllBouquetImage();
         List<WholeSale> listWS = new ArrayList<>();
-        
+
         if (flowerID != null) {
             listWS = wsDao.getWholeSaleRequestByFlowerID(flowerID);
         } else {
-            listWS = wsDao.getWholeSaleList(userId, requestDate);
+            listWS = wsDao.getWholeSaleList(userId, requestDate, requestGroupId);
         }
-        
+
         int totalWholeSaleOrder = 0;
-        
+
         for (WholeSale wholeSale : listWS) {
-            if(wholeSale.getStatus().equalsIgnoreCase(status)){
-                totalWholeSaleOrder += wholeSale.getTotal_price();
+            if (wholeSale.getStatus().equalsIgnoreCase(status)) {
+                Integer totalPrice = wholeSale.getTotal_price();
+                if (totalPrice != null) {
+                    totalWholeSaleOrder += totalPrice;
+                }
             }
         }
 
@@ -136,7 +140,7 @@ public class CustomerQuotationDetailsController extends HttpServlet {
             }
             listWS.sort(comparator);
         }
-        
+
         request.setAttribute("totalWholeSaleOrder", totalWholeSaleOrder);
         request.setAttribute("listFlower", listFlower);
         request.setAttribute("sortBy", sortBy);
@@ -160,7 +164,36 @@ public class CustomerQuotationDetailsController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+
+        HttpSession session = request.getSession();
+        User currentUser = (User) session.getAttribute("currentAcc");
+
+        if (currentUser == null) {
+            response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet");
+            return;
+        }
+
+        int userId = currentUser.getUserid();
+        String requestDateStr = request.getParameter("requestDate");
+        String requestGroupId = request.getParameter("requestGroupId");
+
+        if (requestDateStr == null || requestGroupId == null) {
+            request.setAttribute("error", "Thiếu dữ liệu để từ chối đơn hàng.");
+            doGet(request, response);
+            return;
+        }
+
+        LocalDate requestDate = LocalDate.parse(requestDateStr);
+        WholeSaleDAO wsDao = new WholeSaleDAO();
+
+        // Log để debug
+        System.out.println("[Reject Order] userId=" + userId + ", requestDate=" + requestDate + ", requestGroupId=" + requestGroupId);
+
+        // Gọi DAO update status thành 'REJECTED'
+        wsDao.updateWholeSaleStatusAndRespond(userId, requestDate, requestGroupId, "REJECTED", LocalDate.now());
+        
+        // Sau khi update xong → forward lại trang chi tiết để hiển thị danh sách
+        response.sendRedirect(request.getContextPath() + "/quotationDetails?userId="+userId+"&requestDate="+requestDate+"&requestGroupId="+requestGroupId+"&status=REJECTED");
     }
 
     /**

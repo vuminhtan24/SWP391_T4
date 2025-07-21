@@ -276,7 +276,7 @@
                                     <li style="background-color: white"><strong>Total</strong> <span><p><fmt:formatNumber value="${total}" pattern="#,##0" /> ₫</p></span></li>
                                 </ul>
                                 <div style="display: flex; justify-content: end;">
-                                    <a class="btn btn-default check_out" href="${pageContext.request.contextPath}/checkout">Check Out</a>
+                                    <a class="btn btn-default check_out" href="${pageContext.request.contextPath}/checkout?mode=retail">Check Out</a>
                                 </div>
                             </div>
                         </div>

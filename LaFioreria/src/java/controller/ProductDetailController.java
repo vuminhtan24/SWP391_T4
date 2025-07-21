@@ -170,24 +170,33 @@ public class ProductDetailController extends HttpServlet {
             Integer requestedQuantity = Integer.parseInt(requestedQuantityStr);
 
             WholeSaleDAO wsDao = new WholeSaleDAO();
+
+            // Lấy danh sách SHOPPING hiện có của user
             List<WholeSale> listWS = wsDao.getWholeSaleRequestShoppingByUserID(userId);
+
+            // Generate request_group_id (nếu cần gom nhóm theo session)
+            String requestGroupId = wsDao.generateOrGetCurrentRequestGroupId(userId);
+
+            // Tạo object mới
             WholeSale ws = new WholeSale(
                     userId,
                     bouquetId,
                     requestedQuantity,
                     note,
-                    null, null, null, null,
+                    null, // quoted_price
+                    null, // total_price
+                    null, // quoted_at
+                    null, // responded_at
                     LocalDate.now(),
                     "SHOPPING",
-                    null
+                    null, // expense
+                    requestGroupId
             );
 
             boolean isDuplicate = false;
 
             for (WholeSale wholeSale : listWS) {
-                if (wholeSale.getStatus().equalsIgnoreCase("SHOPPING")
-                        && wholeSale.getUser_id() == userId
-                        && wholeSale.getBouquet_id() == bouquetId) {
+                if (wholeSale.getBouquet_id() == bouquetId) {
                     isDuplicate = true;
                     break;
                 }
@@ -195,15 +204,14 @@ public class ProductDetailController extends HttpServlet {
 
             if (isDuplicate) {
                 response.sendRedirect(request.getContextPath() + "/productDetail?id=" + productId + "&addedWholesale=false");
-                return;
             } else {
                 wsDao.insertWholeSaleRequest(ws);
                 response.sendRedirect(request.getContextPath() + "/productDetail?id=" + productId + "&addedWholesale=true");
-                return;
             }
+
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("error.jsp"); // hoặc redirect về trang báo lỗi
+            response.sendRedirect("error.jsp");
         }
     }
 

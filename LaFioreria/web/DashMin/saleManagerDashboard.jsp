@@ -154,7 +154,7 @@
 
                         <%-- Search, Filter, and Sort Form --%>
                         <div class="mb-4">
-                            <form action="${pageContext.request.contextPath}/orderManagement" method="get" class="d-flex flex-wrap align-items-center">
+                            <form action="${pageContext.request.contextPath}/saleManagerDashboard" method="get" class="d-flex flex-wrap align-items-center">
                                 <div class="input-group me-2 mb-2" style="max-width: 300px;">
                                     <input type="text" class="form-control" placeholder="Search by ID, customer, total sell..."
                                            name="keyword" value="${currentKeyword != null ? currentKeyword : ''}">
@@ -199,7 +199,7 @@
                                 <thead>
                                     <tr class="text-dark">
                                         <%-- Utility function to create URL for sortable column headers --%>
-                                        <c:url var="baseSortUrl" value="/orderManagement">
+                                        <c:url var="baseSortUrl" value="/saleManagerDashboard">
                                             <c:param name="keyword" value="${currentKeyword}" />
                                             <c:param name="statusId" value="${currentStatusId}" />
                                             <c:param name="page" value="${currentPage}" />
@@ -262,7 +262,9 @@
                                                 </c:if>
                                             </a>
                                         </th>
-                                        <th scope="col">Action</th>
+                                        <th>Payment Method</th>
+                                        <th>Type</th>
+                                        <th scope="col-3">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -276,8 +278,10 @@
                                             <td>${order.orderId}</td>
                                             <td>${order.orderDate}</td>
                                             <td>${order.customerName}</td>
-                                            <td>${order.totalImport}</td>
-                                            <td>${order.totalSell}</td>
+                                            <td><fmt:formatNumber value="${order.totalImport}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</td>
+
+                                            <td><fmt:formatNumber value="${order.totalSell}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</td>
+
                                             <td>${order.statusName}</td>
                                             <td>${order.shipperName != null ? order.shipperName : "Not Assigned"}</td>
                                             <td>
@@ -287,6 +291,7 @@
                                                     <c:otherwise>Null</c:otherwise>
                                                 </c:choose>
                                             </td>
+                                            <td>${order.getType()}</td>
 
                                             <td>
                                                 <a class="btn btn-sm btn-primary"

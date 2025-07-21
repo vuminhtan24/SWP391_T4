@@ -318,8 +318,9 @@
                                                 </c:if>
                                             </a>
                                         </th>
-                                        <th>Type<th>
-                                        <th scope="col">Action</th>
+                                        <th>Payment Method</th>
+                                        <th>Type</th>
+                                        <th scope="col-3">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>

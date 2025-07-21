@@ -51,137 +51,144 @@ public class OrderDAO extends BaseDao {
      */
     public List<Order> searchOrders(String keyword, Integer statusId, int pageIndex, int pageSize, String sortField, String sortOrder) {
         List<Order> listOrders = new ArrayList<>();
-
-        StringBuilder countSql = new StringBuilder();
-        countSql.append("SELECT COUNT(o.order_id) FROM `order` o ")
-                .append("LEFT JOIN `user` u ON o.customer_id = u.User_ID ")
-                .append("JOIN `order_status` os ON o.status_id = os.order_status_id ")
-                .append("LEFT JOIN `user` s ON o.shipper_id = s.User_ID ")
-                .append("WHERE 1=1 ");
-
-        StringBuilder dataSql = new StringBuilder();
-        dataSql.append("SELECT o.order_id, o.order_date, o.customer_id, ")
-                .append("COALESCE(u.Fullname, 'Guest') AS customer_name, ") // ✅ fallback cho khách vãng lai
-                .append("o.total_import, o.total_sell, o.status_id, os.status_name, o.shipper_id, s.Fullname AS shipper_name,o.payment_method ")
-                .append("FROM `order` o ")
-                .append("LEFT JOIN `user` u ON o.customer_id = u.User_ID ")
-                .append("JOIN `order_status` os ON o.status_id = os.order_status_id ")
-                .append("LEFT JOIN `user` s ON o.shipper_id = s.User_ID ")
-                .append("WHERE 1=1 ");
-
         List<Object> params = new ArrayList<>();
 
+        // Base SELECT query
+        String baseSelect = """
+        SELECT o.order_id, o.order_date, o.customer_id,
+               COALESCE(u.Fullname, 'Guest') AS customer_name,
+               o.total_import, o.total_sell, o.status_id, os.status_name,
+               o.shipper_id, s.Fullname AS shipper_name,
+               o.payment_method, o.type
+        FROM `order` o
+        LEFT JOIN `user` u ON o.customer_id = u.User_ID
+        JOIN `order_status` os ON o.status_id = os.order_status_id
+        LEFT JOIN `user` s ON o.shipper_id = s.User_ID
+        WHERE 1=1
+    """;
+
+        // Base COUNT query
+        String baseCount = """
+        SELECT COUNT(o.order_id)
+        FROM `order` o
+        LEFT JOIN `user` u ON o.customer_id = u.User_ID
+        JOIN `order_status` os ON o.status_id = os.order_status_id
+        LEFT JOIN `user` s ON o.shipper_id = s.User_ID
+        WHERE 1=1
+    """;
+
+        // Build WHERE clause
+        StringBuilder whereClause = new StringBuilder();
+
         if (keyword != null && !keyword.trim().isEmpty()) {
-            String searchCondition = "AND (CAST(o.order_id AS CHAR) LIKE ? OR u.Fullname LIKE ?) ";
-            countSql.append(searchCondition);
-            dataSql.append(searchCondition);
-            String likeKeyword = "%" + keyword + "%";
+            whereClause.append(" AND (CAST(o.order_id AS CHAR) LIKE ? OR u.Fullname LIKE ?)");
+            String likeKeyword = "%" + keyword.trim() + "%";
             params.add(likeKeyword);
             params.add(likeKeyword);
         }
 
         if (statusId != null && statusId != 0) {
-            String statusCondition = "AND o.status_id = ? ";
-            countSql.append(statusCondition);
-            dataSql.append(statusCondition);
+            whereClause.append(" AND o.status_id = ?");
             params.add(statusId);
         }
 
-        String orderByColumnName;
-        switch (sortField) {
-            case "orderId":
-                orderByColumnName = "o.order_id";
-                break;
-            case "orderDate":
-                orderByColumnName = "o.order_date";
-                break;
-            case "customerName":
-                orderByColumnName = "u.Fullname";
-                break;
-            case "totalSell":
-                orderByColumnName = "o.total_sell";
-                break;
-            case "statusName":
-                orderByColumnName = "os.status_name";
-                break;
-            case "shipperName":
-                orderByColumnName = "s.Fullname";
-                break;
-            default:
-                orderByColumnName = "o.order_date";
-        }
+        // Determine ORDER BY clause
+        String orderByColumn = switch (sortField) {
+            case "orderId" ->
+                "o.order_id";
+            case "orderDate" ->
+                "o.order_date";
+            case "customerName" ->
+                "u.Fullname";
+            case "totalSell" ->
+                "o.total_sell";
+            case "statusName" ->
+                "os.status_name";
+            case "shipperName" ->
+                "s.Fullname";
+            default ->
+                "o.order_date";
+        };
 
-        if ("desc".equalsIgnoreCase(sortOrder)) {
-            dataSql.append(" ORDER BY ").append(orderByColumnName).append(" DESC");
-        } else {
-            dataSql.append(" ORDER BY ").append(orderByColumnName).append(" ASC");
-        }
+        String orderClause = " ORDER BY " + orderByColumn
+                + ("desc".equalsIgnoreCase(sortOrder) ? " DESC" : " ASC")
+                + (orderByColumn.equals("o.order_id") ? "" : ", o.order_id DESC");
 
-        if (!orderByColumnName.equals("o.order_id")) {
-            dataSql.append(", o.order_id DESC");
-        }
-
+        // Add LIMIT
+        String limitClause = "";
         if (pageIndex > 0 && pageSize > 0) {
-            dataSql.append(" LIMIT ? OFFSET ?");
+            limitClause = " LIMIT ? OFFSET ?";
         }
+
+        // Final SQLs
+        String countSql = baseCount + whereClause;
+        String dataSql = baseSelect + whereClause + orderClause + limitClause;
 
         try {
             connection = dbc.getConnection();
 
-            PreparedStatement countPs = connection.prepareStatement(countSql.toString());
-            for (int i = 0; i < params.size(); i++) {
-                countPs.setObject(i + 1, params.get(i));
-            }
-            ResultSet countRs = countPs.executeQuery();
-            if (countRs.next()) {
-                this.noOfRecords = countRs.getInt(1);
-            }
-            countRs.close();
-            countPs.close();
-
-            ps = connection.prepareStatement(dataSql.toString());
-            int paramIndex = 1;
-            for (Object param : params) {
-                ps.setObject(paramIndex++, param);
-            }
-            if (pageIndex > 0 && pageSize > 0) {
-                ps.setInt(paramIndex++, pageSize);
-                ps.setInt(paramIndex++, (pageIndex - 1) * pageSize);
+            // COUNT query
+            try (PreparedStatement countPs = connection.prepareStatement(countSql)) {
+                setParams(countPs, params);
+                try (ResultSet countRs = countPs.executeQuery()) {
+                    if (countRs.next()) {
+                        this.noOfRecords = countRs.getInt(1);
+                    }
+                }
             }
 
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                String totalImportStr = rs.getString("total_import");
-                String totalSellStr = rs.getString("total_sell");
+            // DATA query
+            try (PreparedStatement psData = connection.prepareStatement(dataSql)) {
+                int paramIndex = setParams(psData, params);
+                if (pageIndex > 0 && pageSize > 0) {
+                    psData.setInt(paramIndex++, pageSize);
+                    psData.setInt(paramIndex, (pageIndex - 1) * pageSize);
+                }
 
-                listOrders.add(new Order(
-                        rs.getInt("order_id"),
-                        rs.getString("order_date") != null ? rs.getString("order_date").trim() : null,
-                        rs.getObject("customer_id") != null ? rs.getInt("customer_id") : -1,
-                        rs.getString("customer_name"),
-                        null,
-                        null,
-                        totalSellStr,
-                        totalImportStr,
-                        rs.getInt("status_id"),
-                        rs.getString("status_name"),
-                        rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
-                        rs.getString("shipper_name"),
-                        rs.getString("payment_method")
-                ));
+                System.out.println("[DEBUG] Executing dataSql: " + dataSql);
+                System.out.println("[DEBUG] Params: " + params);
+
+                try (ResultSet rs = psData.executeQuery()) {
+                    while (rs.next()) {
+                        listOrders.add(new Order(
+                                rs.getInt("order_id"),
+                                rs.getString("order_date") != null ? rs.getString("order_date").trim() : null,
+                                rs.getObject("customer_id") != null ? rs.getInt("customer_id") : -1,
+                                rs.getString("customer_name"),
+                                null, null,
+                                rs.getString("total_sell"),
+                                rs.getString("total_import"),
+                                rs.getInt("status_id"),
+                                rs.getString("status_name"),
+                                rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
+                                rs.getString("shipper_name"),
+                                rs.getString("payment_method"),
+                                rs.getString("type")
+                        ));
+                    }
+                }
             }
+
         } catch (SQLException e) {
-            System.err.println("SQL Error while searching/filtering/paginating orders: " + e.getMessage());
+            System.err.println("[ERROR] searchOrders SQL → " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {
                 this.closeResources();
             } catch (Exception e) {
-                System.err.println("Error closing resources: " + e.getMessage());
+                System.err.println("[WARN] Error closing resources: " + e.getMessage());
             }
         }
 
         return listOrders;
+    }
+
+    private int setParams(PreparedStatement ps, List<Object> params) throws SQLException {
+        int index = 1;
+        for (Object param : params) {
+            ps.setObject(index++, param);
+        }
+        return index;
     }
 
     /**
@@ -199,7 +206,7 @@ public class OrderDAO extends BaseDao {
                 + "COALESCE(u.Address, o.customer_address) AS customer_address, "
                 + "o.total_sell, o.total_import, "
                 + "o.status_id, os.status_name, "
-                + "o.shipper_id, s.Fullname AS shipper_name, o.payment_method "
+                + "o.shipper_id, s.Fullname AS shipper_name, o.payment_method, o.type "
                 + "FROM `order` o "
                 + "LEFT JOIN `user` u ON o.customer_id = u.User_ID "
                 + "JOIN `order_status` os ON o.status_id = os.order_status_id "
@@ -226,7 +233,8 @@ public class OrderDAO extends BaseDao {
                         rs.getString("status_name"),
                         rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
                         rs.getString("shipper_name"),
-                        rs.getString("payment_method")
+                        rs.getString("payment_method"),
+                        rs.getString("type")
                 );
             }
         } catch (SQLException e) {

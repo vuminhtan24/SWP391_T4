@@ -87,19 +87,20 @@ public class SendQuotationController extends HttpServlet {
         int userId = Integer.parseInt(request.getParameter("userId"));
         String email = request.getParameter("userEmail");
         LocalDate requestDate = LocalDate.parse(request.getParameter("requestDate"));
+        String requestGroupId = request.getParameter("requestGroupId");
 
         WholeSaleDAO dao = new WholeSaleDAO();
-        List<WholeSale> quotedList = dao.getWholeSaleQuotedList(userId, requestDate);
+        List<WholeSale> quotedList = dao.getWholeSaleQuotedList(userId, requestDate, requestGroupId);
 
         if (quotedList == null || quotedList.isEmpty()) {
-            // Không có sản phẩm được báo giá → quay lại trang và báo lỗi
             response.sendRedirect("requestWholeSaleDetails?userId=" + userId
                     + "&requestDate=" + requestDate
+                    + "&requestGroupId=" + requestGroupId
                     + "&status=QUOTED&sendEmail=fail");
             return;
         }
 
-        String emailContent = generateEmailContent(request, requestDate, quotedList);
+        String emailContent = generateEmailContent(request, requestDate, requestGroupId, quotedList);
 
         final String fromEmail = "quangvmhe181542@fpt.edu.vn";
         final String password = "nhcq rkmw uulk nkwm";
@@ -124,25 +125,26 @@ public class SendQuotationController extends HttpServlet {
             message.setContent(emailContent, "text/html; charset=UTF-8");
 
             Transport.send(message);
-            dao.markAsEmailedForQuotedList(userId, requestDate);
-            // Gửi thành công → redirect về lại trang gốc + thêm sendEmail=true
+
+            dao.markAsEmailedForQuotedList(userId, requestDate, requestGroupId);
+
             response.sendRedirect("requestWholeSaleDetails?userId=" + userId
                     + "&requestDate=" + requestDate
+                    + "&requestGroupId=" + requestGroupId
                     + "&status=QUOTED&sendEmail=true");
         } catch (Exception e) {
             e.printStackTrace();
-            // Gửi thất bại → redirect với sendEmail=fail
             response.sendRedirect("requestWholeSaleDetails?userId=" + userId
                     + "&requestDate=" + requestDate
+                    + "&requestGroupId=" + requestGroupId
                     + "&status=QUOTED&sendEmail=fail");
         }
     }
 
-    private String generateEmailContent(HttpServletRequest request, LocalDate requestDate, List<WholeSale> quotedList) {
+    private String generateEmailContent(HttpServletRequest request, LocalDate requestDate, String requestGroupId, List<WholeSale> quotedList) {
         BouquetDAO bDao = new BouquetDAO();
         UserDAO uDao = new UserDAO();
         List<Bouquet> listBQ = bDao.getAll();
-        List<BouquetImage> listIMG = bDao.getAllBouquetImage();
         User userInfo = uDao.getUserByID(quotedList.get(0).getUser_id());
         String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
 
@@ -151,7 +153,7 @@ public class SendQuotationController extends HttpServlet {
         content.append("<p style='font-size:14px; margin-bottom:15px;'>")
                 .append("Dear ").append(userInfo.getFullname()).append("! ")
                 .append("La Fioreria would like to send you a quote request on ")
-                .append(requestDate).append(".</p>");
+                .append(requestDate);
         content.append("<table border='1' cellpadding='6' cellspacing='0' style='border-collapse: collapse;'>")
                 .append("<tr style='background-color:#f2f2f2;'>")
                 .append("<th>STT</th>")
@@ -165,29 +167,28 @@ public class SendQuotationController extends HttpServlet {
         long totalOrderPrice = 0;
 
         for (WholeSale ws : quotedList) {
-            // Tìm tên hoa
-            String bouquetName = "Unknown";
-            for (Bouquet bq : listBQ) {
-                if (bq.getBouquetId() == ws.getBouquet_id()) {
-                    bouquetName = bq.getBouquetName();
-                    break;
-                }
-            }
+            String bouquetName = listBQ.stream()
+                    .filter(bq -> bq.getBouquetId() == ws.getBouquet_id())
+                    .map(Bouquet::getBouquetName)
+                    .findFirst()
+                    .orElse("Unknown");
 
-            totalOrderPrice += ws.getTotal_price();  // Cộng dồn tổng giá trị
+            Integer quotedPrice = ws.getQuoted_price() != null ? ws.getQuoted_price() : 0;
+            Integer totalPrice = ws.getTotal_price() != null ? ws.getTotal_price() : 0;
+
+            totalOrderPrice += totalPrice;
 
             content.append("<tr>")
                     .append("<td>").append(stt++).append("</td>")
                     .append("<td>").append(bouquetName).append("</td>")
                     .append("<td>").append(ws.getRequested_quantity()).append("</td>")
-                    .append("<td>").append(String.format("%,d ₫", ws.getQuoted_price())).append("</td>")
-                    .append("<td>").append(String.format("%,d ₫", ws.getTotal_price())).append("</td>")
+                    .append("<td>").append(String.format("%,d ₫", quotedPrice)).append("</td>")
+                    .append("<td>").append(String.format("%,d ₫", totalPrice)).append("</td>")
                     .append("</tr>");
         }
 
-        // tổng giá trị đơn hàng
         content.append("<tr style='font-weight:bold;'>")
-                .append("<td colspan='6' style='text-align:right;'>")
+                .append("<td colspan='5' style='text-align:right;'>")
                 .append("Total WholeSale Order: ").append(String.format("%,d ₫", totalOrderPrice))
                 .append("</td>")
                 .append("</tr>");

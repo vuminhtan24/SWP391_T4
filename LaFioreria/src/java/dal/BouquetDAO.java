@@ -116,11 +116,11 @@ public class BouquetDAO extends BaseDao {
             params.add("%" + name + "%");
         }
         if (minPrice != null) {
-            sql.append("AND b.price >= ? ");
+            sql.append("AND b.sellPrice >= ? ");
             params.add(minPrice);
         }
         if (maxPrice != null) {
-            sql.append("AND b.price <= ? ");
+            sql.append("AND b.sellPrice <= ? ");
             params.add(maxPrice);
         }
         if (categoryID != null) {

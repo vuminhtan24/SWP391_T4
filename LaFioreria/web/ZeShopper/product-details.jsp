@@ -575,6 +575,11 @@
                     errorDisplay.innerText = `Bạn chỉ có thể đặt tối đa ${availableQuantity} sản phẩm.`;
                     return;
                 }
+                
+                if (quantity > 49) {
+                    errorDisplay.innerText = `Bạn chỉ có thể đặt tối đa 49 sản phẩm. Hãy sử dụng đặt nhiều để đặt 50 sản phẩm trở lên`;
+                    return;
+                }
 
                 const formData = new URLSearchParams();
                 formData.append("action", "add");

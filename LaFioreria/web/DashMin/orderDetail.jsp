@@ -4,9 +4,11 @@
     Author     : VU MINH TAN
 --%>
 
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<fmt:setLocale value="vi_VN" />
 <!DOCTYPE html>
 <html>
     <head>
@@ -160,10 +162,11 @@
                             <p><strong>Order Date:</strong> ${order.orderDate}</p>
                             <p><strong>Customer ID:</strong> ${order.customerId}</p>
                             <p><strong>Customer Name:</strong> ${order.customerName}</p>
+                            <p><strong>Order Type:</strong> ${order.getType()}</p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Total Import:</strong> ${order.totalImport}</p>
-                            <p><strong>Total Sell</strong> ${order.totalSell}</p>
+                            <p><strong>Total Import: </strong><fmt:formatNumber value="${order.totalImport}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</p>
+                            <p><strong>Total Sell: </strong><fmt:formatNumber value="${order.totalSell}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</p>
                             <p><strong>Status ID:</strong> ${order.statusId}</p>
                             <p><strong>Status:</strong> ${order.statusName}</p>
                             <p><strong>Shipper ID:</strong> ${order.shipperId != null ? order.shipperId : "Not Assigned"}</p>
@@ -224,9 +227,10 @@
                                         <th scope="col">Image</th>
                                         <th scope="col">Product Name</th>
                                         <th scope="col">Quantity</th>
-                                        <th scope="col">Unit Price</th>
-                                        <th scope="col">Subtotal</th>
+                                        <th scope="col">Expense per Unit</th>
+                                        <th scope="col">Total Expense</th>
                                         <th scope="col">Sell Price</th>
+                                        <th scope="col">Total Sell Price</th>
                                         <th scope="col">Status</th>
                                         <th scope="col">Make Bouquet</th>
                                     </tr>
@@ -248,14 +252,20 @@
                                             </td>
                                             <td>${item.bouquetName}</td>
                                             <td>${item.quantity}</td>
-                                            <td>${item.unitPrice}</td>
+                                            <td><fmt:formatNumber value="${item.unitPrice}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</td>
+                                            
                                             <td>
                                                 <fmt:parseNumber var="qty" value="${item.quantity}" integerOnly="true" />
                                                 <fmt:parseNumber var="price" value="${item.unitPrice}" type="number" />
-                                                <fmt:formatNumber value="${qty * price}" type="number" maxFractionDigits="2" />
+                                                <fmt:formatNumber value="${qty * price}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</td>
                                             </td>
                                             <td>
-                                                ${item.getSellPrice()}
+                                                <fmt:formatNumber value="${item.getSellPrice()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</td>
+                                            </td>
+                                            <td>
+                                                <fmt:parseNumber var="qty" value="${item.quantity}" integerOnly="true" />
+                                                <fmt:parseNumber var="sellPrice" value="${item.getSellPrice()}" type="number" />
+                                                <fmt:formatNumber value="${qty * sellPrice}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</td>
                                             </td>
                                             <td>${item.getStatus()}</td>
                                             <c:choose>
@@ -264,13 +274,13 @@
                                                                 class="btn btn-edit"
                                                                 onclick="location.href = '${pageContext.request.contextPath}/makeBouquet?BouquetId=${item.getBouquetId()}&OrderId=${item.getOrderId()}&OrderItemID=${item.getOrderDetailId()}';"
                                                                 disabled>
-                                                            Make Bouquet
+                                                            Not Allowed
                                                         </button></td>
                                                     </c:when>     
                                                     <c:otherwise>
                                                         <td><button type="button"
                                                                 class="btn btn-edit"
-                                                                onclick="location.href = '${pageContext.request.contextPath}/makeBouquet?BouquetId=${item.getBouquetId()}&OrderId=${item.getOrderId()}&OrderItemID=${item.getOrderDetailId()}';">
+                                                                onclick="location.href = '${pageContext.request.contextPath}/makeBouquet?BouquetId=${item.getBouquetId()}&OrderId=${item.getOrderId()}&OrderItemID=${item.getOrderDetailId()}&orderType=${order.getType()}';">
                                                             Make Bouquet
                                                         </button></td>
                                                     </c:otherwise>    

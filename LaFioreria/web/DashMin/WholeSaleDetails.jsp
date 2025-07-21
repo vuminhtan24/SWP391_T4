@@ -390,12 +390,6 @@
                     </div>
                     <!-- End General Information -->
 
-                    <c:if test="${param.sendEmail eq 'true'}">
-                        <div class="alert alert-success" style="margin-top: 10px;">
-                            Quotation has been successfully sent to customer!
-                        </div>
-                    </c:if>
-
                     <c:if test="${param.sendEmail eq 'fail'}">
                         <div class="alert alert-danger" style="margin-top: 10px;">
                             Quotation sending failed. Please check your email configuration.
@@ -410,6 +404,7 @@
                         <input type="hidden" name="userId" value="${fn:trim(param.userId)}" />
                         <input type="hidden" name="requestDate" value="${fn:trim(param.requestDate)}" />
                         <input type="hidden" name="status" value="${fn:trim(param.status)}" />
+                        <input type="hidden" name="requestGroupId" value="${fn:trim(param.requestGroupId)}" />
                         <input type="hidden" name="sortBy" value="${param.sortBy}" />
                         <input type="hidden" name="sortOrder" value="${param.sortOrder}" />
 
@@ -451,34 +446,61 @@
                     </form>
 
                     <c:set var="canSendQuotation" value="true" />
-                    <c:choose>
-                        <c:when test="${param.sendEmail eq 'true'}">
+
+                    <c:if test="${param.sendEmail eq 'true'}">
+                        <c:set var="canSendQuotation" value="false" />
+                    </c:if>
+
+                    <c:forEach var="item" items="${listWS}">
+                        <c:if test="${item.status ne 'QUOTED'}">
                             <c:set var="canSendQuotation" value="false" />
+                        </c:if>
+                        <c:if test="${item.status eq 'EMAIL'}">
+                            <c:set var="canSendQuotation" value="false" />
+                        </c:if>
+                    </c:forEach>
+
+
+                    <c:choose>
+                        <c:when test="${canSendQuotation}">
+                            <form action="sendQuotation" method="post" style="margin-top: 20px;">
+                                <input type="hidden" name="userId" value="${fn:trim(param.userId)}" />
+                                <input type="hidden" name="requestDate" value="${fn:trim(param.requestDate)}" />
+                                <input type="hidden" name="requestGroupId" value="${fn:trim(param.requestGroupId)}" />
+                                <input type="hidden" name="userEmail" value="${requestScope.userInfo.getEmail()}" />
+                                <button type="submit" class="btn btn-success">Send Quotation</button>
+                            </form>
                         </c:when>
                         <c:otherwise>
-                            <c:set var="canSendQuotation" value="true" />
+                            <c:set var="showedEmailMsg" value="false" />
+                            <c:set var="showedAcceptedMsg" value="false" />
+                            <c:set var="showedRejectedMsg" value="false" />
+
                             <c:forEach var="item" items="${listWS}">
-                                <!-- Nếu status khác QUOTED -->
-                                <c:if test="${item.status ne 'QUOTED'}">
-                                    <c:set var="canSendQuotation" value="false" />
+                                <c:if test="${item.status eq 'EMAILED' and not showedEmailMsg}">
+                                    <div class="alert alert-success" style="margin-top: 10px;">
+                                        Quotation has been successfully sent to customer!
+                                    </div>
+                                    <c:set var="showedEmailMsg" value="true" />
                                 </c:if>
 
-                                <c:if test="${item.status eq 'EMAIL'}">
-                                    <c:set var="canSendQuotation" value="false" />
+                                <c:if test="${item.status eq 'ACCEPTED' and not showedAcceptedMsg}">
+                                    <div class="alert alert-success" style="margin-top: 10px;">
+                                        Customer has accepted the WholeSale Quotation!
+                                    </div>
+                                    <c:set var="showedAcceptedMsg" value="true" />
+                                </c:if>
+
+                                <c:if test="${item.status eq 'REJECTED' and not showedRejectedMsg}">
+                                    <div class="alert alert-danger" style="margin-top: 10px;">
+                                        Customer has rejected the WholeSale Quotation!
+                                    </div>
+                                    <c:set var="showedRejectedMsg" value="true" />
                                 </c:if>
                             </c:forEach>
                         </c:otherwise>
                     </c:choose>
 
-
-                    <c:if test="${canSendQuotation}">
-                        <form action="sendQuotation" method="post" style="margin-top: 20px;">
-                            <input type="hidden" name="userId" value="${fn:trim(param.userId)}" />
-                            <input type="hidden" name="requestDate" value="${fn:trim(param.requestDate)}" />
-                            <input type="hidden" name="userEmail" value="${requestScope.userInfo.getEmail()}" />
-                            <button type="submit" class="btn btn-success">Send Quotation</button>
-                        </form>
-                    </c:if>
 
                     <table class="styled-table">
                         <thead>
@@ -504,8 +526,8 @@
                                     <a href="${sortedUrl}">Requested Quantity</a>
                                 </td>
                                 <td>Note</td>
-                                <td>WholeSale Expense</td>
-                                <td>WholeSale Price</td>
+                                <td>WholeSale Expense per Unit</td>
+                                <td>WholeSale Price per Unit</td>
                                 <td>Total WholeSale Price</td>                                
                                 <%
                                     String newStatusOrder = "asc";
@@ -580,7 +602,18 @@
                                     </td>
 
                                     <td>${item.getStatus()}</td>
-                                    <td><a href="${pageContext.request.contextPath}/wholeSaleQuotation?userId=${item.getUser_id()}&requestDate=${item.getCreated_at()}&status=${item.getStatus()}&bouquetId=${item.getBouquet_id()}">Quotation</a></td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${item.getStatus() eq 'PENDING' or item.getStatus() eq 'QUOTED'}">
+                                                <a href="${pageContext.request.contextPath}/wholeSaleQuotation?userId=${item.getUser_id()}&requestDate=${item.getCreated_at()}&requestGroupId=${item.getRequest_group_id()}&status=${item.getStatus()}&bouquetId=${item.getBouquet_id()}">
+                                                    Quotation
+                                                </a>
+                                            </c:when>
+                                            <c:otherwise>
+                                                Quotation Completed
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
                                 </tr>  
                             </c:forEach>
                         </tbody>   

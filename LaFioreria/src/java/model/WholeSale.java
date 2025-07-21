@@ -28,11 +28,13 @@ public class WholeSale {
 
     private String status;
     private Integer expense;
+    
+    private String request_group_id;
 
     public WholeSale() {
     }
 
-    public WholeSale(int id, int user_id, int bouquet_id, int requested_quantity, String note, Integer quoted_price, Integer total_price, LocalDate quoted_at, LocalDate responded_at, LocalDate created_at, String status, Integer expense) {
+    public WholeSale(int id, int user_id, int bouquet_id, int requested_quantity, String note, Integer quoted_price, Integer total_price, LocalDate quoted_at, LocalDate responded_at, LocalDate created_at, String status, Integer expense, String request_group_id) {
         this.id = id;
         this.user_id = user_id;
         this.bouquet_id = bouquet_id;
@@ -45,9 +47,10 @@ public class WholeSale {
         this.created_at = created_at;
         this.status = status;
         this.expense = expense;
+        this.request_group_id = request_group_id;
     }
     
-    public WholeSale(int user_id, int bouquet_id, int requested_quantity, String note, Integer quoted_price, Integer total_price, LocalDate quoted_at, LocalDate responded_at, LocalDate created_at, String status, Integer expense) {
+    public WholeSale(int user_id, int bouquet_id, int requested_quantity, String note, Integer quoted_price, Integer total_price, LocalDate quoted_at, LocalDate responded_at, LocalDate created_at, String status, Integer expense, String request_group_id) {
         this.user_id = user_id;
         this.bouquet_id = bouquet_id;
         this.requested_quantity = requested_quantity;
@@ -59,14 +62,16 @@ public class WholeSale {
         this.created_at = created_at;
         this.status = status;
         this.expense = expense;
+        this.request_group_id = request_group_id;
     }
     
-    public WholeSale(int user_id, LocalDate created_at, LocalDate quoted_at, LocalDate responded_at, String status) {
+    public WholeSale(int user_id, LocalDate created_at, LocalDate quoted_at, LocalDate responded_at, String status, String request_group_id) {
         this.user_id = user_id;
         this.created_at = created_at;
         this.quoted_at = quoted_at;
         this.responded_at = responded_at;
         this.status = status;
+        this.request_group_id = request_group_id;
     }
 
     public int getId() {
@@ -165,9 +170,17 @@ public class WholeSale {
         this.expense = expense;
     }
 
+    public String getRequest_group_id() {
+        return request_group_id;
+    }
+
+    public void setRequest_group_id(String request_group_id) {
+        this.request_group_id = request_group_id;
+    }
+
     @Override
     public String toString() {
-        return "WholeSale{" + "id=" + id + ", user_id=" + user_id + ", bouquet_id=" + bouquet_id + ", requested_quantity=" + requested_quantity + ", note=" + note + ", quoted_price=" + quoted_price + ", total_price=" + total_price + ", quoted_at=" + quoted_at + ", responded_at=" + responded_at + ", created_at=" + created_at + ", status=" + status + ", expense=" + expense + '}';
+        return "WholeSale{" + "id=" + id + ", user_id=" + user_id + ", bouquet_id=" + bouquet_id + ", requested_quantity=" + requested_quantity + ", note=" + note + ", quoted_price=" + quoted_price + ", total_price=" + total_price + ", quoted_at=" + quoted_at + ", responded_at=" + responded_at + ", created_at=" + created_at + ", status=" + status + ", expense=" + expense + ", request_group_id=" + request_group_id + '}';
     }
     
 }

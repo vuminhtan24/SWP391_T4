@@ -315,8 +315,8 @@ public class CartDAO extends BaseDao {
 
     public boolean insertOrderItem(OrderItem item) {
         String sql = """
-        INSERT INTO order_item (order_id, bouquet_id, quantity, unit_price)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO order_item (order_id, bouquet_id, quantity, unit_price, sellPrice)
+        VALUES (?, ?, ?, ?, ?)
     """;
 
         try {
@@ -327,6 +327,7 @@ public class CartDAO extends BaseDao {
             ps.setInt(2, item.getBouquetId());
             ps.setInt(3, item.getQuantity());
             ps.setDouble(4, item.getUnitPrice());
+            ps.setDouble(5, item.getSellPrice());
 
             int rowsAffected = ps.executeUpdate();
 
@@ -334,7 +335,8 @@ public class CartDAO extends BaseDao {
                 System.out.println("[DEBUG] insertOrderItem → Inserted: orderId=" + item.getOrderId()
                         + ", bouquetId=" + item.getBouquetId()
                         + ", quantity=" + item.getQuantity()
-                        + ", unitPrice=" + item.getUnitPrice());
+                        + ", unitPrice=" + item.getUnitPrice()
+                        + ", sellPrice=" + item.getSellPrice());
                 return true;
             } else {
                 System.err.println("[ERROR] insertOrderItem → No rows inserted for orderId=" + item.getOrderId()

@@ -567,7 +567,7 @@ public class CheckOutController extends HttpServlet {
 
         for (CartWholeSaleDetail item : cartItems) {
             totalSell += item.getTotalValue(); // Tổng tiền khách trả
-            totalImport += item.getExpense(); // Giá nhập
+            totalImport += (item.getExpense() * item.getQuantity()); // Giá nhập
         }
 
         // Tạo đơn hàng
@@ -596,7 +596,7 @@ public class CheckOutController extends HttpServlet {
                 orderItem.setOrderId(orderId);
                 orderItem.setBouquetId(item.getBouquetID());
                 orderItem.setQuantity(item.getQuantity());
-                orderItem.setUnitPrice(item.getPricePerUnit());
+                orderItem.setUnitPrice(item.getExpense());
                 orderItem.setSellPrice(item.getPricePerUnit()); // Có thể là đơn giá bán theo lô
                 cartDAO.insertOrderItem(orderItem);
             }

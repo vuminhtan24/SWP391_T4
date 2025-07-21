@@ -263,7 +263,8 @@
                                     <li style="background-color: white"><strong>Total</strong> <span><p><fmt:formatNumber value="${totalOrderValue}" pattern="#,##0" /> ₫</p></span></li>
                                 </ul>
                                 <div style="display: flex; justify-content: end;">
-                                    <a class="btn btn-default check_out" href="${pageContext.request.contextPath}/checkout?mode=wholesale">Check Out</a>
+                                    <<a class="btn btn-default check_out" href="${pageContext.request.contextPath}/checkout?mode=wholesale&requestGroupId=${requestGroupId}">Check Out</a>
+
                                 </div>
                             </div>
                         </div>

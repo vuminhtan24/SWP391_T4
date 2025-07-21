@@ -317,6 +317,7 @@
                         <div style="margin-top: 15px; display: flex; justify-content: flex-end;">
                             <form action="cartWholeSale" method="post">
                                 <input type="hidden" name="requestDate" value="${listWS[0].getCreated_at()}" />
+                                <input type="hidden" name="requestGroupId" value="${listWS[0].getRequest_group_id()}">
                                 <div class="popup-buttons" style="white-space: nowrap;">
                                     <button type="submit"
                                             class="btn-accept"
@@ -326,8 +327,11 @@
                                 </div>
                                 <p id="quantity-error" style="color: red; font-weight: bold">${error}</p>
                             </form>
-
-                            <button type="button" class="btn-reject">Reject Order</button>
+                            <form action="quotationDetails" method="post">
+                                <input type="hidden" name="requestDate" value="${listWS[0].getCreated_at()}" />
+                                <input type="hidden" name="requestGroupId" value="${listWS[0].getRequest_group_id()}">
+                            <button type="submit" class="btn-reject">Reject Order</button>
+                            </form>
                         </div>
                     </div>
                 </c:when> 
@@ -343,7 +347,6 @@
             </c:choose>        
             <!-- List Request End -->
         </div>
-    </div>
     <jsp:include page="/ZeShopper/footer.jsp"/>
 
 </body>

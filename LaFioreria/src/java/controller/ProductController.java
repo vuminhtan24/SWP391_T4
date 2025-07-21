@@ -97,7 +97,7 @@ public class ProductController extends HttpServlet {
             }
         }
 
-        int max = 2000000;
+        int max = 10000000;
         int min = 0;
 
         try {
@@ -109,7 +109,7 @@ public class ProductController extends HttpServlet {
             }
         } catch (NumberFormatException e) {
             min = 0;
-            max = 2000000;
+            max = 10000000;
         }
 
         request.setAttribute("minPrice", min);
@@ -130,7 +130,7 @@ public class ProductController extends HttpServlet {
 
 // Nếu giá giữ mặc định thì truyền null cho filter giá, tránh lọc giá không cần thiết
         Integer minFilter = (min == 0) ? null : min;
-        Integer maxFilter = (max == 2000000) ? null : max;
+        Integer maxFilter = (max == 10000000) ? null : max;
 
         if (hasName || hasCate || minFilter != null || maxFilter != null || hasFlower) {
             String searchName = hasName ? name.trim() : null;

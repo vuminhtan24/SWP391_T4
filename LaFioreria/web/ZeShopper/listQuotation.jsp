@@ -182,7 +182,7 @@
 
                                                         <!-- ACTION BUTTONS -->
                                                         <td style="white-space: nowrap; min-width: 150px; text-align: center;">
-                                                            <a href="${pageContext.request.contextPath}/quotationDetails?userId=${item.getUser_id()}&requestDate=${item.getCreated_at()}&status=${item.getStatus()}">
+                                                            <a href="${pageContext.request.contextPath}/quotationDetails?userId=${item.getUser_id()}&requestDate=${item.getCreated_at()}&requestGroupId=${item.getRequest_group_id()}&status=${item.getStatus()}">
                                                                 <button type="button" class="btn-update">
                                                                     View Detail
                                                                 </button>
@@ -196,14 +196,7 @@
                                         </tbody>
                                     </table>
                                 </c:if>
-
-                                <!-- Nút xác nhận gửi danh sách đặt theo lô -->
-                                <form method="post" action="${pageContext.request.contextPath}/wholeSale?act=confirm">
-                                    <input type="hidden" name="user_id" value="${sessionScope.currentAcc.userid}" />
-                                    <button type="submit" class="btn btn-success btn-lg mt-3">
-                                        Confirm quote request
-                                    </button>
-                                </form>   
+  
                             </c:when>    
                             <c:otherwise>
                                 <h3>

@@ -347,10 +347,12 @@
                                     <div class="table-responsive mb-3">
                                         <form action="wholeSaleQuotation" method="post">
                                             <input type="hidden" name="wsId" value="${ws.getId()}">   
+                                            <input type="hidden" name="requestedQuantity" value="${ws.getRequested_quantity()}">   
                                             <input type="hidden" name="userId" value="${param.userId}" />
                                             <input type="hidden" name="requestDate" value="${param.requestDate}" />
                                             <input type="hidden" name="status" value="${param.status}" />
                                             <input type="hidden" name="bouquetId" value="${param.bouquetId}" />
+                                            <input type="hidden" name="requestGroupId" value="${param.requestGroupId}">
                                             <table id="flowerTable" class="table table-bordered align-middle">
                                                 <thead class="table-light">
                                                     <tr>
@@ -362,162 +364,130 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <!-- Chỉ duy nhất FOR-EACH, không có row mặc định -->
-                                                    <c:forEach var="br" items="${flowerInBQ}" varStatus="status">
+                                                    <c:forEach var="br" items="${flowerInBQ}">
                                                         <tr>
-                                                            <!-- Flower -->
+                                                            <!-- Flower select (disabled) -->
                                                             <td>
-                                                                <select class="form-select form-select-sm flower-select" disabled>
+                                                                <select class="form-select form-select-sm" disabled>
                                                                     <c:forEach var="fb" items="${allBatchs}">
-                                                                        <option
-                                                                            value="${fb.getFlowerId()}"
-                                                                            data-price="${fb.getUnitPrice()}"
-                                                                            <c:if test="${fb.getBatchId() eq br.getBatchId()}">selected</c:if>>
-                                                                            <c:forEach var="af" items="${allFlowers}">
-                                                                                <c:if test="${af.getFlowerId() eq fb.getFlowerId()}">
-                                                                                    ${af.getFlowerName()}
-                                                                                </c:if>
-                                                                            </c:forEach>
-                                                                        </option>
+                                                                        <c:if test="${fb.getBatchId() eq br.getBatchId()}">
+                                                                            <option value="${fb.getFlowerId()}" data-price="${fb.getUnitPrice()}" selected>
+                                                                                <c:forEach var="af" items="${allFlowers}">
+                                                                                    <c:if test="${af.getFlowerId() eq fb.getFlowerId()}">
+                                                                                        ${af.getFlowerName()}
+                                                                                    </c:if>
+                                                                                </c:forEach>
+                                                                            </option>
+                                                                        </c:if>
                                                                     </c:forEach>
                                                                 </select>
                                                             </td>
 
-                                                            <!-- ✅ Flower Batch -->
+                                                            <!-- Flower Batch -->
                                                             <td>
                                                                 <c:forEach var="fb" items="${allBatchs}">
                                                                     <c:if test="${fb.getBatchId() eq br.getBatchId()}">
-                                                                        <input type="hidden" name="batchIds" value="${fb.getBatchId()}" />
+                                                                        <input type="hidden" name="batchIds[]" value="${fb.getBatchId()}" />
                                                                         <input type="text" class="form-control form-control-sm" value="${fb.getImportDate()} to ${fb.getExpirationDate()}" readonly />
                                                                     </c:if>
                                                                 </c:forEach>
                                                             </td>
 
-                                                            <!-- Price -->
-                                                            <td>
-                                                                <span class="form-text price-text">$0.00</span>
-                                                                <input type="hidden" class="price-input" name="prices[]" value="0" />
-                                                            </td>
-
-                                                            <!-- Quantity -->
-                                                            <td>
-                                                                <input
-                                                                    type="number"
-                                                                    name="quantities"
-                                                                    value="${br.getQuantity()}"
-                                                                    min="1"
-                                                                    step="1"
-                                                                    readonly
-                                                                    class="form-control form-control-sm quantity-input"
-                                                                    />
-                                                            </td>
+                                                            <!-- Current Price -->
                                                             <td>
                                                                 <c:forEach var="fb" items="${allBatchs}">
                                                                     <c:if test="${fb.getBatchId() eq br.getBatchId()}">
-
-                                                                        <!-- 1. Hidden input: gửi flowerId -->
-                                                                        <input type="hidden" name="flowerIds[]" value="${fb.getFlowerId()}" />
-
-                                                                        <!-- 2. Gán giá trị mặc định cho assignedExpense -->
-                                                                        <c:set var="assignedExpense" value="0" />
-                                                                        <c:forEach var="wsPrice" items="${ListWsFlower}">
-                                                                            <c:if test="${fb.getFlowerId() eq wsPrice.getFlower_id()}">
-                                                                                <c:set var="assignedExpense" value="${wsPrice.getFlower_ws_price()}" />
-                                                                            </c:if>
-                                                                        </c:forEach>
-
-                                                                        <!-- 3. Luôn render input có giá trị mặc định nếu có -->
-                                                                        <input type="number"
-                                                                               class="form-control form-control-sm"
-                                                                               name="assignExpense[]"
-                                                                               value="${assignedExpense}"
-                                                                               min="0"
-                                                                               step="1" />
+                                                                        <span class="form-text">
+                                                                            <fmt:formatNumber value="${fb.getUnitPrice()}" type="number" groupingUsed="true" /> ₫
+                                                                        </span>
+                                                                        <input type="hidden" name="prices[]" value="${fb.getUnitPrice()}" />
                                                                     </c:if>
                                                                 </c:forEach>
                                                             </td>
 
+                                                            <!-- Quantity -->
+                                                            <td>
+                                                                <input type="number" name="quantities[]" value="${br.getQuantity()}" readonly class="form-control form-control-sm" />
+                                                            </td>
 
+                                                            <!-- Assign Expense -->
+                                                            <td>
+                                                                <c:forEach var="fb" items="${allBatchs}">
+                                                                    <c:if test="${fb.getBatchId() eq br.getBatchId()}">
+                                                                        <input type="hidden" name="flowerIds[]" value="${fb.getFlowerId()}" />
+                                                                        <c:set var="assignedExpense" value="${fb.getUnitPrice()}" />
+                                                                        <c:forEach var="wsPrice" items="${ListWsFlower}">
+                                                                            <c:if test="${wsPrice != null && wsPrice.getFlower_id() != null && wsPrice.getFlower_id() eq fb.getFlowerId()}">
+                                                                                <c:set var="assignedExpense" value="${wsPrice.getFlower_ws_price()}" />
+                                                                            </c:if>
+                                                                        </c:forEach>
+                                                                        <input type="number" name="assignExpense[]" value="${assignedExpense}" min="0" step="1" class="form-control form-control-sm" />
+                                                                    </c:if>
+                                                                </c:forEach>
+                                                            </td>
                                                         </tr>
                                                     </c:forEach>
                                                 </tbody>
+
                                                 <tfoot>
                                                     <tr>
-                                                        <td colspan="5" style="padding: 12px;">
-                                                            <!-- Flex container -->
+                                                        <td colspan="5">
                                                             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-
-                                                                <!-- Expense & Sell Price (bên trái) -->
+                                                                <!-- Expense & Sell Price -->
                                                                 <div style="color: #0d6efd; font-weight: bold;">
-                                                                    Expense:
-                                                                    <span id="totalValueDisplay">0 ₫</span>
-                                                                    <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
-                                                                    <br />
-                                                                    Current Sell Price:
-                                                                    <span id="sellValueDisplay">0 ₫</span>
-                                                                    <input type="hidden" id="sellValueInput" name="sellValue" value="0" />
+                                                                    Expense: <span><fmt:formatNumber value="${bouquet.getPrice()}" type="number" groupingUsed="true" /> ₫</span><br />                                                                  
+                                                                    Current Sell Price: <span><fmt:formatNumber value="${bouquet.getSellPrice()}" type="number" groupingUsed="true" /> ₫</span>                                                                   
                                                                 </div>
 
-                                                                <!-- WholeSale Result (bên phải) -->
-                                                                <div style="color: #0d6efd; font-weight: bold;">
-                                                                    WholeSale Expense:
+                                                                <!-- WholeSale Result -->
+                                                                <div class="summary-results" style="margin-top: 0px; font-weight: bold; color: #0d6efd;">
                                                                     <span id="wholesaleExpenseDisplay">
                                                                         <c:choose>
                                                                             <c:when test="${not empty ws.getExpense()}">
-                                                                                <fmt:formatNumber value="${ws.getExpense()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫                                                  
+                                                                                WholeSale Expense per Unit: <fmt:formatNumber value="${ws.getExpense()}" type="number" groupingUsed="true" /> ₫
                                                                             </c:when>
-                                                                            <c:otherwise>0 ₫</c:otherwise>
+                                                                            <c:otherwise>WholeSale Expense per Unit: 0 ₫</c:otherwise>
                                                                         </c:choose>
                                                                     </span><br />
-                                                                    <input type="hidden" id="wholesaleExpenseInput" name="wholesaleExpense" value="${ws.getExpense()}" />
 
-                                                                    WholeSale Price:
                                                                     <span id="wholesalePriceDisplay">
                                                                         <c:choose>
                                                                             <c:when test="${not empty ws.getQuoted_price()}">
-                                                                                <fmt:formatNumber value="${ws.getQuoted_price()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫
+                                                                                WholeSale Price per Unit: <fmt:formatNumber value="${ws.getQuoted_price()}" type="number" groupingUsed="true" /> ₫
                                                                             </c:when>
-                                                                            <c:otherwise>0 ₫</c:otherwise>
+                                                                            <c:otherwise>WholeSale Price per Unit: 0 ₫</c:otherwise>
                                                                         </c:choose>
                                                                     </span><br />
-                                                                    <input type="hidden" id="wholesalePriceInput" name="wholesalePrice" value="${ws.getQuoted_price()}" />
 
-                                                                    Total WholeSale Price:
                                                                     <span id="totalWholesaleDisplay">
                                                                         <c:choose>
                                                                             <c:when test="${not empty ws.getTotal_price()}">
-                                                                                <fmt:formatNumber value="${ws.getTotal_price()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫
+                                                                                Total WholeSale Price: <fmt:formatNumber value="${ws.getTotal_price()}" type="number" groupingUsed="true" /> ₫
                                                                             </c:when>
-                                                                            <c:otherwise>0 ₫</c:otherwise>
+                                                                            <c:otherwise>Total WholeSale Price: 0 ₫</c:otherwise>
                                                                         </c:choose>
                                                                     </span>
-                                                                    <input type="hidden" id="totalWholesaleInput" name="totalWholesale" value="${ws.getTotal_price()}" />
+
                                                                 </div>
+
                                                             </div>
                                                         </td>
                                                     </tr>
-
                                                 </tfoot>
 
                                             </table>
+
                                             <div style="margin-top: 12px;">
-                                                <button class="btn btn-primary" id="calculateWholesaleBtn" type="button">Calculate Wholesale Price</button>
-                                                <button class="btn btn-success" type="submit">Submit Quotation</button>
+                                                <button class="btn btn-success" type="submit" name="action" value="submit">Submit Quotation</button>
                                             </div>
-                                            <a href="${pageContext.request.contextPath}/requestWholeSaleDetails?userId=${param.userId}&requestDate=${param.requestDate}&status=${param.status}"
-                                               style="display: inline-block;
-                                               padding: 8px 16px;
-                                               background-color: #6c757d;
-                                               color: white;
-                                               text-decoration: none;
-                                               border-radius: 8px;
-                                               margin-top: 5px;">
+
+                                            <a href="${pageContext.request.contextPath}/requestWholeSaleDetails?userId=${param.userId}&requestDate=${param.requestDate}&status=${param.status}&requestGroupId=${param.requestGroupId}"
+                                               style="display: inline-block; padding: 8px 16px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 8px; margin-top: 5px;">
                                                 Back to List
                                             </a>
-
-                                        </form> 
-
+                                        </form>
                                     </div>
+
                                 </div>
                             </div>
                         </div>   
@@ -570,121 +540,63 @@
                 }).format(value);
             }
 
-            document.getElementById('calculateWholesaleBtn').addEventListener('click', function () {
-                let totalWholesaleExpense = 0;
-
-                const rows = document.querySelectorAll('#flowerTable tbody tr');
-                rows.forEach(row => {
-                    const assignExpenseInput = row.querySelector('input[name^="assignExpense"]');
-                    const currentPriceInput = row.querySelector('.price-input');
-                    const quantityInput = row.querySelector('input[name^="quantities"]');
-
-                    const currentPrice = parseFloat(currentPriceInput?.value || 0);
-                    let assignExpense = parseFloat(assignExpenseInput?.value);
-
-                    if (isNaN(assignExpense) || assignExpense <= 0) {
-                        assignExpense = currentPrice;
-                        assignExpenseInput.value = assignExpense.toFixed(2);
-                    }
-
-                    const quantity = parseInt(quantityInput?.value || 0);
-                    totalWholesaleExpense += assignExpense * quantity;
-                });
-
-                const wholesalePrice = totalWholesaleExpense * 3;
-                // Tính Total Wholesale Price
-                const requestedQuantity = parseInt(${ws.getRequested_quantity()});
-                const totalWholesale = wholesalePrice * requestedQuantity;
-
-                // Hiển thị kết quả
-                document.getElementById('wholesaleExpenseDisplay').textContent = formatVND(totalWholesaleExpense);
-                document.getElementById('wholesaleExpenseInput').value = totalWholesaleExpense.toFixed(2);
-
-                document.getElementById('wholesalePriceDisplay').textContent = formatVND(wholesalePrice);
-                document.getElementById('wholesalePriceInput').value = wholesalePrice.toFixed(2);
-
-                document.getElementById('totalWholesaleDisplay').textContent = formatVND(totalWholesale);
-                document.getElementById('totalWholesaleInput').value = totalWholesale.toFixed(2);
-            });
-
-
-            function updatePrice(selectElement) {
-                const selectedOption = selectElement.options[selectElement.selectedIndex];
-                const price = selectedOption ? parseFloat(selectedOption.getAttribute('data-price') || "0") : 0;
-
-                const row = selectElement.closest('tr');
-                const priceText = row.querySelector('.price-text');
-                const priceInput = row.querySelector('.price-input');
-
-                priceText.textContent = price.toFixed(2) + 'VND';
-                priceInput.value = price;
-
-                calculateTotal();
-            }
-
             function calculateTotal() {
                 let total = 0;
-                const rows = document.querySelectorAll('#flowerTable tbody tr');
+                document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
+                    const priceInput = row.querySelector('.price-input');
+                    const quantityInput = row.querySelector('input[name^="quantities"]');
 
-                rows.forEach(row => {
-                    const price = parseFloat(row.querySelector('.price-input')?.value || 0);
-                    const quantity = parseInt(row.querySelector('input[name^="quantities"]')?.value || 0);
+                    const price = parseFloat(priceInput?.value) || 0;
+                    const quantity = parseInt(quantityInput?.value) || 0;
+
                     total += price * quantity;
                 });
 
-                // Cập nhật Total Price
                 document.getElementById('totalValueDisplay').textContent = formatVND(total);
-                document.getElementById('totalValueInput').value = total.toFixed(2);
+                document.getElementById('totalValueInput').value = total;
 
-                // ✅ Sell Price
                 const sellTotal = total * 5;
                 document.getElementById('sellValueDisplay').textContent = formatVND(sellTotal);
-                document.getElementById('sellValueInput').value = sellTotal.toFixed(2);
+                document.getElementById('sellValueInput').value = sellTotal;
             }
 
-            function attachEventsToRow(row) {
-                const select = row.querySelector('.flower-select');
-                const quantityInput = row.querySelector('input[name^="quantities"]');
-                const deleteButton = row.querySelector('.btn-outline-danger');
+            function calculateWholesale() {
+                let totalWholesaleExpense = 0;
 
-                if (select) {
-                    updatePrice(select);
-                    select.addEventListener('change', function () {
-                        updatePrice(this);
-                    });
-                }
+                document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
+                    const assignExpenseInput = row.querySelector('input[name^="assignExpense"]');
+                    const quantityInput = row.querySelector('input[name^="quantities"]');
 
-                if (quantityInput) {
-                    quantityInput.addEventListener('input', calculateTotal);
-                }
+                    let assignExpense = parseFloat(assignExpenseInput?.value) || 0;
+                    const quantity = parseInt(quantityInput?.value) || 0;
 
-                if (deleteButton) {
-                    deleteButton.addEventListener('click', function () {
-                        row.remove();
-                        calculateTotal(); // ✅ Update lại khi xóa
-                    });
-                }
+                    totalWholesaleExpense += assignExpense * quantity;
+                });
+
+                const wsPerUnit = totalWholesaleExpense * 3;
+                const requestedQuantity = parseInt(document.querySelector('input[name^="quantities"]')?.value) || 1;
+                const totalWholesale = wsPerUnit * requestedQuantity;
+
+                document.getElementById('wholesaleExpenseDisplay').textContent = formatVND(totalWholesaleExpense);
+                document.getElementById('wholesaleExpenseInput').value = totalWholesaleExpense;
+
+                document.getElementById('wholesalePriceDisplay').textContent = formatVND(wsPerUnit);
+                document.getElementById('wholesalePriceInput').value = wsPerUnit;
+
+                document.getElementById('totalWholesaleDisplay').textContent = formatVND(totalWholesale);
+                document.getElementById('totalWholesaleInput').value = totalWholesale;
             }
 
             document.addEventListener('DOMContentLoaded', function () {
-                // Gắn sự kiện cho dòng đầu tiên mặc định
-                document.querySelectorAll('#flowerTable tbody tr').forEach(row => {
-                    attachEventsToRow(row);
+                calculateTotal();
+
+                document.querySelectorAll('.assign-expense-input').forEach(input => {
+                    input.addEventListener('input', calculateWholesale);
                 });
 
-                calculateTotal(); // Khởi tạo tổng ban đầu
+                document.getElementById('calculateWholesaleBtn').addEventListener('click', calculateWholesale);
             });
 
-            document.getElementById('addFlowerBtn').addEventListener('click', function () {
-                const template = document.getElementById('flowerRowTemplate');
-                const newRow = template.cloneNode(true);
-                newRow.removeAttribute('id');
-                newRow.style.display = '';
-
-                document.querySelector('#flowerTable tbody').appendChild(newRow);
-                attachEventsToRow(newRow);
-                calculateTotal();
-            });
         </script>
 
         <script>

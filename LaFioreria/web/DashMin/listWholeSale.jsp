@@ -403,7 +403,7 @@
                                         </c:choose>
                                     </td>
                                     <td>${item.getStatus()}</td>
-                                    <td><a href="${pageContext.request.contextPath}/requestWholeSaleDetails?userId=${item.getUser_id()}&requestDate=${item.getCreated_at()}&status=${item.getStatus()}">View Details</a></td>
+                                    <td><a href="${pageContext.request.contextPath}/requestWholeSaleDetails?userId=${item.getUser_id()}&requestDate=${item.getCreated_at()}&status=${item.getStatus()}&requestGroupId=${item.getRequest_group_id()}">View Details</a></td>
                                 </tr>  
                             </c:forEach>
                         </tbody>   

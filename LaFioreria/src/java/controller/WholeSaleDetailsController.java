@@ -72,9 +72,10 @@ public class WholeSaleDetailsController extends HttpServlet {
             throws ServletException, IOException {
         String userIdStr = request.getParameter("userId").trim();
         String requestDateStr = request.getParameter("requestDate").trim();
+        String requestGroupId = request.getParameter("requestGroupId");  // ✅ mới
         String status = request.getParameter("status").trim();
-        String sortBy = request.getParameter("sortBy"); // "quantity" hoặc "status"
-        String sortOrder = request.getParameter("sortOrder"); // "asc" hoặc "desc"
+        String sortBy = request.getParameter("sortBy");
+        String sortOrder = request.getParameter("sortOrder");
         String flowerIDstr = request.getParameter("flowerS");
 
         Integer flowerID = null;
@@ -97,24 +98,23 @@ public class WholeSaleDetailsController extends HttpServlet {
         List<FlowerType> listFlower = fdao.getAllFlowerTypes();
         List<Bouquet> listBQ = bDao.getAll();
         List<BouquetImage> listIMG = bDao.getAllBouquetImage();
-        List<WholeSale> listWS = new ArrayList<>();
-        
+        List<WholeSale> listWS;
+
         if (flowerID != null) {
             listWS = wsDao.getWholeSaleRequestByFlowerID(flowerID);
         } else {
-            listWS = wsDao.getWholeSaleList(userId, requestDate);
+            listWS = wsDao.getWholeSaleList(userId, requestDate, requestGroupId);  // ✅ dùng hàm đúng
         }
 
         User userInfo = uDao.getUserByID(userId);
 
+        // ✅ Sắp xếp
         Comparator<WholeSale> comparator = null;
-
         if ("quantity".equalsIgnoreCase(sortBy)) {
             comparator = Comparator.comparing(WholeSale::getRequested_quantity);
         } else if ("status".equalsIgnoreCase(sortBy)) {
             comparator = Comparator.comparing(WholeSale::getStatus, String.CASE_INSENSITIVE_ORDER);
         }
-
         if (comparator != null) {
             if ("desc".equalsIgnoreCase(sortOrder)) {
                 comparator = comparator.reversed();
@@ -122,24 +122,25 @@ public class WholeSaleDetailsController extends HttpServlet {
             listWS.sort(comparator);
         }
 
+        // ✅ Phân trang
         int page = 1;
         int recordsPerPage = 4;
-
         String pageStr = request.getParameter("page");
         if (pageStr != null) {
-            page = Integer.parseInt(pageStr);
+            try {
+                page = Integer.parseInt(pageStr);
+            } catch (Exception e) {
+                page = 1;
+            }
         }
 
-// Tính toán start và end index
         int start = (page - 1) * recordsPerPage;
         int end = Math.min(start + recordsPerPage, listWS.size());
-
-// Cắt danh sách theo trang
         List<WholeSale> pagedWS = listWS.subList(start, end);
-
         int totalPages = (int) Math.ceil(listWS.size() * 1.0 / recordsPerPage);
-        int startIndex = (page - 1) * recordsPerPage;
+        int startIndex = start;
 
+        // ✅ Gửi attribute sang JSP
         request.setAttribute("listFlower", listFlower);
         request.setAttribute("sortBy", sortBy);
         request.setAttribute("sortOrder", sortOrder);
@@ -150,6 +151,7 @@ public class WholeSaleDetailsController extends HttpServlet {
         request.setAttribute("listBQ", listBQ);
         request.setAttribute("listIMG", listIMG);
         request.setAttribute("userInfo", userInfo);
+        request.setAttribute("requestGroupId", requestGroupId);  // ✅ thêm vào để JSP sử dụng lại
 
         request.getRequestDispatcher("./DashMin/WholeSaleDetails.jsp").forward(request, response);
     }
