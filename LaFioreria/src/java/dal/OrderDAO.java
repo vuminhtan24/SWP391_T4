@@ -650,7 +650,42 @@ public class OrderDAO extends BaseDao {
      * empty, no status filter is applied.
      * @return List of Order objects.
      */
-    public List<Order> getOrdersByShipperIdAndStatuses(int shipperId, List<Integer> statusIds) {
+    public int countOrdersByShipperIdAndStatuses(int shipperId, List<Integer> statusIds) {
+        if (statusIds == null || statusIds.isEmpty()) {
+            return 0;
+        }
+
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM `order` WHERE shipper_id = ? AND status_id IN (");
+        for (int i = 0; i < statusIds.size(); i++) {
+            sql.append("?");
+            if (i < statusIds.size() - 1) {
+                sql.append(",");
+            }
+        }
+        sql.append(")");
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql.toString());
+            int index = 1;
+            ps.setInt(index++, shipperId);
+            for (int status : statusIds) {
+                ps.setInt(index++, status);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    public List<Order> getOrdersByShipperIdAndStatusesPaged(int shipperId, List<Integer> statusIds, int offset, int limit) {
         List<Order> orders = new ArrayList<>();
         if (statusIds == null || statusIds.isEmpty()) {
             return orders;
@@ -676,15 +711,19 @@ public class OrderDAO extends BaseDao {
                 sql.append(",");
             }
         }
-        sql.append(") ORDER BY o.order_date DESC");
+        sql.append(") ORDER BY o.order_date DESC LIMIT ? OFFSET ?");
 
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql.toString());
-            ps.setInt(1, shipperId);
-            for (int i = 0; i < statusIds.size(); i++) {
-                ps.setInt(i + 2, statusIds.get(i)); // i+2 because 1st param is shipperId
+
+            int paramIndex = 1;
+            ps.setInt(paramIndex++, shipperId);
+            for (Integer status : statusIds) {
+                ps.setInt(paramIndex++, status);
             }
+            ps.setInt(paramIndex++, limit);
+            ps.setInt(paramIndex, offset);
 
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -706,7 +745,7 @@ public class OrderDAO extends BaseDao {
                 orders.add(order);
             }
         } catch (SQLException e) {
-            System.err.println("getOrdersByShipperIdAndStatuses ERROR: " + e.getMessage());
+            System.err.println("getOrdersByShipperIdAndStatusesPaged ERROR: " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {

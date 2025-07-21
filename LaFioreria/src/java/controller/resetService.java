@@ -54,7 +54,7 @@ public class resetService {
         MimeMessage msg = new MimeMessage(session);
         try {
             msg.addHeader("Content-type", "text/html; charset=UTF-8");
-            msg.setFrom(from);
+            msg.setFrom(new InternetAddress(from));
             msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to, false));
             msg.setSubject("Reset Password", "UTF-8");
             String content = "<h1>Hello " + name + "</h1>" + "<p>Click the link to reset password"

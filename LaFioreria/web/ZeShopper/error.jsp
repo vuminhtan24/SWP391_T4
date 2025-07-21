@@ -40,6 +40,11 @@
                             <%
                                 }
                             %>
+                            <c:if test="${not empty errorMessage}">
+                                <div class="alert alert-danger">
+                                    <p>${errorMessage}</p>
+                                </div>
+                            </c:if>
                         </div>
                         <div class="error-actions">
                             <a href="${pageContext.request.contextPath}/" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-home"></span>

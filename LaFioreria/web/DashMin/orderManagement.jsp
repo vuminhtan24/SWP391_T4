@@ -334,9 +334,9 @@
                                             <td>${order.orderId}</td>
                                             <td>${order.orderDate}</td>
                                             <td>${order.customerName}</td>
-                                            <td><fmt:formatNumber value="${order.totalImport}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</td>
+                                            <td><fmt:formatNumber value="${order.totalImport / 10}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</td>
                                             
-                                            <td><fmt:formatNumber value="${order.totalSell}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</td>
+                                            <td><fmt:formatNumber value="${order.totalSell / 10}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</td>
                                             
                                             <td>${order.statusName}</td>
                                             <td>${order.shipperName != null ? order.shipperName : "Not Assigned"}</td>
