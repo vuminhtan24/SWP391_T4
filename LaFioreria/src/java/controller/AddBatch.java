@@ -63,6 +63,7 @@ public class AddBatch extends HttpServlet {
                         if (requestFlower.getOrderId() == orderId && requestFlower.getOrderItemId() == orderItemId && requestFlower.getFlowerId() == flowerId) {
                             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                             String todayStr = sdf.format(new Date());
+                            request.setAttribute("quotedPrice", requestFlower.getPrice());
                             request.setAttribute("requestDate", todayStr);
                             request.setAttribute("requestQuantity", requestFlower.getQuantity());
                             request.setAttribute("orderId", orderId);

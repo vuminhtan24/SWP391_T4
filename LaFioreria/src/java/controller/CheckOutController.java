@@ -2,6 +2,7 @@ package controller;
 
 import dal.BouquetDAO;
 import dal.CartDAO;
+import dal.CartWholeSaleDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,6 +18,7 @@ import dal.DiscountCodeDAO;
 import jakarta.servlet.http.HttpSession;
 import model.BouquetImage;
 import model.CartDetail;
+import model.CartWholeSaleDetail;
 import model.CheckoutFormData; // Import model mới
 import model.DiscountCode;
 import model.Order; // Import lớp Order
@@ -228,6 +230,9 @@ public class CheckOutController extends HttpServlet {
         }
         String fullAddress = fullAddressBuilder.toString();
 
+
+        String totalSellStr = request.getParameter("totalAmount");
+
         double actualTotalSell;
         // Lấy tổng tiền cuối cùng đã được tính toán (bao gồm giảm giá nếu có) từ session
         Double finalOrderTotalFromSession = (Double) request.getSession().getAttribute("finalOrderTotal");
@@ -246,8 +251,8 @@ public class CheckOutController extends HttpServlet {
                 CartDAO cartDAO = new CartDAO();
                 try {
                     cartItems = cartDAO.getCartDetailsByCustomerId(userFromSession.getUserid());
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Exception ea) {
+                    ea.printStackTrace();
                     request.setAttribute("orderError", "Lỗi khi tải giỏ hàng để đặt đơn.");
                     return;
                 }
@@ -266,6 +271,7 @@ public class CheckOutController extends HttpServlet {
             }
             actualTotalSell = currentCartTotal + 30000; // Cộng thêm phí vận chuyển mặc định
             System.out.println("DEBUG (processOrder): Recalculated actualTotalSell (no session final total): " + actualTotalSell);
+
         }
 
         // Tạo đơn hàng
@@ -309,8 +315,13 @@ public class CheckOutController extends HttpServlet {
                         orderId,
                         cartItem.getBouquetId(),
                         cartItem.getQuantity(),
+                        cartItem.getBouquet().getPrice(),
                         cartItem.getBouquet().getSellPrice()
                 );
+
+
+                System.out.println("DEBUG: Attempting to insert order item for Bouquet ID: " + cartItem.getBouquetId());
+
                 cartDAO.insertOrderItem(orderItem);
             }
 
@@ -336,11 +347,12 @@ public class CheckOutController extends HttpServlet {
                 request.getRequestDispatcher("./ZeShopper/thanks-you.jsp").forward(request, response);
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("orderError", "Có lỗi khi đặt hàng: " + e.getMessage());
+        } catch (Exception ei) {
+            ei.printStackTrace();
+            request.setAttribute("orderError", "Có lỗi khi đặt hàng: " + ei.getMessage());
         }
     }
+    
 
     /**
      * Xử lý thêm sản phẩm vào giỏ hàng.
@@ -606,4 +618,112 @@ public class CheckOutController extends HttpServlet {
         // No explicit forward here, doPost will handle the doGet call
         return;
     }
+
+
+    private void processWholesaleOrder(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        User currentUser = (User) request.getSession().getAttribute("currentAcc");
+
+        if (currentUser == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Bạn cần đăng nhập để đặt đơn hàng theo lô.\"}");
+            return;
+        }
+
+        int userId = currentUser.getUserid();
+        String fullName = request.getParameter("fullName");
+        String phoneNumber = request.getParameter("phoneNumber");
+        String addressLine = request.getParameter("addressLine");
+        String province = request.getParameter("province");
+        String district = request.getParameter("district");
+        String ward = request.getParameter("ward");
+        String paymentMethod = request.getParameter("paymentMethod");
+        HttpSession session = request.getSession();
+
+        // Ghép full địa chỉ
+        StringBuilder fullAddressBuilder = new StringBuilder();
+        if (addressLine != null && !addressLine.trim().isEmpty()) {
+            fullAddressBuilder.append(addressLine.trim());
+        }
+        if (ward != null && !ward.trim().isEmpty()) {
+            fullAddressBuilder.append(", ").append(ward.trim());
+        }
+        if (district != null && !district.trim().isEmpty()) {
+            fullAddressBuilder.append(", ").append(district.trim());
+        }
+        if (province != null && !province.trim().isEmpty()) {
+            fullAddressBuilder.append(", ").append(province.trim());
+        }
+        String fullAddress = fullAddressBuilder.toString();
+
+        // Lấy giỏ hàng theo lô
+        CartWholeSaleDAO cwsDAO = new CartWholeSaleDAO();
+        List<CartWholeSaleDetail> cartItems = cwsDAO.getCartWholeSaleByUser(userId);
+
+        if (cartItems == null || cartItems.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Giỏ hàng theo lô đang trống.\"}");
+            return;
+        }
+
+        // Tính tổng bán và tổng nhập (giá nhập thực tế)
+        int totalSell = 0;
+        int totalImport = 0;
+
+        for (CartWholeSaleDetail item : cartItems) {
+            totalSell += item.getTotalValue(); // Tổng tiền khách trả
+            totalImport += (item.getExpense() * item.getQuantity()); // Giá nhập
+        }
+
+        // Tạo đơn hàng
+        Order order = new Order();
+        order.setCustomerId(userId);
+        order.setCustomerName(fullName);
+        order.setCustomerPhone(phoneNumber);
+        order.setCustomerAddress(fullAddress);
+        order.setOrderDate(LocalDate.now().toString());
+        order.setTotalSell(String.valueOf(totalSell));
+        order.setTotalImport(String.valueOf(totalImport));
+        order.setPaymentMethod(paymentMethod);
+        order.setStatusId(1); // Chờ xử lý
+        order.setType("wholesale");
+
+        CartDAO cartDAO = new CartDAO();
+
+        try {
+            int orderId = cartDAO.insertOrder(order);
+            if (orderId == -1) {
+                throw new Exception("Không thể tạo đơn hàng.");
+            }
+
+            for (CartWholeSaleDetail item : cartItems) {
+                OrderItem orderItem = new OrderItem();
+                orderItem.setOrderId(orderId);
+                orderItem.setBouquetId(item.getBouquetID());
+                orderItem.setQuantity(item.getQuantity());
+                orderItem.setUnitPrice(item.getExpense());
+                orderItem.setSellPrice(item.getPricePerUnit()); // Có thể là đơn giá bán theo lô
+                orderItem.setRequest_group_id(item.getRequest_group_id());
+                cartDAO.insertOrderItem(orderItem);
+            }
+
+            // Xoá giỏ hàng wholesale sau khi đặt hàng thành công
+            cwsDAO.clearCartWholeSaleByUser(userId);
+
+            // Lưu thông tin để xử lý VietQR nếu cần
+            if ("vietqr".equalsIgnoreCase(paymentMethod)) {
+                session.setAttribute("currentOrderId", orderId);
+                session.setAttribute("currentOrderAmount", totalSell);
+                String redirectUrl = request.getContextPath() + "/ConfirmVietQRPayment";
+                response.getWriter().write("{\"status\": \"success\", \"paymentMethod\": \"vietqr\", \"orderId\": " + orderId + ", \"amount\": " + totalSell + ", \"redirectUrl\": \"" + redirectUrl + "\"}");
+            } else {
+                response.getWriter().write("{\"status\": \"success\", \"message\": \"Đơn hàng theo lô đã được đặt thành công! Mã đơn: " + orderId + "\"}");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"status\": \"error\", \"message\": \"Lỗi xử lý đơn hàng theo lô: " + e.getMessage() + "\"}");
+        }
+    }
+
 }

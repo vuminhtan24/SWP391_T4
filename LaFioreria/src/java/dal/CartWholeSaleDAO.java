@@ -15,8 +15,8 @@ import model.CartWholeSaleDetail;
  */
 public class CartWholeSaleDAO extends BaseDao {
 
-    public void insertCartWholeSaleItem(int userId, int bouquetId, int quantity, int pricePerUnit, int totalValue, int expense) {
-        String sql = "INSERT INTO cartwholesaledetails (userID, bouquetID, quantity, pricePerUnit, totalValue, expense) VALUES (?, ?, ?, ?, ?, ?)";
+    public void insertCartWholeSaleItem(int userId, int bouquetId, int quantity, int pricePerUnit, int totalValue, int expense, String request_group_id) {
+        String sql = "INSERT INTO cartwholesaledetails (userID, bouquetID, quantity, pricePerUnit, totalValue, expense, request_group_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -26,6 +26,7 @@ public class CartWholeSaleDAO extends BaseDao {
             ps.setInt(4, pricePerUnit);
             ps.setInt(5, totalValue);
             ps.setInt(6, expense);
+            ps.setString(7, request_group_id);
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

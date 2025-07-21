@@ -100,7 +100,7 @@
                     <div class="mb-3">
                         <label for="unit_price" class="form-label">Unit Price (VND)</label>
                         <input type="number" id="unit_price" name="unit_price" class="form-control" 
-                               value="${unit_price}" required min="0" step="1">
+                               value="${addFlowerAgree eq true ? quotedPrice : unit_price}" required min="0" step="1">
                         <c:if test="${not empty unitPriceError}">
                             <div class="error">${unitPriceError}</div>
                         </c:if>

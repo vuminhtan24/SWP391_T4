@@ -32,6 +32,7 @@ import dal.FlowerBatchDAO;
 import dal.FlowerTypeDAO;
 import dal.OrderDAO;
 import dal.RawFlowerDAO;
+import dal.WholeSaleDAO;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -43,6 +44,8 @@ import model.Order;
 import model.OrderDetail;
 import model.OrderItem;
 import model.RequestFlower;
+import model.WholeSaleFlower;
+import model.WholesaleOrderDetail;
 
 /**
  *
@@ -94,110 +97,85 @@ public class MakeBouquetByOrderController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-//        Lấy bouquet id
-        String bouquetIdStr;
-        Object bouquetIdAttr = request.getAttribute("BouquetId");
-        if (bouquetIdAttr != null) {
-            bouquetIdStr = String.valueOf(bouquetIdAttr);
-        } else {
-            bouquetIdStr = request.getParameter("BouquetId");
-        }
-        if (bouquetIdStr == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing bouquet ID");
-            return;
-        }
-        int bouquetId;
-        try {
-            bouquetId = Integer.parseInt(bouquetIdStr);
-        } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid bouquet ID");
-            return;
-        }
 
-//        Lấy order id
-        String orderIdStr;
-        Object orderIdAttr = request.getAttribute("OrderId");
-        if (orderIdAttr != null) {
-            orderIdStr = String.valueOf(orderIdAttr);
-        } else {
-            orderIdStr = request.getParameter("OrderId");
-        }
-        if (orderIdStr == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing Order ID");
-            return;
-        }
-        int orderId;
-        try {
-            orderId = Integer.parseInt(orderIdStr);
-        } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid Order ID");
-            return;
-        }
-
-//        Lấy order item id
-        String orderItemIdStr;
-        Object orderItemIdAttr = request.getAttribute("OrderItemID");
-        if (orderItemIdAttr != null) {
-            orderItemIdStr = String.valueOf(orderItemIdAttr);
-        } else {
-            orderItemIdStr = request.getParameter("OrderItemID");
-        }
-        if (orderItemIdStr == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing Order Item ID");
-            return;
-        }
-        int orderItemId;
-        try {
-            orderItemId = Integer.parseInt(orderItemIdStr);
-        } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid Order Item ID");
-            return;
-        }
-        
+        String bouquetIdStr = request.getParameter("BouquetId");
+        String orderIdStr = request.getParameter("OrderId");
+        String orderItemIdStr = request.getParameter("OrderItemID");
         String orderType = request.getParameter("orderType");
-                
-        OrderDAO oddao = new OrderDAO();
-        BouquetDAO bqdao = new BouquetDAO();
-        FlowerTypeDAO ftdao = new FlowerTypeDAO();
-        FlowerBatchDAO fbdao = new FlowerBatchDAO();
-        CategoryDAO cdao = new CategoryDAO();
 
-        Order order = oddao.getOrderDetailById(orderId);
-        OrderItem oi = oddao.getBouquetQuantityInOrder(orderItemId, orderId, bouquetId);
+        Integer bouquetId = Integer.parseInt(bouquetIdStr);
+        Integer orderId = Integer.parseInt(orderIdStr);
+        Integer orderItemId = Integer.parseInt(orderItemIdStr);
+
+        BouquetDAO bDao = new BouquetDAO();
+        OrderDAO oDao = new OrderDAO();
+        WholeSaleDAO wsDao = new WholeSaleDAO();
+        FlowerBatchDAO batchDao = new FlowerBatchDAO();
+        FlowerTypeDAO flowerDao = new FlowerTypeDAO();
+        CategoryDAO cDao = new CategoryDAO();
+
+        // Thông tin chung
+        Bouquet bouquet = bDao.getBouquetByID(bouquetId);
+        List<BouquetImage> listImage = bDao.getBouquetImage(bouquetId);
+        List<BouquetRaw> bqRaws = bDao.getFlowerBatchByBouquetID(bouquetId);
+        List<FlowerBatch> allBatches = batchDao.getAllFlowerBatches();
+        List<FlowerType> allFlowers = flowerDao.getAllFlowerTypes();
+        List<RequestFlower> rqFlower = oDao.getRequestFlowerByOrder(orderId, orderItemId);
+
+        String cateName = cDao.getCategoryNameByBouquet(bouquetId);
+        OrderItem orderItem = oDao.getOrderItemByID(orderItemId, orderId, bouquetId);
         
-        Bouquet detailsBQ = bqdao.getBouquetByID(bouquetId);
-        String cateName = cdao.getCategoryNameByBouquet(bouquetId);
-        List<FlowerType> allFlowers = ftdao.getAllFlowerTypes();
-        List<FlowerBatch> allBatchs = fbdao.getAllFlowerBatches();
-        List<BouquetRaw> bqRaws = bqdao.getFlowerBatchByBouquetID(bouquetId);
-        List<BouquetImage> images = bqdao.getBouquetImage(bouquetId);
+        // 👉 Nếu wholesale, lấy thêm dữ liệu hoa được báo giá
+        List<WholesaleOrderDetail> wholesaleDetails = new ArrayList<>();
+        List<OrderDetail> orderDetails = new ArrayList<>();
+        
+        if (orderType != null && orderType.equalsIgnoreCase("wholesale")) {
+            wholesaleDetails = oDao.getWholesaleOrderDetailsByOrder(orderId, orderItemId, bouquetId);
 
-        boolean canMakeAll = true;
+            boolean allAdded = true;
 
-        for (BouquetRaw flower : bqRaws) {
-            int needed = flower.getQuantity() * oi.getQuantity();
-            for (FlowerBatch allBatch : allBatchs) {
-                if (flower.getBatchId() == allBatch.getBatchId()) {
-                    if (allBatch.getQuantity() < needed) {
-                        canMakeAll = false;
-                        break;
+            for (WholesaleOrderDetail wholesaleDetail : wholesaleDetails) {
+                boolean found = false;
+                for (RequestFlower rf : rqFlower) {
+                    if (rf.getFlowerId() == wholesaleDetail.getFlowerId()
+                            && rf.getStatus() != null && rf.getStatus().equalsIgnoreCase("done")) {
+                        found = true;
+                        break;  // Tìm thấy 1 match là đủ cho hoa này
                     }
                 }
+                if (!found) {
+                    allAdded = false;  // Chỉ cần 1 hoa không match là cả đơn không đủ
+                    break;
+                }
             }
+
+            if (allAdded) {
+                // CHỈ cập nhật nếu order_item hiện tại chưa phải là 'done'
+                if (!"done".equalsIgnoreCase(orderItem.getStatus())) {
+                    oDao.updateOrderItemStatus(orderItemId, "Added");
+
+                    // Cập nhật lại thông tin orderItem sau khi update
+                    orderItem = oDao.getOrderItemByID(orderItemId, orderId, bouquetId);
+                }
+            }
+            request.setAttribute("allAdded", allAdded);
+        } else if (orderType != null && orderType.equalsIgnoreCase("retail")) {
+            orderDetails = oDao.getOrderItemsByOrderId(orderItemId);
         }
         
-        request.setAttribute("BouquetId", bouquetId);
-        request.setAttribute("OrderId", orderId);
-        request.setAttribute("OrderItemID", orderItemId);
-        request.setAttribute("canMakeAll", canMakeAll);
-        request.setAttribute("oi", oi);
-        request.setAttribute("images", images);
-        request.setAttribute("bouquetDetail", detailsBQ);
-        request.setAttribute("cateName", cateName);
-        request.setAttribute("allFlowers", allFlowers);
-        request.setAttribute("allBatchs", allBatchs);
-        request.setAttribute("cateList", cdao.getBouquetCategory());
+        request.setAttribute("orderDetails", orderDetails);
+        request.setAttribute("orderItem", orderItem);
+        request.setAttribute("orderType", orderType);
+        request.setAttribute("orderItem", orderItem);
+        request.setAttribute("bouquetId", bouquetId);
+        request.setAttribute("bouquet", bouquet);
+        request.setAttribute("listImage", listImage);
         request.setAttribute("flowerInBQ", bqRaws);
+        request.setAttribute("allBatchs", allBatches);
+        request.setAttribute("allFlowers", allFlowers);
+        request.setAttribute("cateName", cateName);
+        request.setAttribute("wholesaleDetails", wholesaleDetails);
+
         request.getRequestDispatcher("./DashMin/makeBouquetByOrder.jsp").forward(request, response);
     }
 
@@ -212,127 +190,68 @@ public class MakeBouquetByOrderController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setCharacterEncoding("UTF-8");
-        String orderItemIdStr = request.getParameter("OrderItemID");
-        String orderIdStr = request.getParameter("OrderId");
-        String bouquetIdStr = request.getParameter("BouquetId");
-        String sellPriceStr = request.getParameter("orderSell");
-        
-        int orderItemId;
-        int orderId;
-        int bouquetId;
-        int sellPrice;
-        
+
+        String[] flowerIds = request.getParameterValues("flowerIds[]");
+        String[] totalFlowerQuantities = request.getParameterValues("totalFlowerQuantities[]");
+        String[] flowerWholesalePrices = request.getParameterValues("flowerWholesalePrices[]");
+        String bouquetIdStr = request.getParameter("bouquetId");
+        String orderIdStr = request.getParameter("orderId");
+        String orderItemIdStr = request.getParameter("orderItemId");
+        String orderType = request.getParameter("orderType");
+        String[] batchIds = request.getParameterValues("batchIds[]");
         String action = request.getParameter("action");
 
-        System.out.printf(">>> POST params: BouquetId=%s, OrderId=%s, OrderItemID=%s, orderSell=%s%n",
-                request.getParameter("BouquetId"),
-                request.getParameter("OrderId"),
-                request.getParameter("OrderItemID"),
-                request.getParameter("orderSell"));
-        try {
-            // Validate and parse OrderItemID
-            if (orderItemIdStr == null || orderItemIdStr.isEmpty()) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing Order Item ID.");
-                return;
-            }
-            orderItemId = Integer.parseInt(orderItemIdStr);
+        int bouquetId = Integer.parseInt(bouquetIdStr);
+        int orderId = Integer.parseInt(orderIdStr);
+        int orderItemId = Integer.parseInt(orderItemIdStr);
 
-            // Validate and parse OrderId
-            if (orderIdStr == null || orderIdStr.isEmpty()) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing Order ID.");
-                return;
-            }
-            orderId = Integer.parseInt(orderIdStr);
+        OrderDAO oDao = new OrderDAO();
+        FlowerBatchDAO fbDao = new FlowerBatchDAO();
 
-            // Validate and parse BouquetId
-            if (bouquetIdStr == null || bouquetIdStr.isEmpty()) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing Bouquet ID.");
-                return;
-            }
-            bouquetId = Integer.parseInt(bouquetIdStr);
+        boolean addedAtLeastOne = false;
 
-            // Validate and parse sellPrice
-            if (sellPriceStr == null || sellPriceStr.isEmpty()) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing Sell Price.");
-                return;
-            }
-            sellPrice = Integer.parseInt(sellPriceStr);
+        if (action.equalsIgnoreCase("request")) {
+            if (flowerIds != null && totalFlowerQuantities != null && flowerWholesalePrices != null) {
+                for (int i = 0; i < flowerIds.length; i++) {
+                    int flowerId = Integer.parseInt(flowerIds[i]);
+                    int quantity = Integer.parseInt(totalFlowerQuantities[i]); // quantity chính là tổng số hoa cần
+                    int price = Integer.parseInt(flowerWholesalePrices[i]);
 
-        } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid numeric format for one or more IDs or Sell Price. Please ensure all values are valid numbers.");
-            return;
-        }
-        OrderDAO oddao = new OrderDAO();
-        FlowerBatchDAO fbdao = new FlowerBatchDAO();
-        BouquetDAO bqdao = new BouquetDAO();
+                    RequestFlower rf = new RequestFlower();
+                    rf.setOrderId(orderId);
+                    rf.setOrderItemId(orderItemId);
+                    rf.setFlowerId(flowerId);
+                    rf.setQuantity(quantity);
+                    rf.setPrice(price);
 
-        String[] flowerNeedStr = request.getParameterValues("flowerNeeded");
-        String[] flowerIdStr = request.getParameterValues("flowerIds");
-        String[] batchIdStr = request.getParameterValues("batchIds");
-        
-        List<FlowerBatch> allBatchs = fbdao.getAllFlowerBatches();
-        List<BouquetRaw> bqRaws = bqdao.getFlowerBatchByBouquetID(bouquetId);
-        FlowerTypeDAO ftdao = new FlowerTypeDAO();
-        
-        OrderItem oi = oddao.getBouquetQuantityInOrder(orderItemId, orderId, bouquetId);
-        
-        boolean canMakeAll = true;
-
-        for (BouquetRaw flower : bqRaws) {
-            int needed = flower.getQuantity() * oi.getQuantity();
-            for (FlowerBatch allBatch : allBatchs) {
-                if (flower.getBatchId() == allBatch.getBatchId()) {
-                    if (allBatch.getQuantity() < needed) {
-                        canMakeAll = false;
-                        break;
+                    if (!oDao.isDuplicateRequest(orderId, orderItemId, flowerId)) {
+                        oDao.addRequest(rf);
+                        addedAtLeastOne = true;  // Đánh dấu đã thêm ít nhất 1 dòng
                     }
                 }
             }
-        }
-        
-        
-        if("confirm".equalsIgnoreCase(action)){
-        if (flowerNeedStr != null && flowerIdStr != null && batchIdStr != null) {
-            for (int i = 0; i < flowerNeedStr.length; i++) {
-                try {
-                    int neededQuantity = Integer.parseInt(flowerNeedStr[i].trim());
-                    int flowerId = Integer.parseInt(flowerIdStr[i].trim());
-                    int batchId = Integer.parseInt(batchIdStr[i].trim());
 
-                    // Gọi hàm DAO
-                    fbdao.reduceBatchQuantity(neededQuantity, flowerId, batchId);
+            if (addedAtLeastOne) {
+                oDao.updateOrderItemStatus(orderItemId, "Requested");
+            }
+            response.sendRedirect(request.getContextPath() + "/makeBouquet?BouquetId=" + bouquetId + "&OrderId=" + orderId + "&OrderItemID=" + orderItemId + "&orderType=" + orderType);
 
-                } catch (NumberFormatException e) {
-                    System.err.println("Error parsing parameters at index " + i + ": " + e.getMessage());
-                    return;
-                    // Có thể log lỗi, hoặc bỏ qua dòng lỗi, hoặc thông báo cho người dùng
+        } else if (action.equalsIgnoreCase("complete")) {
+            oDao.completeBouquetCreation(orderItemId, orderId, bouquetId);
+            if (totalFlowerQuantities != null && batchIds != null && flowerIds != null) {
+                for (int i = 0; i < batchIds.length; i++) {
+                    int flowerId = Integer.parseInt(flowerIds[i]);
+                    int quantity = Integer.parseInt(totalFlowerQuantities[i]); // quantity chính là tổng số hoa cần
+                    int batchId = Integer.parseInt(batchIds[i]);
+
+                    fbDao.reduceBatchQuantity(quantity, flowerId, batchId);
                 }
             }
-        } else {
-            System.err.println("Missing parameters: One or more of flowerNeeded, flowerIds, batchIds is null");
-            return;
+            response.sendRedirect(request.getContextPath() + "/orderDetail?orderId=" + orderId);
+
         }
 
-        // Proceed with DAO operations if all parameters are valid
-        oddao.completeBouquetCreation(orderItemId, orderId, bouquetId, sellPrice);
-        
-        
-            response.sendRedirect("/LaFioreria/orderDetail?orderId=" + orderId);
-        }else if("request".equalsIgnoreCase(action)){
-            if(flowerNeedStr != null && flowerIdStr != null){
-                for (int i = 0; i < flowerNeedStr.length; i++){
-                    int neededQuantity = Integer.parseInt(flowerNeedStr[i].trim());
-                    int flowerId = Integer.parseInt(flowerIdStr[i].trim());
-                    
-                    RequestFlower rf = new RequestFlower(orderId, orderItemId, flowerId, neededQuantity, null, null, null);
-                    oddao.addRequest(rf);
-                }
-            }
-            response.sendRedirect("/LaFioreria/requestFlower?orderId=" + orderId + "&orderItemId=" + orderItemId);
-            
-        }
-     
+        // ✅ Sau khi insert xong, redirect hoặc forward về trang nào đó
     }
 
     /**
