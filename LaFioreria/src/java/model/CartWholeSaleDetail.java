@@ -16,11 +16,12 @@ public class CartWholeSaleDetail {
     Integer pricePerUnit;
     Integer totalValue;
     Integer expense;
+    String request_group_id;
     
     public CartWholeSaleDetail() {
     }
 
-    public CartWholeSaleDetail(Integer cartWholeSaleID, Integer userID, Integer bouquetID, Integer quantity, Integer pricePerUnit, Integer totalValue, Integer expense) {
+    public CartWholeSaleDetail(Integer cartWholeSaleID, Integer userID, Integer bouquetID, Integer quantity, Integer pricePerUnit, Integer totalValue, Integer expense, String request_group_id) {
         this.cartWholeSaleID = cartWholeSaleID;
         this.userID = userID;
         this.bouquetID = bouquetID;
@@ -28,6 +29,7 @@ public class CartWholeSaleDetail {
         this.pricePerUnit = pricePerUnit;
         this.totalValue = totalValue;
         this.expense = expense;
+        this.request_group_id = request_group_id;
     }
 
 
@@ -87,9 +89,19 @@ public class CartWholeSaleDetail {
         this.expense = expense;
     }
 
+    public String getRequest_group_id() {
+        return request_group_id;
+    }
+
+    public void setRequest_group_id(String request_group_id) {
+        this.request_group_id = request_group_id;
+    }
+
     @Override
     public String toString() {
-        return "CartWholeSaleDetail{" + "cartWholeSaleID=" + cartWholeSaleID + ", userID=" + userID + ", bouquetID=" + bouquetID + ", quantity=" + quantity + ", pricePerUnit=" + pricePerUnit + ", totalValue=" + totalValue + ", expense=" + expense + '}';
+        return "CartWholeSaleDetail{" + "cartWholeSaleID=" + cartWholeSaleID + ", userID=" + userID + ", bouquetID=" + bouquetID + ", quantity=" + quantity + ", pricePerUnit=" + pricePerUnit + ", totalValue=" + totalValue + ", expense=" + expense + ", request_group_id=" + request_group_id + '}';
     }
+    
+    
     
 }

@@ -17,19 +17,21 @@ public class OrderItem {
     private double unitPrice;
     private double sellPrice;
     private String status;
-
+    private String request_group_id;
+    
     // Constructors, Getters & Setters
     public OrderItem() {
     }
 
-    public OrderItem(int orderId, int bouquetId, int quantity, double unitPrice) {
+    public OrderItem(int orderId, int bouquetId, int quantity, double unitPrice, double sellPrice) {
         this.orderId = orderId;
         this.bouquetId = bouquetId;
         this.quantity = quantity;
         this.unitPrice = unitPrice;
+        this.sellPrice = sellPrice;
     }
 
-    public OrderItem(int orderItemId, int orderId, int bouquetId, int quantity, double unitPrice, double sellPrice, String status) {
+    public OrderItem(int orderItemId, int orderId, int bouquetId, int quantity, double unitPrice, double sellPrice, String status, String request_group_id) {
         this.orderItemId = orderItemId;
         this.orderId = orderId;
         this.bouquetId = bouquetId;
@@ -37,6 +39,7 @@ public class OrderItem {
         this.unitPrice = unitPrice;
         this.sellPrice = sellPrice;
         this.status = status;
+        this.request_group_id = request_group_id;
     }
 
     public int getOrderItemId() {
@@ -95,9 +98,18 @@ public class OrderItem {
         this.sellPrice = sellPrice;
     }
 
-    @Override
-    public String toString() {
-        return "OrderItem{" + "orderItemId=" + orderItemId + ", orderId=" + orderId + ", bouquetId=" + bouquetId + ", quantity=" + quantity + ", unitPrice=" + unitPrice + ", status=" + status + '}';
+    public String getRequest_group_id() {
+        return request_group_id;
     }
 
+    public void setRequest_group_id(String request_group_id) {
+        this.request_group_id = request_group_id;
+    }   
+
+    @Override
+    public String toString() {
+        return "OrderItem{" + "orderItemId=" + orderItemId + ", orderId=" + orderId + ", bouquetId=" + bouquetId + ", quantity=" + quantity + ", unitPrice=" + unitPrice + ", sellPrice=" + sellPrice + ", status=" + status + ", request_group_id=" + request_group_id + '}';
+    }
+    
+    
 }

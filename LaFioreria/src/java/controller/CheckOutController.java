@@ -234,9 +234,9 @@ public class CheckOutController extends HttpServlet {
         System.out.println("DEBUG: Full Address: " + fullAddress);
 
         String totalSellStr = request.getParameter("totalAmount");
-        double actualTotalSell;
+        int actualTotalSell;
         try {
-            actualTotalSell = Double.parseDouble(totalSellStr);
+            actualTotalSell = Integer.parseInt(totalSellStr);
             System.out.println("DEBUG: Total Amount (parsed): " + actualTotalSell);
         } catch (NumberFormatException e) {
             System.err.println("ERROR: NumberFormatException for totalAmount: " + totalSellStr);
@@ -297,8 +297,10 @@ public class CheckOutController extends HttpServlet {
                         orderId,
                         cartItem.getBouquetId(),
                         cartItem.getQuantity(),
+                        cartItem.getBouquet().getPrice(),
                         cartItem.getBouquet().getSellPrice()
                 );
+
                 System.out.println("DEBUG: Attempting to insert order item for Bouquet ID: " + cartItem.getBouquetId());
                 cartDAO.insertOrderItem(orderItem);
                 System.out.println("DEBUG: Order item inserted successfully.");
@@ -598,6 +600,7 @@ public class CheckOutController extends HttpServlet {
                 orderItem.setQuantity(item.getQuantity());
                 orderItem.setUnitPrice(item.getExpense());
                 orderItem.setSellPrice(item.getPricePerUnit()); // Có thể là đơn giá bán theo lô
+                orderItem.setRequest_group_id(item.getRequest_group_id());
                 cartDAO.insertOrderItem(orderItem);
             }
 

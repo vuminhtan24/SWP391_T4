@@ -17,7 +17,11 @@ import model.FlowerType;
  * @author Admin
  */
 public class FlowerTypeDAO extends BaseDao {
-
+    
+    public static void main(String[] args) {
+        FlowerTypeDAO dao = new FlowerTypeDAO();
+        System.out.println(dao.getAllFlowerTypes());
+    }
     // Lấy tất cả loại hoa
     public List<FlowerType> getAllFlowerTypes() {
         List<FlowerType> list = new ArrayList<>();
