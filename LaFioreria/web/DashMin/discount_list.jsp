@@ -1,7 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<fmt:setLocale value="vi_VN" />
+<%-- Removed fmt:setLocale value="vi_VN" as we want English --%>
 
 <!DOCTYPE html>
 <html>
@@ -10,11 +10,10 @@
         <title>Discount Management</title>
         <link href="${pageContext.request.contextPath}/DashMin/css/bootstrap.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     </head>
     <body>
         <div class="container-fluid position-relative bg-white d-flex p-0">
-            <!-- Sidebar Start -->
             <div class="sidebar pe-4 pb-3">
                 <nav class="navbar bg-light navbar-light">
                     <a href="${pageContext.request.contextPath}/DashMin/admin.jsp" class="navbar-brand mx-4 mb-3">
@@ -98,21 +97,79 @@
                     </div>
                 </nav>
             </div>
-        </c:otherwise>    
+        </c:otherwise>  
     </c:choose>  
-    <!-- Sidebar End -->
-
-    <!-- Content Start -->
     <div class="content">
         <jsp:include page="/DashMin/navbar.jsp"/>
 
-        <!-- Discount Management Start -->
         <div class="container-fluid pt-4 px-4">
-            <div class="bg-light text-center rounded p-4">
+            <div class="bg-light rounded p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h6 class="mb-0">Discount Code Management</h6>
-                    <a href="${pageContext.request.contextPath}/addDiscount.jsp" class="btn btn-success">Add Discount</a>
                 </div>
+
+                <form action="${pageContext.request.contextPath}/discount" method="post"
+                      class="row gy-2 gx-2 bg-white border p-3 mb-4 rounded shadow-sm align-items-end">
+                    <input type="hidden" name="action" value="add"/>
+
+                    <div class="col-md-2">
+                        <label class="form-label small">Code</label>
+                        <input type="text" name="code" class="form-control form-control-sm" placeholder="ABC"
+                               value="${code != null ? code : ''}" required/>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Description</label>
+                        <input type="text" name="description" class="form-control form-control-sm"
+                               value="${description != null ? description : ''}" required/>
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label small">Type</label>
+                        <select name="type" class="form-select form-select-sm">
+                            <option value="PERCENT" ${type == 'PERCENT' ? 'selected' : ''}>%</option>
+                            <option value="FIXED" ${type == 'FIXED' ? 'selected' : ''}>₫</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label small">Value</label>
+                        <input type="number" name="value" class="form-control form-control-sm" step="0.01"
+                               value="${value != null ? value : ''}" required/>
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label small">Max</label>
+                        <input type="number" name="maxDiscount" class="form-control form-control-sm" step="0.01"
+                               value="${maxDiscount != null ? maxDiscount : ''}"/>
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label small">Min Order</label>
+                        <input type="number" name="minOrder" class="form-control form-control-sm" step="0.01"
+                               value="${minOrder != null ? minOrder : ''}"/>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Start Date</label>
+                        <input type="datetime-local" name="start" class="form-control form-control-sm"
+                               value="${start != null ? start : ''}" required/>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">End Date</label>
+                        <input type="datetime-local" name="end" class="form-control form-control-sm"
+                               value="${end != null ? end : ''}" required/>
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label small">Usage Limit</label>
+                        <input type="number" name="usageLimit" class="form-control form-control-sm"
+                               value="${usageLimit != null ? usageLimit : ''}"/>
+                    </div>
+                    <div class="col-md-1 d-grid">
+                        <button type="submit" class="btn btn-sm btn-primary">Add</button>
+                    </div>
+
+                    <!-- THÔNG BÁO LỖI -->
+                    <c:if test="${not empty error}">
+                        <div class="col-12">
+                            <div class="alert alert-danger mt-2 mb-0 py-2 px-3">${error}</div>
+                        </div>
+                    </c:if>
+                </form>
 
                 <c:if test="${not empty param.message}">
                     <div class="alert alert-info alert-dismissible fade show" role="alert">
@@ -120,10 +177,78 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 </c:if>
+                <c:if test="${not empty editDiscount}">
+                    <div class="card mb-4">
+                        <div class="card-header bg-warning text-white">
+                            <h5 class="mb-0">Chỉnh sửa mã giảm giá: ${editDiscount.code}</h5>
+                        </div>
+                        <div class="card-body">
+                            <form action="updateDiscount" method="post">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label>Mã</label>
+                                        <input type="text" name="code" class="form-control" value="${editDiscount.code}" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Mô tả</label>
+                                        <input type="text" name="description" class="form-control" value="${editDiscount.description}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Loại</label>
+                                        <select name="type" class="form-select">
+                                            <option value="PERCENT" ${editDiscount.type == 'PERCENT' ? 'selected' : ''}>Phần trăm</option>
+                                            <option value="AMOUNT" ${editDiscount.type == 'AMOUNT' ? 'selected' : ''}>Số tiền</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Giá trị</label>
+                                        <input type="number" step="0.01" name="value" class="form-control" value="${editDiscount.value}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Giảm tối đa</label>
+                                        <input type="number" step="0.01" name="maxDiscount" class="form-control" value="${editDiscount.maxDiscount}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Đơn hàng tối thiểu</label>
+                                        <input type="number" step="0.01" name="minOrderAmount" class="form-control" value="${editDiscount.minOrderAmount}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Ngày bắt đầu</label>
+                                        <input type="date" name="startDate" class="form-control"
+                                               value="${editDiscount.startDate.toLocalDateTime().toLocalDate()}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Ngày kết thúc</label>
+                                        <input type="date" name="endDate" class="form-control"
+                                               value="${editDiscount.endDate.toLocalDateTime().toLocalDate()}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Giới hạn lượt dùng</label>
+                                        <input type="number" name="usageLimit" class="form-control"
+                                               value="${editDiscount.usageLimit}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Kích hoạt</label>
+                                        <div class="form-check mt-2">
+                                            <input type="checkbox" name="active" class="form-check-input" id="activeCheck"
+                                                   ${editDiscount.active ? 'checked' : ''}>
+                                            <label class="form-check-label" for="activeCheck">Đang hoạt động</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button type="submit" class="btn btn-success">Lưu thay đổi</button>
+                                    <a href="discountManagement.jsp" class="btn btn-secondary">Huỷ</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </c:if>
 
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover text-start align-middle">
-                        <thead class="table-dark">
+                        <thead class="table-dark text-center">
                             <tr>
                                 <th>Code</th>
                                 <th>Description</th>
@@ -131,53 +256,71 @@
                                 <th>Value</th>
                                 <th>Max Discount</th>
                                 <th>Min Order</th>
-                                <th>Start</th>
-                                <th>End</th>
-                                <th>Used/Limit</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Usage</th>
                                 <th>Status</th>
-                                <th>Action</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:forEach var="dc" items="${discountCodes}">
-                                <tr>
+                                <tr class="text-center">
                                     <td>${dc.code}</td>
                                     <td>${dc.description}</td>
-                                    <td>${dc.type}</td>
+                                    <td>
+                                        <span class="badge bg-${dc.type == 'PERCENT' ? 'info' : 'warning'}">
+                                            ${dc.type == 'PERCENT' ? '%' : '₫'}
+                                        </span>
+                                    </td>
                                     <td>${dc.value}</td>
                                     <td><c:out value="${dc.maxDiscount != null ? dc.maxDiscount : '-'}"/></td>
                                     <td><c:out value="${dc.minOrderAmount != null ? dc.minOrderAmount : '-'}"/></td>
-                                    <td><fmt:formatDate value="${dc.startDate}" pattern="dd/MM/yyyy HH:mm" /></td>
-                                    <td><fmt:formatDate value="${dc.endDate}" pattern="dd/MM/yyyy HH:mm" /></td>
+                                    <td><fmt:formatDate value="${dc.startDate}" pattern="dd/MM/yyyy HH:mm"/></td>
+                                    <td><fmt:formatDate value="${dc.endDate}" pattern="dd/MM/yyyy HH:mm"/></td>
                                     <td>
-                                        <c:out value="${dc.usedCount}" /> /
-                                        <c:out value="${dc.usageLimit != null ? dc.usageLimit : '∞'}" />
+                                        ${dc.usedCount} /
+                                        <c:out value="${dc.usageLimit != null ? dc.usageLimit : '∞'}"/>
                                     </td>
                                     <td>
-                                        <span class="badge bg-${dc.active ? 'success' : 'secondary'}">
+                                        <span class="badge rounded-pill bg-${dc.active ? 'success' : 'secondary'}">
+                                            <i class="fas fa-${dc.active ? 'check' : 'times'} me-1"></i>
                                             ${dc.active ? 'Active' : 'Inactive'}
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="editDiscount?code=${dc.code}" class="btn btn-sm btn-info">Edit</a>
-                                        <a href="deactivateDiscount?code=${dc.code}" class="btn btn-sm btn-danger"
-                                           onclick="return confirm('Deactivate this code?');">Deactivate</a>
+                                        <a href="editDiscount?code=${dc.code}" class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="deactivateDiscount?code=${dc.code}" class="btn btn-sm btn-outline-danger"
+                                           title="Deactivate"
+                                           onclick="return confirm('Are you sure you want to deactivate this code?');">
+                                            <i class="fas fa-ban"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             </c:forEach>
                         </tbody>
                     </table>
+                    <c:if test="${totalPages > 1}">
+                        <nav class="mt-3">
+                            <ul class="pagination pagination-sm justify-content-end">
+                                <c:forEach var="i" begin="1" end="${totalPages}">
+                                    <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                        <a class="page-link" href="discount?page=${i}">${i}</a>
+                                    </li>
+                                </c:forEach>
+                            </ul>
+                        </nav>
+                    </c:if>
                 </div>
             </div>
         </div>
-        <!-- Discount Management End -->
-
-        <!-- Footer Start -->
         <div class="container-fluid pt-4 px-4">
             <div class="bg-light rounded-top p-4">
                 <div class="row">
                     <div class="col-12 col-sm-6 text-center text-sm-start">
-                        &copy; <a href="#">Your Site Name</a>, All Rights Reserved. 
+                        &copy; <a href="#">La Fioreria Admin</a>, All Rights Reserved.
                     </div>
                     <div class="col-12 col-sm-6 text-center text-sm-end">
                         Designed By <a href="https://htmlcodex.com">HTML Codex</a>
@@ -185,12 +328,9 @@
                 </div>
             </div>
         </div>
-        <!-- Footer End -->
     </div>
-    <!-- Content End -->
 </div>
 
-<!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
