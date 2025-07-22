@@ -15,11 +15,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects; // Import Objects để so sánh an toàn hơn
 import dal.DiscountCodeDAO;
+import dal.WholeSaleDAO;
 import jakarta.servlet.http.HttpSession;
+import model.Bouquet;
 import model.BouquetImage;
 import model.CartDetail;
 import model.CartWholeSaleDetail;
+<<<<<<< Updated upstream
 import model.CheckoutFormData; // Import model mới
+=======
+>>>>>>> Stashed changes
 import model.DiscountCode;
 import model.Order; // Import lớp Order
 import model.OrderItem; // Import lớp OrderItem
@@ -47,6 +52,8 @@ public class CheckOutController extends HttpServlet {
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
         List<CartDetail> cartDetails = new ArrayList<>();
         BouquetDAO bouDao = new BouquetDAO();
+        CartWholeSaleDAO cwsDao = new CartWholeSaleDAO();
+        String mode = request.getParameter("mode");
 
         // Xử lý giỏ hàng cho khách vãng lai (chưa đăng nhập)
         if (currentUser == null) {
@@ -73,6 +80,7 @@ public class CheckOutController extends HttpServlet {
             request.setAttribute("isGuest", true);
 
         } else { // Xử lý giỏ hàng cho người dùng đã đăng nhập
+            if(!mode.equalsIgnoreCase("wholesale")){
             try {
                 int customerId = currentUser.getUserid();
                 CartDAO cartDAO = new CartDAO();
@@ -91,11 +99,25 @@ public class CheckOutController extends HttpServlet {
                     }
                 }
 
+                double totalAmount = 0.0;
+                int totalItems = 0;
+
+                // Tính toán tổng số tiền và tổng số lượng item
+                for (CartDetail item : cartDetails) {
+                    totalItems += item.getQuantity();
+                    if (item.getBouquet() != null) {
+                        totalAmount += item.getQuantity() * item.getBouquet().getSellPrice(); // Sử dụng sellPrice
+                    }
+                }
+
+                request.setAttribute("totalItems", totalItems);
+                request.setAttribute("totalAmount", totalAmount); // Đặt totalAmount để JSP có thể truy cập
+
                 request.setAttribute("cartImages", bqImages);
                 request.setAttribute("cartDetails", cartDetails);
                 request.setAttribute("user", currentUser);
                 request.setAttribute("isGuest", false);
-                 
+
             } catch (Exception e) {
                 System.err.println("Lỗi khi tải giỏ hàng cho khách hàng " + currentUser.getUserid() + ": " + e.getMessage());
                 request.setAttribute("error", "Failed to load cart items");
@@ -103,7 +125,24 @@ public class CheckOutController extends HttpServlet {
                 request.setAttribute("user", currentUser);
                 request.setAttribute("isGuest", false);
             }
+        }else{  
+              // Đơn hàng theo lô
+                List<CartWholeSaleDetail> cartDetail = cwsDao.getCartWholeSaleByUser(currentUser.getUserid());
+                List<Bouquet> listBouquet = bouDao.getAll();
+                List<BouquetImage> images = bouDao.getAllBouquetImage();
+
+                int totalOrderValue = 0;
+                for (CartWholeSaleDetail item : cartDetail) {
+                    totalOrderValue += item.getTotalValue();
+                }  
+                
+                request.setAttribute("listCartWholeSale", cartDetail);
+                request.setAttribute("listBQ", listBouquet);
+                request.setAttribute("listIMG", images);
+                request.setAttribute("totalOrderValue", totalOrderValue);
+                }
         }
+<<<<<<< Updated upstream
 
         double totalAmount = 0.0;
         int totalItems = 0;
@@ -128,6 +167,10 @@ public class CheckOutController extends HttpServlet {
         }
 
 
+=======
+        
+        request.setAttribute("mode", mode);
+>>>>>>> Stashed changes
         request.getRequestDispatcher("./ZeShopper/checkout.jsp").forward(request, response);
     }
 
@@ -150,6 +193,7 @@ public class CheckOutController extends HttpServlet {
 
         HttpSession session = request.getSession();
         String action = request.getParameter("action");
+        String mode = request.getParameter("mode");
 
         if (action == null || action.isEmpty()) {
             // Nếu không có action, giả định đây là yêu cầu đặt hàng (placeOrder)
@@ -166,8 +210,13 @@ public class CheckOutController extends HttpServlet {
                     delete(request, response);
                     break;
                 case "placeOrder": // Case cho hành động đặt hàng
-                    processOrder(request, response);
-                    break;
+                    if(mode == null || mode.equals("retail")){
+                        processOrder(request, response);
+                        break;
+                    }else if(mode.equals("wholesale")){
+                        processWholesaleOrder(request, response);
+                        break;
+                    }
                 case "applyDiscount":
                     handleApplyDiscount(request, response, session);
                     break;
@@ -618,9 +667,14 @@ public class CheckOutController extends HttpServlet {
         // No explicit forward here, doPost will handle the doGet call
         return;
     }
+<<<<<<< Updated upstream
 
 
     private void processWholesaleOrder(HttpServletRequest request, HttpServletResponse response) throws IOException {
+=======
+    
+     private void processWholesaleOrder(HttpServletRequest request, HttpServletResponse response) throws IOException {
+>>>>>>> Stashed changes
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
 
         if (currentUser == null) {
@@ -671,7 +725,11 @@ public class CheckOutController extends HttpServlet {
 
         for (CartWholeSaleDetail item : cartItems) {
             totalSell += item.getTotalValue(); // Tổng tiền khách trả
+<<<<<<< Updated upstream
             totalImport += (item.getExpense() * item.getQuantity()); // Giá nhập
+=======
+            totalImport += item.getExpense(); // Giá nhập
+>>>>>>> Stashed changes
         }
 
         // Tạo đơn hàng
@@ -700,9 +758,14 @@ public class CheckOutController extends HttpServlet {
                 orderItem.setOrderId(orderId);
                 orderItem.setBouquetId(item.getBouquetID());
                 orderItem.setQuantity(item.getQuantity());
+<<<<<<< Updated upstream
                 orderItem.setUnitPrice(item.getExpense());
                 orderItem.setSellPrice(item.getPricePerUnit()); // Có thể là đơn giá bán theo lô
                 orderItem.setRequest_group_id(item.getRequest_group_id());
+=======
+                orderItem.setUnitPrice(item.getPricePerUnit());
+                orderItem.setSellPrice(item.getPricePerUnit()); // Có thể là đơn giá bán theo lô
+>>>>>>> Stashed changes
                 cartDAO.insertOrderItem(orderItem);
             }
 
@@ -725,5 +788,8 @@ public class CheckOutController extends HttpServlet {
             response.getWriter().write("{\"status\": \"error\", \"message\": \"Lỗi xử lý đơn hàng theo lô: " + e.getMessage() + "\"}");
         }
     }
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 }

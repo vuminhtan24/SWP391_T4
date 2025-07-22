@@ -206,12 +206,8 @@
                     <h4>Please correct the following errors:</h4>
                     <ul id="validation-errors"></ul>
                 </div>
-                <c:if test="${empty cartDetails}">
-                    <div class="review-payment">
-                        <h4>Nothing in your cart, so that you cannot checkout!</h4>
-                    </div>
-                </c:if>
-                <c:if test="${not empty cartDetails}">
+
+                <c:if test="${(param.mode eq 'retail' and not empty cartDetails) or (param.mode eq 'wholesale' and not empty listCartWholeSale)}">
                     <div class="register-req">
                         <p>You can login to track your order history, or continue with guest checkout!</p>
                     </div>
@@ -286,73 +282,115 @@
                         </div>
                     </div>
                 </c:if>
+                <c:if test="${(param.mode eq 'retail' and empty cartDetails) or (param.mode eq 'wholesale' and empty listCartWholeSale)}">
+                    <div class="review-payment">
+                        <h4>Nothing in your cart, so that you cannot checkout!</h4>
+                    </div>
+                </c:if>
                 <div class="review-payment">
                     <h2>Review & Payment</h2>
                 </div>
                 <div class="table-responsive cart_info">
-                    <c:if test="${empty cartDetails}">
-                        <div class="empty-cart">
-                            <i class="fa fa-shopping-cart fa-5x" style="color: #ccc;"></i>
-                            <h3>Your cart is empty</h3>
-                            <p>Add some beautiful bouquets to your cart to get started!</p>
-                            <a href="${pageContext.request.contextPath}/product" class="btn btn-primary">Continue Shopping</a>
-                        </div>
-                    </c:if>
-                    <c:if test="${not empty cartDetails}">
-                        <table class="table table-condensed">
-                            <thead>
-                                <tr class="cart_menu">
-                                    <td class="image">Item Detail</td>
-                                    <td class="description"></td>
-                                    <td class="price">Price</td>
-                                    <td class="quantity">Quantity</td>
-                                    <td class="total">Total</td>
-                                    <td></td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:set var="total" value="0"/>
-                                <c:forEach var="item" items="${cartDetails}">
-                                    <tr>
-                                        <td class="cart_product">
-                                            <c:forEach items="${cartImages}" var="imgLst" varStatus="loop">
-                                                <c:set var="count" value="1" />
-                                                <c:forEach items="${imgLst}" var="img">
-                                                    <c:if test="${img.bouquetId == item.bouquetId && count != 2}">
-                                                        <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}" alt="${item.bouquet.bouquetName}" width="100">
-                                                        <c:set var="count" value="2" />
-                                                    </c:if>
+                    <c:if test="${mode eq 'retail'}">
+                        <c:if test="${empty cartDetails}">
+                            <div class="empty-cart">
+                                <i class="fa fa-shopping-cart fa-5x" style="color: #ccc;"></i>
+                                <h3>Your cart is empty</h3>
+                                <p>Add some beautiful bouquets to your cart to get started!</p>
+                                <a href="${pageContext.request.contextPath}/product" class="btn btn-primary">Continue Shopping</a>
+                            </div>
+                        </c:if>
+                        <c:if test="${not empty cartDetails}">
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr class="cart_menu">
+                                        <td class="image">Item Detail</td>
+                                        <td class="description"></td>
+                                        <td class="price">Price</td>
+                                        <td class="quantity">Quantity</td>
+                                        <td class="total">Total</td>
+                                        <td></td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:set var="total" value="0"/>
+                                    <c:forEach var="item" items="${cartDetails}">
+                                        <tr>
+                                            <td class="cart_product">
+                                                <c:forEach items="${cartImages}" var="imgLst" varStatus="loop">
+                                                    <c:set var="count" value="1" />
+                                                    <c:forEach items="${imgLst}" var="img">
+                                                        <c:if test="${img.bouquetId == item.bouquetId && count != 2}">
+                                                            <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}" alt="${item.bouquet.bouquetName}" width="100">
+                                                            <c:set var="count" value="2" />
+                                                        </c:if>
+                                                    </c:forEach>
                                                 </c:forEach>
-                                            </c:forEach>
-                                        </td>
-                                        <td class="cart_description">
-                                            <h4>${item.bouquet.bouquetName}</h4>
-                                            <p>${item.bouquet.description}</p>
-                                        </td>
-                                        <td class="cart_price">
-                                            <p><fmt:formatNumber value="${item.bouquet.sellPrice}" pattern="#,##0" /> ₫</p>
-                                        </td>
-                                        <td class="cart_quantity">
-                                            <div class="cart_quantity_button">
-                                                <form action="checkout" method="post" style="display: flex;">
+                                            </td>
+                                            <td class="cart_description">
+                                                <h4>${item.bouquet.bouquetName}</h4>
+                                                <p>${item.bouquet.description}</p>
+                                            </td>
+                                            <td class="cart_price">
+                                                <p><fmt:formatNumber value="${item.bouquet.sellPrice}" pattern="#,##0" /> ₫</p>
+                                            </td>
+                                            <td class="cart_quantity">
+                                                <div class="cart_quantity_button">
+                                                    <form action="checkout" method="post" style="display: flex;">
+                                                        <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
+                                                        <input type="hidden" name="action" value="update">
+                                                        <input class="cart_quantity_input" type="number" name="quantity" value="${item.quantity}" min="1" style="width: 50px; text-align: center;">
+                                                        <button type="submit" class="btn btn-xs">Update</button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                            <td class="cart_total">
+                                                <p class="cart_total_price"><fmt:formatNumber value="${item.bouquet.sellPrice * item.quantity}" pattern="#,##0" /> ₫</p>
+                                            </td>
+                                            <td class="cart_delete">
+                                                <form action="checkout" method="post">
                                                     <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
-                                                    <input type="hidden" name="action" value="update">
-                                                    <input class="cart_quantity_input" type="number" name="quantity" value="${item.quantity}" min="1" style="width: 50px; text-align: center;">
-                                                    <button type="submit" class="btn btn-xs">Update</button>
+                                                    <input type="hidden" name="action" value="delete">
+                                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
                                                 </form>
-                                            </div>
-                                        </td>
-                                        <td class="cart_total">
-                                            <p class="cart_total_price"><fmt:formatNumber value="${item.bouquet.sellPrice * item.quantity}" pattern="#,##0" /> ₫</p>
-                                        </td>
-                                        <td class="cart_delete">
-                                            <form action="checkout" method="post">
-                                                <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
-                                                <input type="hidden" name="action" value="delete">
-                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
-                                            </form>
+                                            </td>
+                                        </tr>
+                                        <c:set var="total" value="${total + item.bouquet.sellPrice * item.quantity}"/>
+                                    </c:forEach>
+                                    <tr>
+                                        <c:set var="ship" value="30000"/>
+                                        <td colspan="4">&nbsp;</td>
+                                        <td colspan="2">
+                                            <table class="table table-condensed total-result">
+                                                <!-- NHẬP MÃ GIẢM GIÁ -->
+                                                <form action="checkout" method="post" id="discountForm">
+                                                    <input type="hidden" name="action" value="applyDiscount">
+                                                    <input type="text" name="discountCode" placeholder="Nhập mã giảm giá" id="discountCodeInput">
+                                                    <button type="submit">Áp dụng</button>
+                                                </form>
+
+                                                <tr>
+                                                    <td>Cart Subtotal</td>
+                                                    <td><p><fmt:formatNumber value="${total}" pattern="#,##0" /> ₫</p></td>
+                                                </tr>
+                                                <tr class="shipping-cost">
+                                                    <td>Shipping Fee</td>
+                                                    <td><fmt:formatNumber value="${ship}" pattern="#,##0" /> ₫</td>										
+                                                </tr>
+                                                <c:if test="${not empty calculatedDiscountAmount}">
+                                                    <tr>
+                                                        <td>Discount:</td>
+                                                        <td>- <fmt:formatNumber value="${calculatedDiscountAmount}" pattern="#,##0" />₫</td>
+                                                    </tr>
+                                                </c:if>
+                                                <tr>
+                                                    <td>Total</td>
+                                                    <td><span id="orderFinalTotal"><p><fmt:formatNumber value="${(not empty finalOrderTotal) ? finalOrderTotal : (total + ship)}" pattern="#,##0" /> ₫</p></span></td>
+                                                </tr>
+                                            </table>
                                         </td>
                                     </tr>
+<<<<<<< Updated upstream
                                     <c:set var="total" value="${total + item.bouquet.sellPrice * item.quantity}"/>
                                 </c:forEach>
                                 <tr>
@@ -402,8 +440,18 @@
                                 </tr>
                             </tbody>
                         </table>
+=======
+                                </tbody>
+                            </table>
+                        </c:if>
+>>>>>>> Stashed changes
                     </c:if>
+
+                    <c:if test="${mode eq 'wholesale'}">
+                        <jsp:include page="checkout-wholesale.jsp" />
+                    </c:if>    
                 </div>
+<<<<<<< Updated upstream
                 <c:if test="${not empty cartDetails}">
                     <div class="payment-options">
                         <span>
@@ -418,11 +466,46 @@
                         <button class="btn btn-primary" onclick="submitOrder()" id="place-order-btn">Place Order</button>
                     </div>
                 </c:if>
+=======
+                <c:choose>
+
+                    <c:when test="${param.mode eq 'retail' and not empty cartDetails}">
+                        <div class="payment-options">
+                            <span>
+                                <label><input name="paymentMethod" type="radio" value="cod" id="payment-cod"> Cash on Delivery (COD)</label>
+                            </span>
+                            <span>
+                                <label><input name="paymentMethod" type="radio" value="vietqr" id="payment-vietqr"> VietQR (Chuyển khoản bằng mã QR)</label>
+                            </span>
+                            <div class="error-message" id="payment-error"></div>
+                        </div>
+                        <div class="text-right">
+                            <button class="btn btn-primary" onclick="submitOrder()" id="place-order-btn">Place Order</button>
+                        </div>
+                    </c:when>
+
+
+                    <c:when test="${param.mode eq 'wholesale' and not empty listCartWholeSale}">
+                        <div class="payment-options">
+                            <span>
+                                <label><input name="paymentMethod" type="radio" value="cod" id="payment-cod"> Cash on Delivery (COD)</label>
+                            </span>
+                            <span>
+                                <label><input name="paymentMethod" type="radio" value="vietqr" id="payment-vietqr"> VietQR (Chuyển khoản bằng mã QR)</label>
+                            </span>
+                            <div class="error-message" id="payment-error"></div>
+                        </div>
+                        <div class="text-right">
+                            <button class="btn btn-primary" onclick="submitOrder()" id="place-order-btn">Place Order</button>
+                        </div>
+                    </c:when>
+                </c:choose>
+>>>>>>> Stashed changes
             </div>
         </section> 
         <jsp:include page="/ZeShopper/footer.jsp"/> 
         <div id="success-popup" class=""></div>
-        
+
         <script src="${pageContext.request.contextPath}/ZeShopper/js/bootstrap.min.js"></script>
         <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.scrollUp.min.js"></script>
         <script src="${pageContext.request.contextPath}/ZeShopper/js/jquery.prettyPhoto.js"></script>
@@ -430,336 +513,128 @@
         <script src="${pageContext.request.contextPath}/ZeShopper/js/contact.js"></script>
         <script src="${pageContext.request.contextPath}/ZeShopper/js/main.js"></script>
         <script>
-            // Declare JavaScript variables to hold messages from server-side
-            let successMessage = "${successMessage}";
-            let errorMessage = "${errorMessage}";
-            let discountSuccess = "${discountSuccess}";
-            let discountError = "${discountError}";
-            let orderSuccess = "${orderSuccess}";
-            let orderError = "${orderError}";
+                                // Declare JavaScript variables to hold messages from server-side
+                                let successMessage = "${successMessage}";
+                                let errorMessage = "${errorMessage}";
+                                let discountSuccess = "${discountSuccess}";
+                                let discountError = "${discountError}";
+                                let orderSuccess = "${orderSuccess}";
+                                let orderError = "${orderError}";
 
-            $(document).ready(function() {
-                // Display messages from server on page load
-                if (successMessage && successMessage !== "null") {
-                    showPopup(successMessage, 'success');
-                }
-                if (errorMessage && errorMessage !== "null") {
-                    showPopup(errorMessage, 'error');
-                }
-                if (discountSuccess && discountSuccess !== "null") {
-                    showPopup(discountSuccess, 'success');
-                }
-                if (discountError && discountError !== "null") {
-                    showPopup(discountError, 'error');
-                }
-                if (orderSuccess && orderSuccess !== "null") {
-                    showPopup(orderSuccess, 'success');
-                }
-                if (orderError && orderError !== "null") {
-                    showPopup(orderError, 'error');
-                }
-            });
+                                $(document).ready(function () {
+                                    // Display messages from server on page load
+                                    if (successMessage && successMessage !== "null") {
+                                        showPopup(successMessage, 'success');
+                                    }
+                                    if (errorMessage && errorMessage !== "null") {
+                                        showPopup(errorMessage, 'error');
+                                    }
+                                    if (discountSuccess && discountSuccess !== "null") {
+                                        showPopup(discountSuccess, 'success');
+                                    }
+                                    if (discountError && discountError !== "null") {
+                                        showPopup(discountError, 'error');
+                                    }
+                                    if (orderSuccess && orderSuccess !== "null") {
+                                        showPopup(orderSuccess, 'success');
+                                    }
+                                    if (orderError && orderError !== "null") {
+                                        showPopup(orderError, 'error');
+                                    }
+                                });
 
-            function submitOrder() {
-                if (!validateForm()) {
-                    showPopup('Vui lòng điền đầy đủ và đúng thông tin trong biểu mẫu.', 'error');
-                    return;
-                }
+                                function submitOrder() {
+                                    const urlParams = new URLSearchParams(window.location.search);
+                                    const mode = urlParams.get('mode') || 'retail'; // mặc định là retail
 
-                const paymentMethod = $('input[name="paymentMethod"]:checked').val();
-                if (!paymentMethod) {
-                    showPopup('Vui lòng chọn phương thức thanh toán.', 'error');
-                    return;
-                }
+                                    if (!validateForm()) {
+                                        showPopup('Vui lòng điền đầy đủ và đúng thông tin trong biểu mẫu.', 'error');
+                                        return;
+                                    }
 
-                $('#place-order-btn').prop('disabled', true).text('Đang xử lý...');
+                                    const paymentMethod = $('input[name="paymentMethod"]:checked').val();
+                                    if (!paymentMethod) {
+                                        showPopup('Vui lòng chọn phương thức thanh toán.', 'error');
+                                        return;
+                                    }
 
-                // Lấy tổng số tiền từ UI (đảm bảo phần tử này có ID orderFinalTotal)
-                const totalAmountText = $('#orderFinalTotal').text();
-                let totalAmount = 0;
-                try {
-                    // Loại bỏ ký tự tiền tệ và dấu phân cách hàng nghìn, sau đó chuyển đổi
-                    // Chấp nhận cả dấu chấm và dấu phẩy là dấu phân cách thập phân
-                    let cleanedText = totalAmountText.replace(/₫/g, '').trim(); // Xóa ký tự tiền tệ
-                    // Kiểm tra xem có dấu phẩy nào là dấu thập phân không
-                    if (cleanedText.includes(',')) {
-                        // Nếu có cả dấu chấm và dấu phẩy, và dấu phẩy đứng sau dấu chấm,
-                        // thì dấu chấm là phân cách hàng nghìn, dấu phẩy là thập phân.
-                        // VD: 1.234.567,89 -> 1234567.89
-                        if (cleanedText.includes('.') && cleanedText.indexOf(',') > cleanedText.indexOf('.')) {
-                            cleanedText = cleanedText.replace(/\./g, ''); // Loại bỏ dấu chấm hàng nghìn
-                            cleanedText = cleanedText.replace(/,/g, '.'); // Đổi phẩy thập phân thành chấm
-                        } else { // Chỉ có dấu phẩy, coi là thập phân hoặc hàng nghìn tùy chuẩn
-                            // Để an toàn, nếu chỉ có dấu phẩy, coi là thập phân nếu không có dấu chấm
-                            // Hoặc nếu nó là dấu phân cách hàng nghìn (ví dụ: "1,234") -> "1234"
-                            // Giả định chuẩn Việt Nam, phẩy là thập phân, chấm là hàng nghìn.
-                            // Nhưng nếu dữ liệu đầu vào là "1,234" (nghìn) cần xử lý khác.
-                            // Cách đơn giản nhất: loại bỏ tất cả dấu chấm, thay phẩy bằng chấm.
-                            cleanedText = cleanedText.replace(/\./g, ''); // Loại bỏ dấu chấm
-                            cleanedText = cleanedText.replace(/,/g, '.'); // Thay dấu phẩy bằng dấu chấm
-                        }
-                    } else {
-                        // Nếu không có dấu phẩy, chỉ loại bỏ dấu chấm (nếu là dấu phân cách hàng nghìn)
-                        // VD: 1.234.567 -> 1234567
-                        cleanedText = cleanedText.replace(/\./g, '');
-                    }
+                                    $('#place-order-btn').prop('disabled', true).text('Đang xử lý...');
 
-                    totalAmount = parseFloat(cleanedText);
+                                    // Lấy tổng số tiền từ UI (đảm bảo phần tử này có ID orderFinalTotal)
+                                    const totalAmountText = $('#orderFinalTotal').text();
+                                    let totalAmount = 0;
+                                    try {
+                                        // Loại bỏ ký tự tiền tệ và dấu phân cách hàng nghìn, sau đó chuyển đổi
+                                        // Chấp nhận cả dấu chấm và dấu phẩy là dấu phân cách thập phân
+                                        let cleanedText = totalAmountText.replace(/₫/g, '').trim(); // Xóa ký tự tiền tệ
+                                        // Kiểm tra xem có dấu phẩy nào là dấu thập phân không
+                                        if (cleanedText.includes(',')) {
+                                            // Nếu có cả dấu chấm và dấu phẩy, và dấu phẩy đứng sau dấu chấm,
+                                            // thì dấu chấm là phân cách hàng nghìn, dấu phẩy là thập phân.
+                                            // VD: 1.234.567,89 -> 1234567.89
+                                            if (cleanedText.includes('.') && cleanedText.indexOf(',') > cleanedText.indexOf('.')) {
+                                                cleanedText = cleanedText.replace(/\./g, ''); // Loại bỏ dấu chấm hàng nghìn
+                                                cleanedText = cleanedText.replace(/,/g, '.'); // Đổi phẩy thập phân thành chấm
+                                            } else { // Chỉ có dấu phẩy, coi là thập phân hoặc hàng nghìn tùy chuẩn
+                                                // Để an toàn, nếu chỉ có dấu phẩy, coi là thập phân nếu không có dấu chấm
+                                                // Hoặc nếu nó là dấu phân cách hàng nghìn (ví dụ: "1,234") -> "1234"
+                                                // Giả định chuẩn Việt Nam, phẩy là thập phân, chấm là hàng nghìn.
+                                                // Nhưng nếu dữ liệu đầu vào là "1,234" (nghìn) cần xử lý khác.
+                                                // Cách đơn giản nhất: loại bỏ tất cả dấu chấm, thay phẩy bằng chấm.
+                                                cleanedText = cleanedText.replace(/\./g, ''); // Loại bỏ dấu chấm
+                                                cleanedText = cleanedText.replace(/,/g, '.'); // Thay dấu phẩy bằng dấu chấm
+                                            }
+                                        } else {
+                                            // Nếu không có dấu phẩy, chỉ loại bỏ dấu chấm (nếu là dấu phân cách hàng nghìn)
+                                            // VD: 1.234.567 -> 1234567
+                                            cleanedText = cleanedText.replace(/\./g, '');
+                                        }
 
-                    if (isNaN(totalAmount)) {
-                        throw new Error("Không thể chuyển đổi tổng tiền thành số.");
-                    }
-                } catch (e) {
-                    console.error("Lỗi khi chuyển đổi totalAmount:", e);
-                    showPopup('Lỗi tính toán tổng tiền. Vui lòng thử lại.', 'error');
-                    $('#place-order-btn').prop('disabled', false).text('Place Order');
-                    return;
-                }
+                                        totalAmount = parseFloat(cleanedText);
 
-                const orderData = {
-                    action: 'placeOrder',
-                    email: $('#email-input').val().trim(),
-                    fullName: $('#fullname-input').val().trim(),
-                    addressLine: $('#address-input').val().trim(),
-                    province: $('#provinceCitySelect option:selected').text(), // Gửi tên tỉnh
-                    district: $('#districtSelect option:selected').text(), // Gửi tên huyện
-                    ward: $('#wardSelect option:selected').text(), // Gửi tên xã/phường
-                    phoneNumber: $('#phone-input').val().trim(),
-                    notes: $('#notes-input').val().trim(),
-                    paymentMethod: paymentMethod, // Gửi phương thức thanh toán
-                    totalAmount: totalAmount      // Gửi tổng số tiền đã parse (sẽ được điều chỉnh ở server)
-                };
+                                        if (isNaN(totalAmount)) {
+                                            throw new Error("Không thể chuyển đổi tổng tiền thành số.");
+                                        }
+                                    } catch (e) {
+                                        console.error("Lỗi khi chuyển đổi totalAmount:", e);
+                                        showPopup('Lỗi tính toán tổng tiền. Vui lòng thử lại.', 'error');
+                                        $('#place-order-btn').prop('disabled', false).text('Place Order');
+                                        return;
+                                    }
 
-                console.log('DEBUG: Dữ liệu gửi đi:', orderData); // In ra để kiểm tra
+                                    const orderData = {
+                                        action: 'placeOrder',
+                                        mode: mode,
+                                        email: $('#email-input').val().trim(),
+                                        fullName: $('#fullname-input').val().trim(),
+                                        addressLine: $('#address-input').val().trim(),
+                                        province: $('#provinceCitySelect option:selected').text(), // Gửi tên tỉnh
+                                        district: $('#districtSelect option:selected').text(), // Gửi tên huyện
+                                        ward: $('#wardSelect option:selected').text(), // Gửi tên xã/phường
+                                        province: $('#provinceCitySelect option:selected').text(),
+                                        district: $('#districtSelect option:selected').text(),
+                                        ward: $('#wardSelect option:selected').text(),
+                                        phoneNumber: $('#phone-input').val().trim(),
+                                        notes: $('#notes-input').val().trim(),
+                                        paymentMethod: paymentMethod,
+                                        totalAmount: totalAmount
+                                    };
 
-                // Use a standard form submission for placeOrder to allow server-side redirect/forward
-                // This removes the AJAX call for placeOrder and relies on traditional form submission
-                const form = $('<form action="${pageContext.request.contextPath}/checkout" method="post"></form>');
-                for (const key in orderData) {
-                    if (orderData.hasOwnProperty(key)) {
-                        form.append($('<input type="hidden" name="' + key + '" value="' + orderData[key] + '" />'));
-                    }
-                }
-                $('body').append(form);
-                form.submit();
-            }
+                                    console.log('DEBUG: Dữ liệu gửi đi:', orderData); // In ra để kiểm tra
 
-            const ValidationUtils = {
-                isValidEmail: function (email) {
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    return emailRegex.test(email);
-                },
-                isValidPhoneNumber: function (phone) {
-                    const phoneRegex = /^0[3|5|7|8|9][0-9]{8,9}$/;
-                    return phoneRegex.test(phone.replace(/\s+/g, ''));
-                },
-                isValidName: function (name) {
-                    const nameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵýỷỹ\s]+$/;
-                    return nameRegex.test(name) && name.trim().length >= 2;
-                },
-                showError: function (fieldId, message) {
-                    const field = document.getElementById(fieldId);
-                    const errorDiv = document.getElementById(fieldId.replace('-input', '') + '-error');
-                    if (field) {
-                        field.classList.add('input-error');
-                        field.classList.remove('input-valid');
-                    }
-                    if (errorDiv) {
-                        errorDiv.textContent = message;
-                        errorDiv.style.display = 'block';
-                    }
-                },
-                showSuccess: function (fieldId) {
-                    const field = document.getElementById(fieldId);
-                    const errorDiv = document.getElementById(fieldId.replace('-input', '') + '-error');
-                    if (field) {
-                        field.classList.add('input-valid');
-                        field.classList.remove('input-error');
-                    }
-                    if (errorDiv) {
-                        errorDiv.style.display = 'none';
-                    }
-                },
-                clearValidation: function (fieldId) {
-                    const field = document.getElementById(fieldId);
-                    const errorDiv = document.getElementById(fieldId.replace('-input', '') + '-error');
-                    if (field) {
-                        field.classList.remove('input-error', 'input-valid');
-                    }
-                    if (errorDiv) {
-                        errorDiv.style.display = 'none';
-                    }
-                }
-            };
-            function setupRealTimeValidation() {
-                $('#email-input').on('blur', function () {
-                    const email = $(this).val().trim();
-                    if (!email) {
-                        ValidationUtils.showError('email-input', 'Email is required');
-                    } else if (!ValidationUtils.isValidEmail(email)) {
-                        ValidationUtils.showError('email-input', 'Please enter a valid email address');
-                    } else {
-                        ValidationUtils.showSuccess('email-input');
-                    }
-                });
-                $('#fullname-input').on('blur', function () {
-                    const fullName = $(this).val().trim();
-                    if (!fullName) {
-                        ValidationUtils.showError('fullname-input', 'Full name is required');
-                    } else if (!ValidationUtils.isValidName(fullName)) {
-                        ValidationUtils.showError('fullname-input', 'Please enter a valid name (at least 2 characters)');
-                    } else {
-                        ValidationUtils.showSuccess('fullname-input');
-                    }
-                });
-                $('#address-input').on('blur', function () {
-                    const address = $(this).val().trim();
-                    if (!address) {
-                        ValidationUtils.showError('address-input', 'Address is required');
-                    } else if (address.length < 10) {
-                        ValidationUtils.showError('address-input', 'Please enter a more detailed address (at least 10 characters)');
-                    } else {
-                        ValidationUtils.showSuccess('address-input');
-                    }
-                });
-                $('#phone-input').on('blur', function () {
-                    const phone = $(this).val().trim();
-                    if (!phone) {
-                        ValidationUtils.showError('phone-input', 'Phone number is required');
-                    } else if (!ValidationUtils.isValidPhoneNumber(phone)) {
-                        ValidationUtils.showError('phone-input', 'Please enter a valid Vietnamese phone number (e.g., 0901234567)');
-                    } else {
-                        ValidationUtils.showSuccess('phone-input');
-                    }
-                });
-                $('#provinceCitySelect').on('change', function () {
-                    const province = $(this).val();
-                    if (!province) {
-                        ValidationUtils.showError('provinceCitySelect', 'Please select a province/city');
-                    } else {
-                        ValidationUtils.showSuccess('provinceCitySelect');
-                    }
-                });
-                $('#districtSelect').on('change', function () {
-                    const district = $(this).val();
-                    if (!district && !$(this).prop('disabled')) {
-                        ValidationUtils.showError('districtSelect', 'Please select a district');
-                    } else if (district) {
-                        ValidationUtils.showSuccess('districtSelect');
-                    }
-                });
-                $('#wardSelect').on('change', function () {
-                    const ward = $(this).val();
-                    if (!ward && !$(this).prop('disabled')) {
-                        ValidationUtils.showError('wardSelect', 'Please select a ward/commune');
-                    } else if (ward) {
-                        ValidationUtils.showSuccess('wardSelect');
-                    }
-                });
-                $('input[name="paymentMethod"]').on('change', function () {
-                    if ($('input[name="paymentMethod"]:checked').length > 0) {
-                        $('#payment-error').hide();
-                    }
-                });
-            }
-            function validateForm() {
-                let isValid = true;
-                const errors = [];
-                const email = $('#email-input').val().trim();
-                if (!email) {
-                    ValidationUtils.showError('email-input', 'Email is required');
-                    errors.push('Email is required');
-                    isValid = false;
-                } else if (!ValidationUtils.isValidEmail(email)) {
-                    ValidationUtils.showError('email-input', 'Please enter a valid email address');
-                    errors.push('Please enter a valid email address');
-                    isValid = false;
-                } else {
-                    ValidationUtils.showSuccess('email-input');
-                }
-                const fullName = $('#fullname-input').val().trim();
-                if (!fullName) {
-                    ValidationUtils.showError('fullname-input', 'Full name is required');
-                    errors.push('Full name is required');
-                    isValid = false;
-                } else if (!ValidationUtils.isValidName(fullName)) {
-                    ValidationUtils.showError('fullname-input', 'Please enter a valid name');
-                    errors.push('Please enter a valid full name');
-                    isValid = false;
-                } else {
-                    ValidationUtils.showSuccess('fullname-input');
-                }
-                const address = $('#address-input').val().trim();
-                if (!address) {
-                    ValidationUtils.showError('address-input', 'Address is required');
-                    errors.push('Address is required');
-                    isValid = false;
-                } else if (address.length < 10) {
-                    ValidationUtils.showError('address-input', 'Please enter a more detailed address');
-                    errors.push('Please enter a more detailed address');
-                    isValid = false;
-                } else {
-                    ValidationUtils.showSuccess('address-input');
-                }
-                const province = $('#provinceCitySelect').val();
-                if (!province) {
-                    ValidationUtils.showError('provinceCitySelect', 'Please select a province/city');
-                    errors.push('Province/City is required');
-                    isValid = false;
-                } else {
-                    ValidationUtils.showSuccess('provinceCitySelect');
-                }
-                const district = $('#districtSelect').val();
-                if (!district && !$('#districtSelect').prop('disabled')) {
-                    ValidationUtils.showError('districtSelect', 'Please select a district');
-                    errors.push('District is required');
-                    isValid = false;
-                } else if (district) {
-                    ValidationUtils.showSuccess('districtSelect');
-                }
-                const ward = $('#wardSelect').val();
-                if (!ward && !$('#wardSelect').prop('disabled')) {
-                    ValidationUtils.showError('wardSelect', 'Please select a ward/commune');
-                    errors.push('Ward/Commune is required');
-                    isValid = false;
-                } else if (ward) {
-                    ValidationUtils.showSuccess('wardSelect');
-                }
-                const phone = $('#phone-input').val().trim();
-                if (!phone) {
-                    ValidationUtils.showError('phone-input', 'Phone number is required');
-                    errors.push('Phone number is required');
-                    isValid = false;
-                } else if (!ValidationUtils.isValidPhoneNumber(phone)) {
-                    ValidationUtils.showError('phone-input', 'Please enter a valid phone number');
-                    errors.push('Please enter a valid Vietnamese phone number');
-                    isValid = false;
-                } else {
-                    ValidationUtils.showSuccess('phone-input');
-                }
-                const paymentMethod = $('input[name="paymentMethod"]:checked').val();
-                if (!paymentMethod) {
-                    $('#payment-error').text('Please select a payment method').show();
-                    errors.push('Payment method is required');
-                    isValid = false;
-                } else {
-                    $('#payment-error').hide();
-                }
-                if (errors.length > 0) {
-                    $('#validation-errors').empty();
-                    errors.forEach(error => {
-                        $('#validation-errors').append('<li>' + error + '</li>');
-                    });
-                    $('#validation-summary').show();
-                    $('html, body').animate({
-                        scrollTop: $('#validation-summary').offset().top - 100
-                    }, 500);
-                } else {
-                    $('#validation-summary').hide();
-                }
-                return isValid;
-            }
+                                    // Use a standard form submission for placeOrder to allow server-side redirect/forward
+                                    // This removes the AJAX call for placeOrder and relies on traditional form submission
+                                    const form = $('<form action="${pageContext.request.contextPath}/checkout" method="post"></form>');
+                                    for (const key in orderData) {
+                                        if (orderData.hasOwnProperty(key)) {
+                                            form.append($('<input type="hidden" name="' + key + '" value="' + orderData[key] + '" />'));
+                                        }
+                                    }
+                                    $('body').append(form);
+                                    form.submit();
+                                }
 
+<<<<<<< Updated upstream
             $(document).ready(function () {
                 let provincesData = {};
                 let districtsData = {};
@@ -985,6 +860,401 @@
                         $('#ship-to-billing').prop('checked', data.shipToBilling);
                 }
             };
+=======
+                                const ValidationUtils = {
+                                    isValidEmail: function (email) {
+                                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                        return emailRegex.test(email);
+                                    },
+                                    isValidPhoneNumber: function (phone) {
+                                        const phoneRegex = /^0[3|5|7|8|9][0-9]{8,9}$/;
+                                        return phoneRegex.test(phone.replace(/\s+/g, ''));
+                                    },
+                                    isValidName: function (name) {
+                                        const nameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵýỷỹ\s]+$/;
+                                        return nameRegex.test(name) && name.trim().length >= 2;
+                                    },
+                                    showError: function (fieldId, message) {
+                                        const field = document.getElementById(fieldId);
+                                        const errorDiv = document.getElementById(fieldId.replace('-input', '') + '-error');
+                                        if (field) {
+                                            field.classList.add('input-error');
+                                            field.classList.remove('input-valid');
+                                        }
+                                        if (errorDiv) {
+                                            errorDiv.textContent = message;
+                                            errorDiv.style.display = 'block';
+                                        }
+                                    },
+                                    showSuccess: function (fieldId) {
+                                        const field = document.getElementById(fieldId);
+                                        const errorDiv = document.getElementById(fieldId.replace('-input', '') + '-error');
+                                        if (field) {
+                                            field.classList.add('input-valid');
+                                            field.classList.remove('input-error');
+                                        }
+                                        if (errorDiv) {
+                                            errorDiv.style.display = 'none';
+                                        }
+                                    },
+                                    clearValidation: function (fieldId) {
+                                        const field = document.getElementById(fieldId);
+                                        const errorDiv = document.getElementById(fieldId.replace('-input', '') + '-error');
+                                        if (field) {
+                                            field.classList.remove('input-error', 'input-valid');
+                                        }
+                                        if (errorDiv) {
+                                            errorDiv.style.display = 'none';
+                                        }
+                                    }
+                                };
+                                function setupRealTimeValidation() {
+                                    $('#email-input').on('blur', function () {
+                                        const email = $(this).val().trim();
+                                        if (!email) {
+                                            ValidationUtils.showError('email-input', 'Email is required');
+                                        } else if (!ValidationUtils.isValidEmail(email)) {
+                                            ValidationUtils.showError('email-input', 'Please enter a valid email address');
+                                        } else {
+                                            ValidationUtils.showSuccess('email-input');
+                                        }
+                                    });
+                                    $('#fullname-input').on('blur', function () {
+                                        const fullName = $(this).val().trim();
+                                        if (!fullName) {
+                                            ValidationUtils.showError('fullname-input', 'Full name is required');
+                                        } else if (!ValidationUtils.isValidName(fullName)) {
+                                            ValidationUtils.showError('fullname-input', 'Please enter a valid name (at least 2 characters)');
+                                        } else {
+                                            ValidationUtils.showSuccess('fullname-input');
+                                        }
+                                    });
+                                    $('#address-input').on('blur', function () {
+                                        const address = $(this).val().trim();
+                                        if (!address) {
+                                            ValidationUtils.showError('address-input', 'Address is required');
+                                        } else if (address.length < 10) {
+                                            ValidationUtils.showError('address-input', 'Please enter a more detailed address (at least 10 characters)');
+                                        } else {
+                                            ValidationUtils.showSuccess('address-input');
+                                        }
+                                    });
+                                    $('#phone-input').on('blur', function () {
+                                        const phone = $(this).val().trim();
+                                        if (!phone) {
+                                            ValidationUtils.showError('phone-input', 'Phone number is required');
+                                        } else if (!ValidationUtils.isValidPhoneNumber(phone)) {
+                                            ValidationUtils.showError('phone-input', 'Please enter a valid Vietnamese phone number (e.g., 0901234567)');
+                                        } else {
+                                            ValidationUtils.showSuccess('phone-input');
+                                        }
+                                    });
+                                    $('#provinceCitySelect').on('change', function () {
+                                        const province = $(this).val();
+                                        if (!province) {
+                                            ValidationUtils.showError('provinceCitySelect', 'Please select a province/city');
+                                        } else {
+                                            ValidationUtils.showSuccess('provinceCitySelect');
+                                        }
+                                    });
+                                    $('#districtSelect').on('change', function () {
+                                        const district = $(this).val();
+                                        if (!district && !$(this).prop('disabled')) {
+                                            ValidationUtils.showError('districtSelect', 'Please select a district');
+                                        } else if (district) {
+                                            ValidationUtils.showSuccess('districtSelect');
+                                        }
+                                    });
+                                    $('#wardSelect').on('change', function () {
+                                        const ward = $(this).val();
+                                        if (!ward && !$(this).prop('disabled')) {
+                                            ValidationUtils.showError('wardSelect', 'Please select a ward/commune');
+                                        } else if (ward) {
+                                            ValidationUtils.showSuccess('wardSelect');
+                                        }
+                                    });
+                                    $('input[name="paymentMethod"]').on('change', function () {
+                                        if ($('input[name="paymentMethod"]:checked').length > 0) {
+                                            $('#payment-error').hide();
+                                        }
+                                    });
+                                }
+                                function validateForm() {
+                                    let isValid = true;
+                                    const errors = [];
+                                    const email = $('#email-input').val().trim();
+                                    if (!email) {
+                                        ValidationUtils.showError('email-input', 'Email is required');
+                                        errors.push('Email is required');
+                                        isValid = false;
+                                    } else if (!ValidationUtils.isValidEmail(email)) {
+                                        ValidationUtils.showError('email-input', 'Please enter a valid email address');
+                                        errors.push('Please enter a valid email address');
+                                        isValid = false;
+                                    } else {
+                                        ValidationUtils.showSuccess('email-input');
+                                    }
+                                    const fullName = $('#fullname-input').val().trim();
+                                    if (!fullName) {
+                                        ValidationUtils.showError('fullname-input', 'Full name is required');
+                                        errors.push('Full name is required');
+                                        isValid = false;
+                                    } else if (!ValidationUtils.isValidName(fullName)) {
+                                        ValidationUtils.showError('fullname-input', 'Please enter a valid name');
+                                        errors.push('Please enter a valid full name');
+                                        isValid = false;
+                                    } else {
+                                        ValidationUtils.showSuccess('fullname-input');
+                                    }
+                                    const address = $('#address-input').val().trim();
+                                    if (!address) {
+                                        ValidationUtils.showError('address-input', 'Address is required');
+                                        errors.push('Address is required');
+                                        isValid = false;
+                                    } else if (address.length < 10) {
+                                        ValidationUtils.showError('address-input', 'Please enter a more detailed address');
+                                        errors.push('Please enter a more detailed address');
+                                        isValid = false;
+                                    } else {
+                                        ValidationUtils.showSuccess('address-input');
+                                    }
+                                    const province = $('#provinceCitySelect').val();
+                                    if (!province) {
+                                        ValidationUtils.showError('provinceCitySelect', 'Please select a province/city');
+                                        errors.push('Province/City is required');
+                                        isValid = false;
+                                    } else {
+                                        ValidationUtils.showSuccess('provinceCitySelect');
+                                    }
+                                    const district = $('#districtSelect').val();
+                                    if (!district && !$('#districtSelect').prop('disabled')) {
+                                        ValidationUtils.showError('districtSelect', 'Please select a district');
+                                        errors.push('District is required');
+                                        isValid = false;
+                                    } else if (district) {
+                                        ValidationUtils.showSuccess('districtSelect');
+                                    }
+                                    const ward = $('#wardSelect').val();
+                                    if (!ward && !$('#wardSelect').prop('disabled')) {
+                                        ValidationUtils.showError('wardSelect', 'Please select a ward/commune');
+                                        errors.push('Ward/Commune is required');
+                                        isValid = false;
+                                    } else if (ward) {
+                                        ValidationUtils.showSuccess('wardSelect');
+                                    }
+                                    const phone = $('#phone-input').val().trim();
+                                    if (!phone) {
+                                        ValidationUtils.showError('phone-input', 'Phone number is required');
+                                        errors.push('Phone number is required');
+                                        isValid = false;
+                                    } else if (!ValidationUtils.isValidPhoneNumber(phone)) {
+                                        ValidationUtils.showError('phone-input', 'Please enter a valid phone number');
+                                        errors.push('Please enter a valid Vietnamese phone number');
+                                        isValid = false;
+                                    } else {
+                                        ValidationUtils.showSuccess('phone-input');
+                                    }
+                                    const paymentMethod = $('input[name="paymentMethod"]:checked').val();
+                                    if (!paymentMethod) {
+                                        $('#payment-error').text('Please select a payment method').show();
+                                        errors.push('Payment method is required');
+                                        isValid = false;
+                                    } else {
+                                        $('#payment-error').hide();
+                                    }
+                                    if (errors.length > 0) {
+                                        $('#validation-errors').empty();
+                                        errors.forEach(error => {
+                                            $('#validation-errors').append('<li>' + error + '</li>');
+                                        });
+                                        $('#validation-summary').show();
+                                        $('html, body').animate({
+                                            scrollTop: $('#validation-summary').offset().top - 100
+                                        }, 500);
+                                    } else {
+                                        $('#validation-summary').hide();
+                                    }
+                                    return isValid;
+                                }
+
+                                $(document).ready(function () {
+                                    let provincesData = {};
+                                    let districtsData = {};
+                                    let wardsData = {};
+                                    const basePath = "${pageContext.request.contextPath}/ZeShopper/data/";
+                                    setupRealTimeValidation();
+                                    function loadData(url, type) {
+                                        return $.getJSON(url)
+                                                .done(function (data) {
+                                                    if (type === 'provinces')
+                                                        provincesData = data;
+                                                    else if (type === 'districts')
+                                                        districtsData = data;
+                                                    else if (type === 'wards')
+                                                        wardsData = data;
+                                                })
+                                                .fail(function (jqXHR, textStatus, errorThrown) {
+                                                    console.error(`Failed to load ` + type + `:`, textStatus, errorThrown);
+                                                });
+                                    }
+                                    function populateProvinces() {
+                                        let options = '<option value="">-- Select Province/City * --</option>';
+                                        for (const code in provincesData) {
+                                            if (provincesData.hasOwnProperty(code)) {
+                                                const p = provincesData[code];
+                                                options += `<option value="` + p.code + `">` + p.name_with_type + `</option>`;
+                                            }
+                                        }
+                                        $('#provinceCitySelect').html(options);
+                                    }
+                                    function populateDistricts(provinceCode) {
+                                        let options = '<option value="">-- Select District * --</option>';
+                                        const filteredDistricts = [];
+                                        for (const code in districtsData) {
+                                            if (districtsData.hasOwnProperty(code)) {
+                                                const d = districtsData[code];
+                                                if (d.parent_code === provinceCode) {
+                                                    filteredDistricts.push(d);
+                                                }
+                                            }
+                                        }
+                                        filteredDistricts.forEach(d => {
+                                            options += `<option value="` + d.code + `">` + d.name_with_type + `</option>`;
+                                        });
+                                        $('#districtSelect').html(options).prop('disabled', filteredDistricts.length === 0);
+                                        $('#wardSelect').html('<option value="">-- Select Ward/Commune * --</option>').prop('disabled', true);
+                                        ValidationUtils.clearValidation('districtSelect');
+                                        ValidationUtils.clearValidation('wardSelect');
+                                    }
+                                    function populateWards(districtCode) {
+                                        let options = '<option value="">-- Select Ward/Commune * --</option>';
+                                        const filteredWards = [];
+                                        for (const code in wardsData) {
+                                            if (wardsData.hasOwnProperty(code)) {
+                                                const w = wardsData[code];
+                                                if (w.parent_code === districtCode) {
+                                                    filteredWards.push(w);
+                                                }
+                                            }
+                                        }
+                                        filteredWards.forEach(w => {
+                                            options += `<option value="` + w.code + `">` + w.name_with_type + `</option>`;
+                                        });
+                                        $('#wardSelect').html(options).prop('disabled', filteredWards.length === 0);
+                                        ValidationUtils.clearValidation('wardSelect');
+                                    }
+                                    $.when(
+                                            loadData(basePath + 'tinh_tp.json', 'provinces'),
+                                            loadData(basePath + 'quan_huyen.json', 'districts'),
+                                            loadData(basePath + 'xa_phuong.json', 'wards')
+                                            ).done(function () {
+                                        populateProvinces();
+                                    });
+                                    $('#provinceCitySelect').on('change', function () {
+                                        const selectedProvinceCode = $(this).val();
+                                        if (selectedProvinceCode) {
+                                            populateDistricts(selectedProvinceCode);
+                                        } else {
+                                            $('#districtSelect').html('<option value="">-- Select District * --</option>').prop('disabled', true);
+                                            $('#wardSelect').html('<option value="">-- Select Ward/Commune * --</option>').prop('disabled', true);
+                                            ValidationUtils.clearValidation('districtSelect');
+                                            ValidationUtils.clearValidation('wardSelect');
+                                        }
+                                    });
+                                    $('#districtSelect').on('change', function () {
+                                        const selectedDistrictCode = $(this).val();
+                                        if (selectedDistrictCode) {
+                                            populateWards(selectedDistrictCode);
+                                        } else {
+                                            $('#wardSelect').html('<option value="">-- Select Ward/Commune * --</option>').prop('disabled', true);
+                                            ValidationUtils.clearValidation('wardSelect');
+                                        }
+                                    });
+                                    $('input, select, textarea').on('input change', function () {
+                                        const fieldId = $(this).attr('id');
+                                        if (fieldId && $(this).hasClass('input-error')) {
+                                            ValidationUtils.clearValidation(fieldId);
+                                        }
+                                    });
+                                    $(document).on('keypress', function (e) {
+                                        if (e.which === 13 && !$(e.target).is('textarea')) {
+                                            e.preventDefault();
+                                            // For discount form, submit it directly
+                                            if ($(e.target).closest('#discountForm').length) {
+                                                $('#discountForm').submit();
+                                            } else {
+                                                submitOrder();
+                                            }
+                                        }
+                                    });
+                                });
+                                // Hàm submit() hiện tại đang gọi submitOrder(), không cần thay đổi
+                                function submit() {
+                                    submitOrder();
+                                }
+                                function showPopup(message, type) {
+                                    const successBox = document.getElementById("success-popup");
+                                    if (type === 'success') {
+                                        successBox.className = 'success-toast';
+                                    } else {
+                                        successBox.className = 'error-toast';
+                                    }
+                                    successBox.innerText = message;
+                                    successBox.style.display = "block";
+                                    setTimeout(() => {
+                                        successBox.classList.add('toast-fadeout');
+                                        setTimeout(() => {
+                                            successBox.style.display = "none";
+                                            successBox.classList.remove('toast-fadeout');
+                                        }, 300);
+                                    }, 2700);
+                                }
+                                const FormUtils = {
+                                    resetForm: function () {
+                                        $('#billing-form')[0].reset();
+                                        $('#provinceCitySelect').val('').trigger('change');
+                                        $('#notes-input').val('');
+                                        $('input[name="paymentMethod"]').prop('checked', false);
+                                        $('#ship-to-billing').prop('checked', false);
+                                        $('.input-error, .input-valid').removeClass('input-error input-valid');
+                                        $('.error-message').hide();
+                                        $('#validation-summary').hide();
+                                    },
+                                    getFormData: function () {
+                                        return {
+                                            email: $('#email-input').val().trim(),
+                                            fullName: $('#fullname-input').val().trim(),
+                                            addressLine: $('#address-input').val().trim(),
+                                            province: $('#provinceCitySelect option:selected').text(),
+                                            provinceCode: $('#provinceCitySelect').val(),
+                                            district: $('#districtSelect option:selected').text(),
+                                            districtCode: $('#districtSelect').val(),
+                                            ward: $('#wardSelect option:selected').text(),
+                                            wardCode: $('#wardSelect').val(),
+                                            phoneNumber: $('#phone-input').val().trim(),
+                                            notes: $('#notes-input').val().trim(),
+                                            paymentMethod: $('input[name="paymentMethod"]:checked').val(),
+                                            shipToBilling: $('#ship-to-billing').is(':checked')
+                                        };
+                                    },
+                                    populateForm: function (data) {
+                                        if (data.email)
+                                            $('#email-input').val(data.email);
+                                        if (data.fullName)
+                                            $('#fullname-input').val(data.fullName);
+                                        if (data.addressLine)
+                                            $('#address-input').val(data.addressLine);
+                                        if (data.phoneNumber)
+                                            $('#phone-input').val(data.phoneNumber);
+                                        if (data.notes)
+                                            $('#notes-input').val(data.notes);
+                                        if (data.paymentMethod)
+                                            $('input[name="paymentMethod"][value="' + data.paymentMethod + '"]').prop('checked', true);
+                                        if (data.shipToBilling)
+                                            $('#ship-to-billing').prop('checked', data.shipToBilling);
+                                    }
+                                };
+>>>>>>> Stashed changes
         </script>
     </body>
 </html>
