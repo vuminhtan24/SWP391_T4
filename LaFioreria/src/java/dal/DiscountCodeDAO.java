@@ -268,25 +268,138 @@ public class DiscountCodeDAO extends BaseDao {
         }
     }
 
+    public int countAllDiscountCodes() {
+        String sql = "SELECT COUNT(*) FROM discount_code";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return 0;
+    }
+
+    public void deleteDiscountCode(String code) {
+        String sql = "DELETE FROM discount_code WHERE code = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, code);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+
+// Lấy danh sách mã giảm giá có phân trang và sắp xếp mới nhất
+    public List<DiscountCode> getDiscountCodesPaged(int offset, int pageSize) {
+        List<DiscountCode> list = new ArrayList<>();
+        String sql = "SELECT * FROM discount_code ORDER BY start_date DESC LIMIT ? OFFSET ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, pageSize);
+            ps.setInt(2, offset);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                DiscountCode d = new DiscountCode(
+                        rs.getInt("id"),
+                        rs.getString("code"),
+                        rs.getString("description"),
+                        rs.getString("discount_type"),
+                        rs.getBigDecimal("discount_value"),
+                        rs.getBigDecimal("max_discount"),
+                        rs.getBigDecimal("min_order_amount"),
+                        rs.getTimestamp("start_date"),
+                        rs.getTimestamp("end_date"),
+                        rs.getObject("usage_limit") != null ? rs.getInt("usage_limit") : null,
+                        rs.getInt("used_count"),
+                        rs.getBoolean("active")
+                );
+                list.add(d);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return list;
+    }
+
+    public DiscountCode getDiscountCodeByCode(String code) {
+        String sql = "SELECT * FROM discount_code WHERE code = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, code);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return new DiscountCode(
+                        rs.getInt("id"),
+                        rs.getString("code"),
+                        rs.getString("description"),
+                        rs.getString("discount_type"),
+                        rs.getBigDecimal("discount_value"),
+                        rs.getBigDecimal("max_discount"),
+                        rs.getBigDecimal("min_order_amount"),
+                        rs.getTimestamp("start_date"),
+                        rs.getTimestamp("end_date"),
+                        rs.getObject("usage_limit") != null ? rs.getInt("usage_limit") : null,
+                        rs.getInt("used_count"),
+                        rs.getBoolean("active")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return null;
+    }
+
     public static void main(String[] args) {
         DiscountCodeDAO dao = new DiscountCodeDAO();
-         List<DiscountCode> list = dao.getAllDiscountCodes();
+        List<DiscountCode> list = dao.getAllDiscountCodes();
 
-    System.out.println("📋 Danh sách mã giảm giá:");
-    for (DiscountCode d : list) {
-        System.out.println("——————————————");
-        System.out.println("🔑 Mã: " + d.getCode());
-        System.out.println("📝 Mô tả: " + d.getDescription());
-        System.out.println("💰 Kiểu: " + d.getType());
-        System.out.println("📉 Giá trị: " + d.getValue());
-        System.out.println("🔺 Giảm tối đa: " + d.getMaxDiscount());
-        System.out.println("🔻 Đơn tối thiểu: " + d.getMinOrderAmount());
-        System.out.println("📆 Bắt đầu: " + d.getStartDate());
-        System.out.println("📆 Kết thúc: " + d.getEndDate());
-        System.out.println("🔄 Dùng tối đa: " + d.getUsageLimit());
-        System.out.println("📊 Đã dùng: " + d.getUsedCount());
-        System.out.println("✅ Còn hoạt động: " + d.isActive());
-    }
+        System.out.println("📋 Danh sách mã giảm giá:");
+        for (DiscountCode d : list) {
+            System.out.println("——————————————");
+            System.out.println("🔑 Mã: " + d.getCode());
+            System.out.println("📝 Mô tả: " + d.getDescription());
+            System.out.println("💰 Kiểu: " + d.getType());
+            System.out.println("📉 Giá trị: " + d.getValue());
+            System.out.println("🔺 Giảm tối đa: " + d.getMaxDiscount());
+            System.out.println("🔻 Đơn tối thiểu: " + d.getMinOrderAmount());
+            System.out.println("📆 Bắt đầu: " + d.getStartDate());
+            System.out.println("📆 Kết thúc: " + d.getEndDate());
+            System.out.println("🔄 Dùng tối đa: " + d.getUsageLimit());
+            System.out.println("📊 Đã dùng: " + d.getUsedCount());
+            System.out.println("✅ Còn hoạt động: " + d.isActive());
+        }
     }
 
 }
