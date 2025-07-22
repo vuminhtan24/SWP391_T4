@@ -163,6 +163,12 @@ public class DiscountCodeController extends HttpServlet {
         } else if ("deactivate".equals(action)) {
             dao.deactivateDiscountCode(request.getParameter("code"));
             response.sendRedirect("discount");
+        } else if ("delete".equals(action)) {
+            String code = request.getParameter("code");
+            if (code != null && !code.isEmpty()) {
+                dao.deleteDiscountCode(code);
+            }
+            response.sendRedirect("discount");
         }
     }
 
