@@ -21,10 +21,11 @@ import model.Bouquet;
 import model.BouquetImage;
 import model.CartDetail;
 import model.CartWholeSaleDetail;
-<<<<<<< Updated upstream
+import model.User;
+
 import model.CheckoutFormData; // Import model mới
-=======
->>>>>>> Stashed changes
+
+
 import model.DiscountCode;
 import model.Order; // Import lớp Order
 import model.OrderItem; // Import lớp OrderItem
@@ -142,7 +143,7 @@ public class CheckOutController extends HttpServlet {
                 request.setAttribute("totalOrderValue", totalOrderValue);
                 }
         }
-<<<<<<< Updated upstream
+
 
         double totalAmount = 0.0;
         int totalItems = 0;
@@ -167,10 +168,10 @@ public class CheckOutController extends HttpServlet {
         }
 
 
-=======
+
         
         request.setAttribute("mode", mode);
->>>>>>> Stashed changes
+
         request.getRequestDispatcher("./ZeShopper/checkout.jsp").forward(request, response);
     }
 
@@ -667,14 +668,9 @@ public class CheckOutController extends HttpServlet {
         // No explicit forward here, doPost will handle the doGet call
         return;
     }
-<<<<<<< Updated upstream
-
-
-    private void processWholesaleOrder(HttpServletRequest request, HttpServletResponse response) throws IOException {
-=======
     
      private void processWholesaleOrder(HttpServletRequest request, HttpServletResponse response) throws IOException {
->>>>>>> Stashed changes
+
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
 
         if (currentUser == null) {
@@ -725,11 +721,10 @@ public class CheckOutController extends HttpServlet {
 
         for (CartWholeSaleDetail item : cartItems) {
             totalSell += item.getTotalValue(); // Tổng tiền khách trả
-<<<<<<< Updated upstream
-            totalImport += (item.getExpense() * item.getQuantity()); // Giá nhập
-=======
+
+
             totalImport += item.getExpense(); // Giá nhập
->>>>>>> Stashed changes
+
         }
 
         // Tạo đơn hàng
@@ -758,14 +753,13 @@ public class CheckOutController extends HttpServlet {
                 orderItem.setOrderId(orderId);
                 orderItem.setBouquetId(item.getBouquetID());
                 orderItem.setQuantity(item.getQuantity());
-<<<<<<< Updated upstream
-                orderItem.setUnitPrice(item.getExpense());
+
                 orderItem.setSellPrice(item.getPricePerUnit()); // Có thể là đơn giá bán theo lô
                 orderItem.setRequest_group_id(item.getRequest_group_id());
-=======
-                orderItem.setUnitPrice(item.getPricePerUnit());
+
+                orderItem.setUnitPrice(item.getExpense());
                 orderItem.setSellPrice(item.getPricePerUnit()); // Có thể là đơn giá bán theo lô
->>>>>>> Stashed changes
+
                 cartDAO.insertOrderItem(orderItem);
             }
 
@@ -788,8 +782,5 @@ public class CheckOutController extends HttpServlet {
             response.getWriter().write("{\"status\": \"error\", \"message\": \"Lỗi xử lý đơn hàng theo lô: " + e.getMessage() + "\"}");
         }
     }
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
 }

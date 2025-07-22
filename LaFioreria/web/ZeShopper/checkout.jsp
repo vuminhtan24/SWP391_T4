@@ -390,9 +390,8 @@
                                             </table>
                                         </td>
                                     </tr>
-<<<<<<< Updated upstream
                                     <c:set var="total" value="${total + item.bouquet.sellPrice * item.quantity}"/>
-                                </c:forEach>
+                               
                                 <tr>
                                     <c:set var="ship" value="30000"/>
                                     <td colspan="4">&nbsp;</td>
@@ -440,18 +439,18 @@
                                 </tr>
                             </tbody>
                         </table>
-=======
+
                                 </tbody>
                             </table>
                         </c:if>
->>>>>>> Stashed changes
+
                     </c:if>
 
                     <c:if test="${mode eq 'wholesale'}">
                         <jsp:include page="checkout-wholesale.jsp" />
                     </c:if>    
                 </div>
-<<<<<<< Updated upstream
+
                 <c:if test="${not empty cartDetails}">
                     <div class="payment-options">
                         <span>
@@ -466,7 +465,7 @@
                         <button class="btn btn-primary" onclick="submitOrder()" id="place-order-btn">Place Order</button>
                     </div>
                 </c:if>
-=======
+
                 <c:choose>
 
                     <c:when test="${param.mode eq 'retail' and not empty cartDetails}">
@@ -500,7 +499,7 @@
                         </div>
                     </c:when>
                 </c:choose>
->>>>>>> Stashed changes
+
             </div>
         </section> 
         <jsp:include page="/ZeShopper/footer.jsp"/> 
@@ -634,7 +633,7 @@
                                     form.submit();
                                 }
 
-<<<<<<< Updated upstream
+
             $(document).ready(function () {
                 let provincesData = {};
                 let districtsData = {};
@@ -860,7 +859,7 @@
                         $('#ship-to-billing').prop('checked', data.shipToBilling);
                 }
             };
-=======
+
                                 const ValidationUtils = {
                                     isValidEmail: function (email) {
                                         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -1254,7 +1253,7 @@
                                             $('#ship-to-billing').prop('checked', data.shipToBilling);
                                     }
                                 };
->>>>>>> Stashed changes
+
         </script>
     </body>
 </html>
