@@ -167,7 +167,6 @@
                         <div class="col-md-6">
                             <p><strong>Total Import: </strong><fmt:formatNumber value="${order.totalImport}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</p>
                             <p><strong>Total Sell: </strong><fmt:formatNumber value="${order.totalSell}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</p>
-                            <p><strong>Status ID:</strong> ${order.statusId}</p>
                             <p><strong>Status:</strong> ${order.statusName}</p>
                             <p><strong>Shipper ID:</strong> ${order.shipperId != null ? order.shipperId : "Not Assigned"}</p>
                             <p><strong>Shipper Name:</strong> ${order.shipperName != null ? order.shipperName : "Not Assigned"}</p>
