@@ -163,7 +163,7 @@ public class DiscountCodeDAO extends BaseDao {
     }
 
     public void deactivateDiscountCode(String code) {
-        String sql = "UPDATE discount_code SET status = 0 WHERE code = ?";
+        String sql = "UPDATE discount_code SET active = false WHERE code = ?";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);

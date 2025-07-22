@@ -292,11 +292,24 @@
                                         <a href="editDiscount?code=${dc.code}" class="btn btn-sm btn-outline-primary me-1" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="deactivateDiscount?code=${dc.code}" class="btn btn-sm btn-outline-danger"
-                                           title="Deactivate"
-                                           onclick="return confirm('Are you sure you want to deactivate this code?');">
-                                            <i class="fas fa-ban"></i>
-                                        </a>
+                                        <form action="discount" method="post" style="display:inline;">
+                                            <input type="hidden" name="action" value="deactivate" />
+                                            <input type="hidden" name="code" value="${dc.code}" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Are you sure you want to deactivate this code?');"
+                                                    title="Deactivate">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        </form>
+
+                                        <form action="discount" method="post" style="display:inline;" 
+                                              onsubmit="return confirm('Are you sure to delete this code?');">
+                                            <input type="hidden" name="action" value="delete"/>
+                                            <input type="hidden" name="code" value="${dc.code}"/>
+                                            <button class="btn btn-sm btn-outline-danger" title="Delete">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             </c:forEach>
