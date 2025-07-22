@@ -5,6 +5,7 @@
 package controller;
 
 import dal.EmployeeDAO;
+import dal.NotificationDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import model.EmployeeInfo;
+import model.NotificationEmployee;
 
 /**
  *
@@ -99,6 +101,14 @@ public class ViewEmployeeServlet extends HttpServlet {
         request.setAttribute("department", department);
         request.setAttribute("sort", sort);
         request.setAttribute("order", order);
+
+        try {
+            NotificationDAO daoNo = new NotificationDAO();
+            List<NotificationEmployee> notifications = daoNo.getContractExpiryNotifications();
+            request.setAttribute("notifications", notifications);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         request.getRequestDispatcher("DashMin/employee_list.jsp").forward(request, response);
     }

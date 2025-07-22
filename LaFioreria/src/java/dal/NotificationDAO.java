@@ -1,13 +1,14 @@
 package dal;
 
-import java.sql.Timestamp;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import model.Notification;
+import model.NotificationEmployee;
 
 public class NotificationDAO extends BaseDao {
 
@@ -74,6 +75,40 @@ public class NotificationDAO extends BaseDao {
             }
         }
         return list;
+    }
+
+    public List<NotificationEmployee> getContractExpiryNotifications() throws SQLException {
+        List<NotificationEmployee> notifications = new ArrayList<>();
+        String sql = """
+            SELECT 
+                Employee_Code, End_Date
+            FROM 
+                employee_info
+            WHERE 
+                End_Date < CURDATE()
+            ORDER BY End_Date DESC
+            LIMIT 10
+        """;
+
+        try {
+
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                NotificationEmployee n = new NotificationEmployee();
+                String code = rs.getString("Employee_Code");
+                n.setMessage("Contract expired for employee " + code);
+                LocalDate localDate = rs.getDate("End_Date").toLocalDate(); 
+                n.setCreatedAt(localDate.atStartOfDay());
+
+                notifications.add(n);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        return notifications;
     }
 
     public void markNotificationsAsRead(List<Notification> list) throws SQLException {
