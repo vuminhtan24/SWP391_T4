@@ -135,7 +135,8 @@ public class CartWholeSaleController extends HttpServlet {
                             item.getRequested_quantity(),
                             item.getQuoted_price(),
                             item.getTotal_price(),
-                            item.getExpense()
+                            item.getExpense(),
+                            item.getRequest_group_id()
                     );
 
                     addedCount++;

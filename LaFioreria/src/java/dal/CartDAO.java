@@ -315,8 +315,8 @@ public class CartDAO extends BaseDao {
 
     public boolean insertOrderItem(OrderItem item) {
         String sql = """
-        INSERT INTO order_item (order_id, bouquet_id, quantity, unit_price, sellPrice)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO order_item (order_id, bouquet_id, quantity, unit_price, sellPrice, request_group_id)
+        VALUES (?, ?, ?, ?, ?, ?)
     """;
 
         try {
@@ -328,7 +328,7 @@ public class CartDAO extends BaseDao {
             ps.setInt(3, item.getQuantity());
             ps.setDouble(4, item.getUnitPrice());
             ps.setDouble(5, item.getSellPrice());
-
+            ps.setString(6, item.getRequest_group_id());
             int rowsAffected = ps.executeUpdate();
 
             if (rowsAffected > 0) {

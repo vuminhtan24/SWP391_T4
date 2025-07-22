@@ -4,25 +4,22 @@
  */
 package controller;
 
-import dal.EmployeeDAO;
-import dal.NotificationDAO;
+import dal.DiscountCodeDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
-import model.EmployeeInfo;
-import model.NotificationEmployee;
+import model.DiscountCode;
 
 /**
  *
- * @author LAPTOP
+ * @author VU MINH TAN
  */
-@WebServlet(name = "ViewEmployeeServlet", urlPatterns = {"/viewemployeeservlet"})
-public class ViewEmployeeServlet extends HttpServlet {
+public class EditDiscountServlet extends HttpServlet {
+
+    private DiscountCodeDAO discountCodeDAO = new DiscountCodeDAO();
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,10 +38,10 @@ public class ViewEmployeeServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ViewEmployeeServlet</title>");
+            out.println("<title>Servlet EditDiscountServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ViewEmployeeServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet EditDiscountServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -62,55 +59,21 @@ public class ViewEmployeeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String code = request.getParameter("code");
 
-        String keyword = request.getParameter("search");
-        keyword = (keyword != null) ? keyword.trim() : null;
-
-        String department = request.getParameter("department");
-        department = (department != null) ? department.trim() : null;
-
-        String sort = request.getParameter("sort");
-        sort = (sort != null) ? sort.trim() : null;
-
-        String order = request.getParameter("order");
-        order = (order != null) ? order.trim() : null;
-
-        System.out.println("keyword = " + keyword);
-        System.out.println("department = " + department);
-        System.out.println("sort = " + sort);
-        System.out.println("order = " + order);
-
-        String page_raw = request.getParameter("page");
-
-        int page = (page_raw == null || page_raw.isEmpty()) ? 1 : Integer.parseInt(page_raw);
-        int pageSize = 5;
-        int offset = (page - 1) * pageSize;
-
-        EmployeeDAO dao = new EmployeeDAO();
-        List<EmployeeInfo> employeeList = dao.getFilteredEmployees(
-                keyword, department, sort, order, offset, pageSize
-        );
-
-        int totalRows = dao.countFilteredEmployees(keyword, department);
-        int totalPages = (int) Math.ceil((double) totalRows / pageSize);
-
-        request.setAttribute("employeeList", employeeList);
-        request.setAttribute("currentPage", page);
-        request.setAttribute("totalPages", totalPages);
-        request.setAttribute("search", keyword);
-        request.setAttribute("department", department);
-        request.setAttribute("sort", sort);
-        request.setAttribute("order", order);
-
-        try {
-            NotificationDAO daoNo = new NotificationDAO();
-            List<NotificationEmployee> notifications = daoNo.getContractExpiryNotifications();
-            request.setAttribute("notifications", notifications);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (code == null || code.isEmpty()) {
+            response.sendRedirect("discount");
+            return;
         }
 
-        request.getRequestDispatcher("DashMin/employee_list.jsp").forward(request, response);
+        DiscountCode discount = discountCodeDAO.getDiscountCodeByCode(code);
+        if (discount == null) {
+            request.setAttribute("error", "Discount code not found!");
+            request.getRequestDispatcher("/DashMin/discount_list.jsp").forward(request, response);
+        } else {
+            request.setAttribute("editDiscount", discount);
+            request.getRequestDispatcher("/DashMin/discount_list.jsp").forward(request, response);
+        }
     }
 
     /**

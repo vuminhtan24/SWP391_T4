@@ -15,6 +15,12 @@ import scheduler.FlowerScheduler;
 public class AppInitializer implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        FlowerScheduler.main(null);
+        // Thực hiện các khởi tạo khác nếu cần, nhưng không khởi tạo scheduler
+        System.out.println("Ứng dụng khởi động, không khởi tạo scheduler từ AppInitializer.");
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+        // Thực hiện cleanup nếu cần
     }
 }

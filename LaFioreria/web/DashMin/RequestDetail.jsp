@@ -6,9 +6,10 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List,model.Bouquet, model.Category, model.RawFlower"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<fmt:setLocale value="vi_VN" />
 <!DOCTYPE html>
 <html>
     <head>
@@ -307,6 +308,7 @@
                                 <td>Flower ID</td>
                                 <td>Flower Name</td>
                                 <td>Request Quantity</td>
+                                <td>Price per Unit</td>
                                 <td>Status</td>
                                 <td colspan="2">Action</td>
                             </tr>
@@ -319,6 +321,7 @@
                                             <td>${item.getFlowerId()}</td>
                                             <td>${names.getFlowerName()}</td>
                                             <td>${item.getQuantity()}</td>
+                                            <td><fmt:formatNumber value="${item.getPrice()}" pattern="#,##0" /> ₫</td>                     
                                             <td>${item.getStatus()}</td>
                                             <td colspan="2">
                                                 <c:choose>

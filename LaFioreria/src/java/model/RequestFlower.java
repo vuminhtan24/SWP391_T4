@@ -16,11 +16,12 @@ public class RequestFlower {
     String status;
     LocalDate requestCreationDate;
     LocalDate requestConfirmationDate;
+    int price;
 
     public RequestFlower() {
     }
 
-    public RequestFlower(int orderId, int orderItemId, int flowerId, int quantity ,String status, LocalDate requestCreationDate, LocalDate requestConfirmationDate) {
+    public RequestFlower(int orderId, int orderItemId, int flowerId, int quantity ,String status, LocalDate requestCreationDate, LocalDate requestConfirmationDate, int price) {
         this.orderId = orderId;
         this.orderItemId = orderItemId;
         this.flowerId = flowerId;
@@ -28,6 +29,7 @@ public class RequestFlower {
         this.status = status;
         this.requestCreationDate = requestCreationDate;
         this.requestConfirmationDate = requestConfirmationDate;
+        this.price = price;
     }
 
     public int getOrderId() {
@@ -62,8 +64,6 @@ public class RequestFlower {
         this.quantity = quantity;
     }
     
-    
-
     public String getStatus() {
         return status;
     }
@@ -88,10 +88,18 @@ public class RequestFlower {
         this.requestConfirmationDate = requestConfirmationDate;
     }
 
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
     @Override
     public String toString() {
-        return "RequestFlower{" + "orderId=" + orderId + ", orderItemId=" + orderItemId + ", bouquetId=" + flowerId + ", status=" + status + ", requestCreationDate=" + requestCreationDate + ", requestConfirmationDate=" + requestConfirmationDate + '}';
+        return "RequestFlower{" + "orderId=" + orderId + ", orderItemId=" + orderItemId + ", flowerId=" + flowerId + ", quantity=" + quantity + ", status=" + status + ", requestCreationDate=" + requestCreationDate + ", requestConfirmationDate=" + requestConfirmationDate + ", price=" + price + '}';
     }
-    
+
     
 }

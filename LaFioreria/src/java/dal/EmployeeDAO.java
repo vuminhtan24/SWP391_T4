@@ -100,6 +100,32 @@ public class EmployeeDAO extends BaseDao {
         return list;
     }
 
+    public List<EmployeeInfo> getExpiredContracts() throws SQLException {
+        List<EmployeeInfo> expiredEmployees = new ArrayList<>();
+        String sql = "SELECT * FROM employee_info WHERE End_Date < CURDATE()";
+
+        try {
+
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                EmployeeInfo emp = new EmployeeInfo();
+                emp.setUserId(rs.getInt("User_ID"));
+                emp.setEmployeeCode(rs.getString("Employee_Code"));
+                emp.setContractType(rs.getString("Contract_Type"));
+                emp.setStartDate(rs.getDate("Start_Date").toLocalDate());
+                emp.setEndDate(rs.getDate("End_Date").toLocalDate());
+                emp.setDepartment(rs.getString("Department"));
+                emp.setPosition(rs.getString("Position"));
+                expiredEmployees.add(emp);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return expiredEmployees;
+    }
+
     public List<EmployeeInfo> getEmployeesExpiringInDays(int daysBefore) {
         List<EmployeeInfo> list = new ArrayList<>();
         String sql = "SELECT * FROM employee_info "

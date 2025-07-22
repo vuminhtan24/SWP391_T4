@@ -92,8 +92,8 @@ public class FlowerBatchDAO extends BaseDao {
     // Thêm lô hoa mới
     public void addFlowerBatch(int flowerId, int unitPrice, String importDate, String expirationDate,
             int quantity, int hold, int warehouseId, String status) {
-        String sql = "INSERT INTO la_fioreria.flower_batch (flower_id, unit_price, import_date, expiration_date, quantity, hold, warehouse_id, status, real_time_quantity) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO la_fioreria.flower_batch (flower_id, unit_price, import_date, expiration_date, quantity, hold, warehouse_id, status) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -105,7 +105,6 @@ public class FlowerBatchDAO extends BaseDao {
             ps.setInt(6, hold);
             ps.setInt(7, warehouseId);
             ps.setString(8, status); // NEW
-            ps.setInt(9, quantity);
             ps.executeUpdate();
         } catch (SQLException e) {
             System.err.println("FlowerBatchDAO: SQLException in addFlowerBatch - " + e.getMessage());
@@ -123,7 +122,7 @@ public class FlowerBatchDAO extends BaseDao {
     public void updateFlowerBatch(int batchId, int unitPrice, String importDate, String expirationDate,
             int quantity, int hold, int warehouseId) {
         String sql = "UPDATE la_fioreria.flower_batch SET unit_price = ?, import_date = ?, "
-                + "expiration_date = ?, quantity = ?, hold = ?, warehouse_id = ?, real_time_quantity = ? WHERE batch_id = ?";
+                + "expiration_date = ?, quantity = ?, hold = ?, warehouse_id = ? WHERE batch_id = ?";
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
@@ -134,7 +133,7 @@ public class FlowerBatchDAO extends BaseDao {
             ps.setInt(5, hold);
             ps.setInt(6, warehouseId);
             ps.setInt(7, batchId);
-            ps.setInt(8, quantity);
+
             ps.executeUpdate();
         } catch (SQLException e) {
             System.err.println("FlowerBatchDAO: SQLException in updateFlowerBatch - " + e.getMessage());

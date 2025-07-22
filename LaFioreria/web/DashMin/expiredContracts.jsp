@@ -1,5 +1,11 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%-- 
+    Document   : expiredContracts
+    Created on : Jul 22, 2025, 9:11:30 AM
+    Author     : LAPTOP
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html>
@@ -34,7 +40,7 @@
 
         <!-- Template Stylesheet -->
         <link href="${pageContext.request.contextPath}/DashMin/css/style.css" rel="stylesheet">
-        <title>Employee Information</title>
+        <title><h2>Expired Contract Notification</h2></title>
 
     </head>
     <body>
@@ -121,137 +127,98 @@
 
 
             <div class="content">
-                
+
                 <jsp:include page="/DashMin/navBarEmployee.jsp"/>
                 <div class="container mt-5">
-                    <h2 class="mb-4">Employee Information List</h2>
-                    <form method="get" action="${pageContext.request.contextPath}/viewemployeeservlet" class="row g-3 mb-3">
-                        <div class="col-md-3">
-                            <input type="text" name="search" value="${param.search}" class="form-control" placeholder="Search by code or position">
+                    <c:if test="${not empty expiredEmployees}">
+                        <div class="alert alert-danger">
+                            <strong>Warning:</strong> There are ${fn:length(expiredEmployees)} employees whose contracts have expired!
                         </div>
-                        <div class="col-md-3">
-                            <select name="department" class="form-control">
-                                <option value="">All Departments</option>
-                                <option value="Sales" ${param.department == 'Sales' ? 'selected' : ''}>Sales</option>
-                                <!-- Debug hiện input -->
-                                <p>Search: ${param.search}, Department: ${param.department}, Sort: ${param.sort}, Order: ${param.order}</p>
+                    </c:if>
 
-                                <option value="Marketing" ${param.department == 'Marketing' ? 'selected' : ''}>Marketing</option>
-                                <option value="Warehouse" ${param.department == 'Warehouse' ? 'selected' : ''}>Warehouse</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <select name="sort" class="form-control">
-                                <option value="">Sort by</option>
-                                <option value="Start_Date" ${param.sort == 'Start_Date' ? 'selected' : ''}>Start Date</option>
-                                <option value="Position" ${param.sort == 'Position' ? 'selected' : ''}>Position</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <select name="order" class="form-control">
-                                <option value="asc" ${param.order == 'asc' ? 'selected' : ''}>Ascending</option>
-                                <option value="desc" ${param.order == 'desc' ? 'selected' : ''}>Descending</option>
-                            </select>
-                        </div>
-                        <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary">Filter</button>
-                        </div>
-                    </form>
-
-
-
-                    <table class="table table-bordered table-hover w-100 bg-light rounded">
-                        <thead class="table-dark">
+                    <table class="table table-bordered">
+                        <thead>
                             <tr>
-                                <th>User ID</th>
                                 <th>Employee Code</th>
                                 <th>Contract Type</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
                                 <th>Department</th>
                                 <th>Position</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="e" items="${employeeList}">
+                            <c:forEach var="emp" items="${expiredEmployees}">
                                 <tr>
-                                    <td>${e.userId}</td>
-                                    <td>${e.employeeCode}</td>
-                                    <td>${e.contractType}</td>
-                                    <td>${e.startDate}</td>
-                                    <td>${e.endDate != null ? e.endDate : '-'}</td>
-                                    <td>${e.department}</td>
-                                    <td>${e.position}</td>
+                                    <td>${emp.employeeCode}</td>
+                                    <td>${emp.contractType}</td>
+                                    <td>${emp.department}</td>
+                                    <td>${emp.position}</td>
+                                    <td>${emp.startDate}</td>
+                                    <td>${emp.endDate}</td>
                                 </tr>
                             </c:forEach>
                         </tbody>
                     </table>
 
-                    <nav>
-                        <ul class="pagination justify-content-center">
-                            <c:forEach var="i" begin="1" end="${totalPages}">
-                                <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                    <a class="page-link"
-                                       href="${pageContext.request.contextPath}/viewemployeeservlet?page=${i}&search=${param.search}&department=${param.department}&sort=${param.sort}&order=${param.order}">
-                                        ${i}
-                                    </a>
-                                </li>
-                            </c:forEach>
-                        </ul>
-                    </nav>
-                </div>
 
-
-                <!-- Footer Start -->
-                <div class="container-fluid pt-4 px-4">
-                    <div class="bg-light rounded-top p-4">
-                        <div class="row">
-                            <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
-                            </div>
-                            <div class="col-12 col-sm-6 text-center text-sm-end">
-                                <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-                                Designed By <a href="https://htmlcodex.com">HTML Codex</a>
+                    <!-- Footer Start -->
+                    <div class="container-fluid pt-4 px-4">
+                        <div class="bg-light rounded-top p-4">
+                            <div class="row">
+                                <div class="col-12 col-sm-6 text-center text-sm-start">
+                                    &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
+                                </div>
+                                <div class="col-12 col-sm-6 text-center text-sm-end">
+                                    <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+                                    Designed By <a href="https://htmlcodex.com">HTML Codex</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+
+                <!-- Footer End -->
             </div>
+            <!-- Content End -->
 
 
-            <!-- Footer End -->
+            <!-- Back to Top -->
+            <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
         </div>
-        <!-- Content End -->
 
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-        <!-- Back to Top -->
-        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
-    </div>
+        <!-- Bootstrap -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Bootstrap -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Waypoints -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <!-- Easing -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
 
-    <!-- Waypoints -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
+        <!-- Owl Carousel -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 
-    <!-- Easing -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+        <!-- Moment + Tempus Dominus -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/js/tempusdominus-bootstrap-4.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
 
-    <!-- Owl Carousel -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-
-    <!-- Moment + Tempus Dominus -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/js/tempusdominus-bootstrap-4.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
-
-    <!-- Template Javascript -->
-    <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
-</body>
+        <!-- Template Javascript -->
+        <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+    </body>
 </html>
+
+
+
+
+
+
+

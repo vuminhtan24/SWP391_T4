@@ -4,25 +4,24 @@
  */
 package controller;
 
-import dal.EmployeeDAO;
-import dal.NotificationDAO;
+import dal.DiscountCodeDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
-import model.EmployeeInfo;
-import model.NotificationEmployee;
+import java.math.BigDecimal;
+import model.DiscountCode;
+import java.sql.Timestamp;
 
 /**
  *
- * @author LAPTOP
+ * @author VU MINH TAN
  */
-@WebServlet(name = "ViewEmployeeServlet", urlPatterns = {"/viewemployeeservlet"})
-public class ViewEmployeeServlet extends HttpServlet {
+public class UpdateDiscountServlet extends HttpServlet {
+
+    private DiscountCodeDAO discountCodeDAO = new DiscountCodeDAO();
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,10 +40,10 @@ public class ViewEmployeeServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ViewEmployeeServlet</title>");
+            out.println("<title>Servlet UpdateDiscountServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ViewEmployeeServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet UpdateDiscountServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -62,55 +61,7 @@ public class ViewEmployeeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        String keyword = request.getParameter("search");
-        keyword = (keyword != null) ? keyword.trim() : null;
-
-        String department = request.getParameter("department");
-        department = (department != null) ? department.trim() : null;
-
-        String sort = request.getParameter("sort");
-        sort = (sort != null) ? sort.trim() : null;
-
-        String order = request.getParameter("order");
-        order = (order != null) ? order.trim() : null;
-
-        System.out.println("keyword = " + keyword);
-        System.out.println("department = " + department);
-        System.out.println("sort = " + sort);
-        System.out.println("order = " + order);
-
-        String page_raw = request.getParameter("page");
-
-        int page = (page_raw == null || page_raw.isEmpty()) ? 1 : Integer.parseInt(page_raw);
-        int pageSize = 5;
-        int offset = (page - 1) * pageSize;
-
-        EmployeeDAO dao = new EmployeeDAO();
-        List<EmployeeInfo> employeeList = dao.getFilteredEmployees(
-                keyword, department, sort, order, offset, pageSize
-        );
-
-        int totalRows = dao.countFilteredEmployees(keyword, department);
-        int totalPages = (int) Math.ceil((double) totalRows / pageSize);
-
-        request.setAttribute("employeeList", employeeList);
-        request.setAttribute("currentPage", page);
-        request.setAttribute("totalPages", totalPages);
-        request.setAttribute("search", keyword);
-        request.setAttribute("department", department);
-        request.setAttribute("sort", sort);
-        request.setAttribute("order", order);
-
-        try {
-            NotificationDAO daoNo = new NotificationDAO();
-            List<NotificationEmployee> notifications = daoNo.getContractExpiryNotifications();
-            request.setAttribute("notifications", notifications);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        request.getRequestDispatcher("DashMin/employee_list.jsp").forward(request, response);
+        processRequest(request, response);
     }
 
     /**
@@ -124,7 +75,53 @@ public class ViewEmployeeServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        request.setCharacterEncoding("UTF-8");
+
+        String code = request.getParameter("code");
+        String description = request.getParameter("description");
+        String type = request.getParameter("type");
+        String valueStr = request.getParameter("value");
+        String maxDiscountStr = request.getParameter("maxDiscount");
+        String minOrderAmountStr = request.getParameter("minOrderAmount");
+        String startDateStr = request.getParameter("startDate");
+        String endDateStr = request.getParameter("endDate");
+        String usageLimitStr = request.getParameter("usageLimit");
+        String activeStr = request.getParameter("active");
+
+        DiscountCode dc = new DiscountCode();
+
+        dc.setCode(code);
+        dc.setDescription(description);
+        dc.setType(type);
+
+        // Chuyển đổi kiểu dữ liệu
+        dc.setValue(new BigDecimal(valueStr));
+        dc.setMaxDiscount(new BigDecimal(maxDiscountStr));
+        dc.setMinOrderAmount(new BigDecimal(minOrderAmountStr));
+
+        try {
+            dc.setStartDate(Timestamp.valueOf(startDateStr + " 00:00:00"));
+            dc.setEndDate(Timestamp.valueOf(endDateStr + " 23:59:59"));
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Sai định dạng ngày (yyyy-MM-dd)");
+            request.getRequestDispatcher("/DashMin/discount_list.jsp").forward(request, response);
+            return;
+        }
+
+        if (usageLimitStr == null || usageLimitStr.trim().isEmpty()) {
+            dc.setUsageLimit(0);
+        } else {
+            dc.setUsageLimit(Integer.parseInt(usageLimitStr));
+        }
+
+        dc.setActive("on".equals(activeStr) || "true".equalsIgnoreCase(activeStr));
+
+        // Cập nhật vào DB
+        discountCodeDAO.updateDiscountCode(dc);
+
+        // Redirect về trang quản lý
+        response.sendRedirect("discount");
     }
 
     /**

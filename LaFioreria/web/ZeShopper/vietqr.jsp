@@ -22,15 +22,20 @@
         <jsp:include page="/ZeShopper/header.jsp"/>
         <div class="container mt-5">
             <div class="text-center">
-                <h2 class="mb-4">Quét mã QR để thanh toán</h2>
+                <h2 class="mb-4">Scan the QR code to pay</h2>
+                <%-- Xóa các khai báo biến Java và thay bằng việc truy cập attributes từ request --%>
+                <%-- Các biến này đã được đặt trong ConfirmVietQRPayment.java --%>
                 <%
-                    String bankCode = "MB";
-                    String accountNumber = "2628612348888";
-                    String accountName = "LaFioreria";
-                    int amount = (Integer) request.getAttribute("amount");
-                    String orderId = request.getParameter("orderId");
+                    // Lấy các giá trị từ request attributes đã được servlet đặt
+                    String bankCode = (String) request.getAttribute("bankCode");
+                    String accountNumber = (String) request.getAttribute("accountNumber");
+                    String accountName = (String) request.getAttribute("accountName");
+                    // Lấy amount từ attribute, nó đã là Integer từ servlet
+                    int amount = (Integer) request.getAttribute("amount"); 
+                    // Lấy orderId từ attribute, nó đã là Integer từ servlet, chuyển sang String
+                    String orderId = String.valueOf(request.getAttribute("orderId")); 
                 %>
-
+                
                 <img class="mb-4"
                      src="https://img.vietqr.io/image/<c:out value="${bankCode}"/>-<c:out value="${accountNumber}"/>-compact2.png?amount=<c:out value="${amount}"/>&addInfo=ORDER<c:out value="${orderId}"/>&accountName=<c:out value="${accountName}"/>"
                      alt="QR Code chuyển khoản" width="300" />
@@ -73,7 +78,7 @@
 
                 <form action="ConfirmVietQRPayment" method="post">
                     <input type="hidden" name="orderId" value="<c:out value="${orderId}"/>" />
-                    <button type="submit" class="btn btn-success">Tôi đã chuyển khoản</button>
+                    <button type="submit" class="btn btn-success">I have transferred</button>
                 </form>
             </div>
         </div>

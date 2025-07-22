@@ -17,6 +17,7 @@ import model.OrderItem;
 import model.OrderStatusCount;
 import model.RequestDisplay;
 import model.RequestFlower;
+import model.WholesaleOrderDetail;
 
 /**
  * Data Access Object (DAO) for Order related operations. Handles database
@@ -1042,12 +1043,11 @@ public class OrderDAO extends BaseDao {
         return item;
     }
 
-    public void completeBouquetCreation(int orderItemId, int orderId, int bouquetId, int sellPrice) {
+    public void completeBouquetCreation(int orderItemId, int orderId, int bouquetId) {
         String sql = """
         UPDATE order_item
         SET 
-            status = 'done',
-            sellPrice = ?
+            status = 'done'
         WHERE
             order_item_id = ?
             AND order_id = ?
@@ -1057,10 +1057,9 @@ public class OrderDAO extends BaseDao {
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
-            ps.setInt(1, sellPrice);
-            ps.setInt(2, orderItemId);
-            ps.setInt(3, orderId);
-            ps.setInt(4, bouquetId);
+            ps.setInt(1, orderItemId);
+            ps.setInt(2, orderId);
+            ps.setInt(3, bouquetId);
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error updating order_item status: " + e.getMessage());
@@ -1096,15 +1095,45 @@ public class OrderDAO extends BaseDao {
         }
     }
 
+    public boolean isDuplicateRequest(int orderId, int orderItemId, int flowerId) {
+        String sql = "SELECT COUNT(*) AS cnt FROM `la_fioreria`.`requestflower` "
+                + "WHERE Order_ID = ? AND Order_Item_ID = ? AND Flower_ID = ?";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            ps.setInt(2, orderItemId);
+            ps.setInt(3, flowerId);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                int count = rs.getInt("cnt");
+                return count > 0;  // Trả về true nếu đã tồn tại ít nhất 1 dòng
+            }
+        } catch (SQLException e) {
+            System.err.println("SQL Error while checking duplicate request: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
     public void addRequest(RequestFlower rf) {
         String sql = "INSERT INTO `la_fioreria`.`requestflower`\n"
                 + "(`Order_ID`,\n"
                 + "`Order_Item_ID`,\n"
                 + "`Flower_ID`,\n"
                 + "`Quantity`,\n"
-                + "`Request_Creation_Date`)\n"
+                + "`Request_Creation_Date`,\n"
+                + "`price`)\n"
                 + "VALUES\n"
-                + "(?, ?, ?, ?, ?);";
+                + "(?, ?, ?, ?, ?, ?);";
 
         try {
             connection = dbc.getConnection();
@@ -1114,6 +1143,7 @@ public class OrderDAO extends BaseDao {
             ps.setInt(3, rf.getFlowerId());
             ps.setInt(4, rf.getQuantity());
             ps.setDate(5, java.sql.Date.valueOf(LocalDate.now()));
+            ps.setInt(6, rf.getPrice());
             ps.executeUpdate();
 
         } catch (Exception e) {
@@ -1123,6 +1153,30 @@ public class OrderDAO extends BaseDao {
                 this.closeResources();
             } catch (Exception e) {
                 e.printStackTrace(); // Ghi log lỗi đóng tài nguyên
+            }
+        }
+    }
+
+    public void updateOrderItemStatus(int orderItemId, String status) {
+        String sql = "UPDATE la_fioreria.order_item SET status = ? WHERE order_item_id = ?";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, status);
+            ps.setInt(2, orderItemId);
+
+            int updated = ps.executeUpdate();
+            System.out.println("Updated order_item_id " + orderItemId + ". Rows affected: " + updated);
+
+        } catch (SQLException e) {
+            System.err.println("SQL Error while updating order item status to EMAILED: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
@@ -1171,8 +1225,9 @@ public class OrderDAO extends BaseDao {
                 LocalDate requestDate = rs.getDate("Request_Creation_Date").toLocalDate();
                 java.sql.Date sqlConfirmDate = rs.getDate("Request_Confirmation_Date");
                 LocalDate confirmDate = (sqlConfirmDate != null) ? sqlConfirmDate.toLocalDate() : null;
+                int price = rs.getInt("price");
 
-                RequestFlower rf = new RequestFlower(orderId, orderItemId, flowerId, quantity, status, requestDate, confirmDate);
+                RequestFlower rf = new RequestFlower(orderId, orderItemId, flowerId, quantity, status, requestDate, confirmDate, price);
                 listRequest.add(rf);
             }
         } catch (SQLException e) {
@@ -1301,11 +1356,155 @@ public class OrderDAO extends BaseDao {
         }
     }
 
+    public List<WholesaleOrderDetail> getWholesaleOrderDetailsByOrder(int orderId, int orderItemId, int bouquetId) {
+        List<WholesaleOrderDetail> list = new ArrayList<>();
+        String sql = """
+        SELECT 
+            o.order_id,
+            o.customer_id,
+            o.order_date,
+            oi.order_item_id,
+            oi.bouquet_id,
+            oi.unit_price AS bouquet_expense,
+            oi.sellPrice AS bouquet_sell_price,
+            wqfd.flower_id,
+            wqfd.flower_ws_price,
+            bqRaw.quantity AS flower_quantity_in_bouquet,
+            (bqRaw.quantity * oi.quantity) AS total_flower_quantity
+        FROM la_fioreria.order_item oi
+        JOIN la_fioreria.order o 
+            ON oi.order_id = o.order_id
+        JOIN la_fioreria.wholesale_quote_request wqr 
+            ON oi.request_group_id = wqr.request_group_id 
+            AND oi.bouquet_id = wqr.bouquet_id
+        JOIN la_fioreria.wholesale_quote_flower_detail wqfd 
+            ON wqfd.wholesale_request_id = wqr.id 
+            AND wqfd.bouquet_id = wqr.bouquet_id
+        JOIN la_fioreria.bouquet_raw bqRaw 
+            ON bqRaw.bouquet_id = oi.bouquet_id
+        JOIN la_fioreria.flower_batch fb
+            ON fb.batch_id = bqRaw.batch_id 
+            AND fb.flower_id = wqfd.flower_id
+        WHERE o.type = 'wholesale'
+          AND o.order_id = ?
+          AND oi.order_item_id = ?
+          AND oi.bouquet_id = ?;
+    """;
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            ps.setInt(2, orderItemId);
+            ps.setInt(3, bouquetId);
+
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                WholesaleOrderDetail detail = new WholesaleOrderDetail();
+                detail.setOrderId(rs.getInt("order_id"));
+                detail.setCustomerId(rs.getInt("customer_id"));
+                detail.setOrderDate(rs.getDate("order_date").toLocalDate());
+                detail.setOrderItemId(rs.getInt("order_item_id"));
+                detail.setBouquetId(rs.getInt("bouquet_id"));
+                detail.setBouquetExpense(rs.getInt("bouquet_expense"));
+                detail.setBouquetSellPrice(rs.getInt("bouquet_sell_price"));
+                detail.setFlowerId(rs.getInt("flower_id"));
+                detail.setFlowerWholesalePrice(rs.getInt("flower_ws_price"));
+                detail.setFlowerQuantityInBouquet(rs.getInt("flower_quantity_in_bouquet"));
+                detail.setTotalFlowerQuantity(rs.getInt("total_flower_quantity"));
+
+                list.add(detail);
+            }
+        } catch (SQLException e) {
+            System.err.println("SQL Error while getting wholesale order details: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.err.println("Error closing resources: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        return list;
+    }
+
+    public String getRequestGroupIdByOrderItem(int orderItemId) {
+        String sql = """
+        SELECT oi.request_group_id
+        FROM la_fioreria.order_item oi
+        WHERE oi.order_item_id = ?
+    """;
+        String requestGroupId = null;
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, orderItemId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                requestGroupId = rs.getString("request_group_id");
+            }
+        } catch (SQLException e) {
+            System.err.println("SQL Error in getRequestGroupIdByOrderItem: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.err.println("Error closing resources: " + e.getMessage());
+            }
+        }
+        return requestGroupId;
+    }
+
+    public OrderItem getOrderItemByID(int orderItemId, int orderId, int bouquetId) {
+        String sql = "SELECT *\n"
+                + "FROM order_item\n"
+                + "WHERE order_item_id = ?\n"
+                + "AND order_id = ?\n"
+                + "AND bouquet_id = ?";
+        OrderItem item = null;
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            // Thiết lập tham số
+            ps.setInt(1, orderItemId);
+            ps.setInt(2, orderId);
+            ps.setInt(3, bouquetId);
+            rs = ps.executeQuery();
+            // Lấy kết quả
+            if (rs.next()) {
+                item = new OrderItem();
+                item.setOrderItemId(rs.getInt("order_item_id"));
+                item.setOrderId(rs.getInt("order_id"));
+                item.setBouquetId(rs.getInt("bouquet_id"));
+                item.setQuantity(rs.getInt("quantity"));
+                item.setUnitPrice(rs.getDouble("unit_price"));
+                item.setSellPrice(rs.getDouble("sellPrice"));
+                item.setStatus(rs.getString("status"));
+                item.setRequest_group_id(rs.getString("request_group_id"));
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.err.println("Error closing resources: " + e.getMessage());
+            }
+        }
+        return item;
+    }
+
     public static void main(String[] args) {
         OrderDAO cartDAO = new OrderDAO();
 
         int testOrderId = 1; // 📝 Thay ID này bằng 1 ID tồn tại trong DB
         Order order = cartDAO.getOrderDetailById(31);
+
+        System.out.println(cartDAO.getWholesaleOrderDetailsByOrder(57, 63, 2));
 
         if (order != null) {
             System.out.println("Thông tin đơn hàng:");
