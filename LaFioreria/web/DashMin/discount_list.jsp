@@ -245,7 +245,31 @@
                         </div>
                     </div>
                 </c:if>
-
+                ---
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <form action="${pageContext.request.contextPath}/discount" method="get" class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label for="searchCode" class="form-label small">Search by Code or Description</label>
+                                <input type="text" class="form-control form-control-sm" id="searchCode" name="search"
+                                       placeholder="Enter code or description" value="${param.search}">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="filterStatus" class="form-label small">Filter by Status</label>
+                                <select class="form-select form-select-sm" id="filterStatus" name="status">
+                                    <option value="">All</option>
+                                    <option value="active" ${param.status == 'active' ? 'selected' : ''}>Active</option>
+                                    <option value="inactive" ${param.status == 'inactive' ? 'selected' : ''}>Inactive</option>
+                                </select>
+                            </div>
+                            <div class="col-md-auto">
+                                <button type="submit" class="btn btn-sm btn-secondary">Apply Filters</button>
+                                <a href="${pageContext.request.contextPath}/discount" class="btn btn-sm btn-outline-secondary">Clear Filters</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                ---
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover text-start align-middle">
                         <thead class="table-dark text-center">
