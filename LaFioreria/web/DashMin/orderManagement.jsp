@@ -144,7 +144,7 @@
                                     </div>
                                 </div>
                                 <a href="${pageContext.request.contextPath}/discount" 
-                                   class="nav-item nav-link ${pageContext.request.servletPath eq '/discountManagement.jsp' ? 'active' : ''}">
+                                   class="nav-item nav-link">
                                     <i class="fa fa-percentage me-2"></i>Discount
                                 </a>
                                 <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
@@ -200,8 +200,6 @@
         <div class="container-fluid pt-4 px-4">
             <div class="bg-light text-center rounded p-4">
                 <div class="d-flex align-items-center justify-content-between mb-4">
-                    <h6 class="mb-0">Order Management</h6>
-                    <a href="${pageContext.request.contextPath}/addOrder" class="btn btn-success">Add New Order</a>
                 </div>
 
                 <%-- Display success/error message from deletion --%>

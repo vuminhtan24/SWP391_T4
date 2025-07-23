@@ -128,7 +128,7 @@ public class DiscountCodeController extends HttpServlet {
                 doGet(request, response);
                 return;
             }
-            
+
             // --- THÊM LOGIC KIỂM TRA TRÙNG LẶP TẠI ĐÂY ---
             if (dao.isDiscountCodeExists(code)) { // Gọi phương thức kiểm tra trong DAO
                 request.setAttribute("error", "Mã giảm giá '" + code + "' đã tồn tại. Vui lòng chọn mã khác.");
@@ -150,7 +150,11 @@ public class DiscountCodeController extends HttpServlet {
 
                 dc.setStartDate(Timestamp.valueOf(startRaw.trim().replace("T", " ") + ":00"));
                 dc.setEndDate(Timestamp.valueOf(endRaw.trim().replace("T", " ") + ":00"));
-
+                if (dc.getStartDate().after(dc.getEndDate())) {
+                    request.setAttribute("error", "Ngày bắt đầu không được sau ngày kết thúc.");
+                    doGet(request, response);
+                    return;
+                }
                 dc.setActive(true);
 
                 dao.insertDiscountCode(dc);

@@ -187,7 +187,7 @@
                 margin-bottom: 0;
                 padding-left: 20px;
             }
-            
+
             .cart-switch-buttons {
                 display: flex;
                 justify-content: flex-end;
@@ -297,7 +297,7 @@
                                         </form>
                                     </div>
                                 </div>
-                            </div>
+                            </div>					
                             <div class="col-sm-4">
                                 <div class="order-message">
                                     <p>Shipping Order Notes</p>
@@ -307,7 +307,7 @@
                                         <div class="error-message" id="notes-error"></div>
                                     </div>
                                     <!--<label><input type="checkbox" id="ship-to-billing"> Ship to this billing address</label>-->
-                                </div>	
+                                </div>
                             </div>					
                         </div>
                     </div>
