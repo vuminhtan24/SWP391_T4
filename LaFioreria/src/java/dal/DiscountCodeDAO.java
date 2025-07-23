@@ -37,16 +37,19 @@ public class DiscountCodeDAO extends BaseDao { // Giả sử BaseDao là lớp c
     }
 
     /**
-     * Counts the total number of discount codes based on search term and filter status.
+     * Counts the total number of discount codes based on search term and filter
+     * status.
+     *
      * @param searchTerm The term to search for in code or description.
-     * @param filterStatus The status to filter by (e.g., "active", "inactive", "expired", "upcoming", "used_up").
+     * @param filterStatus The status to filter by (e.g., "active", "inactive",
+     * "expired", "upcoming", "used_up").
      * @return The total count of matching discount codes.
      */
     public int countFilteredDiscountCodes(String searchTerm, String filterStatus) {
         int count = 0;
         StringBuilder sqlBuilder = new StringBuilder("SELECT COUNT(*) FROM discount_code WHERE 1=1");
         List<Object> params = new ArrayList<>();
-        
+
         // Add search condition
         if (searchTerm != null && !searchTerm.trim().isEmpty()) {
             sqlBuilder.append(" AND (code LIKE ? OR description LIKE ?)");
@@ -106,9 +109,12 @@ public class DiscountCodeDAO extends BaseDao { // Giả sử BaseDao là lớp c
     }
 
     /**
-     * Retrieves a paginated list of discount codes based on search term and filter status.
+     * Retrieves a paginated list of discount codes based on search term and
+     * filter status.
+     *
      * @param searchTerm The term to search for in code or description.
-     * @param filterStatus The status to filter by (e.g., "active", "inactive", "expired", "upcoming", "used_up").
+     * @param filterStatus The status to filter by (e.g., "active", "inactive",
+     * "expired", "upcoming", "used_up").
      * @param offset The starting offset for pagination.
      * @param pageSize The number of items to retrieve per page.
      * @return A list of matching discount codes.
@@ -305,7 +311,7 @@ public class DiscountCodeDAO extends BaseDao { // Giả sử BaseDao là lớp c
                 discount.setMinOrderAmount(rs.getBigDecimal("min_order_amount"));
                 discount.setStartDate(rs.getTimestamp("start_date"));
                 discount.setEndDate(rs.getTimestamp("end_date"));
-                
+
                 Object usageLimitObj = rs.getObject("usage_limit");
                 discount.setUsageLimit(usageLimitObj != null ? rs.getInt("usage_limit") : null); // Set to null if DB value is null
 
@@ -572,6 +578,28 @@ public class DiscountCodeDAO extends BaseDao { // Giả sử BaseDao là lớp c
             }
         }
         return null;
+    }
+
+    public boolean isDiscountCodeExists(String code) {
+        String sql = "SELECT COUNT(*) FROM discount_code WHERE code = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, code);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error checking discount code existence: " + e.getMessage());
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return false;
     }
 
     public static void main(String[] args) {
