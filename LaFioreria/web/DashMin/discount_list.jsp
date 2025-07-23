@@ -236,10 +236,32 @@
                                         </div>
                                     </div>
                                 </div>
+                                <%-- START: Khối hiển thị thông báo lỗi --%>
+                                <c:if test="${not empty errors}">
+                                    <div class="alert alert-danger mt-2 mb-0 py-2 px-3">
+                                        <h6>Lỗi nhập liệu:</h6>
+                                        <ul>
+                                            <c:forEach var="errorMsg" items="${errors}">
+                                                <li>${errorMsg}</li>
+                                                </c:forEach>
+                                        </ul>
+                                    </div>
+                                </c:if>
+                                <%-- END: Khối hiển thị thông báo lỗi --%>
 
+                                <%-- START: Khối hiển thị thông báo thành công --%>
+                                <c:if test="${not empty sessionScope.message}">
+                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                        ${sessionScope.message}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                    <%-- Quan trọng: Xóa thông báo khỏi session sau khi hiển thị --%>
+                                    <% session.removeAttribute("message"); %>
+                                </c:if>
+                                <%-- END: Khối hiển thị thông báo thành công --%>
                                 <div class="mt-4">
                                     <button type="submit" class="btn btn-success">Lưu thay đổi</button>
-                                    <a href="discountManagement.jsp" class="btn btn-secondary">Huỷ</a>
+                                    <a href="/LaFioreria/discount" class="btn btn-secondary">Huỷ</a>
                                 </div>
                             </form>
                         </div>
