@@ -187,6 +187,39 @@
                 margin-bottom: 0;
                 padding-left: 20px;
             }
+            
+            .cart-switch-buttons {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .btn-retail, .btn-wholesale {
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-weight: bold;
+                text-decoration: none;
+                color: white;
+                display: inline-block;
+                transition: background-color 0.3s ease;
+            }
+
+            .btn-retail {
+                background-color: #5bc0de; /* xanh dương nhạt */
+            }
+
+            .btn-retail:hover {
+                background-color: #31b0d5;
+            }
+
+            .btn-wholesale {
+                background-color: #f0ad4e; /* vàng cam */
+            }
+
+            .btn-wholesale:hover {
+                background-color: #ec971f;
+            }
         </style>
         <!-- Moved jQuery to head to ensure it's loaded before other scripts -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -195,260 +228,110 @@
         <jsp:include page="/ZeShopper/header.jsp"/>
         <section id="cart_items">
             <div class="container">
+
+                <!-- Breadcrumbs -->
                 <div class="breadcrumbs">
                     <ol class="breadcrumb">
-                        <li><a href="#">Home</a></li>
+                        <li><a href="${pageContext.request.contextPath}/home">Home</a></li>
                         <li class="active">Checkout</li>
                     </ol>
                 </div>
-                <!-- Validation Summary -->
-                <div id="validation-summary" class="validation-summary">
-                    <h4>Please correct the following errors:</h4>
-                    <ul id="validation-errors"></ul>
-                </div>
 
-                <c:if test="${(param.mode eq 'retail' and not empty cartDetails) or (param.mode eq 'wholesale' and not empty listCartWholeSale)}">
+                <c:if test="${not empty cartDetails or not empty listCartWholeSale}">
                     <div class="register-req">
                         <p>You can login to track your order history, or continue with guest checkout!</p>
                     </div>
                     <div class="shopper-informations">
                         <div class="row">
-                            <div class="col-sm-12 clearfix">
+                            <div class="col-sm-5 clearfix">
                                 <div class="bill-to">
                                     <p>Billing Address</p>
-                                    <form id="billing-form">
-                                        <div class="row">
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <input name="email" type="email" placeholder="Email *" 
-                                                           value="${not empty savedFormData ? savedFormData.email : user.email}" 
-                                                           class="form-control" id="email-input">
-                                                    <div class="error-message" id="email-error"></div>
-                                                </div>
+                                    <div class="form-one">
+                                        <form id="billing-form">
+                                            <div class="form-group">
+                                                <input name="email" type="email" placeholder="Email *" 
+                                                       value="${not empty savedFormData ? savedFormData.email : user.email}" 
+                                                       class="form-control" id="email-input">
+                                                <div class="error-message" id="email-error"></div>
                                             </div>
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <input name="fullName" type="text" placeholder="Full Name *" 
-                                                           value="${not empty savedFormData ? savedFormData.fullName : user.fullname}" 
-                                                           class="form-control" id="fullname-input">
-                                                    <div class="error-message" id="fullname-error"></div>
-                                                </div>
+                                            <div class="form-group">
+                                                <input name="fullName" type="text" placeholder="Full Name *" 
+                                                       value="${not empty savedFormData ? savedFormData.fullName : user.fullname}" 
+                                                       class="form-control" id="fullname-input">
+                                                <div class="error-message" id="fullname-error"></div>
                                             </div>
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <input name="phoneNumber" type="text" placeholder="Phone Number *" 
-                                                           value="${not empty savedFormData ? savedFormData.phoneNumber : user.phone}" 
-                                                           class="form-control" id="phone-input"> 
-                                                    <div class="error-message" id="phone-error"></div>
-                                                </div>
+                                            <div class="form-group">
+                                                <input name="addressLine" type="text" placeholder="Address Line *" 
+                                                       value="${not empty savedFormData ? savedFormData.addressLine : user.address}" 
+                                                       class="form-control" id="address-input">
+                                                <div class="error-message" id="address-error"></div>
                                             </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <select name="province" id="provinceCitySelect" class="form-control">
-                                                        <option value="">-- Select Province/City * --</option>
-                                                    </select>
-                                                    <div class="error-message" id="province-error"></div>
-                                                </div>
+                                        </form>
+                                    </div>
+                                    <div class="form-two">
+                                        <form>
+                                            <div class="form-group">
+                                                <select name="province" id="provinceCitySelect" class="form-control">
+                                                    <option value="">-- Select Province/City * --</option>
+                                                </select>
+                                                <div class="error-message" id="province-error"></div>
                                             </div>
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <select name="district" id="districtSelect" disabled class="form-control">
-                                                        <option value="">-- Select District * --</option>
-                                                    </select>
-                                                    <div class="error-message" id="district-error"></div>
-                                                </div>
+                                            <div class="form-group">
+                                                <select name="district" id="districtSelect" disabled class="form-control">
+                                                    <option value="">-- Select District * --</option>
+                                                </select>
+                                                <div class="error-message" id="district-error"></div>
                                             </div>
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <select name="ward" id="wardSelect" disabled class="form-control">
-                                                        <option value="">-- Select Ward/Commune * --</option>
-                                                    </select>
-                                                    <div class="error-message" id="ward-error"></div>
-                                                </div>
+                                            <div class="form-group">
+                                                <select name="ward" id="wardSelect" disabled class="form-control">
+                                                    <option value="">-- Select Ward/Commune * --</option>
+                                                </select>
+                                                <div class="error-message" id="ward-error"></div>
                                             </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <input name="addressLine" type="text" placeholder="Address Line *" 
-                                                           value="${not empty savedFormData ? savedFormData.addressLine : user.address}" 
-                                                           class="form-control" id="address-input">
-                                                    <div class="error-message" id="address-error"></div>
-                                                </div>
+                                            <div class="form-group">
+                                                <input name="phoneNumber" type="text" placeholder="Phone Number *" 
+                                                       value="${not empty savedFormData ? savedFormData.phoneNumber : user.phone}" 
+                                                       class="form-control" id="phone-input"> 
+                                                <div class="error-message" id="phone-error"></div>
                                             </div>
-                                        </div>
-                                    </form>
+                                        </form>
+                                    </div>
                                 </div>
-                            </div>	
-                        </div>
-                    </div>
-                </c:if>
-                <c:if test="${(param.mode eq 'retail' and empty cartDetails) or (param.mode eq 'wholesale' and empty listCartWholeSale)}">
-                    <div class="review-payment">
-                        <h4>Nothing in your cart, so that you cannot checkout!</h4>
-                    </div>
-                </c:if>
-                <div class="review-payment">
-                    <h2>Review & Payment</h2>
-                </div>
-                <div class="table-responsive cart_info">
-                    <c:if test="${mode eq 'retail'}">
-                        <c:if test="${empty cartDetails}">
-                            <div class="empty-cart">
-                                <i class="fa fa-shopping-cart fa-5x" style="color: #ccc;"></i>
-                                <h3>Your cart is empty</h3>
-                                <p>Add some beautiful bouquets to your cart to get started!</p>
-                                <a href="${pageContext.request.contextPath}/product" class="btn btn-primary">Continue Shopping</a>
                             </div>
-                        </c:if>
-                        <c:if test="${not empty cartDetails}">
-                            <table class="table table-condensed">
-                                <thead>
-                                    <tr class="cart_menu">
-                                        <td class="image">Item Detail</td>
-                                        <td class="description"></td>
-                                        <td class="price">Price</td>
-                                        <td class="quantity">Quantity</td>
-                                        <td class="total">Total</td>
-                                        <td></td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <c:set var="total" value="0"/>
-                                    <c:forEach var="item" items="${cartDetails}">
-                                        <tr>
-                                            <td class="cart_product">
-                                                <c:forEach items="${cartImages}" var="imgLst" varStatus="loop">
-                                                    <c:set var="count" value="1" />
-                                                    <c:forEach items="${imgLst}" var="img">
-                                                        <c:if test="${img.bouquetId == item.bouquetId && count != 2}">
-                                                            <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}" alt="${item.bouquet.bouquetName}" width="100">
-                                                            <c:set var="count" value="2" />
-                                                        </c:if>
-                                                    </c:forEach>
-                                                </c:forEach>
-                                            </td>
-                                            <td class="cart_description">
-                                                <h4>${item.bouquet.bouquetName}</h4>
-                                                <p>${item.bouquet.description}</p>
-                                            </td>
-                                            <td class="cart_price">
-                                                <p><fmt:formatNumber value="${item.bouquet.sellPrice}" pattern="#,##0" /> ₫</p>
-                                            </td>
-                                            <td class="cart_quantity">
-                                                <div class="cart_quantity_button">
-                                                    <form action="checkout" method="post" style="display: flex;">
-                                                        <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
-                                                        <input type="hidden" name="action" value="update">
-                                                        <input class="cart_quantity_input" type="number" name="quantity" value="${item.quantity}" min="1" style="width: 50px; text-align: center;">
-                                                        <button type="submit" class="btn btn-xs">Update</button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                            <td class="cart_total">
-                                                <p class="cart_total_price"><fmt:formatNumber value="${item.bouquet.sellPrice * item.quantity}" pattern="#,##0" /> ₫</p>
-                                            </td>
-                                            <td class="cart_delete">
-                                                <form action="checkout" method="post">
-                                                    <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
-                                                    <input type="hidden" name="action" value="delete">
-                                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                        <c:set var="total" value="${total + item.bouquet.sellPrice * item.quantity}"/>
-                                    </c:forEach>
-                                    <tr>
-                                        <c:set var="ship" value="30000"/>
-                                        <td colspan="4">&nbsp;</td>
-                                        <td colspan="2">
-                                            <table class="table table-condensed total-result">
-                                                <!-- NHẬP MÃ GIẢM GIÁ -->
-                                                <form action="checkout" method="post" id="discountForm">
-                                                    <input type="hidden" name="action" value="applyDiscount">
-                                                    <!-- Thêm các input hidden để gửi dữ liệu form hiện tại -->
-                                                    <input type="hidden" name="email" id="hidden-email-input">
-                                                    <input type="hidden" name="fullName" id="hidden-fullname-input">
-                                                    <input type="hidden" name="addressLine" id="hidden-address-input">
-                                                    <input type="hidden" name="provinceCode" id="hidden-province-code">
-                                                    <input type="hidden" name="districtCode" id="hidden-district-code">
-                                                    <input type="hidden" name="wardCode" id="hidden-ward-code">
-                                                    <input type="hidden" name="phoneNumber" id="hidden-phone-input">
-                                                    <input type="hidden" name="notes" id="hidden-notes-input">
-                                                    <input type="hidden" name="paymentMethod" id="hidden-payment-method">
-                                                    <%-- <input type="hidden" name="shipToBilling" id="hidden-ship-to-billing"> --%>
+                            <div class="col-sm-4">
+                                <div class="order-message">
+                                    <p>Shipping Order Notes</p>
+                                    <div class="form-group">
+                                        <textarea name="message" placeholder="Notes about your order, special notes for delivery (e.g., preferred delivery time, leave at security desk)" 
+                                                  rows="16" class="form-control" id="notes-input">${not empty savedFormData ? savedFormData.notes : ''}</textarea>
+                                        <div class="error-message" id="notes-error"></div>
+                                    </div>
+                                    <!--<label><input type="checkbox" id="ship-to-billing"> Ship to this billing address</label>-->
+                                </div>	
+                            </div>					
+                        </div>
+                    </div>
+                </c:if>
 
-                                                    <input type="text" name="discountCode" placeholder="Nhập mã giảm giá" id="discountCodeInput">
-                                                    <button type="submit">Áp dụng</button>
-                                                </form>
-
-                                                <tr>
-                                                    <td>Cart Subtotal</td>
-                                                    <td><p><fmt:formatNumber value="${total}" pattern="#,##0" /> ₫</p></td>
-                                                </tr>
-                                                <tr class="shipping-cost">
-                                                    <td>Shipping Fee</td>
-                                                    <td><fmt:formatNumber value="${ship}" pattern="#,##0" /> ₫</td>										
-                                                </tr>
-                                                <c:if test="${not empty calculatedDiscountAmount}">
-                                                    <tr>
-                                                        <td>Discount:</td>
-                                                        <td>- <fmt:formatNumber value="${calculatedDiscountAmount}" pattern="#,##0" />₫</td>
-                                                    </tr>
-                                                </c:if>
-                                                <tr>
-                                                    <td>Total</td>
-                                                    <td><span id="orderFinalTotal"><p><fmt:formatNumber value="${(not empty finalOrderTotal) ? finalOrderTotal : (total + ship)}" pattern="#,##0" /> ₫</p></span></td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </c:if>
-
-                    </c:if>
-
-                    <c:if test="${mode eq 'wholesale'}">
-                        <jsp:include page="checkout-wholesale.jsp" />
-                    </c:if>    
+                <!-- Nút chuyển giữa 2 mode -->
+                <div class="text-right mb-3 cart-switch-buttons">
+                    <a href="${pageContext.request.contextPath}/checkout?mode=retail" class="btn-retail ${param.mode eq 'retail' ? 'active' : ''}">Checkout Retail</a>
+                    <a href="${pageContext.request.contextPath}/checkout?mode=wholesale" class="btn-wholesale ${param.mode eq 'wholesale' ? 'active' : ''}">Checkout Wholesale</a>
                 </div>
 
-                <c:choose>
-                    <c:when test="${param.mode eq 'retail' and not empty cartDetails}">
-                        <div class="payment-options">
-                            <span>
-                                <label><input name="paymentMethod" type="radio" value="cod" id="payment-cod" ${not empty savedFormData && savedFormData.paymentMethod eq 'cod' ? 'checked' : ''}> Cash on Delivery (COD)</label>
-                            </span>
-                            <span>
-                                <label><input name="paymentMethod" type="radio" value="vietqr" id="payment-vietqr" ${not empty savedFormData && savedFormData.paymentMethod eq 'vietqr' ? 'checked' : ''}> VietQR (Chuyển khoản bằng mã QR)</label>
-                            </span>
-                            <div class="error-message" id="payment-error"></div>
-                        </div>
-                        <div class="text-right">
-                            <button class="btn btn-primary" onclick="submitOrder()" id="place-order-btn">Place Order</button>
-                        </div>
-                    </c:when>
-                    <c:when test="${param.mode eq 'wholesale' and not empty listCartWholeSale}">
-                        <div class="payment-options">
-                            <span>
-                                <label><input name="paymentMethod" type="radio" value="cod" id="payment-cod" ${not empty savedFormData && savedFormData.paymentMethod eq 'cod' ? 'checked' : ''}> Cash on Delivery (COD)</label>
-                            </span>
-                            <span>
-                                <label><input name="paymentMethod" type="radio" value="vietqr" id="payment-vietqr" ${not empty savedFormData && savedFormData.paymentMethod eq 'vietqr' ? 'checked' : ''}> VietQR (Chuyển khoản bằng mã QR)</label>
-                            </span>
-                            <div class="error-message" id="payment-error"></div>
-                        </div>
-                        <div class="text-right">
-                            <button class="btn btn-primary" onclick="submitOrder()" id="place-order-btn">Place Order</button>
-                        </div>
-                    </c:when>
-                </c:choose>
+                <!-- RETAIL MODE -->
+                <c:if test="${mode eq 'retail'}">
+                    <jsp:include page="checkout-retail.jsp" />
+                </c:if>
+
+                <!-- WHOLESALE MODE -->
+                <c:if test="${mode eq 'wholesale'}">
+                    <jsp:include page="checkout-wholesale.jsp" />
+                </c:if>
 
             </div>
-        </section> 
+        </section>
+
         <jsp:include page="/ZeShopper/footer.jsp"/> 
         <div id="success-popup" class=""></div>
 
@@ -603,7 +486,7 @@
                 }
 
                 // Gán sự kiện submit cho form giảm giá để cập nhật các trường hidden
-                $('#discountForm').on('submit', function() {
+                $('#discountForm').on('submit', function () {
                     updateHiddenFormFields();
                 });
 
@@ -668,7 +551,7 @@
                     $('#wardSelect').html(options).prop('disabled', filteredWards.length === 0);
                     ValidationUtils.clearValidation('wardSelect');
                 }
-                
+
                 // Load all data first
                 $.when(
                         loadData(basePath + 'tinh_tp.json', 'provinces'),

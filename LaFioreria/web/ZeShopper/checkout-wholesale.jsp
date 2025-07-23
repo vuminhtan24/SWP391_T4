@@ -18,9 +18,12 @@
     <body>
         <section id="checkout-wholesale">
             <h2>Wholesale Order Summary</h2>
+
             <c:if test="${empty listCartWholeSale}">
                 <div class="empty-cart">
-                    <p>Your wholesale cart is empty. Add items to proceed.</p>
+                    <i class="fa fa-shopping-cart fa-5x" style="color: #ccc;"></i>
+                    <h3>Your WholeSale cart is empty</h3>
+                    <p>Add some beautiful bouquets to your cart to get started!</p>
                     <a href="${pageContext.request.contextPath}/product" class="btn btn-primary">Continue Shopping</a>
                 </div>
             </c:if>
@@ -69,7 +72,26 @@
                         </h4>
                     </div>
                 </div>
+
+                <div class="payment-options mt-3">
+                    <span>
+                        <label><input name="paymentMethod" type="radio" value="cod" id="payment-cod"
+                                      ${not empty savedFormData && savedFormData.paymentMethod eq 'cod' ? 'checked' : ''}> 
+                            Cash on Delivery (COD)</label>
+                    </span>
+                    <span>
+                        <label><input name="paymentMethod" type="radio" value="vietqr" id="payment-vietqr"
+                                      ${not empty savedFormData && savedFormData.paymentMethod eq 'vietqr' ? 'checked' : ''}> 
+                            VietQR (QR Transfer)</label>
+                    </span>
+                    <div class="error-message" id="payment-error"></div>
+                </div>
+
+                <div class="text-right mt-3">
+                    <button class="btn btn-primary" onclick="submitOrder()" id="place-order-btn">Place Order</button>
+                </div>  
             </c:if>
+
         </section>
 
     </body>

@@ -20,64 +20,139 @@
             <h2>Retail Order Summary</h2>
             <c:if test="${empty cartDetails}">
                 <div class="empty-cart">
-                    <p>Your cart is empty. Add items to proceed.</p>
+                    <i class="fa fa-shopping-cart fa-5x" style="color: #ccc;"></i>
+                    <h3>Your Retail cart is empty</h3>
+                    <p>Add some beautiful bouquets to your cart to get started!</p>
                     <a href="${pageContext.request.contextPath}/product" class="btn btn-primary">Continue Shopping</a>
                 </div>
             </c:if>
 
+
             <c:if test="${not empty cartDetails}">
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <thead>
+                <table class="table table-condensed">
+                    <thead>
+                        <tr class="cart_menu">
+                            <td class="image">Item Detail</td>
+                            <td class="description"></td>
+                            <td class="price">Price</td>
+                            <td class="quantity">Quantity</td>
+                            <td class="total">Total</td>
+                            <td></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:set var="total" value="0"/>
+                        <c:forEach var="item" items="${cartDetails}">
                             <tr>
-                                <th>Image</th>
-                                <th>Product</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                <th>Total</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="item" items="${cartDetails}">
-                                <tr>
-                                    <td>
-                                        <c:set var="imageShown" value="false" />
-                                        <c:forEach var="img" items="${cartImages}">
-                                            <c:if test="${!imageShown and item.getBouquetId() eq img.getbouquetId()}">
-                                                <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.getImage_url()}" alt="alt" style="width: 100px;"/>
-                                                <c:set var="imageShown" value="true" />
+                                <td class="cart_product">
+                                    <c:forEach items="${cartImages}" var="imgLst" varStatus="loop">
+                                        <c:set var="count" value="1" />
+                                        <c:forEach items="${imgLst}" var="img">
+                                            <c:if test="${img.bouquetId == item.bouquetId && count != 2}">
+                                                <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}" alt="${item.bouquet.bouquetName}" width="100">
+                                                <c:set var="count" value="2" />
                                             </c:if>
                                         </c:forEach>
-                                    </td>
-                                    <td>${item.bouquet.bouquetName}</td>
-                                    <td><fmt:formatNumber value="${item.bouquet.sellPrice}" pattern="#,#00" /> ₫</td>
-                                    <td>
-                                        <form method="post" action="checkout">
+                                    </c:forEach>
+                                </td>
+                                <td class="cart_description">
+                                    <h4>${item.bouquet.bouquetName}</h4>
+                                    <p>${item.bouquet.description}</p>
+                                </td>
+                                <td class="cart_price">
+                                    <p><fmt:formatNumber value="${item.bouquet.sellPrice}" pattern="#,##0" /> ₫</p>
+                                </td>
+                                <td class="cart_quantity">
+                                    <div class="cart_quantity_button">
+                                        <form action="checkout" method="post" style="display: flex;">
+                                            <input type="hidden" name="mode" value="retail">
+                                            <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
                                             <input type="hidden" name="action" value="update">
-                                            <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
-                                            <input type="number" name="quantity" value="${item.quantity}" min="1">
-                                            <button type="submit" class="btn btn-sm btn-default">Update</button>
+                                            <input class="cart_quantity_input" type="number" name="quantity" value="${item.quantity}" min="1" style="width: 50px; text-align: center;">
+                                            <button type="submit" class="btn btn-xs">Update</button>
                                         </form>
-                                    </td>
-                                    <td><fmt:formatNumber value="${item.bouquet.sellPrice * item.quantity}" pattern="#,#00" /> ₫</td>
-                                    <td>
-                                        <form method="post" action="checkout">
-                                            <input type="hidden" name="action" value="delete">
-                                            <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
-                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                    <div class="text-right">
-                        <h4 id="orderFinalTotal" data-total="${totalAmount}">
-                            Total: <fmt:formatNumber value="${totalAmount}" pattern="#,#00" /> ₫
-                        </h4>
-                    </div>
+                                    </div>
+                                </td>
+                                <td class="cart_total">
+                                    <p class="cart_total_price"><fmt:formatNumber value="${item.bouquet.sellPrice * item.quantity}" pattern="#,##0" /> ₫</p>
+                                </td>
+                                <td class="cart_delete">
+                                    <form action="checkout" method="post">
+                                        <input type="hidden" name="mode" value="retail">
+                                        <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
+                                        <input type="hidden" name="action" value="delete">
+                                        <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <c:set var="total" value="${total + item.bouquet.sellPrice * item.quantity}"/>
+                        </c:forEach>
+                        <tr>
+                            <c:set var="ship" value="30000"/>
+                            <td colspan="4">&nbsp;</td>
+                            <td colspan="2">
+                                <table class="table table-condensed total-result">
+                                    <!-- NHẬP MÃ GIẢM GIÁ -->
+                                    <form action="checkout" method="post" id="discountForm">
+                                        <input type="hidden" name="mode" value="retail">
+                                        <input type="hidden" name="action" value="applyDiscount">
+                                        <!-- Thêm các input hidden để gửi dữ liệu form hiện tại -->
+                                        <input type="hidden" name="email" id="hidden-email-input">
+                                        <input type="hidden" name="fullName" id="hidden-fullname-input">
+                                        <input type="hidden" name="addressLine" id="hidden-address-input">
+                                        <input type="hidden" name="provinceCode" id="hidden-province-code">
+                                        <input type="hidden" name="districtCode" id="hidden-district-code">
+                                        <input type="hidden" name="wardCode" id="hidden-ward-code">
+                                        <input type="hidden" name="phoneNumber" id="hidden-phone-input">
+                                        <input type="hidden" name="notes" id="hidden-notes-input">
+                                        <input type="hidden" name="paymentMethod" id="hidden-payment-method">
+                                        <%-- <input type="hidden" name="shipToBilling" id="hidden-ship-to-billing"> --%>
+
+                                        <input type="text" name="discountCode" placeholder="Nhập mã giảm giá" id="discountCodeInput">
+                                        <button type="submit">Áp dụng</button>
+                                    </form>
+
+                                    <tr>
+                                        <td>Cart Subtotal</td>
+                                        <td><p><fmt:formatNumber value="${total}" pattern="#,##0" /> ₫</p></td>
+                                    </tr>
+                                    <tr class="shipping-cost">
+                                        <td>Shipping Fee</td>
+                                        <td><fmt:formatNumber value="${ship}" pattern="#,##0" /> ₫</td>										
+                                    </tr>
+                                    <c:if test="${not empty calculatedDiscountAmount}">
+                                        <tr>
+                                            <td>Discount:</td>
+                                            <td>- <fmt:formatNumber value="${calculatedDiscountAmount}" pattern="#,##0" />₫</td>
+                                        </tr>
+                                    </c:if>
+                                    <tr>
+                                        <td>Total</td>
+                                        <td><span id="orderFinalTotal"><p><fmt:formatNumber value="${(not empty finalOrderTotal) ? finalOrderTotal : (total + ship)}" pattern="#,##0" /> ₫</p></span></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="payment-options mt-3">
+                    <span>
+                        <label><input name="paymentMethod" type="radio" value="cod" id="payment-cod"
+                                      ${not empty savedFormData && savedFormData.paymentMethod eq 'cod' ? 'checked' : ''}> 
+                            Cash on Delivery (COD)</label>
+                    </span>
+                    <span>
+                        <label><input name="paymentMethod" type="radio" value="vietqr" id="payment-vietqr"
+                                      ${not empty savedFormData && savedFormData.paymentMethod eq 'vietqr' ? 'checked' : ''}> 
+                            VietQR (QR Transfer)</label>
+                    </span>
+                    <div class="error-message" id="payment-error"></div>
                 </div>
+
+                <div class="text-right mt-3">
+                    <button class="btn btn-primary" onclick="submitOrder()" id="place-order-btn">Place Order</button>
+                </div>                    
             </c:if>
         </section>
     </body>

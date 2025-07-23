@@ -73,7 +73,13 @@ public class CartWholeSaleController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
-
+        
+        if(session.getAttribute("currentAcc") == null){
+            request.setAttribute("error", "You need login to go to this feature!!!");
+            request.setAttribute("isGuest", true);
+            request.getRequestDispatcher("./ZeShopper/cartWholeSale.jsp").forward(request, response);
+            return;
+        }
         User currentUser = (User) session.getAttribute("currentAcc");
         CartWholeSaleDAO cwsDao = new CartWholeSaleDAO();
         BouquetDAO bDao = new BouquetDAO();
@@ -105,7 +111,8 @@ public class CartWholeSaleController extends HttpServlet {
         LocalDate requestDate = LocalDate.parse(requestDateStr);
 
         if (currentUser == null) {
-            response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet");
+            request.setAttribute("error", "You need login to go to this feature!!!");
+            request.getRequestDispatcher("/cartWholeSale").forward(request, response);
             return;
         }
 
