@@ -51,6 +51,7 @@ public class CheckOutController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
         String mode = request.getParameter("mode");
+        String requestGroupId = request.getParameter("requestGroupId");
         request.setAttribute("mode", mode);
 
         if ("wholesale".equalsIgnoreCase(mode)) {
@@ -227,6 +228,7 @@ public class CheckOutController extends HttpServlet {
         order.setTotalImport(String.valueOf(actualTotalSell / 5)); // Giả định lợi nhuận 20%
         order.setPaymentMethod(paymentMethod);
         order.setStatusId(1); // Chờ xử lý
+        order.setType("wholesale");
 
         CartDAO cartDAO = new CartDAO();
         try {
@@ -608,7 +610,7 @@ public class CheckOutController extends HttpServlet {
         for (CartWholeSaleDetail item : cartItems) {
             totalSell += item.getTotalValue(); // Tổng tiền khách trả
 
-            totalImport += item.getExpense(); // Giá nhập
+            totalImport += item.getExpense() * item.getQuantity(); // Giá nhập
 
         }
 
@@ -638,10 +640,7 @@ public class CheckOutController extends HttpServlet {
                 orderItem.setOrderId(orderId);
                 orderItem.setBouquetId(item.getBouquetID());
                 orderItem.setQuantity(item.getQuantity());
-
-                orderItem.setSellPrice(item.getPricePerUnit()); // Có thể là đơn giá bán theo lô
                 orderItem.setRequest_group_id(item.getRequest_group_id());
-
                 orderItem.setUnitPrice(item.getExpense());
                 orderItem.setSellPrice(item.getPricePerUnit()); // Có thể là đơn giá bán theo lô
 
