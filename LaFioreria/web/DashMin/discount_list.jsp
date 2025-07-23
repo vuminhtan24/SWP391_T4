@@ -239,7 +239,7 @@
 
                                 <div class="mt-4">
                                     <button type="submit" class="btn btn-success">Lưu thay đổi</button>
-                                    <a href="discountManagement.jsp" class="btn btn-secondary">Huỷ</a>
+                                    <a href="/LaFioreria/discount" class="btn btn-secondary">Huỷ</a>
                                 </div>
                             </form>
                         </div>
