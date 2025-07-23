@@ -293,9 +293,15 @@
                     </c:if>
                     <div class="mt-4 text-end">
                         <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}&action=edit" class="btn btn-primary me-2">Edit Order</a>
+                        <c:choose>
+                            <c:when test="${sessionScope.currentAcc.getRole() != 2}">
                         <a href="${pageContext.request.contextPath}/orderManagement" class="btn btn-secondary">Back</a>
+                            </c:when>
+                            <c:otherwise>
+                        <a href="${pageContext.request.contextPath}/saleManagerDashboard" class="btn btn-secondary">Back</a>        
+                            </c:otherwise>
+                        </c:choose>
                     </div>
-
                 </c:if>
                 <c:if test="${order == null}">
                     <p>Unable to load order details.</p>

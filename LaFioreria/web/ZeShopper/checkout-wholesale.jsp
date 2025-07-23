@@ -67,9 +67,11 @@
                         </tbody>
                     </table>
                     <div class="text-right">
-                        <h4 id="orderFinalTotal" data-total="${totalOrderValue}">
-                            Total: <fmt:formatNumber value="${totalOrderValue}" pattern="#,#00" /> ₫
-                        </h4>
+                        <p style="font-weight: bold; font-size: 20px;">Total</p>
+                        <span id="orderFinalTotal" style="font-weight: bold; font-size: 15px;">
+                            <p style="margin: 0;"><fmt:formatNumber value="${totalOrderValue}" pattern="#,#00" /> ₫</p>
+                        </span>
+
                     </div>
                 </div>
 
@@ -86,7 +88,6 @@
                     </span>
                     <div class="error-message" id="payment-error"></div>
                 </div>
-
                 <div class="text-right mt-3">
                     <button class="btn btn-primary" onclick="submitOrder()" id="place-order-btn">Place Order</button>
                 </div>  
