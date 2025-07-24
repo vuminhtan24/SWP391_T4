@@ -341,12 +341,12 @@
 
                         <!-- 🔽 Chọn năm -->
                         <form method="get" action="${pageContext.request.contextPath}/DashMin/admin" class="mb-4">
-                            <label for="year">Năm:</label>
+                            <label for="year">Year:</label>
                             <select name="year" class="form-select d-inline-block w-auto">
                                 <%
                                     int currentYear = Year.now().getValue();
                                     int selectedYear = (int) request.getAttribute("selectedYear");
-                                    for (int y = currentYear - 5; y <= currentYear + 1; y++) {
+                                    for (int y = currentYear - 5; y <= currentYear; y++) {
                                 %>
                                 <option value="<%= y %>" <%= (y == selectedYear ? "selected" : "") %>>Year <%= y %></option>
                                 <%

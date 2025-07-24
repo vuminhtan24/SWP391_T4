@@ -427,7 +427,7 @@
 
                                             <!-- Search Button -->
                                             <div class="col-12 col-md-2 d-flex align-items-end">
-                                                <button type="submit" class="btn btn-gradient-primary w-100">
+                                                <button type="submit" class="btn btn-secondary">
                                                     <i class="bi bi-search"></i> Search
                                                 </button>
                                             </div>
@@ -448,8 +448,8 @@
                             <div class="table-container">
                                 <h6 class="mb-4">View User List Table</h6>
                                 <div class="table-responsive">
-                                    <table class="table table-striped table-bordered align-middle text-center">
-                                        <thead class="table-light">
+                                    <table class="table table-bordered align-middle">
+                                        <thead>
                                             <tr>
                                                 <th>User ID</th>
                                                 <th>User Name</th>
@@ -479,19 +479,19 @@
                                                     <td>
                                                         <form action="${pageContext.request.contextPath}/rejectuserlist" method="post" onsubmit="return confirm('Confirm reject this user ?');">
                                                             <input type="hidden" name="userId" value="${user.userid}" />
-                                                            <button class="btn btn-action btn-reject" type="submit">Reject</button>
+                                                            <button class="btn btn-warning" type="submit">Reject</button>
                                                         </form>
                                                     </td>
                                                     <td>
                                                         <form action="${pageContext.request.contextPath}/DeleteUserListServlet" method="post" onsubmit="return confirm('Confirm Delete this user ?');">
                                                             <input type="hidden" name="userId" value="${user.userid}" />
-                                                            <button class="btn btn-action btn-delete" type="submit">Delete</button>
+                                                            <button class="btn btn-danger" type="submit">Delete</button>
                                                         </form>
                                                     </td>
                                                     <td>
                                                         <form action="${pageContext.request.contextPath}/viewuserdetail" method="get">
                                                             <input type="hidden" name="id" value="${user.userid}" />
-                                                            <button class="btn btn-action btn-view" type="submit">View</button>
+                                                            <button class="btn btn-primary" type="submit">View</button>
                                                         </form>
                                                     </td>
                                                 </tr>

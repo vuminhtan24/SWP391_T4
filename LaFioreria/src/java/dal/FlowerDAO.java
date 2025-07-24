@@ -40,7 +40,6 @@ public class FlowerDAO extends BaseDao {
                 + "JOIN flower_batch fb ON rh.old_batch_id = fb.batch_id "
                 + "JOIN flower_type ft ON fb.flower_id = ft.flower_id "
                 + "GROUP BY ft.flower_name";
-
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
