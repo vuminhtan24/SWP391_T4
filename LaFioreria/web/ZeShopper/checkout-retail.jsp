@@ -93,24 +93,32 @@
                             <td colspan="2">
                                 <table class="table table-condensed total-result">
                                     <!-- NHẬP MÃ GIẢM GIÁ -->
-                                    <form action="checkout" method="post" id="discountForm">
-                                        <input type="hidden" name="mode" value="retail">
-                                        <input type="hidden" name="action" value="applyDiscount">
-                                        <!-- Thêm các input hidden để gửi dữ liệu form hiện tại -->
-                                        <input type="hidden" name="email" id="hidden-email-input">
-                                        <input type="hidden" name="fullName" id="hidden-fullname-input">
-                                        <input type="hidden" name="addressLine" id="hidden-address-input">
-                                        <input type="hidden" name="provinceCode" id="hidden-province-code">
-                                        <input type="hidden" name="districtCode" id="hidden-district-code">
-                                        <input type="hidden" name="wardCode" id="hidden-ward-code">
-                                        <input type="hidden" name="phoneNumber" id="hidden-phone-input">
-                                        <input type="hidden" name="notes" id="hidden-notes-input">
-                                        <input type="hidden" name="paymentMethod" id="hidden-payment-method">
-                                        <%-- <input type="hidden" name="shipToBilling" id="hidden-ship-to-billing"> --%>
+                                    <c:choose>
+                                        <c:when test="${not empty sessionScope.user}">
+                                            <form action="checkout" method="post" id="discountForm">
+                                                <input type="hidden" name="mode" value="retail">
+                                                <input type="hidden" name="action" value="applyDiscount">
+                                                <input type="hidden" name="email" id="hidden-email-input">
+                                                <input type="hidden" name="fullName" id="hidden-fullname-input">
+                                                <input type="hidden" name="addressLine" id="hidden-address-input">
+                                                <input type="hidden" name="provinceCode" id="hidden-province-code">
+                                                <input type="hidden" name="districtCode" id="hidden-district-code">
+                                                <input type="hidden" name="wardCode" id="hidden-ward-code">
+                                                <input type="hidden" name="phoneNumber" id="hidden-phone-input">
+                                                <input type="hidden" name="notes" id="hidden-notes-input">
+                                                <input type="hidden" name="paymentMethod" id="hidden-payment-method">
+                                                <%-- <input type="hidden" name="shipToBilling" id="hidden-ship-to-billing"> --%>
 
-                                        <input type="text" name="discountCode" placeholder="Nhập mã giảm giá" id="discountCodeInput">
-                                        <button type="submit">Áp dụng</button>
-                                    </form>
+                                                <input type="text" name="discountCode" placeholder="Nhập mã giảm giá" id="discountCodeInput">
+                                                <button type="submit">Áp dụng</button>
+                                            </form>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <p style="color:red; margin-top: 10px;">
+                                                Please <a href="${pageContext.request.contextPath}/ZeShopper/LoginServlet">login </a> to use discount code.
+                                            </p>
+                                        </c:otherwise>
+                                    </c:choose>
 
                                     <tr>
                                         <td>Cart Subtotal</td>
