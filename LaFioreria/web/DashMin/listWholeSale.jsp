@@ -348,6 +348,7 @@
                                     <option value="ACCEPTED" ${param.status == 'ACCEPTED' ? 'selected' : ''}>Accepted</option>
                                     <option value="REJECTED" ${param.status == 'REJECTED' ? 'selected' : ''}>Rejected</option>
                                     <option value="EMAILED" ${param.status == 'EMAILED' ? 'selected' : ''}>Emailed</option>
+                                    <option value="COMPLETED" ${param.status == 'COMPLETED' ? 'selected' : ''}>Complete</option>
                                 </select>
                             </div>
                         </div>
@@ -378,9 +379,9 @@
                             </tr>
                         </thead>  
                         <tbody>
-                            <c:forEach var="item" items="${listWS}">
+                            <c:forEach var="item" items="${listWS}" varStatus="loop">
                                 <tr>
-                                    <td>STT</td>
+                                    <td>${loop.index + 1}</td> <!-- STT bắt đầu từ 1 -->
                                     <td>${item.getUser_id()}</td>
                                     <td>${item.getCreated_at()}</td>
                                     <td>
@@ -404,10 +405,15 @@
                                         </c:choose>
                                     </td>
                                     <td>${item.getStatus()}</td>
-                                    <td><a href="${pageContext.request.contextPath}/requestWholeSaleDetails?userId=${item.getUser_id()}&requestDate=${item.getCreated_at()}&status=${item.getStatus()}&requestGroupId=${item.getRequest_group_id()}">View Details</a></td>
+                                    <td>
+                                        <a href="${pageContext.request.contextPath}/requestWholeSaleDetails?userId=${item.getUser_id()}&requestDate=${item.getCreated_at()}&status=${item.getStatus()}&requestGroupId=${item.getRequest_group_id()}">
+                                            View Details
+                                        </a>
+                                    </td>
                                 </tr>  
                             </c:forEach>
-                        </tbody>   
+                        </tbody>
+
                     </table>
                 </div>
 

@@ -139,6 +139,30 @@ public class WholeSaleQuotationController extends HttpServlet {
         int wholesalePricePerUnit = 0;
         int totalWholesalePrice = 0;
 
+        // ✅ Validate assignExpense[]
+        for (int i = 0; i < assignExpenseStrs.length; i++) {
+            String str = assignExpenseStrs[i];
+            if (str == null || str.isBlank()) {
+                redirectToError(response, request, userId, requestDate, requestGroupId, bouquetId,
+                        "Flower price cannot be blank!!!");
+                return;
+            }
+
+            try {
+                int val = Integer.parseInt(str);
+                if (val <= 0) {
+                    redirectToError(response, request, userId, requestDate, requestGroupId, bouquetId,
+                            "Flower Price must greater than 0!");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                redirectToError(response, request, userId, requestDate, requestGroupId, bouquetId,
+                        "Flower price invalid!");
+                return;
+            }
+        }
+
+        // ✅ Nếu hợp lệ thì tiếp tục xử lý
         for (int i = 0; i < flowerIdStrs.length; i++) {
             int flowerId = Integer.parseInt(flowerIdStrs[i]);
             int assignExpense = Integer.parseInt(assignExpenseStrs[i]);
@@ -146,7 +170,6 @@ public class WholeSaleQuotationController extends HttpServlet {
 
             wholesaleExpensePerUnit += assignExpense * quantity;
 
-            // Lưu chi tiết hoa
             WholeSaleFlower wsFlower = new WholeSaleFlower();
             wsFlower.setWholesale_request_id(wsId);
             wsFlower.setBouquet_id(bouquetId);
@@ -160,16 +183,12 @@ public class WholeSaleQuotationController extends HttpServlet {
         totalWholesalePrice = wholesalePricePerUnit * requestedQuantity;
 
         LocalDate quotedDate = LocalDate.now();
-        
-        if(status.equalsIgnoreCase("PENDING")){
-        wsDao.assignQuotedPrice(totalWholesalePrice, quotedDate, wholesalePricePerUnit, userId, requestDate, "PENDING", bouquetId, wholesaleExpensePerUnit, requestGroupId);
-        }else if(status.equalsIgnoreCase("QUOTED")){
-        wsDao.updateQuotedPrice(totalWholesalePrice, quotedDate, wholesalePricePerUnit, userId, requestDate, "QUOTED", bouquetId, wholesaleExpensePerUnit, requestGroupId);    
+
+        if ("PENDING".equalsIgnoreCase(status)) {
+            wsDao.assignQuotedPrice(totalWholesalePrice, quotedDate, wholesalePricePerUnit, userId, requestDate, "PENDING", bouquetId, wholesaleExpensePerUnit, requestGroupId);
+        } else if ("QUOTED".equalsIgnoreCase(status)) {
+            wsDao.updateQuotedPrice(totalWholesalePrice, quotedDate, wholesalePricePerUnit, userId, requestDate, "QUOTED", bouquetId, wholesaleExpensePerUnit, requestGroupId);
         }
-        
-        request.setAttribute("wholesaleExpensePerUnit", wholesaleExpensePerUnit);
-        request.setAttribute("wholesalePricePerUnit", wholesalePricePerUnit);
-        request.setAttribute("totalWholesalePrice", totalWholesalePrice);
 
         response.sendRedirect(request.getContextPath() + "/wholeSaleQuotation"
                 + "?userId=" + userId
@@ -177,8 +196,21 @@ public class WholeSaleQuotationController extends HttpServlet {
                 + "&requestGroupId=" + requestGroupId
                 + "&status=QUOTED"
                 + "&bouquetId=" + bouquetId);
-
     }
+    
+    private void redirectToError(HttpServletResponse response, HttpServletRequest request,
+                             int userId, LocalDate requestDate, String requestGroupId,
+                             int bouquetId, String errorMessage) throws IOException {
+    String redirectUrl = request.getContextPath() + "/wholeSaleQuotation"
+            + "?userId=" + userId
+            + "&requestDate=" + requestDate
+            + "&requestGroupId=" + requestGroupId
+            + "&status=PENDING"
+            + "&bouquetId=" + bouquetId
+            + "&error=" + java.net.URLEncoder.encode(errorMessage, "UTF-8");
+
+    response.sendRedirect(redirectUrl);
+}
 
     /**
      * Returns a short description of the servlet.

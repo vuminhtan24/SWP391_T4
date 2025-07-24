@@ -563,7 +563,7 @@ public class WholeSaleDAO extends BaseDao {
         return null;
     }
 
-    public List<WholeSale> getWholeSaleRequestByFlowerID(int flowerId) {
+    public List<WholeSale> getWholeSaleRequestByFlowerID(int flowerId, int uid, LocalDate requestDate, String requestGroupId) {
         List<WholeSale> list = new ArrayList<>();
         String sql = """
         SELECT ws.* FROM la_fioreria.wholesale_quote_request ws
@@ -572,12 +572,19 @@ public class WholeSaleDAO extends BaseDao {
         JOIN la_fioreria.flower_type ft ON ft.flower_id = fb.flower_id
         WHERE ft.flower_id = ?
         AND ws.status <> 'SHOPPING'
+        AND ws.user_id = ?
+        AND ws.created_at = ?
+        AND ws.request_group_id = ?
     """;
 
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
             ps.setInt(1, flowerId);
+            ps.setInt(2, uid);
+            ps.setDate(3, java.sql.Date.valueOf(requestDate));
+            ps.setString(4, requestGroupId);
+
             rs = ps.executeQuery();
             while (rs.next()) {
                 int id = rs.getInt("id");
@@ -595,10 +602,9 @@ public class WholeSaleDAO extends BaseDao {
 
                 String status = rs.getString("status");
                 Integer expense = rs.getObject("expense") != null ? rs.getInt("expense") : null;
+                String reqGroupId = rs.getString("request_group_id");
 
-                String requestGroupId = rs.getString("request_group_id");
-
-                WholeSale ws = new WholeSale(id, userId, bouquetId, requestedQuantity, note, quotedPrice, totalPrice, quotedAt, respondedAt, createdAt, status, expense, requestGroupId);
+                WholeSale ws = new WholeSale(id, userId, bouquetId, requestedQuantity, note, quotedPrice, totalPrice, quotedAt, respondedAt, createdAt, status, expense, reqGroupId);
                 list.add(ws);
             }
         } catch (SQLException e) {
@@ -914,11 +920,11 @@ public class WholeSaleDAO extends BaseDao {
             }
         }
     }
-    
+
     public void completeWholesale(List<WholeSale> listWS) {
         String sql = """
         UPDATE la_fioreria.wholesale_quote_request
-        SET status = 'COMPLETED',            
+        SET status = 'COMPLETED'            
         WHERE user_id = ?
           AND created_at = ?
           AND request_group_id = ?
