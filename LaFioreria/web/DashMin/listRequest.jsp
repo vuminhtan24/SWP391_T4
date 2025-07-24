@@ -210,9 +210,10 @@
                             <div class="dropdown-menu bg-transparent border-0">
                                 <a href="${pageContext.request.contextPath}/repairOrders" class="dropdown-item">Repair Orders</a>
                                 <a href="${pageContext.request.contextPath}/repairHistory" class="dropdown-item">Repair History</a>
-                                <a href="${pageContext.request.contextPath}/listRequest" class="dropdown-item">List Request</a>
+                                <a href="${pageContext.request.contextPath}/listRequest" class="dropdown-item active">List Request</a>
                             </div>
                         </div>
+                        <a href="${pageContext.request.contextPath}/listWholeSaleRequest" class="nav-item nav-link"><i class="fa fa-table me-2"></i>WholeSale</a>                   
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>

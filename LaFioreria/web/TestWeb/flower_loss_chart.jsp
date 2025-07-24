@@ -105,7 +105,7 @@
             %>
 
             <script>
-                // Bar chart: Lý do lỗi theo loại hoa
+
                 const barLabels = [<% for (String key : discardReasonByCategory.keySet()) { %>"<%= key %>", <% } %>];
                 const barData = [<% for (Integer val : discardReasonByCategory.values()) { %><%= val %>, <% } %>];
 
@@ -124,7 +124,7 @@
                     }
                 });
 
-                // Line chart: Hoa hết hạn theo thời gian theo loại hoa
+
                 const lineLabels = [<% for (StatResult r : expiredByMonthAndCategory) { %>"<%= r.getLabel() %>", <% } %>];
                 const lineData = [<% for (StatResult r : expiredByMonthAndCategory) { %><%= r.getValue() %>, <% } %>];
 

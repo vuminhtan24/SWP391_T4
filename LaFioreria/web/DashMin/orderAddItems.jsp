@@ -359,7 +359,7 @@
                             
                             <div class="d-flex justify-content-end mt-4">
                                 <button type="submit" class="btn btn-primary me-2">Save Products</button>
-                                <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}" class="btn btn-secondary">Done Adding</a>
+                               
                             </div>
                         </form>
                     </div>

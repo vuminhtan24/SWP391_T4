@@ -73,7 +73,13 @@ public class CartWholeSaleController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
-
+        
+        if(session.getAttribute("currentAcc") == null){
+            request.setAttribute("error", "You need login to go to this feature!!!");
+            request.setAttribute("isGuest", true);
+            request.getRequestDispatcher("./ZeShopper/cartWholeSale.jsp").forward(request, response);
+            return;
+        }
         User currentUser = (User) session.getAttribute("currentAcc");
         CartWholeSaleDAO cwsDao = new CartWholeSaleDAO();
         BouquetDAO bDao = new BouquetDAO();
@@ -86,7 +92,14 @@ public class CartWholeSaleController extends HttpServlet {
         for (CartWholeSaleDetail cartWholeSaleDetail : cartDetail) {
             totalOrderValue += cartWholeSaleDetail.getTotalValue();
         }
-
+        
+        String requestGroupId = null;
+        for (CartWholeSaleDetail cartWholeSaleDetail : cartDetail) {
+            requestGroupId = cartWholeSaleDetail.getRequest_group_id();
+            break;
+        }
+        
+        request.setAttribute("requestGroupId", requestGroupId);
         request.setAttribute("totalOrderValue", totalOrderValue);
         request.setAttribute("listBQ", listBouquet);
         request.setAttribute("listIMG", images);
@@ -100,12 +113,13 @@ public class CartWholeSaleController extends HttpServlet {
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("currentAcc");
         String requestDateStr = request.getParameter("requestDate");
-        String requestGroupId = request.getParameter("requestGroupId").trim();  // ✅ mới
+        String requestGroupId = request.getParameter("requestGroupId").trim(); 
 
         LocalDate requestDate = LocalDate.parse(requestDateStr);
 
         if (currentUser == null) {
-            response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet");
+            request.setAttribute("error", "You need login to go to this feature!!!");
+            request.getRequestDispatcher("/cartWholeSale").forward(request, response);
             return;
         }
 
@@ -145,12 +159,11 @@ public class CartWholeSaleController extends HttpServlet {
         }
 
         if (addedCount > 0) {
-            // ✅ Update status to ACCEPTED WITH requestGroupId
             wsDao.updateWholeSaleStatusAndRespond(userId, requestDate, requestGroupId, "ACCEPTED", LocalDate.now());
             response.sendRedirect(request.getContextPath() + "/cartWholeSale");
         } else {
             request.setAttribute("error", "Không có sản phẩm mới nào được thêm vì tất cả đã tồn tại trong giỏ.");
-            request.getRequestDispatcher("quotationDetails.jsp").forward(request, response);
+            request.getRequestDispatcher("./ZeShopper/quotationDetails.jsp").forward(request, response);
         }
     }
 

@@ -360,6 +360,14 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </c:if>
+                                <c:if test="${not empty param.error}">
+                                    <div class="alert alert-warning">
+                                        Bạn cần phải đăng nhập mới được sử dụng tính năng này! Vui lòng vào
+                                        <a href="${pageContext.request.contextPath}/ZeShopper/LoginServlet">Login</a>
+                                        để đăng nhập.
+                                    </div>
+                                </c:if>
+
                             </div>
                         </div>
 
@@ -520,12 +528,6 @@
                                     <small class="text-danger d-none" id="wholesaleError">Vui lòng nhập số lượng >= 50</small>
                                 </div>
 
-                                <!-- GHI CHÚ -->
-                                <div class="form-group">
-                                    <label for="wholesaleNote"><strong>Ghi chú thêm (nếu có):</strong></label>
-                                    <textarea name="note" id="wholesaleNote" class="form-control" rows="3" placeholder="Ví dụ: cần giao gấp, hoa phải tươi, giao theo nhiều đợt, v.v."></textarea>
-                                </div>
-
                                 <input type="hidden" name="bouquet_id" value="${bouquetDetail.bouquetId}" />
                             </div>
                             <div class="modal-footer">
@@ -575,7 +577,7 @@
                     errorDisplay.innerText = `Bạn chỉ có thể đặt tối đa ${availableQuantity} sản phẩm.`;
                     return;
                 }
-                
+
                 if (quantity > 49) {
                     errorDisplay.innerText = `Bạn chỉ có thể đặt tối đa 49 sản phẩm. Hãy sử dụng đặt nhiều để đặt 50 sản phẩm trở lên`;
                     return;
@@ -618,7 +620,7 @@
             $(function () {
                 var imageUrls = [
             <c:forEach items="${images}" var="img" varStatus="status">
-            "${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}"<c:if test="${!status.last}">,</c:if>
+                "${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}"<c:if test="${!status.last}">,</c:if>
             </c:forEach>
                         ];
                         var currentIndex = 0;

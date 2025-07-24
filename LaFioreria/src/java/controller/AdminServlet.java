@@ -148,9 +148,9 @@ public class AdminServlet extends HttpServlet {
                 filteredYears.add(stat);
             }
         }
-        request.setAttribute("yearLabels", gson.toJson(getLabels(filteredYears)));
-        request.setAttribute("yearRevenues", gson.toJson(getRevenues(filteredYears)));
-        request.setAttribute("yearOrders", gson.toJson(getOrders(filteredYears)));
+        request.setAttribute("yearLabels", gson.toJson(getLabels(allYears)));
+        request.setAttribute("yearRevenues", gson.toJson(getRevenues(allYears)));
+        request.setAttribute("yearOrders", gson.toJson(getOrders(allYears)));
 
         List<StatResult> weekdayStats = dao.getWeekdayStats();
         request.setAttribute("weekdayLabels", gson.toJson(getLabels(weekdayStats)));

@@ -914,6 +914,39 @@ public class WholeSaleDAO extends BaseDao {
             }
         }
     }
+    
+    public void completeWholesale(List<WholeSale> listWS) {
+        String sql = """
+        UPDATE la_fioreria.wholesale_quote_request
+        SET status = 'COMPLETED',            
+        WHERE user_id = ?
+          AND created_at = ?
+          AND request_group_id = ?
+          AND status = 'ACCEPTED'
+    """;
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, listWS.get(0).getUser_id());
+            ps.setDate(2, java.sql.Date.valueOf(listWS.get(0).getCreated_at()));
+            ps.setString(3, listWS.get(0).getRequest_group_id());
+
+            int updatedRows = ps.executeUpdate();
+            System.out.println("Updated rows to '" + "COMPLETED" + "': " + updatedRows
+                    + " (user_id=" + listWS.get(0).getUser_id() + ", request_group_id=" + listWS.get(0).getRequest_group_id() + ")");
+        } catch (SQLException e) {
+            System.err.println("Error updating status to '" + "COMPLETED" + "': " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                System.err.println("Error closing resources: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
 
     public void deleteWholeSaleShoppingByUserID(int userId, int bouquetId) {
         String sql = "DELETE FROM la_fioreria.wholesale_quote_request WHERE user_id = ? AND status = 'SHOPPING' AND bouquet_id = ?";

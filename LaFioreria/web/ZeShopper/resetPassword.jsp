@@ -168,7 +168,7 @@
                                 <button type="submit" class="btn btn-default" style="margin-top: 10px;">Reset Password</button>
                             </form>
                             <div style="margin-top: 10px;">
-                                <a href="login.jsp">Back to Login</a>
+                                <a href="${pageContext.request.contextPath}/ZeShopper/LoginServlet">Back to Login</a>
                             </div>
                         </div>
                     </div>

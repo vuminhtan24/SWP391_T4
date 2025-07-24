@@ -529,6 +529,8 @@ public class AddUserDetail extends HttpServlet {
                 6;
             case "Customer" ->
                 7;
+            case "Shipper" ->
+                8;
             default ->
                 0; // hoặc -1 nếu muốn báo lỗi khi không hợp lệ
         };

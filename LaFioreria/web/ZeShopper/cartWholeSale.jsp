@@ -171,7 +171,7 @@
                     <a href="${pageContext.request.contextPath}/ZeShopper/cart" class="btn-retail">Retail Cart</a>
                     <a href="${pageContext.request.contextPath}/cartWholeSale" class="btn-wholesale">Wholesale Cart</a>
                 </div>
-
+                
                 <!-- Guest User Notice -->
                 <c:if test="${isGuest}">
                     <div class="guest-notice">
@@ -191,7 +191,7 @@
                 <c:if test="${empty listCartWholeSale}">
                     <div class="empty-cart">
                         <i class="fa fa-shopping-cart fa-5x" style="color: #ccc;"></i>
-                        <h3>Your cart is empty</h3>
+                        <h3>Your WholeSale cart is empty</h3>
                         <p>Add some beautiful bouquets to your cart to get started!</p>
                         <div style="display: flex; justify-content: center; gap: 10px;">
                             <a href="${pageContext.request.contextPath}/product" class="btn btn-primary">Continue Shopping</a>

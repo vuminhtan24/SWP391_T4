@@ -22,8 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.BouquetImage;
 
 /**
- * This servlet handles displaying order details and order editing
- * functionality.
+ * This ser handles displaying order details and order editing functionality.
  *
  * @author VU MINH TAN
  */
@@ -65,7 +64,7 @@ public class OrderDetailServlet extends HttpServlet {
         }
 
         OrderDAO orderDAO = new OrderDAO();
-        
+
         List<OrderDetail> orderItems = orderDAO.getOrderItemsByOrderId(orderId);
         boolean allDone = true;
 
@@ -76,16 +75,13 @@ public class OrderDetailServlet extends HttpServlet {
             }
         }
 
-        if (allDone) {
-            orderDAO.updateOrderStatusAfterMakingBouquet(orderId);
-        } 
-        
         BouquetDAO bdao = new BouquetDAO();
         Order order = orderDAO.getOrderDetailById(orderId);
+
+        if (allDone && !"Cancelled".equalsIgnoreCase(order.getStatusName()) && !"Delivered".equalsIgnoreCase(order.getStatusName())) {
+            orderDAO.updateOrderStatusAfterMakingBouquet(orderId);
+        }
         List<BouquetImage> images = bdao.getAllBouquetImage();
-
-        
-
         if (order == null) {
             request.setAttribute("errorMessage", "Order not found with ID: " + orderId);
             System.err.println("OrderDetailServlet: Order not found for ID: " + orderId);
