@@ -16,7 +16,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import model.Bouquet;
 import model.BouquetImage;
 import model.Category;
@@ -68,12 +70,10 @@ public class HomeController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Bouquet> listBouquet = new ArrayList<>();
         List<Category> listCategoryBQ = new ArrayList<>();
         List<FlowerType> listFlower = new ArrayList<>();
         List<Bouquet> listMostSellBouquet = new ArrayList<>();
-        List<Bouquet> available = new ArrayList<>();
-        
+
         BouquetDAO bdao = new BouquetDAO();
         CategoryDAO cdao = new CategoryDAO();
         FlowerTypeDAO fdao = new FlowerTypeDAO();
@@ -81,19 +81,22 @@ public class HomeController extends HttpServlet {
         listFlower = fdao.getAllFlowerTypes();
         request.setAttribute("listFlowerHome", listFlower);
 
-        listBouquet = bdao.getAll();
-        available = bdao.allBouquetAvailable();
         listCategoryBQ = cdao.getBouquetCategory();
         listMostSellBouquet = bdao.getMostSellBouquet();
         List<BouquetImage> images = bdao.getAllBouquetImage();
-        
-        request.setAttribute("available", available);
+
+        Map<Integer, Integer> bouquetAvailableMap = new HashMap<>();
+        for (Bouquet b : listMostSellBouquet) {
+            int available = bdao.bouquetAvailable(b.getBouquetId());  // Lấy available theo từng bouquet
+            bouquetAvailableMap.put(b.getBouquetId(), available);
+        }
+
         request.setAttribute("images", images);
         request.setAttribute("listMostSellBouquet", listMostSellBouquet);
-        request.setAttribute("listBouquetHome", listBouquet);
         request.setAttribute("cateBouquetHome", listCategoryBQ);
-        request.getRequestDispatcher("./ZeShopper/home.jsp").forward(request, response);
+        request.setAttribute("bouquetAvailableMap", bouquetAvailableMap);
 
+        request.getRequestDispatcher("./ZeShopper/home.jsp").forward(request, response);
     }
 
     /**

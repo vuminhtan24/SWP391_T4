@@ -484,9 +484,12 @@
                                     <h3 id="popup-name"></h3>
                                     <img id="popup-image" src="" alt="" class="popup-img">
                                     <p id="popup-price" class="popup-price"></p>
+                                    <p>Available: <span id="popup-available"></span></p> <!-- ✅ moved available here -->
                                     <p id="popup-description" class="popup-description"></p>
+
                                     <label class="popup-label">Quantity:</label>
                                     <input id="popup-quantity" type="number" name="quantity" value="1" min="1" required class="popup-input">
+
                                     <input type="hidden" name="bouquetId" id="popup-id">
                                     <div class="popup-buttons">
                                         <button type="submit" class="popup-btn">Add to Cart</button>
@@ -495,6 +498,7 @@
                                 </form>
                             </div>
                         </div>
+
 
                         <!-- Most Sell -->
                         <div>
@@ -552,6 +556,8 @@
 
                                                                     <p style="margin-bottom: 10px;">Price: <fmt:formatNumber value="${lb.getSellPrice()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</p>
 
+                                                                    <c:set var="available" value="${bouquetAvailableMap[lb.bouquetId]}" />
+
                                                                     <button type="button"
                                                                             class="btn btn-default add-to-cart"
                                                                             <c:forEach items="${images}" var="cimg">
@@ -560,12 +566,15 @@
                                                                                                     '${lb.getBouquetId()}',
                                                                                                     '${lb.getBouquetName()}',
                                                                                                     '${pageContext.request.contextPath}/upload/BouquetIMG/${cimg.getImage_url()}',
-                                                                                                                    '${lb.getSellPrice()}')"
+                                                                                                                    '${lb.getSellPrice()}',
+                                                                                                                    '${available}'  // Truyền available vào
+                                                                                                                    )"
                                                                                 </c:if>
                                                                             </c:forEach>
                                                                             style="background-color: #5cb85c; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">
                                                                         <i class="fa fa-shopping-cart" aria-hidden="true"></i> Add to cart
                                                                     </button>
+
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -623,15 +632,28 @@
                         maximumFractionDigits: 0
                     }).format(price) + ' ₫';
                 }
-                
-                function openPopup(id, name, imageUrl, price, description) {
+
+                function openPopup(id, name, imageUrl, price, available) {
                     document.getElementById("popup-id").value = id;
                     document.getElementById("popup-name").textContent = name;
                     document.getElementById("popup-image").src = imageUrl;
                     document.getElementById("popup-price").textContent = "Price: " + formatVND(price);
-                    document.getElementById("popup-description").textContent = description;
+
+                    // ✅ Show available correctly in span
+                    document.getElementById("popup-available").textContent = available;
+
+                    // ✅ Optional: nếu bạn còn muốn hiển thị description bên dưới nữa
+                    document.getElementById("popup-description").textContent = ""; // hoặc giữ nguyên nếu có nội dung
+
+                    // ✅ Giới hạn max quantity không vượt quá available
+                    const quantityInput = document.getElementById("popup-quantity");
+                    quantityInput.value = 1;
+                    quantityInput.max = available;
+                    quantityInput.setAttribute("max", available);
+
                     document.getElementById("popup").style.display = "flex";
                 }
+
 
                 function closePopup() {
                     document.getElementById("popup").style.display = "none";
@@ -663,13 +685,13 @@
                     })
                             .then(res => res.json())
                             .then(data => {
-                                console.log(data)
                                 if (data.status === "added") {
-                                    closePopup(); // Đóng popup sau khi thêm
-
+                                    closePopup();
                                     showSuccessPopup("Added to cart successfully!");
+                                } else if (data.status === "exceed_available") {
+                                    alert("You cannot add more than the available quantity.");
                                 } else {
-                                    alert("Error: " + data.status);
+                                    alert("Error: " + data.message);
                                 }
                             })
                             .catch(err => {
