@@ -16,7 +16,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import model.Bouquet;
 import model.BouquetImage;
 import model.Category;
@@ -75,7 +77,7 @@ public class ProductController extends HttpServlet {
         BouquetDAO bdao = new BouquetDAO();
         CategoryDAO cdao = new CategoryDAO();
         FlowerTypeDAO fdao = new FlowerTypeDAO();
-        
+
         listFlower = fdao.getAllFlowerTypes();
         request.setAttribute("listFlower", listFlower);
         listCategoryBQ = cdao.getBouquetCategory();
@@ -87,9 +89,9 @@ public class ProductController extends HttpServlet {
         String maxValue = request.getParameter("maxPrice");
         String minValue = request.getParameter("minPrice");
         String flowerIDstr = request.getParameter("flowerID");
-        
+
         Integer flowerID = null;
-        if(flowerIDstr != null && !flowerIDstr.trim().isEmpty()){
+        if (flowerIDstr != null && !flowerIDstr.trim().isEmpty()) {
             try {
                 flowerID = Integer.parseInt(flowerIDstr);
             } catch (Exception e) {
@@ -142,13 +144,13 @@ public class ProductController extends HttpServlet {
         }
 
         request.setAttribute("listBouquet", listBouquet);
-        
-        if(listBouquet.isEmpty() || listBouquet.size() == 0){
+
+        if (listBouquet.isEmpty() || listBouquet.size() == 0) {
             request.setAttribute("error", "There aren't any Bouquet. Please try again!!!");
             request.getRequestDispatcher("./ZeShopper/shop.jsp").forward(request, response);
             return;
         }
-        
+
         // PHÂN TRANG
         int pageSize = 6; // số sản phẩm mỗi trang
         int currentPage = 1;
@@ -168,6 +170,12 @@ public class ProductController extends HttpServlet {
         int start = (currentPage - 1) * pageSize;
         int end = Math.min(start + pageSize, totalItems);
         List<Bouquet> bouquetPage = listBouquet.subList(start, end);
+        Map<Integer, Integer> bouquetAvailableMap = new HashMap<>();
+        for (Bouquet bq : bouquetPage) {
+            int available = bdao.bouquetAvailable(bq.getBouquetId());
+            bouquetAvailableMap.put(bq.getBouquetId(), available);
+        }
+        request.setAttribute("bouquetAvailableMap", bouquetAvailableMap);
 
         // Đặt thuộc tính để truyền qua JSP
         request.setAttribute("bouquetAvailable", bdao.allBouquetAvailable());

@@ -131,6 +131,14 @@ public class CartController extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
+        // ✅ Bước 1: Kiểm tra available
+        int available = new BouquetDAO().bouquetAvailable(bouquetId);
+        if (quantity > available) {
+            response.getWriter().write("{\"status\": \"exceed_available\", \"message\": \"Quantity exceeds available stock\"}");
+            return;
+        }
+
+        // ✅ Bước 2: Người dùng chưa đăng nhập (giỏ hàng session)
         if (currentUser == null) {
             List<CartDetail> cart = (List<CartDetail>) request.getSession().getAttribute("cart");
             if (cart == null) {
@@ -146,7 +154,12 @@ public class CartController extends HttpServlet {
             }
 
             if (existingItem != null) {
-                existingItem.setQuantity(existingItem.getQuantity() + quantity);
+                int totalQuantity = existingItem.getQuantity() + quantity;
+                if (totalQuantity > available) {
+                    response.getWriter().write("{\"status\": \"exceed_available\", \"message\": \"Quantity exceeds available stock\"}");
+                    return;
+                }
+                existingItem.setQuantity(totalQuantity);
             } else {
                 CartDetail newItem = new CartDetail();
                 newItem.setCustomerId(-1);
@@ -160,6 +173,7 @@ public class CartController extends HttpServlet {
             return;
         }
 
+        // ✅ Bước 3: Người dùng đã đăng nhập
         int customerId = currentUser.getUserid();
         CartDAO dao = new CartDAO();
         FlowerBatchDAO fbdao = new FlowerBatchDAO();
@@ -171,6 +185,10 @@ public class CartController extends HttpServlet {
             CartDetail existing = dao.getCartItem(customerId, bouquetId);
             if (existing != null) {
                 int newQuantity = existing.getQuantity() + quantity;
+                if (newQuantity > available) {
+                    response.getWriter().write("{\"status\": \"exceed_available\", \"message\": \"Quantity exceeds available stock\"}");
+                    return;
+                }
                 dao.updateQuantity(customerId, bouquetId, newQuantity);
             } else {
                 dao.insertItem(customerId, bouquetId, quantity);
