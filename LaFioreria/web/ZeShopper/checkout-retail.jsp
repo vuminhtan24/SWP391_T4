@@ -95,11 +95,11 @@
                                 <table class="table table-condensed total-result">
                                     <!-- Mã giảm giá -->
                                     <c:choose>
-                                        <c:when test="${not empty sessionScope.user}">
+                                        <c:when test="${not empty sessionScope.currentAcc}">
                                             <form action="checkout" method="post" id="discountForm">
                                                 <input type="hidden" name="mode" value="retail">
                                                 <input type="hidden" name="action" value="applyDiscount">
-                                                <input type="text" name="discountCode" placeholder="Nhập mã giảm giá"
+                                                <input type="text" name="discountCode" placeholder="Discount code"
                                                        id="discountCodeInput"
                                                        style="margin-bottom: 10px;">
                                                 <button type="submit"
@@ -112,12 +112,12 @@
                                                         color: white;
                                                         font-size: 14px;
                                                         cursor: pointer;
-                                                        transition: background-color 0.3s ease;">Áp dụng</button>
+                                                        transition: background-color 0.3s ease;">Apply</button>
                                             </form>
                                         </c:when>
                                         <c:otherwise>
                                             <p style="color: red; margin: 10px 0;">
-                                                Vui lòng <a href="login.jsp">đăng nhập</a> để sử dụng mã giảm giá.
+                                                Please <a href="login.jsp">login</a> if you have discount code.
                                             </p>
                                         </c:otherwise>
                                     </c:choose>
