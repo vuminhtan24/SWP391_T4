@@ -166,7 +166,7 @@
                                 <button type="submit" class="btn btn-default" style="margin-top: 10px;">Send reset link</button>
                             </form>
                             <div style="margin-top: 10px;">
-                                <a href="login">Back to Login</a>
+                                <a href="${pageContext.request.contextPath}/ZeShopper/LoginServlet">Back to Login</a>
                             </div>
                         </div>
                     </div>
