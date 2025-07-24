@@ -42,7 +42,7 @@
 
                 <c:if test="${not empty remainingTime}">
                     <div class="alert alert-warning mt-3">
-                        Vui lòng xác nhận chuyển khoản trong vòng <span id="countdown"></span>.
+                        Please confirm the transfer within <span id="countdown"></span>.
                     </div>
 
                     <script>

@@ -27,7 +27,6 @@
                 </div>
             </c:if>
 
-
             <c:if test="${not empty cartDetails}">
                 <table class="cart-table">
                     <thead>
@@ -139,8 +138,10 @@
                                     <tr>
                                         <td><strong>Total</strong></td>
                                         <td>
+                                            <!-- Chuyển đổi finalOrderTotal thành số nguyên -->
+                                            <fmt:parseNumber var="finalOrderTotalInt" value="${not empty finalOrderTotal ? finalOrderTotal : (total + ship)}" integerOnly="true" />
                                             <span id="orderFinalTotal" style="font-weight: bold; font-size: 15px;">
-                                                <p style="margin: 0;"><fmt:formatNumber value="${not empty finalOrderTotal ? finalOrderTotal : (total + ship)}" pattern="#,##0" /> ₫</p>
+                                                <p style="margin: 0;"><fmt:formatNumber value="${finalOrderTotalInt}" pattern="#,##0" /> ₫</p>
                                             </span>
                                         </td>
                                     </tr>

@@ -16,14 +16,13 @@ public class CheckoutFormData implements Serializable {
     private String districtCode;
     private String wardCode;
     private String phoneNumber;
-    private String notes;
     private String paymentMethod;
     private boolean shipToBilling;
 
     public CheckoutFormData() {
     }
 
-    public CheckoutFormData(String email, String fullName, String addressLine, String provinceCode, String districtCode, String wardCode, String phoneNumber, String notes, String paymentMethod, boolean shipToBilling) {
+    public CheckoutFormData(String email, String fullName, String addressLine, String provinceCode, String districtCode, String wardCode, String phoneNumber, String paymentMethod, boolean shipToBilling) {
         this.email = email;
         this.fullName = fullName;
         this.addressLine = addressLine;
@@ -31,7 +30,6 @@ public class CheckoutFormData implements Serializable {
         this.districtCode = districtCode;
         this.wardCode = wardCode;
         this.phoneNumber = phoneNumber;
-        this.notes = notes;
         this.paymentMethod = paymentMethod;
         this.shipToBilling = shipToBilling;
     }
@@ -92,15 +90,7 @@ public class CheckoutFormData implements Serializable {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
+    
     public String getPaymentMethod() {
         return paymentMethod;
     }
