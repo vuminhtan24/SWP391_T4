@@ -117,7 +117,7 @@ public class ConfirmVietQRPayment extends HttpServlet {
         double actualOrderTotal;
         try {
             // Giả sử getTotalSell() trả về String, cần parse sang double
-            actualOrderTotal = Double.parseDouble(order.getTotalSell())/10;
+            actualOrderTotal = Double.parseDouble(order.getTotalSell());
         } catch (NumberFormatException e) {
             System.err.println("Lỗi khi parse totalSell của đơn hàng từ DB: " + e.getMessage());
             request.setAttribute("errorMessage", "Lỗi dữ liệu tổng tiền đơn hàng. Vui lòng liên hệ hỗ trợ.");

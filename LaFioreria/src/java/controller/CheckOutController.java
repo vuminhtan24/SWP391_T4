@@ -138,6 +138,7 @@ public class CheckOutController extends HttpServlet {
      * @throws IOException
      */
     private void processOrder(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
         int customerId = (currentUser != null) ? currentUser.getUserid() : -1; // Khách vãng lai = -1
         String paymentMethod = request.getParameter("paymentMethod");
@@ -180,7 +181,7 @@ public class CheckOutController extends HttpServlet {
         int actualTotalSell;
         int currentCartTotal = 0;
         // Lấy tổng tiền cuối cùng đã được tính toán (bao gồm giảm giá nếu có) từ session
-        Integer finalOrderTotalFromSession = (Integer) request.getSession().getAttribute("finalOrderTotal");
+        Integer finalOrderTotalFromSession = (Integer) request.getSession().getAttribute("finalOrderTotalInt");
 
         if (finalOrderTotalFromSession != null) {
             actualTotalSell = finalOrderTotalFromSession;
@@ -189,7 +190,7 @@ public class CheckOutController extends HttpServlet {
         } else {
             // Nếu không có finalOrderTotal trong session (ví dụ: không áp dụng giảm giá hoặc session đã bị xóa)
             // Thì tính toán tổng tiền từ giỏ hàng hiện tại và phí vận chuyển
-            
+
             List<CartDetail> cartItems;
             User userFromSession = (User) request.getSession().getAttribute("currentAcc");
 
@@ -351,7 +352,7 @@ public class CheckOutController extends HttpServlet {
             cartDetails = (List<CartDetail>) request.getSession().getAttribute("cart");
         }
 
-        double currentCartTotal = 0.0;
+        int currentCartTotal = 0;
         if (cartDetails != null) {
             BouquetDAO bDao = new BouquetDAO();
             for (CartDetail cd : cartDetails) {
@@ -389,7 +390,7 @@ public class CheckOutController extends HttpServlet {
         // Store in session to be used in processOrder
         session.setAttribute("appliedDiscount", discount);
         session.setAttribute("calculatedDiscountAmount", discountAmount);
-        session.setAttribute("finalOrderTotal", finalAmount);
+        session.setAttribute("finalOrderTotal", finalAmount/10);
 
         request.setAttribute("discountSuccess", "Áp dụng mã giảm giá thành công! Giảm: " + String.format("%,.0f", discountAmount) + "₫");
         request.setAttribute("discountAmount", String.format("%,.0f", discountAmount)); // For displaying on JSP
