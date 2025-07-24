@@ -73,10 +73,11 @@ public class Order {
         this.shipperName = shipperName;
         this.paymentMethod = paymentMethod;
     }
-    
+
     public Order(int orderId, String orderDate, Integer customerId, String customerName,
-            String customerPhone, String customerAddress, String totalSell, String totalImport, int statusId, String statusName,
-            Integer shipperId, String shipperName, String paymentMethod, String type) {
+            String customerPhone, String customerAddress, String totalSell, String totalImport,
+            int statusId, String statusName, Integer shipperId, String shipperName,
+            String paymentMethod, String type) {
         this.orderId = orderId;
         this.orderDate = orderDate;
         this.customerId = customerId;
@@ -91,6 +92,28 @@ public class Order {
         this.shipperName = shipperName;
         this.paymentMethod = paymentMethod;
         this.type = type;
+    }
+
+    public Order(int orderId, String orderDate, Integer customerId, String customerName,
+            String customerPhone, String customerAddress, String totalSell, String totalImport, int statusId, String statusName,
+            Integer shipperId, String shipperName, String paymentMethod, String type, String deliveryProofImage, String rejectImage, String rejectReason) {
+        this.orderId = orderId;
+        this.orderDate = orderDate;
+        this.customerId = customerId;
+        this.customerName = customerName;
+        this.customerPhone = customerPhone;
+        this.customerAddress = customerAddress;
+        this.totalSell = totalSell;
+        this.totalImport = totalImport;
+        this.statusId = statusId;
+        this.statusName = statusName;
+        this.shipperId = shipperId;
+        this.shipperName = shipperName;
+        this.paymentMethod = paymentMethod;
+        this.type = type;
+        this.deliveryProofImage = deliveryProofImage;
+        this.rejectImage = rejectImage;
+        this.rejectReason = rejectReason;
     }
 
     public Order(int orderId, String orderDate, Integer customerId, String customerName,
