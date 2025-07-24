@@ -361,7 +361,6 @@ public class SalesDAO extends BaseDao {
         return list;
     }
 
-// 1. Tổng hợp tổn thất hoa theo lý do (cho biểu đồ Pie hoặc Bar)
     public Map<String, Integer> getDiscardReasonStats() {
         Map<String, Integer> map = new LinkedHashMap<>();
         String sql = "SELECT reason, SUM(quantity) AS total_discarded "
@@ -379,7 +378,6 @@ public class SalesDAO extends BaseDao {
         return map;
     }
 
-// 2. So sánh số lượng hoa nhập vs số lượng bị hỏng, dùng cho biểu đồ Pie
     public Map<String, Integer> getTotalImportVsWaste() {
         Map<String, Integer> map = new LinkedHashMap<>();
         String sqlImport = "SELECT SUM(quantity) AS total_imported FROM flower_batch";
