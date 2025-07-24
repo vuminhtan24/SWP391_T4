@@ -532,6 +532,8 @@
                                             <!-- Danh sách sản phẩm Most Sell -->
                                             <div class="most-sell-row" id="mostSellRow">
                                                 <c:forEach items="${requestScope.listMostSellBouquet}" var="lb">
+                                                    <c:set var="available" value="${bouquetAvailableMap[lb.bouquetId]}" />
+                                                    <c:if test="${lb.getStatus() eq 'valid' and available != null and available gt 0}">
                                                     <div class="most-sell-item">
                                                         <div class="product-image-wrapper">
                                                             <div class="single-products">
@@ -556,7 +558,7 @@
 
                                                                     <p style="margin-bottom: 10px;">Price: <fmt:formatNumber value="${lb.getSellPrice()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</p>
 
-                                                                    <c:set var="available" value="${bouquetAvailableMap[lb.bouquetId]}" />
+                                                                    
 
                                                                     <button type="button"
                                                                             class="btn btn-default add-to-cart"
@@ -579,6 +581,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    </c:if>                
                                                 </c:forEach>
                                             </div>
                                         </div>
