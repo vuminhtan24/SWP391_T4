@@ -29,6 +29,7 @@ import model.DiscountCode;
 import model.Order; // Import lớp Order
 import model.OrderItem; // Import lớp OrderItem
 import model.User;
+import model.WholeSale;
 
 /**
  * Servlet xử lý các yêu cầu liên quan đến Checkout. Bao gồm hiển thị giỏ hàng,
@@ -228,7 +229,7 @@ public class CheckOutController extends HttpServlet {
         order.setTotalImport(String.valueOf(actualTotalSell / 5)); // Giả định lợi nhuận 20%
         order.setPaymentMethod(paymentMethod);
         order.setStatusId(1); // Chờ xử lý
-        order.setType("wholesale");
+        order.setType("retail");
 
         CartDAO cartDAO = new CartDAO();
         try {
@@ -649,7 +650,9 @@ public class CheckOutController extends HttpServlet {
 
             // Xoá giỏ hàng wholesale sau khi đặt hàng thành công
             cwsDAO.clearCartWholeSaleByUser(userId);
-
+            List<WholeSale> listWS = (List<WholeSale>) session.getAttribute("listWS");
+            WholeSaleDAO wsDao = new WholeSaleDAO();
+            wsDao.completeWholesale(listWS);
             // Lưu thông tin để xử lý VietQR nếu cần
             if ("vietqr".equalsIgnoreCase(paymentMethod)) {
                 session.setAttribute("currentOrderId", orderId);

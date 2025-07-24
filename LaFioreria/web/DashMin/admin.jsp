@@ -107,6 +107,7 @@
                                 <a href="${pageContext.request.contextPath}/listRequest" class="dropdown-item">List Request</a>
                             </div>
                         </div>
+                        <a href="${pageContext.request.contextPath}/listWholeSaleRequest" class="nav-item nav-link"><i class="fa fa-table me-2"></i>WholeSale</a>                            
                         <a href="${pageContext.request.contextPath}/adminFeedback" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Feedback</a>    
                         <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
 
