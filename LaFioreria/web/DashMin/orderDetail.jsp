@@ -82,6 +82,10 @@
                                         <a href="${pageContext.request.contextPath}/orderDetail" class="dropdown-item active">Order Details</a>
                                     </div>
                                 </div>
+                                <a href="${pageContext.request.contextPath}/discount" 
+                                   class="nav-item nav-link">
+                                    <i class="fa fa-percentage me-2"></i>Discount
+                                </a>
                                 <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
                                 <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
                                 <div class="nav-item dropdown">
@@ -253,7 +257,7 @@
                                             <td>${item.bouquetName}</td>
                                             <td>${item.quantity}</td>
                                             <td><fmt:formatNumber value="${item.unitPrice}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</td>
-                                            
+
                                             <td>
                                                 <fmt:parseNumber var="qty" value="${item.quantity}" integerOnly="true" />
                                                 <fmt:parseNumber var="price" value="${item.unitPrice}" type="number" />
@@ -278,7 +282,7 @@
                                                         </button></td>
                                                     </c:when>     
                                                     <c:otherwise>
-                                                        <td><button type="button"
+                                                    <td><button type="button"
                                                                 class="btn btn-edit"
                                                                 onclick="location.href = '${pageContext.request.contextPath}/makeBouquet?BouquetId=${item.getBouquetId()}&OrderId=${item.getOrderId()}&OrderItemID=${item.getOrderDetailId()}&orderType=${order.getType()}';">
                                                             Make Bouquet
@@ -296,10 +300,10 @@
                         <a href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}&action=edit" class="btn btn-primary me-2">Edit Order</a>
                         <c:choose>
                             <c:when test="${sessionScope.currentAcc.getRole() != 2}">
-                        <a href="${pageContext.request.contextPath}/orderManagement" class="btn btn-secondary">Back</a>
+                                <a href="${pageContext.request.contextPath}/orderManagement" class="btn btn-secondary">Back</a>
                             </c:when>
                             <c:otherwise>
-                        <a href="${pageContext.request.contextPath}/saleManagerDashboard" class="btn btn-secondary">Back</a>        
+                                <a href="${pageContext.request.contextPath}/saleManagerDashboard" class="btn btn-secondary">Back</a>        
                             </c:otherwise>
                         </c:choose>
                     </div>
