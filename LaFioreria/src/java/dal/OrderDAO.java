@@ -207,7 +207,11 @@ public class OrderDAO extends BaseDao {
                 + "COALESCE(u.Address, o.customer_address) AS customer_address, "
                 + "o.total_sell, o.total_import, "
                 + "o.status_id, os.status_name, "
-                + "o.shipper_id, s.Fullname AS shipper_name, o.payment_method, o.type "
+                + "o.shipper_id, s.Fullname AS shipper_name, "
+                + "o.payment_method, o.type, "
+                + "o.delivery_confirmation_image_path, "
+                + "o.cancellation_image_path, "
+                + "o.cancellation_reason "
                 + "FROM `order` o "
                 + "LEFT JOIN `user` u ON o.customer_id = u.User_ID "
                 + "JOIN `order_status` os ON o.status_id = os.order_status_id "
@@ -221,22 +225,25 @@ public class OrderDAO extends BaseDao {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                order = new Order(
-                        rs.getInt("order_id"),
-                        rs.getString("order_date"),
-                        rs.getObject("customer_id") != null ? rs.getInt("customer_id") : null,
-                        rs.getString("customer_name"),
-                        rs.getString("customer_phone"),
-                        rs.getString("customer_address"),
-                        rs.getString("total_sell"),
-                        rs.getString("total_import"),
-                        rs.getInt("status_id"),
-                        rs.getString("status_name"),
-                        rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
-                        rs.getString("shipper_name"),
-                        rs.getString("payment_method"),
-                        rs.getString("type")
-                );
+                 order = new Order(
+                rs.getInt("order_id"),
+                rs.getString("order_date"),
+                rs.getObject("customer_id") != null ? rs.getInt("customer_id") : null,
+                rs.getString("customer_name"),
+                rs.getString("customer_phone"),
+                rs.getString("customer_address"),
+                rs.getString("total_sell"),
+                rs.getString("total_import"),
+                rs.getInt("status_id"),
+                rs.getString("status_name"),
+                rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
+                rs.getString("shipper_name"),
+                rs.getString("payment_method"),
+                rs.getString("type"),
+                rs.getString("delivery_confirmation_image_path"),
+                rs.getString("cancellation_image_path"),
+                rs.getString("cancellation_reason")
+            );
             }
         } catch (SQLException e) {
             System.err.println("SQL Error in getOrderDetailById: " + e.getMessage());
@@ -1502,23 +1509,9 @@ public class OrderDAO extends BaseDao {
         OrderDAO cartDAO = new OrderDAO();
 
         int testOrderId = 1; // 📝 Thay ID này bằng 1 ID tồn tại trong DB
-        Order order = cartDAO.getOrderDetailById(31);
+        Boolean order = cartDAO.rejectOrder(31,"no","cam.jpg");
 
-        System.out.println(cartDAO.getWholesaleOrderDetailsByOrder(57, 63, 2));
+        System.out.println(order);
 
-        if (order != null) {
-            System.out.println("Thông tin đơn hàng:");
-            System.out.println("ID: " + order.getOrderId());
-            System.out.println("Ngày đặt: " + order.getOrderDate());
-            System.out.println("Khách hàng: " + order.getCustomerName());
-            System.out.println("SĐT: " + order.getCustomerPhone());
-            System.out.println("Địa chỉ: " + order.getCustomerAddress());
-            System.out.println("Tổng tiền: " + order.getTotalSell());
-            System.out.println("Phương thức thanh toán: " + order.getPaymentMethod());
-            System.out.println("Trạng thái: " + order.getStatusName());
-            System.out.println("Shipper: " + order.getShipperName());
-        } else {
-            System.out.println("Không tìm thấy đơn hàng với ID: " + testOrderId);
-        }
     }
 }

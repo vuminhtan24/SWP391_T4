@@ -4,33 +4,22 @@
  */
 package controller;
 
-import dal.BouquetDAO;
-import dal.CategoryDAO;
-import dal.FlowerTypeDAO;
-import dal.RawFlowerDAO;
+import dal.DiscountCodeDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import model.Bouquet;
-import model.BouquetImage;
-import model.Category;
-import model.FlowerType;
-import model.RawFlower;
+import model.DiscountCode;
 
 /**
  *
- * @author ADMIN
+ * @author VU MINH TAN
  */
-@WebServlet(name = "HomeController", urlPatterns = {"/home"})
-public class HomeController extends HttpServlet {
+public class EditDiscountServlet extends HttpServlet {
+
+    private DiscountCodeDAO discountCodeDAO = new DiscountCodeDAO();
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -49,10 +38,10 @@ public class HomeController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet HomeController</title>");
+            out.println("<title>Servlet EditDiscountServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet HomeController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet EditDiscountServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -70,33 +59,21 @@ public class HomeController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Category> listCategoryBQ = new ArrayList<>();
-        List<FlowerType> listFlower = new ArrayList<>();
-        List<Bouquet> listMostSellBouquet = new ArrayList<>();
+        String code = request.getParameter("code");
 
-        BouquetDAO bdao = new BouquetDAO();
-        CategoryDAO cdao = new CategoryDAO();
-        FlowerTypeDAO fdao = new FlowerTypeDAO();
-
-        listFlower = fdao.getAllFlowerTypes();
-        request.setAttribute("listFlowerHome", listFlower);
-
-        listCategoryBQ = cdao.getBouquetCategory();
-        listMostSellBouquet = bdao.getMostSellBouquet();
-        List<BouquetImage> images = bdao.getAllBouquetImage();
-
-        Map<Integer, Integer> bouquetAvailableMap = new HashMap<>();
-        for (Bouquet b : listMostSellBouquet) {
-            int available = bdao.bouquetAvailable(b.getBouquetId());  // Lấy available theo từng bouquet
-            bouquetAvailableMap.put(b.getBouquetId(), available);
+        if (code == null || code.isEmpty()) {
+            response.sendRedirect("discount");
+            return;
         }
 
-        request.setAttribute("images", images);
-        request.setAttribute("listMostSellBouquet", listMostSellBouquet);
-        request.setAttribute("cateBouquetHome", listCategoryBQ);
-        request.setAttribute("bouquetAvailableMap", bouquetAvailableMap);
-
-        request.getRequestDispatcher("./ZeShopper/home.jsp").forward(request, response);
+        DiscountCode discount = discountCodeDAO.getDiscountCodeByCode(code);
+        if (discount == null) {
+            request.setAttribute("error", "Discount code not found!");
+            request.getRequestDispatcher("/DashMin/discount_list.jsp").forward(request, response);
+        } else {
+            request.setAttribute("editDiscount", discount);
+            request.getRequestDispatcher("/DashMin/discount_list.jsp").forward(request, response);
+        }
     }
 
     /**
