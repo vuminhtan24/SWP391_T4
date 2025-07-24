@@ -190,6 +190,7 @@ public class AddBatch extends HttpServlet {
                     Integer orderItemId = (Integer) session.getAttribute("orderItemId");
                     OrderDAO odao = new OrderDAO();
                     odao.confirmFlowerRequest(orderId, orderItemId, flowerId);
+                    odao.updateOrderItemStatus(orderItemId, "Added");
                     session.removeAttribute("orderId");
                     session.removeAttribute("orderItemId");
                     response.sendRedirect(request.getContextPath() + "/requestDetail?orderId="+orderId+"&orderItemId="+orderItemId);

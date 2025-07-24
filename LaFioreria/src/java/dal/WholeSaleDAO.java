@@ -922,15 +922,15 @@ public class WholeSaleDAO extends BaseDao {
         WHERE user_id = ?
           AND created_at = ?
           AND request_group_id = ?
-          AND status = 'EMAILED'
+          AND status = 'ACCEPTED'
     """;
 
         try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
-            ps.setInt(3, listWS.get(0).getUser_id());
-            ps.setDate(4, java.sql.Date.valueOf(listWS.get(0).getCreated_at()));
-            ps.setString(5, listWS.get(0).getRequest_group_id());
+            ps.setInt(1, listWS.get(0).getUser_id());
+            ps.setDate(2, java.sql.Date.valueOf(listWS.get(0).getCreated_at()));
+            ps.setString(3, listWS.get(0).getRequest_group_id());
 
             int updatedRows = ps.executeUpdate();
             System.out.println("Updated rows to '" + "COMPLETED" + "': " + updatedRows

@@ -1504,21 +1504,8 @@ public class OrderDAO extends BaseDao {
         int testOrderId = 1; // 📝 Thay ID này bằng 1 ID tồn tại trong DB
         Order order = cartDAO.getOrderDetailById(31);
 
-        System.out.println(cartDAO.getWholesaleOrderDetailsByOrder(57, 63, 2));
+        System.out.println(cartDAO.getWholesaleOrderDetailsByOrder(61, 82, 2));
 
-        if (order != null) {
-            System.out.println("Thông tin đơn hàng:");
-            System.out.println("ID: " + order.getOrderId());
-            System.out.println("Ngày đặt: " + order.getOrderDate());
-            System.out.println("Khách hàng: " + order.getCustomerName());
-            System.out.println("SĐT: " + order.getCustomerPhone());
-            System.out.println("Địa chỉ: " + order.getCustomerAddress());
-            System.out.println("Tổng tiền: " + order.getTotalSell());
-            System.out.println("Phương thức thanh toán: " + order.getPaymentMethod());
-            System.out.println("Trạng thái: " + order.getStatusName());
-            System.out.println("Shipper: " + order.getShipperName());
-        } else {
-            System.out.println("Không tìm thấy đơn hàng với ID: " + testOrderId);
-        }
+
     }
 }
