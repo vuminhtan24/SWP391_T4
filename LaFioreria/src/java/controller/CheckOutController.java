@@ -319,7 +319,6 @@ public class CheckOutController extends HttpServlet {
         formData.setDistrictCode(request.getParameter("districtCode"));
         formData.setWardCode(request.getParameter("wardCode"));
         formData.setPhoneNumber(request.getParameter("phoneNumber"));
-        formData.setNotes(request.getParameter("notes"));
         formData.setPaymentMethod(request.getParameter("paymentMethod"));
         // formData.setShipToBilling(request.getParameter("shipToBilling") != null); // Nếu bạn có checkbox này
 
