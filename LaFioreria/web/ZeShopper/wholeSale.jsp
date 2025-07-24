@@ -149,7 +149,6 @@
                                                 <th class="text-center">Tên giỏ</th>
                                                 <th class="text-center">Ảnh</th>
                                                 <th class="text-center">Số lượng</th>
-                                                <th class="text-center">Ghi chú</th>
                                                 <th class="text-center" colspan="2">Action</th>
                                             </tr>
                                         </thead>
@@ -188,7 +187,6 @@
 
                                                         <!-- SỐ LƯỢNG + GHI CHÚ -->
                                                         <td>${item.requested_quantity}</td>
-                                                        <td class="note-cell" style="text-align: left; padding-left: 12px;">${item.note}</td>
 
                                                         <!-- ACTION BUTTONS -->
                                                         <td style="white-space: nowrap; min-width: 150px; text-align: center;">

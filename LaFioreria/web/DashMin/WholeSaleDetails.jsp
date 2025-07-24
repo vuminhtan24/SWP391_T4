@@ -520,7 +520,6 @@
                                     </c:url>
                                     <a href="${sortedUrl}">Requested Quantity</a>
                                 </td>
-                                <td>Note</td>
                                 <td>WholeSale Expense per Unit</td>
                                 <td>WholeSale Price per Unit</td>
                                 <td>Total WholeSale Price</td>                                
@@ -565,9 +564,6 @@
                                         </c:forEach>
                                     </td>    
                                     <td>${item.getRequested_quantity()}</td>
-                                    <td>
-                                        ${item.getNote()}
-                                    </td>
 
                                     <td>
                                         <c:choose>

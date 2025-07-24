@@ -619,7 +619,7 @@ public class BouquetDAO extends BaseDao {
                 b.setCid(rs.getInt("cid"));
                 b.setPrice(rs.getInt("price"));
                 b.setSellPrice(rs.getInt("sellPrice"));
-//                b.setImageUrl(rs.getString("image_url"));
+                b.setStatus(rs.getString("status"));
             }
         } catch (SQLException e) {
             System.err.println("BouquetDAO: Error in isFlowerInBouquet - " + e.getMessage());
@@ -712,11 +712,13 @@ public class BouquetDAO extends BaseDao {
         Bouquet b = new Bouquet();
         BouquetRaw q = new BouquetRaw();
         b = dao.getBouquetByID(3);
-        List<BouquetRaw> r = dao.getFlowerBatchByBouquetID(3);
+//        List<BouquetRaw> r = dao.getFlowerBatchByBouquetID(3);
 //        BouquetImage big = dao.getBouquetImage(1);
-        List<BouquetImage> big = dao.getBouquetImage(5);
+//        List<BouquetImage> big = dao.getBouquetImage(5);
 //        System.out.println(big);
-        System.out.println(dao.bouquetAvailable(1));
+//        System.out.println(dao.bouquetAvailable(1));
+
+        System.out.println(dao.getBouquetFullInfoById(1));
     }
 
 }

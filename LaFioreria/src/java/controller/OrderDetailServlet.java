@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.BouquetImage;
 
 /**
- * This servlet handles displaying order details and order editing
+ * This ser handles displaying order details and order editing
  * functionality.
  *
  * @author VU MINH TAN

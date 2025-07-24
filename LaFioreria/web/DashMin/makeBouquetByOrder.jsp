@@ -104,7 +104,7 @@
                                         <a href="${pageContext.request.contextPath}/listRequest" class="dropdown-item">List Request</a>
                                     </div>
                                 </div>
-                                  
+
                                 <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
                                 <div class="nav-item dropdown">
                                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
@@ -365,50 +365,48 @@
                                         <tr>
                                             <th>Flower Name</th>
                                             <th>Flower Batch</th>
-                                            <th>Quantity in one Bouquet</th>
-                                            <th>Quoted Price</th>
-                                            <th>Total Quantity Needed</th>
+                                            <th>Quantity/one Bouquet</th>
+                                            <th>Price per stem</th>
+                                            <th>Total Quantity</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <c:forEach var="rtDetail" items="${orderDetails}">
+                                        <c:forEach var="br" items="${flowerInBQ}">
                                             <tr>
                                                 <td>
-                                                    <c:forEach var="flower" items="${allFlowers}">
-                                                        <c:if test="${flower.getFlowerId() eq wsDetail.getFlowerId()}">
-                                                            ${flower.getFlowerName()}
+                                                    <c:forEach var="fb" items="${allBatchs}">
+                                                        <c:if test="${fb.getBatchId() eq br.getBatchId()}">
+                                                            <c:forEach var="af" items="${allFlowers}">
+                                                                <c:if test="${fb.getFlowerId() eq af.getFlowerId()}">
+                                                                    ${af.getFlowerName()}
+                                                                    <input type="hidden" name="flowerIds[]" value="${af.getFlowerId()}" />
+                                                                </c:if>
+                                                            </c:forEach>
                                                         </c:if>
                                                     </c:forEach>
-                                                    <input type="hidden" name="flowerIds[]" value="${wsDetail.getFlowerId()}" />
                                                 </td>
                                                 <td>
-                                                    <c:set var="latestBatch" value="" />
-                                                    <c:set var="latestDate" value="" />
-                                                    <c:forEach var="fbBatch" items="${allBatchs}">
-                                                        <c:if test="${fbBatch.flowerId eq wsDetail.flowerId and fbBatch.unitPrice eq wsDetail.flowerWholesalePrice}">
-                                                            <c:if test="${empty latestDate or fbBatch.importDate gt latestDate}">
-                                                                <c:set var="latestDate" value="${fbBatch.importDate}" />
-                                                                <c:set var="latestBatch" value="${fbBatch}" />
-                                                            </c:if>
+                                                    <c:forEach var="fb" items="${allBatchs}">
+                                                        <c:if test="${fb.getBatchId() eq br.getBatchId()}">
+                                                            <input type="hidden" name="batchIds[]" value="${fb.getBatchId()}" />
+                                                            <input type="text" class="form-control form-control-sm" value="${fb.getImportDate()} to ${fb.getExpirationDate()}" readonly />
                                                         </c:if>
                                                     </c:forEach>
-
-                                                    <!-- Sau vòng lặp, dùng latestBatch -->
-                                                    ${latestBatch.importDate} to ${latestBatch.expirationDate}
-                                                    <input type="hidden" name="batchIds[]" value="${latestBatch.batchId}" />
-
                                                 </td>    
                                                 <td>
-                                                    ${wsDetail.getFlowerQuantityInBouquet()}
-                                                    <input type="hidden" name="flowerQuantities[]" value="${wsDetail.getFlowerQuantityInBouquet()}" />
+                                                    ${br.getQuantity()}
                                                 </td>
                                                 <td>
-                                                    <fmt:formatNumber value="${wsDetail.getFlowerWholesalePrice()}" type="number" groupingUsed="true" /> ₫
-                                                    <input type="hidden" name="flowerWholesalePrices[]" value="${wsDetail.getFlowerWholesalePrice()}" />
+                                                    <c:forEach var="fb" items="${allBatchs}">
+                                                        <c:if test="${fb.getBatchId() eq br.getBatchId()}">
+                                                            <fmt:formatNumber value="${fb.getUnitPrice()}" type="number" groupingUsed="true" /> ₫
+                                                            <input type="hidden" name="flowerWholesalePrices[]" value="${fb.getUnitPrice()}" />
+                                                        </c:if>
+                                                    </c:forEach>
                                                 </td>
                                                 <td>
-                                                    ${wsDetail.getTotalFlowerQuantity()}
-                                                    <input type="hidden" name="totalFlowerQuantities[]" value="${wsDetail.getTotalFlowerQuantity()}" />
+                                                    ${br.getQuantity() * orderItem.getQuantity()}
+                                                    <input type="hidden" name="totalFlowerQuantities[]" value="${br.getQuantity() * orderItem.getQuantity()}" />
                                                 </td>
                                             </tr>
                                         </c:forEach>
@@ -419,15 +417,15 @@
                                                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start flex-wrap w-100">
                                                     <div class="summary-results fw-bold text-primary">
                                                         <div>
-                                                            WholeSale Order Expense per Unit:
+                                                            Retail Order Expense per Unit:
                                                             <fmt:formatNumber value="${orderItem.getUnitPrice()}" type="number" groupingUsed="true" /> ₫
                                                         </div>
                                                         <div>
-                                                            WholeSale Order Price per Unit:
+                                                            Retail Order Price per Unit:
                                                             <fmt:formatNumber value="${orderItem.getSellPrice()}" type="number" groupingUsed="true" /> ₫
                                                         </div>
                                                         <div>
-                                                            Total WholeSale Order Price:
+                                                            Total Retail Order Price:
                                                             <fmt:formatNumber value="${orderItem.getSellPrice() * orderItem.getQuantity()}" type="number" groupingUsed="true" /> ₫
                                                         </div>
                                                     </div>
@@ -442,22 +440,38 @@
                         <!-- Buttons -->
                         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center w-100 mt-3">
                             <c:choose>
-                                <c:when test="${orderItem.getStatus() eq 'not done'}">
-                                    <button type="submit" name="action" value="request" class="btn btn-success mb-2 mb-md-0">
-                                        Request Flower for WholeSale Order
-                                    </button>
+                                <c:when test="${param.orderType eq 'wholesale'}">
+                                    <c:choose>
+                                        <c:when test="${orderItem.getStatus() eq 'not done'}">
+                                            <button type="submit" name="action" value="request" class="btn btn-success mb-2 mb-md-0">
+                                                Request Flower for WholeSale Order
+                                            </button>
+                                        </c:when>
+                                        <c:when test="${orderItem.getStatus() eq 'Requested'}">
+                                            <p>Wait for Admin</p>
+                                        </c:when>
+                                        <c:when test="${orderItem.getStatus() eq 'Added'}">
+                                            <button type="submit" name="action" value="complete" class="btn btn-success mb-2 mb-md-0">
+                                                Complete WholeSale Order
+                                            </button>
+                                        </c:when>    
+                                        <c:otherwise>
+                                            <p>You have completed this order</p>
+                                        </c:otherwise>
+                                    </c:choose> 
                                 </c:when>
-                                <c:when test="${orderItem.getStatus() eq 'Requested'}">
-                                    <p>Wait for Admin</p>
-                                </c:when>
-                                <c:when test="${orderItem.getStatus() eq 'Added'}">
-                                    <button type="submit" name="action" value="complete" class="btn btn-success mb-2 mb-md-0">
-                                        Complete WholeSale Order
-                                    </button>
-                                </c:when>    
                                 <c:otherwise>
-                                    <p>You have completed this order</p>
-                                </c:otherwise>   
+                                    <c:choose>
+                                        <c:when test="${orderItem.getStatus() eq 'not done'}">
+                                            <button type="submit" name="action" value="complete" class="btn btn-success mb-2 mb-md-0">
+                                                Complete Retail Order
+                                            </button>
+                                        </c:when>   
+                                        <c:otherwise>
+                                            <p>You have completed this order</p>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:otherwise>    
                             </c:choose>
                             <a href="${pageContext.request.contextPath}/orderDetail?orderId=${orderItem.getOrderId()}"
                                class="btn btn-secondary">

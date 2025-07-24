@@ -177,17 +177,19 @@ public class CheckOutController extends HttpServlet {
 
         String totalSellStr = request.getParameter("totalAmount");
 
-        double actualTotalSell;
+        int actualTotalSell;
+        int currentCartTotal = 0;
         // Lấy tổng tiền cuối cùng đã được tính toán (bao gồm giảm giá nếu có) từ session
-        Double finalOrderTotalFromSession = (Double) request.getSession().getAttribute("finalOrderTotal");
+        Integer finalOrderTotalFromSession = (Integer) request.getSession().getAttribute("finalOrderTotal");
 
         if (finalOrderTotalFromSession != null) {
             actualTotalSell = finalOrderTotalFromSession;
+            currentCartTotal = actualTotalSell - 30000;
             System.out.println("DEBUG (processOrder): Using finalOrderTotal from session: " + actualTotalSell);
         } else {
             // Nếu không có finalOrderTotal trong session (ví dụ: không áp dụng giảm giá hoặc session đã bị xóa)
             // Thì tính toán tổng tiền từ giỏ hàng hiện tại và phí vận chuyển
-            double currentCartTotal = 0.0;
+            
             List<CartDetail> cartItems;
             User userFromSession = (User) request.getSession().getAttribute("currentAcc");
 
@@ -226,7 +228,7 @@ public class CheckOutController extends HttpServlet {
         order.setCustomerAddress(fullAddress);
         order.setOrderDate(LocalDate.now().toString());
         order.setTotalSell(String.valueOf(actualTotalSell)); // Lưu tổng tiền đã được tính toán cuối cùng
-        order.setTotalImport(String.valueOf(actualTotalSell / 5)); // Giả định lợi nhuận 20%
+        order.setTotalImport(String.valueOf(currentCartTotal / 5)); // Giả định lợi nhuận 20%
         order.setPaymentMethod(paymentMethod);
         order.setStatusId(1); // Chờ xử lý
         order.setType("retail");
@@ -654,13 +656,12 @@ public class CheckOutController extends HttpServlet {
             WholeSaleDAO wsDao = new WholeSaleDAO();
             wsDao.completeWholesale(listWS);
             // Lưu thông tin để xử lý VietQR nếu cần
-            if ("vietqr".equalsIgnoreCase(paymentMethod)) {
-                session.setAttribute("currentOrderId", orderId);
-                session.setAttribute("currentOrderAmount", totalSell);
-                String redirectUrl = request.getContextPath() + "/ConfirmVietQRPayment";
-                response.getWriter().write("{\"status\": \"success\", \"paymentMethod\": \"vietqr\", \"orderId\": " + orderId + ", \"amount\": " + totalSell + ", \"redirectUrl\": \"" + redirectUrl + "\"}");
+            if ("vietqr".equals(paymentMethod)) {
+                // Redirect to VietQR payment page
+                response.sendRedirect(request.getContextPath() + "/ConfirmVietQRPayment?orderId=" + orderId + "&amount=" + totalSell);
             } else {
-                response.getWriter().write("{\"status\": \"success\", \"message\": \"Đơn hàng theo lô đã được đặt thành công! Mã đơn: " + orderId + "\"}");
+                request.setAttribute("orderSuccess", "Đơn hàng đã được đặt thành công! Mã đơn hàng: " + orderId);
+                request.getRequestDispatcher("./ZeShopper/thanks-you.jsp").forward(request, response);
             }
 
         } catch (Exception e) {

@@ -557,7 +557,6 @@
                     district: $('#districtSelect option:selected').text(),
                     ward: $('#wardSelect option:selected').text(),
                     phoneNumber: $('#phone-input').val().trim(),
-                    notes: $('#notes-input').val().trim(),
                     paymentMethod: paymentMethod,
                     totalAmount: totalAmount
                 };
@@ -593,7 +592,6 @@
                     $('#hidden-district-code').val($('#districtSelect').val());     // Lấy code
                     $('#hidden-ward-code').val($('#wardSelect').val());             // Lấy code
                     $('#hidden-phone-input').val($('#phone-input').val());
-                    $('#hidden-notes-input').val($('#notes-input').val());
                     $('#hidden-payment-method').val($('input[name="paymentMethod"]:checked').val());
                     // $('#hidden-ship-to-billing').val($('#ship-to-billing').is(':checked')); // Nếu có checkbox này
                 }
@@ -761,7 +759,6 @@
                 resetForm: function () {
                     $('#billing-form')[0].reset();
                     $('#provinceCitySelect').val('').trigger('change');
-                    $('#notes-input').val('');
                     $('input[name="paymentMethod"]').prop('checked', false);
                     $('#ship-to-billing').prop('checked', false);
                     $('.input-error, .input-valid').removeClass('input-error input-valid');
@@ -780,7 +777,6 @@
                         ward: $('#wardSelect option:selected').text(),
                         wardCode: $('#wardSelect').val(),
                         phoneNumber: $('#phone-input').val().trim(),
-                        notes: $('#notes-input').val().trim(),
                         paymentMethod: $('input[name="paymentMethod"]:checked').val(),
                         shipToBilling: $('#ship-to-billing').is(':checked')
                     };
@@ -794,8 +790,6 @@
                         $('#address-input').val(data.addressLine);
                     if (data.phoneNumber)
                         $('#phone-input').val(data.phoneNumber);
-                    if (data.notes)
-                        $('#notes-input').val(data.notes);
                     if (data.paymentMethod)
                         $('input[name="paymentMethod"][value="' + data.paymentMethod + '"]').prop('checked', true);
                     if (data.shipToBilling)

@@ -332,11 +332,6 @@
                                                         style="padding: 8px 16px; background-color: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
                                                     Add Flower
                                                 </button>
-
-                                                <button type="button"
-                                                        style="padding: 8px 16px; background-color: #d32f2f; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; margin-left: 10px;">
-                                                    Reject
-                                                </button>
                                             </c:when>
 
                                             <c:when test="${item.getStatus() == 'done'}">
