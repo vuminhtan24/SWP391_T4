@@ -210,8 +210,10 @@ public class ProductDetailController extends HttpServlet {
             }
 
         } catch (Exception e) {
+            String productId = request.getParameter("productId"); // dùng để redirect về đúng trang
             e.printStackTrace();
-            response.sendRedirect("error.jsp");
+            response.sendRedirect(request.getContextPath() + "/productDetail?id=" + productId + "&error=true");
+
         }
     }
 

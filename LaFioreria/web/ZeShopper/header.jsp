@@ -74,40 +74,51 @@
                                             </c:otherwise>
                                         </c:choose>
                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/order"><i class="fa fa-file-text-o"></i> Order</a></li>
-                                    
-                                    <li class="dropdown">
-                                        <a href="${pageContext.request.contextPath}/checkout" class="dropdown-toggle" data-toggle="dropdown">
-                                            <i class="fa fa-shopping-cart"></i> Checkout <b class="caret"></b>
+
+                                    <li class="dropdown" style="display: inline-flex; align-items: center;">
+                                        <!-- Link chính dẫn sang checkout retail -->
+                                        <a href="${pageContext.request.contextPath}/checkout?mode=retail">
+                                            <i class="fa fa-shopping-cart"></i> Checkout
                                         </a>
-                                            <ul class="dropdown-menu" style="padding-right: 15px">
-                                            
-                                            <li><a href="${pageContext.request.contextPath}/checkout"><i class="fa fa-shopping-cart"></i>Checkout Retail Order</a></li>
-                                            <li><a href="${pageContext.request.contextPath}/checkout?mode=wholesale"><i class="fa fa-shopping-cart"></i>Checkout WholeSale Order</a></li>
-                                            
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="padding-left: 5px">
+                                            <b class="caret"></b>
+                                        </a>
+                                        <ul class="dropdown-menu" style="padding-right: 15px;">
+                                            <li><a href="${pageContext.request.contextPath}/checkout?mode=retail">
+                                                    <i class="fa fa-shopping-cart"></i> Checkout Retail Order</a></li>
+                                            <li><a href="${pageContext.request.contextPath}/checkout?mode=wholesale">
+                                                    <i class="fa fa-shopping-cart"></i> Checkout Wholesale Order</a></li>
                                         </ul>
                                     </li>
-                                    
-                                    <li class="dropdown">
-                                        <a href="${pageContext.request.contextPath}/ZeShopper/cart" class="dropdown-toggle" data-toggle="dropdown">
-                                            <i class="fa fa-shopping-cart"></i> Cart <b class="caret"></b>
+
+
+                                    <li class="dropdown"  style="display: inline-flex; align-items: center;">
+                                        <a href="${pageContext.request.contextPath}/ZeShopper/cart">
+                                            <i class="fa fa-shopping-cart"></i> Cart
                                         </a>
-                                            <ul class="dropdown-menu" style="padding-right: 15px">
-                                            
-                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/cart"><i class="fa fa-shopping-cart"></i>Cart Retail</a></li>
-                                            <li><a href="${pageContext.request.contextPath}/cartWholeSale"><i class="fa fa-shopping-cart"></i>Cart WholeSale</a></li>
-                                            
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="padding-left: 5px">
+                                            <b class="caret"></b>
+                                        </a>
+                                        <ul class="dropdown-menu" style="padding-right: 15px">
+                                            <li><a href="${pageContext.request.contextPath}/ZeShopper/cart"><i class="fa fa-shopping-cart"></i> Cart Retail</a></li>
+                                            <li><a href="${pageContext.request.contextPath}/cartWholeSale"><i class="fa fa-shopping-cart"></i> Cart Wholesale</a></li>
                                         </ul>
                                     </li>
-                                    
-                                    <li class="dropdown">
-                                        <a href="${pageContext.request.contextPath}/wholeSale" class="dropdown-toggle" data-toggle="dropdown">
-                                            <i class="fa fa-shopping-cart"></i> WholeSale <b class="caret"></b>
+
+
+                                    <li class="dropdown"  style="display: inline-flex; align-items: center;">
+                                        <!-- Link chính chuyển trang -->
+                                        <a href="${pageContext.request.contextPath}/wholeSale">
+                                            <i class="fa fa-shopping-cart"></i> WholeSale
                                         </a>
-                                            <ul class="dropdown-menu" style="padding-right: 15px">
-                                            
-                                            <li><a href="${pageContext.request.contextPath}/wholeSale"><i class="fa fa-shopping-cart"></i>WholeSale</a></li>
-                                            <li><a href="${pageContext.request.contextPath}/listQuotation"><i class="fa fa-shopping-cart"></i>List of request for quotation</a></li>
-                                            
+                                        <!-- Icon caret để bật dropdown -->
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="padding-left: 5px">
+                                            <b class="caret"></b>
+                                        </a>
+                                        <!-- Dropdown menu -->
+                                        <ul class="dropdown-menu" style="padding-right: 15px">
+                                            <li><a href="${pageContext.request.contextPath}/wholeSale"><i class="fa fa-shopping-cart"></i> WholeSale</a></li>
+                                            <li><a href="${pageContext.request.contextPath}/listQuotation"><i class="fa fa-shopping-cart"></i> List of Quotations</a></li>
                                         </ul>
                                     </li>
                                 </ul>

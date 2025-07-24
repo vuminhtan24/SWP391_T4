@@ -95,6 +95,7 @@ public class CartWholeSaleDAO extends BaseDao {
                 item.setPricePerUnit(rs.getInt("pricePerUnit"));
                 item.setTotalValue(rs.getInt("totalValue"));
                 item.setExpense(rs.getInt("expense"));
+                item.setRequest_group_id(rs.getString("request_group_id"));
                 list.add(item);
             }
 
@@ -108,6 +109,11 @@ public class CartWholeSaleDAO extends BaseDao {
         }
 
         return list;
+    }
+    
+    public static void main(String[] args) {
+        CartWholeSaleDAO dao = new CartWholeSaleDAO();
+        System.out.println(dao.getCartWholeSaleByUser(13));
     }
 
 }

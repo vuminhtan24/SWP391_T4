@@ -168,6 +168,7 @@
                                         <a href="${pageContext.request.contextPath}/listRequest" class="dropdown-item">List Request</a>
                                     </div>
                                 </div>
+                                <a href="${pageContext.request.contextPath}/listWholeSaleRequest" class="nav-item nav-link"><i class="fa fa-table me-2"></i>WholeSale</a>                   
                                 <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
                                 <div class="nav-item dropdown">
                                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
@@ -183,219 +184,219 @@
                     </div>
                 </c:when>  
                 <c:otherwise>
-                            <div class="navbar-nav w-100">
-                                <div class="nav-item dropdown">
-                                    <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Order</a>
-                                    <div class="dropdown-menu bg-transparent border-0">
-                                        <a href="${pageContext.request.contextPath}/orderManagement" class="dropdown-item active">Order Management</a>
-                                        <a href="${pageContext.request.contextPath}/orderDetail" class="dropdown-item">Order Details</a>
-                                    </div>
-                                </div>
-                                <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
-
-                                <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
-                            </div>
-                        </nav>
-                    </div>
-                </c:otherwise>    
-            </c:choose>  
-            <!-- Sidebar End -->
-
-
-            <!-- Content Start -->
-            <div class="content">
-                <!-- Navbar Start -->
-                <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
-                    <a href="${pageContext.request.contextPath}/DashMin/admin.jsp" class="navbar-brand d-flex d-lg-none me-4">
-                        <h2 class="text-primary mb-0"><i class="fa fa-hashtag"></i></h2>
-                    </a>
-                    <a href="#" class="sidebar-toggler flex-shrink-0">
-                        <i class="fa fa-bars"></i>
-                    </a>
-                    <form class="d-none d-md-flex ms-4">
-                        <input class="form-control border-0" type="search" placeholder="Search">
-                    </form>
-                    <div class="navbar-nav align-items-center ms-auto">
+                    <div class="navbar-nav w-100">
                         <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                <i class="fa fa-envelope me-lg-2"></i>
-                                <span class="d-none d-lg-inline-flex">Message</span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                                <a href="#" class="dropdown-item">
-                                    <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                        <div class="ms-2">
-                                            <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                            <small>15 minutes ago</small>
-                                        </div>
-                                    </div>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item">
-                                    <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                        <div class="ms-2">
-                                            <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                            <small>15 minutes ago</small>
-                                        </div>
-                                    </div>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item">
-                                    <div class="d-flex align-items-center">
-                                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                        <div class="ms-2">
-                                            <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                            <small>15 minutes ago</small>
-                                        </div>
-                                    </div>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item text-center">See all message</a>
+                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Order</a>
+                            <div class="dropdown-menu bg-transparent border-0">
+                                <a href="${pageContext.request.contextPath}/orderManagement" class="dropdown-item active">Order Management</a>
+                                <a href="${pageContext.request.contextPath}/orderDetail" class="dropdown-item">Order Details</a>
                             </div>
                         </div>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                <i class="fa fa-bell me-lg-2"></i>
-                                <span class="d-none d-lg-inline-flex">Notificatin</span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                                <a href="#" class="dropdown-item">
-                                    <h6 class="fw-normal mb-0">Profile updated</h6>
-                                    <small>15 minutes ago</small>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item">
-                                    <h6 class="fw-normal mb-0">New user added</h6>
-                                    <small>15 minutes ago</small>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item">
-                                    <h6 class="fw-normal mb-0">Password changed</h6>
-                                    <small>15 minutes ago</small>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a href="#" class="dropdown-item text-center">See all notifications</a>
-                            </div>
-                        </div>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                <img class="rounded-circle me-lg-2" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                                <span class="d-none d-lg-inline-flex">John Doe</span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                                <a href="#" class="dropdown-item">My Profile</a>
-                                <a href="#" class="dropdown-item">Settings</a>
-                                <a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet" class="dropdown-item">Log Out</a>
-                            </div>
-                        </div>
+                        <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
+
+                        <a href="${pageContext.request.contextPath}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>La Fioreria</a>
                     </div>
                 </nav>
-                <!-- Navbar End -->
+            </div>
+        </c:otherwise>    
+    </c:choose>  
+    <!-- Sidebar End -->
 
 
-                <!-- List Request Start -->
-                <a href="${pageContext.request.contextPath}/listRequest">Back to Request List</a>
-                <div class="container">
-                    <h6 class="heading">Request Details</h6>
-                    <p>Order ID: ${orderId}</p>
-                    <p>Order Item ID: ${orderItemId}</p>
-                    <p>Request Date: ${requestDate}</p>
-                    <table class="styled-table">
-                        <thead>
-                            <tr>
-                                <td>Flower ID</td>
-                                <td>Flower Name</td>
-                                <td>Request Quantity</td>
-                                <td>Price per Unit</td>
-                                <td>Status</td>
-                                <td colspan="2">Action</td>
-                            </tr>
-                        </thead>  
-                        <tbody>
-                            <c:forEach var="item" items="${listFlower}">
-                                <c:forEach var="names" items="${listFlowerType}">
-                                    <c:if test="${item.getFlowerId() == names.getFlowerId()}">
-                                        <tr>
-                                            <td>${item.getFlowerId()}</td>
-                                            <td>${names.getFlowerName()}</td>
-                                            <td>${item.getQuantity()}</td>
-                                            <td><fmt:formatNumber value="${item.getPrice()}" pattern="#,##0" /> ₫</td>                     
-                                            <td>${item.getStatus()}</td>
-                                            <td colspan="2">
-                                                <c:choose>
-                                                    <c:when test="${item.getStatus() == 'pending'}">
-                                                        <button type="button"
-                                                                onclick="location.href = '${pageContext.request.contextPath}/add_batch?flower_id=${item.flowerId}'"
-                                                                style="padding: 8px 16px; background-color: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
-                                                            Add Flower
-                                                        </button>
-
-                                                        <button type="button"
-                                                                style="padding: 8px 16px; background-color: #d32f2f; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; margin-left: 10px;">
-                                                            Reject
-                                                        </button>
-                                                    </c:when>
-
-                                                    <c:when test="${item.getStatus() == 'done'}">
-                                                        <span style="color: green; font-weight: bold;">You have complete this request</span>
-                                                    </c:when>
-
-                                                    <c:when test="${item.getStatus() == 'reject'}">
-                                                        <span style="color: red; font-weight: bold;">You have reject this request</span>
-                                                    </c:when>
-                                                </c:choose>
-                                            </td>
-                                        </tr>  
-                                    </c:if>
-                                </c:forEach>
-                            </c:forEach>
-                        </tbody>   
-                    </table>
-
-                </div>
-
-                <!-- List Request End -->
-
-
-                <!-- Footer Start -->
-                <div class="container-fluid pt-4 px-4">
-                    <div class="bg-light rounded-top p-4">
-                        <div class="row">
-                            <div class="col-12 col-sm-6 text-center text-sm-start">
-                                &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
+    <!-- Content Start -->
+    <div class="content">
+        <!-- Navbar Start -->
+        <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+            <a href="${pageContext.request.contextPath}/DashMin/admin.jsp" class="navbar-brand d-flex d-lg-none me-4">
+                <h2 class="text-primary mb-0"><i class="fa fa-hashtag"></i></h2>
+            </a>
+            <a href="#" class="sidebar-toggler flex-shrink-0">
+                <i class="fa fa-bars"></i>
+            </a>
+            <form class="d-none d-md-flex ms-4">
+                <input class="form-control border-0" type="search" placeholder="Search">
+            </form>
+            <div class="navbar-nav align-items-center ms-auto">
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa fa-envelope me-lg-2"></i>
+                        <span class="d-none d-lg-inline-flex">Message</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                        <a href="#" class="dropdown-item">
+                            <div class="d-flex align-items-center">
+                                <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                <div class="ms-2">
+                                    <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                    <small>15 minutes ago</small>
+                                </div>
                             </div>
-                            <div class="col-12 col-sm-6 text-center text-sm-end">
-                                <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-                                Designed By <a href="https://htmlcodex.com">HTML Codex</a>
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a href="#" class="dropdown-item">
+                            <div class="d-flex align-items-center">
+                                <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                <div class="ms-2">
+                                    <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                    <small>15 minutes ago</small>
+                                </div>
                             </div>
-                        </div>
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a href="#" class="dropdown-item">
+                            <div class="d-flex align-items-center">
+                                <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                <div class="ms-2">
+                                    <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                    <small>15 minutes ago</small>
+                                </div>
+                            </div>
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a href="#" class="dropdown-item text-center">See all message</a>
                     </div>
                 </div>
-                <!-- Footer End -->
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa fa-bell me-lg-2"></i>
+                        <span class="d-none d-lg-inline-flex">Notificatin</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                        <a href="#" class="dropdown-item">
+                            <h6 class="fw-normal mb-0">Profile updated</h6>
+                            <small>15 minutes ago</small>
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a href="#" class="dropdown-item">
+                            <h6 class="fw-normal mb-0">New user added</h6>
+                            <small>15 minutes ago</small>
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a href="#" class="dropdown-item">
+                            <h6 class="fw-normal mb-0">Password changed</h6>
+                            <small>15 minutes ago</small>
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a href="#" class="dropdown-item text-center">See all notifications</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <img class="rounded-circle me-lg-2" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                        <span class="d-none d-lg-inline-flex">John Doe</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                        <a href="#" class="dropdown-item">My Profile</a>
+                        <a href="#" class="dropdown-item">Settings</a>
+                        <a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet" class="dropdown-item">Log Out</a>
+                    </div>
+                </div>
             </div>
-            <!-- Content End -->
+        </nav>
+        <!-- Navbar End -->
 
 
-            <!-- Back to Top -->
-            <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+        <!-- List Request Start -->
+        <a href="${pageContext.request.contextPath}/listRequest">Back to Request List</a>
+        <div class="container">
+            <h6 class="heading">Request Details</h6>
+            <p>Order ID: ${orderId}</p>
+            <p>Order Item ID: ${orderItemId}</p>
+            <p>Request Date: ${requestDate}</p>
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <td>Flower ID</td>
+                        <td>Flower Name</td>
+                        <td>Request Quantity</td>
+                        <td>Price per Unit</td>
+                        <td>Status</td>
+                        <td colspan="2">Action</td>
+                    </tr>
+                </thead>  
+                <tbody>
+                    <c:forEach var="item" items="${listFlower}">
+                        <c:forEach var="names" items="${listFlowerType}">
+                            <c:if test="${item.getFlowerId() == names.getFlowerId()}">
+                                <tr>
+                                    <td>${item.getFlowerId()}</td>
+                                    <td>${names.getFlowerName()}</td>
+                                    <td>${item.getQuantity()}</td>
+                                    <td><fmt:formatNumber value="${item.getPrice()}" pattern="#,##0" /> ₫</td>                     
+                                    <td>${item.getStatus()}</td>
+                                    <td colspan="2">
+                                        <c:choose>
+                                            <c:when test="${item.getStatus() == 'pending'}">
+                                                <button type="button"
+                                                        onclick="location.href = '${pageContext.request.contextPath}/add_batch?flower_id=${item.flowerId}'"
+                                                        style="padding: 8px 16px; background-color: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
+                                                    Add Flower
+                                                </button>
+
+                                                <button type="button"
+                                                        style="padding: 8px 16px; background-color: #d32f2f; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; margin-left: 10px;">
+                                                    Reject
+                                                </button>
+                                            </c:when>
+
+                                            <c:when test="${item.getStatus() == 'done'}">
+                                                <span style="color: green; font-weight: bold;">You have complete this request</span>
+                                            </c:when>
+
+                                            <c:when test="${item.getStatus() == 'reject'}">
+                                                <span style="color: red; font-weight: bold;">You have reject this request</span>
+                                            </c:when>
+                                        </c:choose>
+                                    </td>
+                                </tr>  
+                            </c:if>
+                        </c:forEach>
+                    </c:forEach>
+                </tbody>   
+            </table>
+
         </div>
 
-        <!-- JavaScript Libraries -->
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
-        <script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+        <!-- List Request End -->
 
-        <!-- Template Javascript -->
-        <script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    </body>
+        <!-- Footer Start -->
+        <div class="container-fluid pt-4 px-4">
+            <div class="bg-light rounded-top p-4">
+                <div class="row">
+                    <div class="col-12 col-sm-6 text-center text-sm-start">
+                        &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
+                    </div>
+                    <div class="col-12 col-sm-6 text-center text-sm-end">
+                        <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+                        Designed By <a href="https://htmlcodex.com">HTML Codex</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer End -->
+    </div>
+    <!-- Content End -->
+
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+</div>
+
+<!-- JavaScript Libraries -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="${pageContext.request.contextPath}/DashMin/lib/chart/chart.min.js"></script>
+<script src="${pageContext.request.contextPath}/DashMin/lib/easing/easing.min.js"></script>
+<script src="${pageContext.request.contextPath}/DashMin/lib/waypoints/waypoints.min.js"></script>
+<script src="${pageContext.request.contextPath}/DashMin/lib/owlcarousel/owl.carousel.min.js"></script>
+<script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment.min.js"></script>
+<script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/moment-timezone.min.js"></script>
+<script src="${pageContext.request.contextPath}/DashMin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<!-- Template Javascript -->
+<script src="${pageContext.request.contextPath}/DashMin/js/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
 </html>

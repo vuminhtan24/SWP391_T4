@@ -66,8 +66,6 @@
                                 <a href="${pageContext.request.contextPath}/DashMin/element.jsp" class="dropdown-item">Other Elements</a>
                             </div>
                         </div>
-                        <a href="${pageContext.request.contextPath}/DashMin/widget.jsp" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Widgets</a>
-                        <a href="${pageContext.request.contextPath}/DashMin/form.jsp" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Forms</a>
                         <a href="${pageContext.request.contextPath}/ViewUserList" class="nav-item nav-link"><i class="fa fa-table me-2"></i>User</a>
                         <a href="${pageContext.request.contextPath}/viewBouquet" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Bouquet</a>
                         <a href="${pageContext.request.contextPath}/DashMin/chart.jsp" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
@@ -78,6 +76,10 @@
                                 <a href="${pageContext.request.contextPath}/orderDetail" class="dropdown-item active">Order Details</a>
                             </div>
                         </div>
+                        <a href="${pageContext.request.contextPath}/discount" 
+                           class="nav-item nav-link">
+                            <i class="fa fa-percentage me-2"></i>Discount
+                        </a>
                         <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
                         <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
                         <div class="nav-item dropdown">
@@ -136,9 +138,9 @@
                                     <option value="0">-- Select Customer --</option>
                                     <c:forEach var="customer" items="${customers}">
                                         <option value="${customer.userid}" 
-                                            data-phone="${customer.phone}" 
-                                            data-address="${customer.address}"
-                                            ${selectedCustomerId == customer.userid ? 'selected' : ''}>
+                                                data-phone="${customer.phone}" 
+                                                data-address="${customer.address}"
+                                                ${selectedCustomerId == customer.userid ? 'selected' : ''}>
                                             ${customer.fullname} (${customer.username})
                                         </option>
                                     </c:forEach>
@@ -180,7 +182,7 @@
                                     </c:forEach>
                                 </select>
                             </div>
-                            
+
                             <div class="alert alert-info">
                                 Note: After creating the main order, you will be redirected to a new page to add products (bouquets) to this order.
                             </div>
@@ -257,7 +259,7 @@
 
             // Gọi hàm khi trang tải xong để điền thông tin nếu có khách hàng đã được chọn sẵn
             // (ví dụ: sau khi submit form bị lỗi validation và dữ liệu được giữ lại)
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 populateCustomerDetails();
             });
         </script>

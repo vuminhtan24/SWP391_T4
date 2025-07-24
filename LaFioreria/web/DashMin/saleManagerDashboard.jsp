@@ -296,10 +296,6 @@
                                             <td>
                                                 <a class="btn btn-sm btn-primary"
                                                    href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}">Details</a>
-                                                <a class="btn btn-sm btn-info"
-                                                   href="${pageContext.request.contextPath}/orderDetail?orderId=${order.orderId}&action=edit">Edit</a>
-                                                <a class="btn btn-sm btn-danger" href="#"
-                                                   onclick="return confirmDelete(${order.orderId});">Delete</a>
                                             </td>
                                         </tr>
                                     </c:forEach>
