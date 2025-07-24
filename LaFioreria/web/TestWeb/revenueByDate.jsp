@@ -74,12 +74,18 @@
 
                 <!-- Biểu đồ chiếm 3/4, bảng chiếm 1/4 -->
                 <div class="row g-4">
+                    
                     <!-- Biểu đồ -->
                     <div class="col-lg-9">
                         <div class="card h-100">
                             <div class="card-body">
                                 <h5 class="card-title text-center">📈 Revenue by Date</h5>
-                                <canvas id="dailyChart" style="height:320px;"></canvas>
+                                <canvas id="dailyChart" class="chart-container"></canvas>
+                                <div class="text-end mt-3">
+                                    <button onclick="downloadChartImage()" class="btn btn-sm btn-outline-success">
+                                        📥 Download PNG
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -125,7 +131,7 @@
             const labels = <%= request.getAttribute("labelsJson") %>;
             const data = <%= request.getAttribute("valuesJson") %>;
 
-            new Chart(document.getElementById("dailyChart"), {
+            const revenueDate = new Chart(document.getElementById("dailyChart"), {
                 type: 'line',
                 data: {
                     labels: labels,
@@ -149,8 +155,28 @@
                             }
                         }
                     }
-                }
+                },
+                plugins: [{
+                        id: 'custom_canvas_background_color',
+                        beforeDraw: (chart) => {
+                            const ctx = chart.canvas.getContext('2d');
+                            ctx.save();
+                            ctx.globalCompositeOperation = 'destination-over';
+                            ctx.fillStyle = 'white';
+                            ctx.fillRect(0, 0, chart.width, chart.height);
+                            ctx.restore();
+                        }
+                    }]
             });
+
+
+            function downloadChartImage() {
+                const imageUrl = revenueDate.toBase64Image();
+                const link = document.createElement('a');
+                link.href = imageUrl;
+                link.download = 'revenue_By_Date.png';
+                link.click();
+            }
         </script>
 
     </body>

@@ -64,11 +64,9 @@ public class FlowerQualityStatsServlet extends HttpServlet {
 
         SalesDAO dao = new SalesDAO();
 
-        // Lấy dữ liệu từ DAO
         Map<String, Integer> discardReasonStats = dao.getDiscardReasonStats();
         Map<String, Integer> importVsWasteStats = dao.getTotalImportVsWaste();
 
-        // Nếu không có dữ liệu, sử dụng dữ liệu mẫu
         if (discardReasonStats == null || discardReasonStats.isEmpty()) {
             discardReasonStats = new LinkedHashMap<>();
             discardReasonStats.put("Damaged due to temperature", 60);
@@ -79,17 +77,17 @@ public class FlowerQualityStatsServlet extends HttpServlet {
         }
 
         Map<String, String> translationMap = new HashMap<>();
-        translationMap.put("Lỗi do nhiệt độ", "Damaged due to temperature");
-        translationMap.put("Mốc", "Moldy");
-        translationMap.put("Hết hạn", "Expired");
-        translationMap.put("Dập nát khi vận chuyển", "Bruised during transportation");
-        translationMap.put("Giao sai / bị từ chối", "Wrong delivery / Rejected");
+        translationMap.put("Temperature error", "Damaged due to temperature");
+        translationMap.put("Moldy", "Moldy");
+        translationMap.put("Expired", "Expired");
+        translationMap.put("Bruised during transportation", "Bruised during transportation");
+        translationMap.put("Wrong delivery / Rejected", "Wrong delivery / Rejected");
 
-// Chuyển map sang tiếng Anh
+
         Map<String, Integer> translatedMap = new LinkedHashMap<>();
         for (Map.Entry<String, Integer> entry : discardReasonStats.entrySet()) {
             String key = entry.getKey();
-            String englishKey = translationMap.getOrDefault(key, key); // nếu không có thì giữ nguyên
+            String englishKey = translationMap.getOrDefault(key, key); 
             translatedMap.put(englishKey, entry.getValue());
         }
 

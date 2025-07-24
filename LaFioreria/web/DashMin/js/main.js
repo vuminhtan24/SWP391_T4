@@ -357,6 +357,7 @@
             });
         }
 
+       
 // ✅ Tạo biến toàn cục lưu biểu đồ theo id
         window.chartInstances = window.chartInstances || {};
 

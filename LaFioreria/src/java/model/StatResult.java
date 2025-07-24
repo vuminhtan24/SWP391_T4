@@ -10,10 +10,10 @@ package model;
  */
 public class StatResult {
 
-    private String label;       // Ví dụ: "Tháng 6", "Năm 2025", "Monday"
-    private double revenue;     // Tổng doanh thu
-    private int orderCount;     // Số đơn hàng
-    private int value; // số hoa hết hạn (dùng cho biểu đồ line)
+    private String label;      
+    private double revenue;    
+    private int orderCount;    
+    private int value; 
 
     public StatResult() {
     }
