@@ -29,28 +29,28 @@
 
 
             <c:if test="${not empty cartDetails}">
-                <table class="table table-condensed">
+                <table class="cart-table">
                     <thead>
-                        <tr class="cart_menu">
-                            <td class="image">Item Detail</td>
-                            <td class="description"></td>
-                            <td class="price">Price</td>
-                            <td class="quantity">Quantity</td>
-                            <td class="total">Total</td>
-                            <td></td>
+                        <tr>
+                            <th>Item Detail</th>
+                            <th></th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                            <th>Remove</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <c:set var="total" value="0"/>
+                        <c:set var="total" value="0" />
                         <c:forEach var="item" items="${cartDetails}">
                             <tr>
                                 <td class="cart_product">
-                                    <c:forEach items="${cartImages}" var="imgLst" varStatus="loop">
-                                        <c:set var="count" value="1" />
+                                    <c:forEach items="${cartImages}" var="imgLst">
+                                        <c:set var="found" value="false"/>
                                         <c:forEach items="${imgLst}" var="img">
-                                            <c:if test="${img.bouquetId == item.bouquetId && count != 2}">
+                                            <c:if test="${img.bouquetId == item.bouquetId && !found}">
                                                 <img src="${pageContext.request.contextPath}/upload/BouquetIMG/${img.image_url}" alt="${item.bouquet.bouquetName}" width="100">
-                                                <c:set var="count" value="2" />
+                                                <c:set var="found" value="true"/>
                                             </c:if>
                                         </c:forEach>
                                     </c:forEach>
@@ -64,7 +64,7 @@
                                 </td>
                                 <td class="cart_quantity">
                                     <div class="cart_quantity_button">
-                                        <form action="checkout" method="post" style="display: flex;">
+                                        <form action="checkout" method="post">
                                             <input type="hidden" name="mode" value="retail">
                                             <input type="hidden" name="bouquetId" value="${item.bouquet.bouquetId}">
                                             <input type="hidden" name="action" value="update">
@@ -85,31 +85,29 @@
                                     </form>
                                 </td>
                             </tr>
-                            <c:set var="total" value="${total + item.bouquet.sellPrice * item.quantity}"/>
+                            <c:set var="total" value="${total + item.bouquet.sellPrice * item.quantity}" />
                         </c:forEach>
+
+                        <!-- Tổng kết -->
+                        <c:set var="ship" value="30000" />
                         <tr>
-                            <c:set var="ship" value="30000"/>
-                            <td colspan="4">&nbsp;</td>
-                            <td colspan="2">
+                            <td colspan="6">
                                 <table class="table table-condensed total-result">
-                                    <!-- NHẬP MÃ GIẢM GIÁ -->
+                                    <!-- Mã giảm giá -->
                                     <form action="checkout" method="post" id="discountForm">
                                         <input type="hidden" name="mode" value="retail">
                                         <input type="hidden" name="action" value="applyDiscount">
-                                        <!-- Thêm các input hidden để gửi dữ liệu form hiện tại -->
-                                        <input type="hidden" name="email" id="hidden-email-input">
-                                        <input type="hidden" name="fullName" id="hidden-fullname-input">
-                                        <input type="hidden" name="addressLine" id="hidden-address-input">
-                                        <input type="hidden" name="provinceCode" id="hidden-province-code">
-                                        <input type="hidden" name="districtCode" id="hidden-district-code">
-                                        <input type="hidden" name="wardCode" id="hidden-ward-code">
-                                        <input type="hidden" name="phoneNumber" id="hidden-phone-input">
-                                        <input type="hidden" name="notes" id="hidden-notes-input">
-                                        <input type="hidden" name="paymentMethod" id="hidden-payment-method">
-                                        <%-- <input type="hidden" name="shipToBilling" id="hidden-ship-to-billing"> --%>
-
-                                        <input type="text" name="discountCode" placeholder="Nhập mã giảm giá" id="discountCodeInput">
-                                        <button type="submit">Áp dụng</button>
+                                        <input type="text" name="discountCode" placeholder="Nhập mã giảm giá" id="discountCodeInput" style="margin-bottom: 10px;">
+                                        <button type="submit" style=" padding: 8px 14px;
+                                                margin-left: 10px;
+                                                margin-bottom: 10px;
+                                                background-color: #ff7f00; /* cam */
+                                                border: none;
+                                                border-radius: 5px;
+                                                color: white;
+                                                font-size: 14px;
+                                                cursor: pointer;
+                                                transition: background-color 0.3s ease;">Áp dụng</button>
                                     </form>
 
                                     <tr>
@@ -118,17 +116,21 @@
                                     </tr>
                                     <tr class="shipping-cost">
                                         <td>Shipping Fee</td>
-                                        <td><fmt:formatNumber value="${ship}" pattern="#,##0" /> ₫</td>										
+                                        <td><fmt:formatNumber value="${ship}" pattern="#,##0" /> ₫</td>
                                     </tr>
                                     <c:if test="${not empty calculatedDiscountAmount}">
                                         <tr>
                                             <td>Discount:</td>
-                                            <td>- <fmt:formatNumber value="${calculatedDiscountAmount}" pattern="#,##0" />₫</td>
+                                            <td>- <fmt:formatNumber value="${calculatedDiscountAmount}" pattern="#,##0" /> ₫</td>
                                         </tr>
                                     </c:if>
                                     <tr>
-                                        <td>Total</td>
-                                        <td><span id="orderFinalTotal"><p><fmt:formatNumber value="${(not empty finalOrderTotal) ? finalOrderTotal : (total + ship)}" pattern="#,##0" /> ₫</p></span></td>
+                                        <td><strong>Total</strong></td>
+                                        <td>
+                                            <span id="orderFinalTotal" style="font-weight: bold; font-size: 15px;">
+                                                <p style="margin: 0;"><fmt:formatNumber value="${not empty finalOrderTotal ? finalOrderTotal : (total + ship)}" pattern="#,##0" /> ₫</p>
+                                            </span>
+                                        </td>
                                     </tr>
                                 </table>
                             </td>
@@ -138,8 +140,8 @@
 
                 <div class="payment-options mt-3">
                     <span>
-                        <label><input name="paymentMethod" type="radio" value="cod" id="payment-cod"
-                                      ${not empty savedFormData && savedFormData.paymentMethod eq 'cod' ? 'checked' : ''}> 
+                        <label style="margin-left: 5px; margin-top: 17px;"><input name="paymentMethod" type="radio" value="cod" id="payment-cod"
+                                                                                  ${not empty savedFormData && savedFormData.paymentMethod eq 'cod' ? 'checked' : ''}> 
                             Cash on Delivery (COD)</label>
                     </span>
                     <span>

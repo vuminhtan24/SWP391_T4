@@ -220,6 +220,130 @@
             .btn-wholesale:hover {
                 background-color: #ec971f;
             }
+
+            .cart-table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0 8px;
+                font-size: 15px;
+            }
+
+            .cart-table thead th {
+                background-color: #f4f4f4;
+                padding: 12px;
+                text-align: left;
+                border-bottom: 2px solid #ddd;
+                font-weight: bold;
+            }
+
+            .cart-table tbody tr {
+                background-color: #fff;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            .cart-table td {
+                padding: 14px 12px;
+                vertical-align: middle;
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .cart-table img {
+                width: 100px;
+                border-radius: 6px;
+            }
+
+            .cart-table h4 {
+                margin: 0 0 5px;
+                font-size: 16px;
+            }
+
+            .cart-table p {
+                margin: 0;
+                color: #666;
+            }
+
+            .cart-table input[type="number"] {
+                width: 60px;
+                padding: 4px;
+                text-align: center;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+            .cart-table .btn {
+                padding: 4px 8px;
+                font-size: 13px;
+                border-radius: 4px;
+                border: none;
+                background-color: #007bff;
+                color: white;
+                cursor: pointer;
+            }
+
+            .cart-table .btn:hover {
+                background-color: #0056b3;
+            }
+
+            .cart-table .btn-danger {
+                background-color: #dc3545;
+            }
+
+            .cart-table .btn-danger:hover {
+                background-color: #b02a37;
+            }
+
+            .cart-table td.total,
+            .cart-table td.price {
+                text-align: right;
+                white-space: nowrap;
+            }
+
+            .cart-table td.remove {
+                text-align: center;
+            }
+
+            #discountForm {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 15px;
+                flex-wrap: wrap;
+            }
+
+            #discountCodeInput {
+                padding: 8px 12px;
+                font-size: 14px;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                width: 240px;
+                transition: border-color 0.3s;
+            }
+
+            #discountCodeInput:focus {
+                border-color: #007bff;
+                outline: none;
+                box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+            }
+
+            #discountForm button {
+                padding: 8px 14px;
+                margin-left: 10px;
+                background-color: #ff7f00; /* cam */
+                border: none;
+                border-radius: 5px;
+                color: white;
+                font-size: 14px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+
+            #discountForm button:hover {
+                background-color: #e96b00;
+            }
+
         </style>
         <!-- Moved jQuery to head to ensure it's loaded before other scripts -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -297,18 +421,7 @@
                                         </form>
                                     </div>
                                 </div>
-                            </div>					
-                            <div class="col-sm-4">
-                                <div class="order-message">
-                                    <p>Shipping Order Notes</p>
-                                    <div class="form-group">
-                                        <textarea name="message" placeholder="Notes about your order, special notes for delivery (e.g., preferred delivery time, leave at security desk)" 
-                                                  rows="16" class="form-control" id="notes-input">${not empty savedFormData ? savedFormData.notes : ''}</textarea>
-                                        <div class="error-message" id="notes-error"></div>
-                                    </div>
-                                    <!--<label><input type="checkbox" id="ship-to-billing"> Ship to this billing address</label>-->
-                                </div>
-                            </div>					
+                            </div>										
                         </div>
                     </div>
                 </c:if>
