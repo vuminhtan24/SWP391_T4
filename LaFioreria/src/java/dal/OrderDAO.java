@@ -1509,7 +1509,7 @@ public class OrderDAO extends BaseDao {
         OrderDAO cartDAO = new OrderDAO();
 
         int testOrderId = 1; // 📝 Thay ID này bằng 1 ID tồn tại trong DB
-        Order order = cartDAO.getOrderDetailById(31);
+        Boolean order = cartDAO.rejectOrder(31,"no","cam.jpg");
 
         System.out.println(order);
 
