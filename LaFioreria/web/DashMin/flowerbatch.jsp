@@ -109,8 +109,9 @@
             <label for="statusFilter" style="margin-right:0.5rem; white-space:nowrap;">Trạng thái:</label>
             <select name="statusFilter" id="statusFilter" onchange="this.form.submit()">
                 <option value="" ${empty param.statusFilter ? 'selected' : ''}>-- Tất cả trạng thái --</option>
-                <option value="fresh" ${param.statusFilter == 'fresh' ? 'selected' : ''}>Tươi</option>
-                <option value="near_expired" ${param.statusFilter == 'near_expired' ? 'selected' : ''}>Sắp hết hạn</option>
+                <option value="fresh" ${param.statusFilter == 'fresh' ? 'selected' : ''}>Fresh</option>
+                <option value="near_expired" ${param.statusFilter == 'near_expired' ? 'selected' : ''}>Near_expired</option>
+                <option value="expired" ${param.statusFilter == 'expired' ? 'selected' : ''}>Expired</option>
             </select>
         </div>
     </form>
