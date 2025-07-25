@@ -18,21 +18,21 @@ import java.util.concurrent.TimeUnit;
 
 public class FlowerScheduler extends BaseDao {
 
-    public static void main(String[] args) {
-        FlowerScheduler job = new FlowerScheduler();
-
-        // **Must** open connection before calling getAdminEmails(),
-        // as the method uses the `connection` field
-        job.connection = job.dbc.getConnection();
-        List<String> mails = job.getAdminEmails();
-        System.out.println("Admin emails: " + mails);
-
-        // Create scheduler
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
-        // Run job every 24 hours (86400 seconds)
-        scheduler.scheduleAtFixedRate(new FlowerScheduler()::checkFlowerBatches, 0, 86400, TimeUnit.SECONDS);
-    }
+//    public static void main(String[] args) {
+//        FlowerScheduler job = new FlowerScheduler();
+//
+//        // **Must** open connection before calling getAdminEmails(),
+//        // as the method uses the `connection` field
+//        job.connection = job.dbc.getConnection();
+//        List<String> mails = job.getAdminEmails();
+//        System.out.println("Admin emails: " + mails);
+//
+//        // Create scheduler
+//        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+//
+//        // Run job every 24 hours (86400 seconds)
+//        scheduler.scheduleAtFixedRate(new FlowerScheduler()::checkFlowerBatches, 0, 86400, TimeUnit.SECONDS);
+//    }
 
     public void checkFlowerBatches() {
         System.out.println("Starting flower batch status check: " + new Date());
@@ -143,8 +143,10 @@ public class FlowerScheduler extends BaseDao {
 
     private void sendEmailToAdmins(int bouquetId, int batchId) {
         // Email configuration
-        String from = "hoang.trungkien2110@gmail.com"; // Replace with your email
-        String password = "jnto tzhj pvvd fvfm"; // Replace with App Password
+//        String from = "hoang.trungkien2110@gmail.com"; // Replace with your email
+//        String password = "jnto tzhj pvvd fvfm"; // Replace with App Password 
+        String from = "trungkienhoang2110@gmail.com";
+        String password = "tnux cqee gver joma";
         String host = "smtp.gmail.com";
 
         Properties properties = System.getProperties();
@@ -256,8 +258,10 @@ public class FlowerScheduler extends BaseDao {
     }
 
     private void sendEmailToAdminsForStock(int batchId, int flowerId, String name, String reasonType) {
-        String from = "hoang.trungkien2110@gmail.com";
-        String password = "jnto tzhj pvvd fvfm";
+//        String from = "hoang.trungkien2110@gmail.com";
+//        String password = "jnto tzhj pvvd fvfm";
+        String from = "trungkienhoang2110@gmail.com";
+        String password = "tnux cqee gver joma";
         String host = "smtp.gmail.com";
 
         Properties properties = new Properties();
@@ -289,8 +293,8 @@ public class FlowerScheduler extends BaseDao {
                     + "Please restock flower batches to meet demand.\n";
         }
         body += "- Time: " + new Date() + "\n\n"
-                + "Best regards,\nLa Fioreria System";
-
+                + "Best regards,\nLa Fioreria System";       
+        
         for (String to : adminEmails) {
             try {
                 MimeMessage message = new MimeMessage(session);

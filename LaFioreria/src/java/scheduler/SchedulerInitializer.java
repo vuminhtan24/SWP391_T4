@@ -9,19 +9,22 @@ import java.util.concurrent.TimeUnit;
 
 @WebListener
 public class SchedulerInitializer implements ServletContextListener {
-    private ScheduledExecutorService scheduler;
+    private static ScheduledExecutorService scheduler; // Static để duy nhất
+    private final FlowerScheduler flowerScheduler = new FlowerScheduler(); // Instance duy nhất
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        // Khởi động scheduler khi ứng dụng bắt đầu
-        scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(new FlowerScheduler()::checkFlowerBatches, 0, 86400, TimeUnit.SECONDS);
-        System.out.println("FlowerScheduler đã được khởi động.");
+        if (scheduler == null || scheduler.isShutdown()) {
+            scheduler = Executors.newScheduledThreadPool(1);
+            scheduler.scheduleAtFixedRate(flowerScheduler::checkFlowerBatches, 0, 86400, TimeUnit.SECONDS);
+            System.out.println("FlowerScheduler started at " + new java.util.Date());
+        } else {
+            System.out.println("FlowerScheduler already running, skipping initialization.");
+        }
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        // Tắt scheduler khi ứng dụng dừng
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdown();
             try {
@@ -32,7 +35,7 @@ public class SchedulerInitializer implements ServletContextListener {
                 scheduler.shutdownNow();
                 Thread.currentThread().interrupt();
             }
-            System.out.println("FlowerScheduler đã được dừng.");
+            System.out.println("FlowerScheduler stopped at " + new java.util.Date());
         }
     }
 }
