@@ -63,7 +63,7 @@
                                                             </c:when>
                                                         </c:choose>
                                                     <li><a href="${pageContext.request.contextPath}/viewuserdetailhome"><i class="fa fa-id-card"></i> User Detail</a></li>
-                                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/changePassword.jsp"><i class="fa fa-key"></i> Change Password</a></li>
+                                                    <li><a href="${pageContext.request.contextPath}/ZeShopper/ChangePassword"><i class="fa fa-key"></i> Change Password</a></li>
                                                     <li class="divider"></li>
                                                     <li><a href="${pageContext.request.contextPath}/ZeShopper/LogoutServlet"><i class="fa fa-unlock"></i> Logout</a></li>
                                                 </ul>
