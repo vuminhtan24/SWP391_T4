@@ -155,12 +155,12 @@
                     <div class="mb-3">
                         <label for="totalImport" class="form-label">Total Import:</label>
                         <input type="text" class="form-control" id="totalImport" name="totalImport"
-                               value="${order.totalImport}" required>
+                               value="${order.totalImport}" readonly>
                     </div>
                     <div class="mb-3">
                         <label for="totalSell" class="form-label">Total Sell:</label>
                         <input type="text" class="form-control" id="totalSell" name="totalSell"
-                               value="${order.totalSell}" required>
+                               value="${order.totalSell}" readonly>
                     </div>
 
                     <div class="mb-3">
