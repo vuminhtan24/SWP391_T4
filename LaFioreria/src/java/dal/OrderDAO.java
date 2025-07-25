@@ -1503,6 +1503,7 @@ public class OrderDAO extends BaseDao {
         }
         return item;
     }
+
     public Integer getAvailableShipperId() {
         String sql = """
             SELECT u.User_ID
@@ -1517,10 +1518,10 @@ public class OrderDAO extends BaseDao {
                     LIMIT 1
         """;
 
-        try  {
+        try {
             connection = dbc.getConnection();
             ps = connection.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery(); 
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt("User_ID");
             }
@@ -1531,13 +1532,39 @@ public class OrderDAO extends BaseDao {
         return null; // Không tìm thấy shipper phù hợp
     }
 
+    public Integer getLeastBusyShipperId() {
+        String sql = """
+        SELECT u.User_ID
+        FROM `user` u
+        LEFT JOIN `order` o ON u.User_ID = o.shipper_id
+        LEFT JOIN order_status os ON o.status_id = os.order_status_id
+        WHERE u.Role = 8 AND u.status = 'active'
+          AND (os.status_name IN ('SHIPPED') OR os.status_name IS NULL)
+        GROUP BY u.User_ID
+        ORDER BY COUNT(o.order_id) ASC
+        LIMIT 1
+    """;
+
+        try {
+            connection = dbc.getConnection();
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("User_ID");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static void main(String[] args) {
         OrderDAO cartDAO = new OrderDAO();
 
         int testOrderId = 1; // 📝 Thay ID này bằng 1 ID tồn tại trong DB
         Boolean order = cartDAO.rejectOrder(31, "no", "cam.jpg");
 
-        System.out.println(cartDAO.getAvailableShipperId());
+        System.out.println(cartDAO.getLeastBusyShipperId());
 
     }
 }
