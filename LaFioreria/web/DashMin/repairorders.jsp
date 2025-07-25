@@ -10,10 +10,10 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Quản lý yêu cầu sửa giỏ hoa - La Fioreria</title>
+    <title>Flower Basket Repair Requests Management - La Fioreria</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="Quản lý yêu cầu sửa giỏ hoa" name="keywords">
-    <meta content="Trang quản lý yêu cầu sửa giỏ hoa cho admin" name="description">
+    <meta content="Flower basket repair requests management" name="keywords">
+    <meta content="Flower basket repair requests management page for admin" name="description">
 
     <!-- Favicon -->
     <link href="${pageContext.request.contextPath}/DashMin/img/favicon.ico" rel="icon">
@@ -74,20 +74,20 @@
                     <a href="${pageContext.request.contextPath}/DashMin/rawflower2" class="nav-item nav-link"><i class="fa fa-table me-2"></i>RawFlower</a>
                     <a href="${pageContext.request.contextPath}/category" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
                     <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-table me-2 active"></i>Repair Center</a>
-                            <div class="dropdown-menu bg-transparent border-0">
-                                <a href="${pageContext.request.contextPath}/repairOrders" class="dropdown-item active">Repair Orders</a>
-                                <a href="${pageContext.request.contextPath}/repairHistory" class="dropdown-item">Repair History</a>
-                            </div>
+                        <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown"><i class="fa fa-table me-2"></i>Repair Center</a>
+                        <div class="dropdown-menu bg-transparent border-0">
+                            <a href="${pageContext.request.contextPath}/repairOrders" class="dropdown-item active">Repair Orders</a>
+                            <a href="${pageContext.request.contextPath}/repairHistory" class="dropdown-item">Repair History</a>
+                        </div>
                     </div>
-                    <a href="${pageContext.request.contextPath}/listWholeSaleRequest" class="nav-item nav-link"><i class="fa fa-table me-2"></i>WholeSale</a>                   
+                    <a href="${pageContext.request.contextPath}/listWholeSaleRequest" class="nav-item nav-link"><i class="fa fa-table me-2"></i>WholeSale</a>
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Pages</a>
                         <div class="dropdown-menu bg-transparent border-0">
                             <a href="${pageContext.request.contextPath}/DashMin/404.jsp" class="dropdown-item">404 Error</a>
                             <a href="${pageContext.request.contextPath}/DashMin/blank.jsp" class="dropdown-item">Blank Page</a>
                             <a href="${pageContext.request.contextPath}/viewuserdetail" class="dropdown-item">View User Detail</a>
-                            <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item">Add new User</a>
+                            <a href="${pageContext.request.contextPath}/adduserdetail" class="dropdown-item">Add New User</a>
                         </div>
                     </div>
                 </div>
@@ -119,13 +119,13 @@
                                 <div class="d-flex align-items-center">
                                     <img class="rounded-circle" src="${pageContext.request.contextPath}/DashMin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
                                     <div class="ms-2">
-                                        <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                        <h6 class="fw-normal mb-0">Jhon sent you a message</h6>
                                         <small>15 minutes ago</small>
                                     </div>
                                 </div>
                             </a>
                             <hr class="dropdown-divider">
-                            <a href="#" class="dropdown-item text-center">See all message</a>
+                            <a href="#" class="dropdown-item text-center">See all messages</a>
                         </div>
                     </div>
                     <div class="nav-item dropdown">
@@ -160,7 +160,7 @@
             <!-- Repair Orders Start -->
             <div class="container-fluid pt-4 px-4">
                 <div class="bg-light rounded h-100 p-4">
-                    <h6 class="mb-4">Danh sách yêu cầu sửa giỏ hoa</h6>
+                    <h6 class="mb-4">List of Flower Basket Repair Requests</h6>
                     <c:if test="${not empty error}">
                         <div class="alert alert-danger">${error}</div>
                     </c:if>
@@ -169,7 +169,7 @@
                     </c:if>
                     <c:choose>
                         <c:when test="${empty repairOrders}">
-                            <p>Không có yêu cầu sửa giỏ hoa nào.</p>
+                            <p>No flower basket repair requests available.</p>
                         </c:when>
                         <c:otherwise>
                             <div class="table-responsive">
@@ -177,12 +177,12 @@
                                     <thead>
                                         <tr>
                                             <th scope="col">ID</th>
-                                            <th scope="col">Giỏ hoa</th>
-                                            <th scope="col">Lô hoa</th>
-                                            <th scope="col">Lý do</th>
-                                            <th scope="col">Thời gian tạo</th>
-                                            <th scope="col">Trạng thái</th>
-                                            <th scope="col">Hành động</th>
+                                            <th scope="col">Bouquet</th>
+                                            <th scope="col">Flower Batch</th>
+                                            <th scope="col">Reason</th>
+                                            <th scope="col">Created At</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -216,7 +216,7 @@
                 <div class="bg-light rounded-top p-4">
                     <div class="row">
                         <div class="col-12 col-sm-6 text-center text-sm-start">
-                            © <a href="#">La Fioreria</a>, All Right Reserved.
+                            © <a href="#">La Fioreria</a>, All Rights Reserved.
                         </div>
                         <div class="col-12 col-sm-6 text-center text-sm-end">
                             Designed By <a href="https://htmlcodex.com">HTML Codex</a>

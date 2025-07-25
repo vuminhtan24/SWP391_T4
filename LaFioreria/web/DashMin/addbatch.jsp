@@ -100,8 +100,9 @@
                     <div class="mb-3">
                         <label for="unit_price" class="form-label">Unit Price (VND)</label>
                         <input type="number" id="unit_price" name="unit_price" class="form-control"
-                               value="${quotedPrice}" readonly
-                               <c:if test="${addFlowerAgree ne true}">required min="0" step="1"</c:if> >
+                               value="${quotedPrice}"
+                               <c:if test="${sessionScope.addFlowerAgree eq true}">readonly</c:if>
+                               <c:if test="${sessionScope.addFlowerAgree ne true}">required min="0" step="1"</c:if>>
                         <c:if test="${not empty unitPriceError}">
                             <div class="error">${unitPriceError}</div>
                         </c:if>
@@ -109,8 +110,8 @@
                     <div class="mb-3">
                         <label for="import_date" class="form-label">Import Date</label>
                         <input type="date" id="import_date" name="import_date" class="form-control"
-                               value="${addFlowerAgree eq true ? requestDate : import_date}"
-                               <c:if test="${addFlowerAgree eq true}">readonly</c:if> required>
+                               value="${sessionScope.addFlowerAgree eq true ? requestDate : currentDate}"
+                               readonly required>
                         <c:if test="${not empty importDateError}">
                             <div class="error">${importDateError}</div>
                         </c:if>
@@ -129,11 +130,11 @@
                     <div class="mb-3">
                         <label for="quantity" class="form-label">Quantity</label>
                         <input type="number" id="quantity" name="quantity" class="form-control"
-                               value="${addFlowerAgree eq true ? requestQuantity : quantity}"
+                               value="${sessionScope.addFlowerAgree eq true ? requestQuantity : quantity}"
                                <c:choose>
-                                   <c:when test="${addFlowerAgree eq true}">readonly</c:when>
+                                   <c:when test="${sessionScope.addFlowerAgree eq true}">readonly</c:when>
                                    <c:otherwise>required min="0" step="1"</c:otherwise>
-                               </c:choose> >
+                               </c:choose>>
                         <c:if test="${not empty quantityError}">
                             <div class="error">${quantityError}</div>
                         </c:if>
@@ -146,7 +147,6 @@
                             <div class="error">${holdError}</div>
                         </c:if>
                     </div>
-
                     <div class="mb-3">
                         <label for="warehouse_id" class="form-label">Warehouse</label>
                         <select id="warehouse_id" name="warehouse_id" class="form-select" required>
@@ -167,7 +167,6 @@
                             <div class="error">${warehouseIdError}</div>
                         </c:if>
                     </div>
-
                     <div class="d-flex justify-content-center gap-3">
                         <button type="submit" name="action" value="addbatch" class="btn btn-primary">Add Batch</button>
                         <c:choose>
@@ -180,7 +179,6 @@
                         </c:choose>
                     </div>
                 </form>
-
             </div>
         </div>
 

@@ -1,6 +1,3 @@
-/*
- * Click nbproject/project.properties to edit this template
- */
 package controller;
 
 import jakarta.servlet.ServletException;
@@ -37,6 +34,10 @@ public class AddBatch extends HttpServlet {
         OrderDAO odao = new OrderDAO();
         Boolean addFlowerAgree = (Boolean) session.getAttribute("addFlowerAgree");
         try {
+            // Set current date for import_date default value
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String currentDate = sdf.format(new Date());
+            request.setAttribute("currentDate", currentDate);
 
             // Get flower_id from URL parameter
             String flowerIdStr = request.getParameter("flower_id");
@@ -54,17 +55,16 @@ public class AddBatch extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
                 return;
             }
+
             if (session.getAttribute("orderId") != null && session.getAttribute("orderItemId") != null) {
                 Integer orderId = (Integer) session.getAttribute("orderId");
                 Integer orderItemId = (Integer) session.getAttribute("orderItemId");
-                if (addFlowerAgree == true) {
+                if (Boolean.TRUE.equals(addFlowerAgree)) {
                     List<RequestFlower> listFlower = odao.getRequestFlowerByOrder(orderId, orderItemId);
                     for (RequestFlower requestFlower : listFlower) {
                         if (requestFlower.getOrderId() == orderId && requestFlower.getOrderItemId() == orderItemId && requestFlower.getFlowerId() == flowerId) {
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                            String todayStr = sdf.format(new Date());
                             request.setAttribute("quotedPrice", requestFlower.getPrice());
-                            request.setAttribute("requestDate", todayStr);
+                            request.setAttribute("requestDate", currentDate); // Use current date for requestDate
                             request.setAttribute("requestQuantity", requestFlower.getQuantity());
                             request.setAttribute("orderId", orderId);
                             request.setAttribute("orderItemId", orderItemId);
@@ -83,7 +83,7 @@ public class AddBatch extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/DashMin/rawflower2");
                 return;
             }
-            session.setAttribute("listW", warehouses); // Sử dụng session như AddRawFlower
+            session.setAttribute("listW", warehouses);
 
             // Forward to add_batch.jsp
             request.getRequestDispatcher("/DashMin/addbatch.jsp").forward(request, response);
@@ -109,30 +109,33 @@ public class AddBatch extends HttpServlet {
             String warehouseIdStr = request.getParameter("warehouse_id");
             String action = request.getParameter("action");
 
-            // Validate inputs
+            // Validate import_date is today's date
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String todayStr = sdf.format(new Date());
+            String importDateError = null;
+            if (!todayStr.equals(importDate)) {
+                importDateError = "Import date must be today's date.";
+            }
+
+            // Validate other inputs
             String flowerIdError = Validate.validateNumber(flowerIdStr, "Flower ID");
             String unitPriceError = Validate.validateNumberWithRange(unitPriceStr, "Unit Price", 0, Integer.MAX_VALUE);
-            String importDateError = Validate.validateDate(importDate, "Import Date");
             String expirationDateError = Validate.validateDate(expirationDate, "Expiration Date");
             String quantityError = Validate.validateNumberWithRange(quantityStr, "Quantity", 0, Integer.MAX_VALUE);
             String holdError = Validate.validateNumberWithRange(holdStr, "Hold", 0, Integer.MAX_VALUE);
             String warehouseIdError = Validate.validateWarehouseId(warehouseIdStr, whDAO);
-            // Check date relationship (import_date <= expiration_date)
+
+            // Check date relationship (import_date < expiration_date)
             String dateRelationError = null;
             if (importDateError == null && expirationDateError == null) {
                 try {
                     LocalDate importLocalDate = LocalDate.parse(importDate);
                     LocalDate expirationLocalDate = LocalDate.parse(expirationDate);
-                    LocalDate today = LocalDate.now();
-
-                    // Ngày nhập < hôm nay → lỗi
-                    if (importLocalDate.isBefore(today)) {
-                        dateRelationError = "Ngày nhập không được ở quá khứ.";
-                    } else if (!importLocalDate.isBefore(expirationLocalDate)) {
-                        dateRelationError = "Ngày nhập phải nhỏ hơn ngày hết hạn.";
+                    if (!importLocalDate.isBefore(expirationLocalDate)) {
+                        dateRelationError = "Import date must be before expiration date.";
                     }
                 } catch (Exception e) {
-                    dateRelationError = "Lỗi định dạng ngày. Vui lòng kiểm tra lại.";
+                    dateRelationError = "Invalid date format. Please check again.";
                 }
             }
 
@@ -159,9 +162,10 @@ public class AddBatch extends HttpServlet {
                 request.setAttribute("warehouseIdError", warehouseIdError);
                 request.setAttribute("dateRelationError", dateRelationError);
 
-                // Reload warehouse list
+                // Reload warehouse list and current date
                 List<Warehouse> warehouses = whDAO.getAllWarehouse();
                 session.setAttribute("listW", warehouses);
+                request.setAttribute("currentDate", todayStr);
 
                 // Forward back with errors
                 request.getRequestDispatcher("/DashMin/addbatch.jsp").forward(request, response);
@@ -193,10 +197,10 @@ public class AddBatch extends HttpServlet {
                     odao.updateOrderItemStatus(orderItemId, "Added");
                     session.removeAttribute("orderId");
                     session.removeAttribute("orderItemId");
-                    response.sendRedirect(request.getContextPath() + "/requestDetail?orderId="+orderId+"&orderItemId="+orderItemId);
+                    response.sendRedirect(request.getContextPath() + "/requestDetail?orderId=" + orderId + "&orderItemId=" + orderItemId);
                 }
             } else {
-                // Trường hợp thông thường → chuyển về rawFlowerDetails
+                // Normal case → redirect to rawFlowerDetails
                 response.sendRedirect(request.getContextPath() + "/rawFlowerDetails?flower_id=" + flowerId);
             }
 
@@ -213,9 +217,11 @@ public class AddBatch extends HttpServlet {
             request.setAttribute("hold", request.getParameter("hold"));
             request.setAttribute("warehouse_id", request.getParameter("warehouse_id"));
 
-            // Reload warehouse list
+            // Reload warehouse list and current date
             List<Warehouse> warehouses = whDAO.getAllWarehouse();
             session.setAttribute("listW", warehouses);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            request.setAttribute("currentDate", sdf.format(new Date()));
 
             request.getRequestDispatcher("/DashMin/addbatch.jsp").forward(request, response);
         }
