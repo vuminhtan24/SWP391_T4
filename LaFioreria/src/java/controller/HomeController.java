@@ -82,7 +82,7 @@ public class HomeController extends HttpServlet {
         request.setAttribute("listFlowerHome", listFlower);
 
         listCategoryBQ = cdao.getBouquetCategory();
-        listMostSellBouquet = bdao.getMostSellBouquet();
+        listMostSellBouquet = bdao.getMostSellBouquet2();
         List<BouquetImage> images = bdao.getAllBouquetImage();
 
         Map<Integer, Integer> bouquetAvailableMap = new HashMap<>();
