@@ -145,16 +145,13 @@
                             </div>
                         </div>
                         <div class="col-sm-3">
-                            <div class="search_box pull-right">
-                                <input type="text" placeholder="Search"/>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div><!--/header-bottom-->
         </header><!--/header-->
 
-        <section id="form"><!--form-->
+        <section id="form" style="margin-top: 0px"><!--form-->
             <div class="container">
                 <div class="row">
                     <div class="col-sm-4 col-sm-offset-1">
