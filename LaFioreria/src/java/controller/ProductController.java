@@ -174,7 +174,6 @@ public class ProductController extends HttpServlet {
         List<Bouquet> bouquetPage = filteredBouquetList.subList(start, end);
 
         request.setAttribute("bouquetAvailableMap", bouquetAvailableMap);
-        request.setAttribute("bouquetAvailable", bdao.allBouquetAvailable());
         request.setAttribute("images", images);
         request.setAttribute("listBouquet", bouquetPage);
         request.setAttribute("currentPage", currentPage);
