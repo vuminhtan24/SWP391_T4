@@ -60,6 +60,9 @@
         <div class="container py-4">
             <div class="row g-4">
                 <!-- Pie Chart -->
+                <a href="${pageContext.request.contextPath}/flowerqualitystatsservlet" class="btn btn-outline-success">
+                    🌼 Quality Flower State
+                </a>
                 <div class="col-md-6">
                     <div class="bg-white rounded shadow-sm p-3">
                         <h5 class="text-center">Flower Loss Rate (Pie Chart)</h5>
