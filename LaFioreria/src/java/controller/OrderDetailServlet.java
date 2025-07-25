@@ -80,7 +80,20 @@ public class OrderDetailServlet extends HttpServlet {
 
         if (allDone && !"Cancelled".equalsIgnoreCase(order.getStatusName()) && !"Delivered".equalsIgnoreCase(order.getStatusName())) {
             orderDAO.updateOrderStatusAfterMakingBouquet(orderId);
+
+            Integer availableShipperId = orderDAO.getAvailableShipperId();
+            if (availableShipperId == null) {
+                System.out.println("⚠️ Tất cả shipper đã đủ tải. Gán shipper ít đơn nhất.");
+                availableShipperId = orderDAO.getLeastBusyShipperId(); // Viết hàm này riêng
+            }
+            if (availableShipperId != null) {
+                orderDAO.assignShipper(orderId, availableShipperId);
+                System.out.println("Assigned shipper ID " + availableShipperId + " to order ID " + orderId);
+            } else {
+                System.out.println("No available shipper found for order ID " + orderId);
+            }
         }
+
         List<BouquetImage> images = bdao.getAllBouquetImage();
         if (order == null) {
             request.setAttribute("errorMessage", "Order not found with ID: " + orderId);

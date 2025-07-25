@@ -225,25 +225,25 @@ public class OrderDAO extends BaseDao {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                 order = new Order(
-                rs.getInt("order_id"),
-                rs.getString("order_date"),
-                rs.getObject("customer_id") != null ? rs.getInt("customer_id") : null,
-                rs.getString("customer_name"),
-                rs.getString("customer_phone"),
-                rs.getString("customer_address"),
-                rs.getString("total_sell"),
-                rs.getString("total_import"),
-                rs.getInt("status_id"),
-                rs.getString("status_name"),
-                rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
-                rs.getString("shipper_name"),
-                rs.getString("payment_method"),
-                rs.getString("type"),
-                rs.getString("delivery_confirmation_image_path"),
-                rs.getString("cancellation_image_path"),
-                rs.getString("cancellation_reason")
-            );
+                order = new Order(
+                        rs.getInt("order_id"),
+                        rs.getString("order_date"),
+                        rs.getObject("customer_id") != null ? rs.getInt("customer_id") : null,
+                        rs.getString("customer_name"),
+                        rs.getString("customer_phone"),
+                        rs.getString("customer_address"),
+                        rs.getString("total_sell"),
+                        rs.getString("total_import"),
+                        rs.getInt("status_id"),
+                        rs.getString("status_name"),
+                        rs.getObject("shipper_id") != null ? rs.getInt("shipper_id") : null,
+                        rs.getString("shipper_name"),
+                        rs.getString("payment_method"),
+                        rs.getString("type"),
+                        rs.getString("delivery_confirmation_image_path"),
+                        rs.getString("cancellation_image_path"),
+                        rs.getString("cancellation_reason")
+                );
             }
         } catch (SQLException e) {
             System.err.println("SQL Error in getOrderDetailById: " + e.getMessage());
@@ -1260,11 +1260,10 @@ public class OrderDAO extends BaseDao {
                 + "    ANY_VALUE(rf.Request_Creation_Date) AS Request_Date,\n"
                 + "    MAX(rf.Request_Confirmation_Date) AS Confirm_Date,\n"
                 + "    CASE\n"
-                + "        WHEN SUM(rf.Status = 'reject') > 0 THEN 'reject'\n"
-                + "        WHEN SUM(rf.Status = 'done') > 0 AND SUM(rf.Status = 'pending') > 0 THEN 'doing'\n"
-                + "        WHEN SUM(rf.Status = 'pending') > 0 THEN 'pending'\n"
                 + "        WHEN SUM(rf.Status = 'done') = COUNT(*) THEN 'done'\n"
-                + "        ELSE 'unknown'\n"
+                + "        WHEN SUM(rf.Status = 'done') > 0 THEN 'doing'\n"
+                + "        WHEN SUM(rf.Status = 'pending') = COUNT(*) THEN 'pending'\n"
+                + "        ELSE 'doing'\n"
                 + "    END AS Status\n"
                 + "FROM requestflower rf\n"
                 + "JOIN flower_type ft ON rf.Flower_ID = ft.Flower_ID"
@@ -1505,13 +1504,67 @@ public class OrderDAO extends BaseDao {
         return item;
     }
 
+    public Integer getAvailableShipperId() {
+        String sql = """
+            SELECT u.User_ID
+                    FROM `user` u
+                    LEFT JOIN `order` o ON u.User_ID = o.shipper_id
+                    LEFT JOIN order_status os ON o.status_id = os.order_status_id
+                    WHERE u.Role = 8 AND u.status = 'active'
+                      AND (os.status_name IN ('SHIPPED') OR os.status_name IS NULL)
+                    GROUP BY u.User_ID, u.Fullname
+                    HAVING COUNT(o.order_id) < 15
+                    ORDER BY COUNT(o.order_id) ASC
+                    LIMIT 1
+        """;
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("User_ID");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null; // Không tìm thấy shipper phù hợp
+    }
+
+    public Integer getLeastBusyShipperId() {
+        String sql = """
+        SELECT u.User_ID
+        FROM `user` u
+        LEFT JOIN `order` o ON u.User_ID = o.shipper_id
+        LEFT JOIN order_status os ON o.status_id = os.order_status_id
+        WHERE u.Role = 8 AND u.status = 'active'
+          AND (os.status_name IN ('SHIPPED') OR os.status_name IS NULL)
+        GROUP BY u.User_ID
+        ORDER BY COUNT(o.order_id) ASC
+        LIMIT 1
+    """;
+
+        try {
+            connection = dbc.getConnection();
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("User_ID");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static void main(String[] args) {
         OrderDAO cartDAO = new OrderDAO();
 
         int testOrderId = 1; // 📝 Thay ID này bằng 1 ID tồn tại trong DB
-        Boolean order = cartDAO.rejectOrder(31,"no","cam.jpg");
+        Boolean order = cartDAO.rejectOrder(31, "no", "cam.jpg");
 
-        System.out.println(order);
+        System.out.println(cartDAO.getLeastBusyShipperId());
 
     }
 }

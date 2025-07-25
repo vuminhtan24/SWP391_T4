@@ -330,12 +330,15 @@
                             <form action="quotationDetails" method="post">
                                 <input type="hidden" name="requestDate" value="${listWS[0].getCreated_at()}" />
                                 <input type="hidden" name="requestGroupId" value="${listWS[0].getRequest_group_id()}">
-                            <button type="submit" class="btn-reject">Reject Order</button>
+                                <button type="submit" class="btn-reject">Reject Order</button>
                             </form>
                         </div>
                     </div>
                 </c:when> 
                 <c:when test="${listWS[0].getStatus() eq 'ACCEPTED'}">
+                    <p class="status-banner status-accepted">You have accepted this WholeSale Order</p>
+                </c:when>
+                <c:when test="${listWS[0].getStatus() eq 'COMPLETED'}">
                     <p class="status-banner status-accepted">You have completed this WholeSale Order</p>
                 </c:when>
                 <c:when test="${listWS[0].getStatus() eq 'REJECTED'}">
@@ -347,8 +350,8 @@
             </c:choose>        
             <!-- List Request End -->
         </div>
-    <jsp:include page="/ZeShopper/footer.jsp"/>
+        <jsp:include page="/ZeShopper/footer.jsp"/>
 
-</body>
+    </body>
 </html>
 

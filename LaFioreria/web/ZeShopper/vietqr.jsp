@@ -51,7 +51,7 @@
 
                         function updateCountdown() {
                             if (remainingTime <= 0) {
-                                countdownEl.innerText = "Hết thời gian!";
+                                countdownEl.innerText = "Time!";
                                 const form = document.querySelector("form");
                                 // Disable the button and hide the form when time runs out
                                 if (form) { // Check if form exists before trying to access its elements
@@ -66,7 +66,7 @@
 
                             var minutes = Math.floor(remainingTime / 60000);
                             var seconds = Math.floor((remainingTime % 60000) / 1000);
-                            countdownEl.innerText = minutes + " phút " + seconds + " giây";
+                            countdownEl.innerText = minutes + " minutes " + seconds + " seconds";
                             remainingTime -= 1000;
                         }
 

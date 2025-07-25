@@ -108,6 +108,34 @@ public class DiscountCodeDAO extends BaseDao { // Giả sử BaseDao là lớp c
         return count;
     }
 
+    public boolean hasUserUsedCode(int userId, int code) {
+        String sql = "SELECT 1 FROM user_discount_code WHERE user_id = ? AND discount_code_id = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, userId);
+            ps.setInt(2, code);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public void markCodeUsed(int userId, int code) {
+        String sql = "INSERT INTO user_discount_code (user_id, discount_code_id, used_at) VALUES (?, ?, NOW())";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, userId);
+            ps.setInt(2, code);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Retrieves a paginated list of discount codes based on search term and
      * filter status.
@@ -604,22 +632,28 @@ public class DiscountCodeDAO extends BaseDao { // Giả sử BaseDao là lớp c
 
     public static void main(String[] args) {
         DiscountCodeDAO dao = new DiscountCodeDAO();
-        List<DiscountCode> list = dao.getAllDiscountCodes();
 
-        System.out.println("📋 Danh sách mã giảm giá:");
-        for (DiscountCode d : list) {
-            System.out.println("——————————————");
-            System.out.println("🔑 Mã: " + d.getCode());
-            System.out.println("📝 Mô tả: " + d.getDescription());
-            System.out.println("💰 Kiểu: " + d.getType());
-            System.out.println("📉 Giá trị: " + d.getValue());
-            System.out.println("🔺 Giảm tối đa: " + d.getMaxDiscount());
-            System.out.println("� Đơn tối thiểu: " + d.getMinOrderAmount());
-            System.out.println("📆 Bắt đầu: " + d.getStartDate());
-            System.out.println("📆 Kết thúc: " + d.getEndDate());
-            System.out.println("🔄 Dùng tối đa: " + d.getUsageLimit());
-            System.out.println("📊 Đã dùng: " + d.getUsedCount());
-            System.out.println("✅ Còn hoạt động: " + d.isActive());
+        int userId = 1; // thay bằng ID user thật trong DB
+        int discountCodeId = 2; // thay bằng ID mã giảm giá thật trong DB
+
+        // Kiểm tra xem user đã dùng mã chưa
+        boolean usedBefore = dao.hasUserUsedCode(userId, discountCodeId);
+        if (usedBefore) {
+            System.out.println("❌ User " + userId + " đã sử dụng mã giảm giá " + discountCodeId);
+        } else {
+            System.out.println("✅ User " + userId + " CHƯA sử dụng mã giảm giá " + discountCodeId);
+
+            // Đánh dấu là đã sử dụng
+            dao.markCodeUsed(userId, discountCodeId);
+            System.out.println("✔️ Đã ghi nhận user " + userId + " đã dùng mã " + discountCodeId);
+
+            // Kiểm tra lại
+            boolean usedAfter = dao.hasUserUsedCode(userId, discountCodeId);
+            if (usedAfter) {
+                System.out.println("🔁 Kiểm tra lại OK: đã dùng mã.");
+            } else {
+                System.out.println("⚠️ LỖI: chưa lưu được việc dùng mã.");
+            }
         }
     }
 }

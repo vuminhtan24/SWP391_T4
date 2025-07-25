@@ -108,7 +108,7 @@ public class CustomerQuotationDetailsController extends HttpServlet {
         List<WholeSale> listWS = new ArrayList<>();
 
         if (flowerID != null) {
-            listWS = wsDao.getWholeSaleRequestByFlowerID(flowerID);
+            listWS = wsDao.getWholeSaleRequestByFlowerID(flowerID, userId, requestDate, requestGroupId);
         } else {
             listWS = wsDao.getWholeSaleList(userId, requestDate, requestGroupId);
         }

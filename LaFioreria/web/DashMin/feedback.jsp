@@ -336,7 +336,7 @@
                                                 </th>
                                                 <th class="sortable" data-type="string">
                                                     <a href="?page=${currentPage}&sortField=comment&sortDir=${sortField eq 'comment' and sortDir eq 'asc' ? 'desc' : 'asc'}&feedbackSearch=${feedbackSearch}&bouquetId=${bouquetId}&rating=${rating}">
-                                                        Comment (First 10 words)
+                                                        Comment (First 50 characters)
                                                         <c:if test="${sortField eq 'comment'}">
                                                             <i class="bi bi-sort-${sortDir eq 'asc' ? 'up' : 'down'}"></i>
                                                         </c:if>
@@ -377,11 +377,8 @@
                                                         </c:forEach>
                                                     </td>
                                                     <td>
-                                                        <c:set var="words" value="${fn:split(feedback.comment, ' ')}"/>
-                                                        <c:forEach var="word" items="${words}" begin="0" end="9">
-                                                            ${word} 
-                                                        </c:forEach>
-                                                        <c:if test="${fn:length(words) > 10}">...</c:if>
+                                                        ${fn:substring(feedback.comment, 0, 50)}
+                                                        <c:if test="${fn:length(feedback.comment) > 50}">...</c:if>
                                                         </td>
                                                         <td><fmt:formatDate value="${feedback.createdAtAsDate}" pattern="dd/MM/yyyy HH:mm"/></td>
                                                     <td>${feedback.status}</td>

@@ -95,7 +95,7 @@
                     <div class="mb-3">
                         <label for="import_date" class="form-label">Import Date</label>
                         <input type="date" id="import_date" name="import_date" class="form-control" 
-                               value="${not empty import_date ? import_date : item.importDate}" required>
+                               value="${not empty import_date ? import_date : item.importDate}" readonly>
                         <c:if test="${not empty importDateError}">
                             <div class="error">${importDateError}</div>
                         </c:if>

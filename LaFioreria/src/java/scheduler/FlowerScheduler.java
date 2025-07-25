@@ -18,71 +18,71 @@ import java.util.concurrent.TimeUnit;
 
 public class FlowerScheduler extends BaseDao {
 
-    public static void main(String[] args) {
-        FlowerScheduler job = new FlowerScheduler();
-
-        // **Phải** mở connection trước khi gọi getAdminEmails(),
-        // vì bên trong method đang dùng field `connection`
-        job.connection = job.dbc.getConnection();
-        List<String> mails = job.getAdminEmails();
-        System.out.println("Admin emails: " + mails);
-        // Tạo scheduler
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
-        // Chạy job mỗi 24 giờ (86400 giây)
-        scheduler.scheduleAtFixedRate(new FlowerScheduler()::checkFlowerBatches, 0, 86400, TimeUnit.SECONDS);
-
-    }
+//    public static void main(String[] args) {
+//        FlowerScheduler job = new FlowerScheduler();
+//
+//        // **Must** open connection before calling getAdminEmails(),
+//        // as the method uses the `connection` field
+//        job.connection = job.dbc.getConnection();
+//        List<String> mails = job.getAdminEmails();
+//        System.out.println("Admin emails: " + mails);
+//
+//        // Create scheduler
+//        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+//
+//        // Run job every 24 hours (86400 seconds)
+//        scheduler.scheduleAtFixedRate(new FlowerScheduler()::checkFlowerBatches, 0, 86400, TimeUnit.SECONDS);
+//    }
 
     public void checkFlowerBatches() {
-        System.out.println("Bắt đầu kiểm tra trạng thái lô hoa: " + new Date());
+        System.out.println("Starting flower batch status check: " + new Date());
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String currentDate = sdf.format(new Date());
 
         try {
-            // Lấy connection từ DBContext
+            // Get connection from DBContext
             connection = dbc.getConnection();
 
-            // 1. Xóa lô hoa hết hạn
+            // 1. Mark expired flower batches
             String deleteExpiredBatches = "UPDATE flower_batch SET status = 'expired' WHERE expiration_date < ? AND (hold IS NULL OR hold = 0)";
             ps = connection.prepareStatement(deleteExpiredBatches);
             ps.setString(1, currentDate);
             int deletedRows = ps.executeUpdate();
-            System.out.println("Đã xóa " + deletedRows + " lô hoa hết hạn.");
+            System.out.println("Marked " + deletedRows + " expired flower batches.");
 
-            // 2. Cập nhật trạng thái gần hết hạn
+            // 2. Update near-expired batches
             String updateNearExpired = "UPDATE flower_batch SET status = 'near_expired' WHERE expiration_date = DATE_ADD(?, INTERVAL 1 DAY) AND status != 'near_expired'";
             ps = connection.prepareStatement(updateNearExpired);
             ps.setString(1, currentDate);
             int updatedRows = ps.executeUpdate();
-            System.out.println("Đã cập nhật " + updatedRows + " lô hoa thành near_expired.");
+            System.out.println("Updated " + updatedRows + " flower batches to near_expired.");
 
-            // 3. Tìm lô hoa gần hết hạn
+            // 3. Find near-expired flower batches
             String findNearExpired = "SELECT batch_id, flower_id FROM flower_batch WHERE status = 'near_expired'";
             try (PreparedStatement nearExpiredPs = connection.prepareStatement(findNearExpired); ResultSet nearExpiredRs = nearExpiredPs.executeQuery()) {
                 while (nearExpiredRs.next()) {
-                    int batchId = nearExpiredRs.getInt("batch_id"); // Sửa rs thành nearExpiredRs
+                    int batchId = nearExpiredRs.getInt("batch_id");
                     int flowerId = nearExpiredRs.getInt("flower_id");
-                    System.out.println("Lô hoa gần hết hạn: batch_id=" + batchId);
+                    System.out.println("Near-expired flower batch: batch_id=" + batchId);
 
-                    // 4. Tìm giỏ hoa chứa lô hoa gần hết hạn
+                    // 4. Find bouquets containing near-expired flower batches
                     String findBouquets = "SELECT bouquet_id FROM bouquet_raw WHERE batch_id = ?";
                     try (PreparedStatement bouquetsPs = connection.prepareStatement(findBouquets)) {
                         bouquetsPs.setInt(1, batchId);
                         try (ResultSet bouquetRs = bouquetsPs.executeQuery()) {
                             while (bouquetRs.next()) {
                                 int bouquetId = bouquetRs.getInt("bouquet_id");
-                                System.out.println("Giỏ hoa " + bouquetId + " cần sửa vì chứa lô hoa: " + batchId);
+                                System.out.println("Bouquet " + bouquetId + " needs repair due to flower batch: " + batchId);
 
-                                // 5. Cập nhật trạng thái giỏ hoa
+                                // 5. Update bouquet status
                                 String updateBouquet = "UPDATE bouquet SET status = 'needs_repair' WHERE Bouquet_ID = ?";
                                 try (PreparedStatement updateBouquetPs = connection.prepareStatement(updateBouquet)) {
                                     updateBouquetPs.setInt(1, bouquetId);
                                     updateBouquetPs.executeUpdate();
                                 }
 
-                                // 6. Kiểm tra xem đã có yêu cầu pending chưa
+                                // 6. Check for existing pending repair orders
                                 String checkExistingOrder = "SELECT COUNT(*) FROM repair_orders WHERE bouquet_id = ? AND batch_id = ? AND status = 'pending'";
                                 try (PreparedStatement checkOrderPs = connection.prepareStatement(checkExistingOrder)) {
                                     checkOrderPs.setInt(1, bouquetId);
@@ -92,21 +92,21 @@ public class FlowerScheduler extends BaseDao {
                                         int count = checkRs.getInt(1);
 
                                         if (count == 0) {
-                                            // Tạo lệnh sửa mới
+                                            // Create new repair order
                                             String insertRepairOrder = "INSERT INTO repair_orders (bouquet_id, batch_id, reason) VALUES (?, ?, ?)";
                                             try (PreparedStatement insertOrderPs = connection.prepareStatement(insertRepairOrder)) {
                                                 insertOrderPs.setInt(1, bouquetId);
                                                 insertOrderPs.setInt(2, batchId);
-                                                insertOrderPs.setString(3, "Giỏ hoa chứa lô hoa gần hết hạn: batch_id=" + batchId);
+                                                insertOrderPs.setString(3, "Bouquet contains near-expired flower batch: batch_id=" + batchId);
                                                 insertOrderPs.executeUpdate();
-                                                System.out.println("Đã tạo yêu cầu sửa mới cho bouquet_id=" + bouquetId + ", batch_id=" + batchId);
+                                                System.out.println("Created new repair order for bouquet_id=" + bouquetId + ", batch_id=" + batchId);
 
-                                                // Gửi email thông báo cho admin
+                                                // Send email notification to admins
                                                 sendEmailToAdmins(bouquetId, batchId);
-                                                addNotification(bouquetId, batchId, "Giỏ hoa " + bouquetId + " cần sửa do lô hoa " + batchId + " gần hết hạn.");
+                                                addNotification(bouquetId, batchId, "Bouquet " + bouquetId + " needs repair due to near-expired flower batch " + batchId + ".");
                                             }
                                         } else {
-                                            System.out.println("Bỏ qua tạo yêu cầu sửa vì đã có yêu cầu pending cho bouquet_id=" + bouquetId + ", batch_id=" + batchId);
+                                            System.out.println("Skipped creating repair order as a pending order exists for bouquet_id=" + bouquetId + ", batch_id=" + batchId);
                                         }
                                     }
                                 }
@@ -116,17 +116,17 @@ public class FlowerScheduler extends BaseDao {
                 }
             }
 
-            // 7. Cập nhật trạng thái lô hoa còn lại
+            // 7. Update status of remaining flower batches
             String updateFreshBatches = "UPDATE flower_batch SET status = 'fresh' WHERE expiration_date > DATE_ADD(?, INTERVAL 1 DAY) AND status != 'fresh'";
             ps = connection.prepareStatement(updateFreshBatches);
             ps.setString(1, currentDate);
             int freshRows = ps.executeUpdate();
-            System.out.println("Đã cập nhật " + freshRows + " lô hoa thành fresh.");
+            System.out.println("Updated " + freshRows + " flower batches to fresh.");
 
-            // 8. Kiểm tra số lượng lô hoa và đơn hàng
+            // 8. Check stock levels and orders
             checkStockLevelsAndOrders();
 
-            System.out.println("Hoàn thành kiểm tra trạng thái lô hoa.");
+            System.out.println("Completed flower batch status check.");
         } catch (SQLException e) {
             System.err.println("SQLException: " + e.getMessage());
             System.err.println("SQLState: " + e.getSQLState());
@@ -142,9 +142,11 @@ public class FlowerScheduler extends BaseDao {
     }
 
     private void sendEmailToAdmins(int bouquetId, int batchId) {
-        // Cấu hình email
-        String from = "hoang.trungkien2110@gmail.com"; // Thay bằng email của bạn
-        String password = "jnto tzhj pvvd fvfm"; // Thay bằng App Password
+        // Email configuration
+//        String from = "hoang.trungkien2110@gmail.com"; // Replace with your email
+//        String password = "jnto tzhj pvvd fvfm"; // Replace with App Password 
+        String from = "trungkienhoang2110@gmail.com";
+        String password = "tnux cqee gver joma";
         String host = "smtp.gmail.com";
 
         Properties properties = System.getProperties();
@@ -153,41 +155,41 @@ public class FlowerScheduler extends BaseDao {
         properties.setProperty("mail.smtp.auth", "true");
         properties.setProperty("mail.smtp.starttls.enable", "true");
 
-        // Tạo session
+        // Create session
         Session session = Session.getDefaultInstance(properties, new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(from, password);
             }
         });
 
-        // Lấy danh sách email admin từ bảng user
+        // Get admin emails from user table
         List<String> adminEmails = getAdminEmails();
 
         if (adminEmails.isEmpty()) {
-            System.out.println("Không tìm thấy email admin để gửi thông báo.");
+            System.out.println("No admin emails found for notification.");
             return;
         }
 
-        // Gửi email cho từng admin
+        // Send email to each admin
         for (String to : adminEmails) {
             try {
                 MimeMessage message = new MimeMessage(session);
                 message.setFrom(new InternetAddress(from));
                 message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-                message.setSubject("Yêu cầu sửa giỏ hoa: Bouquet ID " + bouquetId);
-                message.setText("Kính gửi Admin,\n\n"
-                        + "Một yêu cầu sửa giỏ hoa đã được tạo:\n"
-                        + "- Giỏ hoa ID: " + bouquetId + "\n"
-                        + "- Lô hoa ID: " + batchId + "\n"
-                        + "- Lý do: Giỏ hoa chứa lô hoa gần hết hạn\n"
-                        + "- Thời gian: " + new Date() + "\n\n"
-                        + "Vui lòng kiểm tra và xử lý.\n"
-                        + "Trân trọng,\nHệ thống La Fioreria");
+                message.setSubject("Repair Request for Bouquet: Bouquet ID " + bouquetId);
+                message.setText("Dear Admin,\n\n"
+                        + "A repair request has been created for a bouquet:\n"
+                        + "- Bouquet ID: " + bouquetId + "\n"
+                        + "- Flower Batch ID: " + batchId + "\n"
+                        + "- Reason: Bouquet contains near-expired flower batch\n"
+                        + "- Time: " + new Date() + "\n\n"
+                        + "Please review and take action.\n"
+                        + "Best regards,\nLa Fioreria System");
 
                 Transport.send(message);
-                System.out.println("Đã gửi email thông báo đến: " + to);
+                System.out.println("Sent email notification to: " + to);
             } catch (MessagingException e) {
-                System.err.println("Lỗi gửi email đến " + to + ": " + e.getMessage());
+                System.err.println("Error sending email to " + to + ": " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -210,9 +212,9 @@ public class FlowerScheduler extends BaseDao {
                 int quantity = rs.getInt("quantity");
                 int flowerId = rs.getInt("flower_id");
                 String flowerName = rs.getString("flower_name");
-                System.out.println("Lô hoa " + batchId + " (" + flowerName + ") có số lượng thấp: " + quantity + " < 10");
+                System.out.println("Flower batch " + batchId + " (" + flowerName + ") has low quantity: " + quantity + " < 10");
                 sendEmailToAdminsForStock(batchId, flowerId, flowerName, "low_quantity");
-                addNotification(-1, batchId, "Lô hoa " + batchId + " (" + flowerName + ") có số lượng thấp: " + quantity + ". Vui lòng nhập thêm.");
+                addNotification(-1, batchId, "Flower batch " + batchId + " (" + flowerName + ") has low quantity: " + quantity + ". Please restock.");
             }
         }
     }
@@ -246,18 +248,20 @@ public class FlowerScheduler extends BaseDao {
                 int totalNeeded = rs.getInt("total_needed");
                 int totalStock = rs.getInt("total_stock");
                 int diff = rs.getInt("diff");
-                System.out.println("Giỏ hoa " + bouquetName + " (ID: " + bouquetId + ") cần " + totalNeeded
-                        + " hoa, tồn kho " + totalStock + ", chênh lệch " + diff);
+                System.out.println("Bouquet " + bouquetName + " (ID: " + bouquetId + ") needs " + totalNeeded
+                        + " flowers, stock " + totalStock + ", difference " + diff);
                 sendEmailToAdminsForStock(-1, -1, bouquetName, "low_stock");
-                addNotification(-1, -1, "Giỏ hoa " + bouquetName + " (ID: " + bouquetId + ") cần " + totalNeeded
-                        + " hoa, tồn kho " + totalStock + ". Vui lòng nhập thêm lô hoa.");
+                addNotification(-1, -1, "Bouquet " + bouquetName + " (ID: " + bouquetId + ") needs " + totalNeeded
+                        + " flowers, stock " + totalStock + ". Please restock flower batches.");
             }
         }
     }
 
     private void sendEmailToAdminsForStock(int batchId, int flowerId, String name, String reasonType) {
-        String from = "hoang.trungkien2110@gmail.com";
-        String password = "jnto tzhj pvvd fvfm";
+//        String from = "hoang.trungkien2110@gmail.com";
+//        String password = "jnto tzhj pvvd fvfm";
+        String from = "trungkienhoang2110@gmail.com";
+        String password = "tnux cqee gver joma";
         String host = "smtp.gmail.com";
 
         Properties properties = new Properties();
@@ -275,22 +279,22 @@ public class FlowerScheduler extends BaseDao {
         List<String> adminEmails = getAdminEmails();
 
         if (adminEmails.isEmpty()) {
-            System.out.println("Không tìm thấy email admin để gửi thông báo.");
+            System.out.println("No admin emails found for notification.");
             return;
         }
 
-        String subject = "Yêu cầu nhập thêm lô hoa";
-        String body = "Kính gửi Admin,\n\n";
+        String subject = "Restock Request for Flower Batch";
+        String body = "Dear Admin,\n\n";
         if ("low_quantity".equals(reasonType)) {
-            body += "Lô hoa ID " + batchId + " (" + name + ") có số lượng thấp.\n"
-                    + "Vui lòng nhập thêm lô hoa cho loại hoa ID " + flowerId + ".\n";
+            body += "Flower batch ID " + batchId + " (" + name + ") has low quantity.\n"
+                    + "Please restock flower batch for flower type ID " + flowerId + ".\n";
         } else if ("low_stock".equals(reasonType)) {
-            body += "Giỏ hoa " + name + " cần " + (reasonType.equals("low_stock") ? "thêm hoa" : "") + " vì số lượng đơn hàng vượt tồn kho.\n"
-                    + "Vui lòng nhập thêm lô hoa để đáp ứng nhu cầu.\n";
+            body += "Bouquet " + name + " needs additional flowers due to order quantity exceeding stock.\n"
+                    + "Please restock flower batches to meet demand.\n";
         }
-        body += "- Thời gian: " + new Date() + "\n\n"
-                + "Trân trọng,\nHệ thống La Fioreria";
-
+        body += "- Time: " + new Date() + "\n\n"
+                + "Best regards,\nLa Fioreria System";       
+        
         for (String to : adminEmails) {
             try {
                 MimeMessage message = new MimeMessage(session);
@@ -300,9 +304,9 @@ public class FlowerScheduler extends BaseDao {
                 message.setText(body);
 
                 Transport.send(message);
-                System.out.println("Đã gửi email thông báo nhập lô hoa đến: " + to);
+                System.out.println("Sent restock notification email to: " + to);
             } catch (MessagingException e) {
-                System.err.println("Lỗi gửi email đến " + to + ": " + e.getMessage());
+                System.err.println("Error sending email to " + to + ": " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -323,14 +327,14 @@ public class FlowerScheduler extends BaseDao {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi lấy email admin: " + e.getMessage());
+            System.err.println("Error retrieving admin emails: " + e.getMessage());
             e.printStackTrace();
         }
         return emails;
     }
 
     private void addNotification(int bouquetId, int batchId, String message) throws SQLException {
-        // Lấy user_id của admin (giả định lấy user_id đầu tiên làm đại diện)
+        // Get user_id of admins (assuming the first user_id is used as a representative)
         String getAdminId = "SELECT user_id FROM user WHERE Role = 1 AND status = 'active'";
         ps = connection.prepareStatement(getAdminId);
         rs = ps.executeQuery();
@@ -349,10 +353,9 @@ public class FlowerScheduler extends BaseDao {
         rs.close();
         insertPs.close();
         if (anyInserted) {
-            System.out.println("Đã thêm thông báo cho tất cả admin.");
+            System.out.println("Added notification for all admins.");
         } else {
-            System.out.println("Không tìm thấy admin để thêm thông báo.");
+            System.out.println("No admins found to add notification.");
         }
     }
-
 }
