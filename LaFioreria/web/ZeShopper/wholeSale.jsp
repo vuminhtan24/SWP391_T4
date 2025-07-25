@@ -190,23 +190,27 @@
 
                                                         <!-- ACTION BUTTONS -->
                                                         <td style="white-space: nowrap; min-width: 150px; text-align: center;">
-                                                            <button type="button"
-                                                                    class="btn-update"
-                                                                    data-toggle="modal"
-                                                                    data-target="#updateModal"
-                                                                    data-name="${bouquetName}"
-                                                                    data-image="${pageContext.request.contextPath}/upload/BouquetIMG/${imageUrl}"
-                                                                    data-quantity="${item.requested_quantity}"
-                                                                    data-bouquet-id="${item.bouquet_id}"
-                                                                    data-note="${item.note}">
-                                                                Update
-                                                            </button>
-                                                            <form action="${pageContext.request.contextPath}/wholeSale" method="post">
-                                                                <input type="hidden" name="user_id" value="${sessionScope.currentAcc.userid}" />
-                                                                <input type="hidden" name="bouquet_id" value="${item.getBouquet_id()}">
-                                                                <button name="action" type="submit" value="delete" class="btn-delete">Delete</button>
-                                                            </form>
+                                                            <div style="display: flex; gap: 8px; align-items: center; justify-content: center; width: 100%;">
+                                                                <button type="button"
+                                                                        class="btn-update"
+                                                                        data-toggle="modal"
+                                                                        data-target="#updateModal"
+                                                                        data-name="${bouquetName}"
+                                                                        data-image="${pageContext.request.contextPath}/upload/BouquetIMG/${imageUrl}"
+                                                                        data-quantity="${item.requested_quantity}"
+                                                                        data-bouquet-id="${item.bouquet_id}"
+                                                                        data-note="${item.note}">
+                                                                    Update
+                                                                </button>
+
+                                                                <form action="${pageContext.request.contextPath}/wholeSale" method="post" style="margin: 0;">
+                                                                    <input type="hidden" name="user_id" value="${sessionScope.currentAcc.userid}" />
+                                                                    <input type="hidden" name="bouquet_id" value="${item.getBouquet_id()}">
+                                                                    <button name="action" type="submit" value="delete" class="btn-delete">Delete</button>
+                                                                </form>
+                                                            </div>
                                                         </td>
+
                                                     </tr>
                                                 </c:if>
                                             </c:forEach>

@@ -474,6 +474,9 @@
                                                             </div>
                                                         </td>
                                                     </tr>
+                                                    <c:if test="${param.error != null}">
+                                                    <div style="color: red; font-weight: bold;">${param.error}</div>
+                                                </c:if>
                                                 </tfoot>
 
                                             </table>

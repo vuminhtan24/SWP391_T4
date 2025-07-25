@@ -428,6 +428,8 @@
                             <p style="color:red;">${error}</p>
                         </c:if>
                         <c:forEach items="${requestScope.listBouquet}" var="lb">
+                            <c:set var="available" value="${bouquetAvailableMap[lb.bouquetId]}" />
+                            <c:if test="${lb.getStatus() eq 'valid' and available != null and available gt 0}">
                             <div class="col-sm-4" style="
                                  box-sizing: border-box;
                                  padding: 10px;
@@ -465,7 +467,7 @@
                                             </h2>
                                             <p style="margin-bottom: 10px;">Price: <fmt:formatNumber value="${lb.getSellPrice()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</p>
                                             <!-- Đây là nút Add to Cart gốc, không thay đổi -->
-                                            <c:set var="available" value="${bouquetAvailableMap[lb.bouquetId]}" />
+                                            
 
                                             <button
                                                 type="button"
@@ -491,6 +493,7 @@
                                     </div>
                                 </div>
                             </div>
+                            </c:if>                
                         </c:forEach>
                         <div style="clear: both;"></div>
 

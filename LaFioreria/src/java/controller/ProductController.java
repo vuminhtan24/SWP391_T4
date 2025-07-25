@@ -70,6 +70,7 @@ public class ProductController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         List<Bouquet> listBouquet = new ArrayList<>();
         List<Category> listCategoryBQ = new ArrayList<>();
         List<FlowerType> listFlower = new ArrayList<>();
@@ -130,7 +131,6 @@ public class ProductController extends HttpServlet {
         boolean hasCate = (cateID != null && cateID > 0);
         boolean hasFlower = (flowerID != null && flowerID > 0);
 
-// Nếu giá giữ mặc định thì truyền null cho filter giá, tránh lọc giá không cần thiết
         Integer minFilter = (min == 0) ? null : min;
         Integer maxFilter = (max == 10000000) ? null : max;
 
@@ -143,18 +143,20 @@ public class ProductController extends HttpServlet {
             listBouquet = bdao.getAll();
         }
 
-        request.setAttribute("listBouquet", listBouquet);
-
-        if (listBouquet.isEmpty() || listBouquet.size() == 0) {
-            request.setAttribute("error", "There aren't any Bouquet. Please try again!!!");
-            request.getRequestDispatcher("./ZeShopper/shop.jsp").forward(request, response);
-            return;
+        // Lọc trước khi phân trang
+        Map<Integer, Integer> bouquetAvailableMap = new HashMap<>();
+        List<Bouquet> filteredBouquetList = new ArrayList<>();
+        for (Bouquet bq : listBouquet) {
+            int available = bdao.bouquetAvailable(bq.getBouquetId());
+            if ("valid".equalsIgnoreCase(bq.getStatus()) && available > 0) {
+                bouquetAvailableMap.put(bq.getBouquetId(), available);
+                filteredBouquetList.add(bq);
+            }
         }
 
-        // PHÂN TRANG
-        int pageSize = 6; // số sản phẩm mỗi trang
+        // Phân trang
+        int pageSize = 6;
         int currentPage = 1;
-
         String pageParam = request.getParameter("page");
         if (pageParam != null) {
             try {
@@ -164,28 +166,25 @@ public class ProductController extends HttpServlet {
             }
         }
 
-        int totalItems = listBouquet.size();
+        int totalItems = filteredBouquetList.size();
         int totalPages = (int) Math.ceil((double) totalItems / pageSize);
 
         int start = (currentPage - 1) * pageSize;
         int end = Math.min(start + pageSize, totalItems);
-        List<Bouquet> bouquetPage = listBouquet.subList(start, end);
-        Map<Integer, Integer> bouquetAvailableMap = new HashMap<>();
-        for (Bouquet bq : bouquetPage) {
-            int available = bdao.bouquetAvailable(bq.getBouquetId());
-            bouquetAvailableMap.put(bq.getBouquetId(), available);
-        }
-        request.setAttribute("bouquetAvailableMap", bouquetAvailableMap);
+        List<Bouquet> bouquetPage = filteredBouquetList.subList(start, end);
 
-        // Đặt thuộc tính để truyền qua JSP
+        request.setAttribute("bouquetAvailableMap", bouquetAvailableMap);
         request.setAttribute("bouquetAvailable", bdao.allBouquetAvailable());
         request.setAttribute("images", images);
         request.setAttribute("listBouquet", bouquetPage);
         request.setAttribute("currentPage", currentPage);
         request.setAttribute("totalPages", totalPages);
 
-        request.getRequestDispatcher("./ZeShopper/shop.jsp").forward(request, response);
+        if (bouquetPage.isEmpty()) {
+            request.setAttribute("error", "There aren't any Bouquet. Please try again!!!");
+        }
 
+        request.getRequestDispatcher("./ZeShopper/shop.jsp").forward(request, response);
     }
 
     /**
