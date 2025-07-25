@@ -240,7 +240,7 @@
                     <input
                         type="text"
                         name="bouquetName"
-                        placeholder="Tìm kiếm sản phẩm"
+                        placeholder="Search products"
                         value="${param.bouquetName != null ? param.bouquetName : ''}"
                         style="
                         width: 200px;
