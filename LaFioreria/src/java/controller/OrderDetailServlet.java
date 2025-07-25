@@ -82,6 +82,10 @@ public class OrderDetailServlet extends HttpServlet {
             orderDAO.updateOrderStatusAfterMakingBouquet(orderId);
 
             Integer availableShipperId = orderDAO.getAvailableShipperId();
+            if (availableShipperId == null) {
+                System.out.println("⚠️ Tất cả shipper đã đủ tải. Gán shipper ít đơn nhất.");
+                availableShipperId = orderDAO.getLeastBusyShipperId(); // Viết hàm này riêng
+            }
             if (availableShipperId != null) {
                 orderDAO.assignShipper(orderId, availableShipperId);
                 System.out.println("Assigned shipper ID " + availableShipperId + " to order ID " + orderId);
