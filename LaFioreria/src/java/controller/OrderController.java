@@ -26,7 +26,7 @@ public class OrderController extends HttpServlet {
         // Lấy thông tin người dùng hiện tại
         User currentUser = (User) request.getSession().getAttribute("currentAcc");
         if (currentUser == null) {
-            request.setAttribute("error", "Vui lòng đăng nhập để xem lịch sử đơn hàng.");
+            request.setAttribute("error", "Please login to view order history.");
             request.getRequestDispatcher("/ZeShopper/order.jsp").forward(request, response);
             return;
         }
@@ -34,7 +34,7 @@ public class OrderController extends HttpServlet {
         // Lấy customerId
         Integer customerId = currentUser.getUserid();
         if (customerId == null) {
-            request.setAttribute("error", "Không tìm thấy ID khách hàng trong phiên đăng nhập.");
+            request.setAttribute("error", "No client ID found in the login session.");
             request.getRequestDispatcher("/ZeShopper/order.jsp").forward(request, response);
             return;
         }
@@ -46,7 +46,7 @@ public class OrderController extends HttpServlet {
             try {
                 statusId = Integer.parseInt(status);
             } catch (NumberFormatException e) {
-                request.setAttribute("error", "Định dạng trạng thái không hợp lệ.");
+                request.setAttribute("error", "Invalid status format.");
                 request.getRequestDispatcher("/ZeShopper/order.jsp").forward(request, response);
                 return;
             }
@@ -83,7 +83,7 @@ public class OrderController extends HttpServlet {
             request.setAttribute("selectedStatus", status != null ? status : "all");
             request.setAttribute("canWriteFeedbackMap", canWriteFeedbackMap);
         } catch (Exception e) {
-            request.setAttribute("error", "Không thể tải danh sách đơn hàng: " + e.getMessage());
+            request.setAttribute("error", "Unable to load order list: " + e.getMessage());
         }
 
         // Chuyển tiếp đến JSP
@@ -97,7 +97,7 @@ public class OrderController extends HttpServlet {
         if ("cancel".equals(action)) {
             User currentUser = (User) request.getSession().getAttribute("currentAcc");
             if (currentUser == null) {
-                request.setAttribute("error", "Vui lòng đăng nhập để hủy đơn hàng.");
+                request.setAttribute("error", "Please login to cancel order.");
                 doGet(request, response);
                 return;
             }
@@ -107,12 +107,12 @@ public class OrderController extends HttpServlet {
                 Order order = orderDAO.getOrderDetailById(orderId);
                 if (order.getCustomerId() == currentUser.getUserid() && order.getStatusId() == 1 && "VietQR".equals(order.getPaymentMethod())) {
                     orderDAO.updateOrderStatus(orderId, 5); // 5: Đã hủy
-                    request.setAttribute("message", "Hủy đơn hàng thành công.");
+                    request.setAttribute("message", "Order cancellation successful.");
                 } else {
-                    request.setAttribute("error", "Không thể hủy đơn hàng này.");
+                    request.setAttribute("error", "This order cannot be cancelled..");
                 }
             } catch (Exception e) {
-                request.setAttribute("error", "Không thể hủy đơn hàng: " + e.getMessage());
+                request.setAttribute("error", "Order cannot be cancelled: " + e.getMessage());
             }
         }
         doGet(request, response);

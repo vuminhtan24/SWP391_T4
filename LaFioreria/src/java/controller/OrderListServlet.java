@@ -26,7 +26,7 @@ import model.User;
 @WebServlet(name = "OrderListServlet", urlPatterns = {"/orderManagement"})
 public class OrderListServlet extends HttpServlet {
     // FIX: Ensure this is set to 8
-    private static final int DEFAULT_PAGE_SIZE = 5; // Thay đổi giá trị này thành 8
+    private static final int DEFAULT_PAGE_SIZE = 5; 
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -96,7 +96,7 @@ public class OrderListServlet extends HttpServlet {
             try {
                 pageIndex = Integer.parseInt(pageIndexParam);
             } catch (NumberFormatException e) {
-                System.err.println("Giá trị pageIndex không hợp lệ: " + pageIndexParam);
+                System.err.println("Invalid pageIndex value:" + pageIndexParam);
                 pageIndex = 1; // Reset to 1 if invalid
             }
         }
