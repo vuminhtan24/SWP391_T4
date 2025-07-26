@@ -125,6 +125,42 @@ public class FlowerScheduler extends BaseDao {
 
             // 8. Check stock levels and orders
             checkStockLevelsAndOrders();
+            
+            // 9. Remove expired batches from bouquets marked as needs_repair
+            String expiredBatchInBouquetSql = "SELECT DISTINCT br.bouquet_id, br.batch_id "
+                    + "FROM bouquet_raw br "
+                    + "JOIN flower_batch fb ON fb.batch_id = br.batch_id "
+                    + "JOIN bouquet b ON b.Bouquet_ID = br.bouquet_id "
+                    + "WHERE fb.status = 'expired' AND b.status = 'needs_repair'";
+
+            try (PreparedStatement ps = connection.prepareStatement(expiredBatchInBouquetSql); ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+                    int bouquetId = rs.getInt("bouquet_id");
+                    int batchId = rs.getInt("batch_id");
+
+                    // Xóa batch expired khỏi bouquet_raw
+                    String deleteSql = "DELETE FROM bouquet_raw WHERE bouquet_id = ? AND batch_id = ?";
+                    try (PreparedStatement deletePs = connection.prepareStatement(deleteSql)) {
+                        deletePs.setInt(1, bouquetId);
+                        deletePs.setInt(2, batchId);
+                        int deleted = deletePs.executeUpdate();
+
+                        if (deleted > 0) {
+                            System.out.println("Removed expired batch " + batchId + " from bouquet " + bouquetId);
+
+                            // Thêm notification và gửi email
+                            String msg = "Flower batch " + batchId + " was removed from bouquet " + bouquetId
+                                    + " due to expiration. The bouquet still needs repair.";
+                            addNotification(bouquetId, batchId, msg);
+                            sendEmailToAdmins(bouquetId, batchId);
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                System.err.println("Error removing expired batches from bouquets: " + e.getMessage());
+                e.printStackTrace();
+            }
 
             System.out.println("Completed flower batch status check.");
         } catch (SQLException e) {
@@ -143,10 +179,10 @@ public class FlowerScheduler extends BaseDao {
 
     private void sendEmailToAdmins(int bouquetId, int batchId) {
         // Email configuration
-//        String from = "hoang.trungkien2110@gmail.com"; // Replace with your email
-//        String password = "jnto tzhj pvvd fvfm"; // Replace with App Password 
-        String from = "trungkienhoang2110@gmail.com";
-        String password = "tnux cqee gver joma";
+        String from = "hoang.trungkien2110@gmail.com"; // Replace with your email
+        String password = "jnto tzhj pvvd fvfm"; // Replace with App Password 
+//        String from = "trungkienhoang2110@gmail.com";
+//        String password = "tnux cqee gver joma";
         String host = "smtp.gmail.com";
 
         Properties properties = System.getProperties();
@@ -258,10 +294,10 @@ public class FlowerScheduler extends BaseDao {
     }
 
     private void sendEmailToAdminsForStock(int batchId, int flowerId, String name, String reasonType) {
-//        String from = "hoang.trungkien2110@gmail.com";
-//        String password = "jnto tzhj pvvd fvfm";
-        String from = "trungkienhoang2110@gmail.com";
-        String password = "tnux cqee gver joma";
+        String from = "hoang.trungkien2110@gmail.com";
+        String password = "jnto tzhj pvvd fvfm";
+//        String from = "trungkienhoang2110@gmail.com";
+//        String password = "tnux cqee gver joma";
         String host = "smtp.gmail.com";
 
         Properties properties = new Properties();
