@@ -167,6 +167,7 @@
                             <p><strong>Order Date:</strong> ${order.orderDate}</p>
                             <p><strong>Customer ID:</strong> ${order.customerId}</p>
                             <p><strong>Customer Name:</strong> ${order.customerName}</p>
+                            <p><strong>Customer Address:</strong> ${order.customerAddress}</p>
                             <p><strong>Order Type:</strong> ${order.getType()}</p>
                         </div>
                         <div class="col-md-6">

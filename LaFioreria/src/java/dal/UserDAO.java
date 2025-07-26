@@ -829,16 +829,16 @@ public class UserDAO extends BaseDao {
         UserDAO ud = new UserDAO();
 
         User user1 = new User(
-                17, // User_ID duy nhất
-                "quangAdmin",
-                "123456",
-                "Vu Minh Quang",
-                "vmqbov@gmail.com",
-                "0786709182",
-                "Ha Dong, Ha Noi",
-                1
+                12, // User_ID duy nhất
+                "taness",
+                "$2a$10$ECPr17gXBybS4nWf1Nw7x.cq9a00AM/JW2l/8OmMH.l3M7y.jIOYW",
+                "Vũ Minh Tân",
+                "tanvmhe186791@fpt.edu.vn",
+                "0919994398",
+                "số 47 tổ 8 phường Phan Thiết",
+                7
         );
-        ud.insertNewUser(user1);
+        ud.Update(user1);
     }
 
 }

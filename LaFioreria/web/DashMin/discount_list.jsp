@@ -103,59 +103,60 @@
 
                         <form action="${pageContext.request.contextPath}/discount" method="post"
                               class="row gy-2 gx-2 bg-white border p-3 mb-4 rounded shadow-sm align-items-end">
-                            <input type="hidden" name="action" value="add"/>
+                            <c:if test="${empty editDiscount}">
+                                <input type="hidden" name="action" value="add"/>
 
-                            <div class="col-md-2">
-                                <label class="form-label small">Code</label>
-                                <input type="text" name="code" class="form-control form-control-sm" placeholder="ABC"
-                                       value="${code != null ? code : ''}" required/>
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label small">Description</label>
-                                <input type="text" name="description" class="form-control form-control-sm"
-                                       value="${description != null ? description : ''}" required/>
-                            </div>
-                            <div class="col-md-1">
-                                <label class="form-label small">Type</label>
-                                <select name="type" class="form-select form-select-sm">
-                                    <option value="PERCENT" ${type == 'PERCENT' ? 'selected' : ''}>%</option>
-                                    <option value="FIXED" ${type == 'FIXED' ? 'selected' : ''}>₫</option>
-                                </select>
-                            </div>
-                            <div class="col-md-1">
-                                <label class="form-label small">Value</label>
-                                <input type="number" name="value" class="form-control form-control-sm" step="0.01"
-                                       value="${value != null ? value : ''}" required/>
-                            </div>
-                            <div class="col-md-1">
-                                <label class="form-label small">Max Discount</label>
-                                <input type="number" name="maxDiscount" class="form-control form-control-sm" step="0.01"
-                                       value="${maxDiscount != null ? maxDiscount : ''}"/>
-                            </div>
-                            <div class="col-md-1">
-                                <label class="form-label small">Min Order Amount</label>
-                                <input type="number" name="minOrder" class="form-control form-control-sm" step="0.01"
-                                       value="${minOrder != null ? minOrder : ''}"/>
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label small">Start Date</label>
-                                <input type="datetime-local" name="start" class="form-control form-control-sm"
-                                       value="${start != null ? start : ''}" required/>
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label small">End Date</label>
-                                <input type="datetime-local" name="end" class="form-control form-control-sm"
-                                       value="${end != null ? end : ''}" required/>
-                            </div>
-                            <div class="col-md-1">
-                                <label class="form-label small">Usage Limit</label>
-                                <input type="number" name="usageLimit" class="form-control form-control-sm"
-                                       value="${usageLimit != null ? usageLimit : ''}" min="0"/>
-                            </div>
-                            <div class="col-md-1 d-grid">
-                                <button type="submit" class="btn btn-sm btn-primary">Add</button>
-                            </div>
-
+                                <div class="col-md-2">
+                                    <label class="form-label small">Code</label>
+                                    <input type="text" name="code" class="form-control form-control-sm" placeholder="ABC"
+                                           value="${code != null ? code : ''}" required/>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small">Description</label>
+                                    <input type="text" name="description" class="form-control form-control-sm"
+                                           value="${description != null ? description : ''}" required/>
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label small">Type</label>
+                                    <select name="type" class="form-select form-select-sm">
+                                        <option value="PERCENT" ${type == 'PERCENT' ? 'selected' : ''}>%</option>
+                                        <option value="FIXED" ${type == 'FIXED' ? 'selected' : ''}>₫</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label small">Value</label>
+                                    <input type="number" name="value" class="form-control form-control-sm" step="0.01"
+                                           value="${value != null ? value : ''}" required/>
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label small">Max Discount</label>
+                                    <input type="number" name="maxDiscount" class="form-control form-control-sm" step="0.01"
+                                           value="${maxDiscount != null ? maxDiscount : ''}"/>
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label small">Min Order Amount</label>
+                                    <input type="number" name="minOrder" class="form-control form-control-sm" step="0.01"
+                                           value="${minOrder != null ? minOrder : ''}"/>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small">Start Date</label>
+                                    <input type="datetime-local" name="start" class="form-control form-control-sm"
+                                           value="${start != null ? start : ''}" required/>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small">End Date</label>
+                                    <input type="datetime-local" name="end" class="form-control form-control-sm"
+                                           value="${end != null ? end : ''}" required/>
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label small">Usage Limit</label>
+                                    <input type="number" name="usageLimit" class="form-control form-control-sm"
+                                           value="${usageLimit != null ? usageLimit : ''}" min="0"/>
+                                </div>
+                                <div class="col-md-1 d-grid">
+                                    <button type="submit" class="btn btn-sm btn-primary">Add</button>
+                                </div>
+                            </c:if>
                             <!-- ERROR NOTIFICATION -->
                             <c:if test="${not empty error}">
                                 <div class="col-12">
@@ -236,7 +237,7 @@
                                                 <ul>
                                                     <c:forEach var="errorMsg" items="${errors}">
                                                         <li>${errorMsg}</li>
-                                                    </c:forEach>
+                                                        </c:forEach>
                                                 </ul>
                                             </div>
                                         </c:if>
@@ -264,6 +265,7 @@
                         <div class="row mb-4">
                             <div class="col-12">
                                 <form action="${pageContext.request.contextPath}/discount" method="get" class="row g-3 align-items-end">
+                                     <c:if test="${empty editDiscount}">
                                     <div class="col-md-4">
                                         <label for="searchCode" class="form-label small">Search by Code or Description</label>
                                         <input type="text" class="form-control form-control-sm" id="searchCode" name="search"
@@ -281,6 +283,7 @@
                                         <button type="submit" class="btn btn-sm btn-secondary">Apply Filters</button>
                                         <a href="${pageContext.request.contextPath}/discount" class="btn btn-sm btn-outline-secondary">Clear Filters</a>
                                     </div>
+                                    </c:if>
                                 </form>
                             </div>
                         </div>

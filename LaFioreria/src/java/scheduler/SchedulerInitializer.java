@@ -16,7 +16,7 @@ public class SchedulerInitializer implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         if (scheduler == null || scheduler.isShutdown()) {
             scheduler = Executors.newScheduledThreadPool(1);
-            scheduler.scheduleAtFixedRate(flowerScheduler::checkFlowerBatches, 0, 86400, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(flowerScheduler::checkFlowerBatches, 0, 10, TimeUnit.SECONDS);
             System.out.println("FlowerScheduler started at " + new java.util.Date());
         } else {
             System.out.println("FlowerScheduler already running, skipping initialization.");
