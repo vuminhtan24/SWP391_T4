@@ -82,6 +82,25 @@ public class CustomerQuotationListController extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/ZeShopper/LoginServlet");
             return;
         }
+        String requestDateStr = request.getParameter("requestDate");
+        String status = request.getParameter("status");
+        
+        LocalDate requestDate = null;
+        if (requestDateStr != null && !requestDateStr.trim().isEmpty()) {
+            try {
+                requestDate = LocalDate.parse(requestDateStr.trim());
+            } catch (Exception e) {
+                request.setAttribute("dateError", "Invalid date format.");
+            }
+        }
+
+        // Trim status if not null
+        if (status != null) {
+            status = status.trim();
+            if (status.isEmpty()) {
+                status = null;
+            }
+        }
 
         int userId = acc.getUserid();
 
@@ -89,7 +108,7 @@ public class CustomerQuotationListController extends HttpServlet {
         BouquetDAO bDao = new BouquetDAO();
 
         List<BouquetImage> images = bDao.getAllBouquetImage();
-        List<WholeSale> listWSRequest = wsDao.getWholeSaleSummary();
+        List<WholeSale> listWSRequest = wsDao.getUserWholeSaleSummary(userId, requestDate, status);
         List<Bouquet> listBouquet = bDao.getAll();
 
         request.setAttribute("listBouquet", listBouquet);
