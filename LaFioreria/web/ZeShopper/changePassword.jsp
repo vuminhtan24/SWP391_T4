@@ -37,14 +37,14 @@
     <body>
         <jsp:include page="/ZeShopper/header.jsp"/>
 
-        <section id="form"><!--form-->
+        <section id="form" style="margin-top: 0px"><!--form-->
             <div class="container">
                 <div class="row">
                     <div class="col-sm-4 col-sm-offset-1">
                         <div class="login-form"><!--login form-->
                             <h2>Change Password</h2>
                             <form action="ChangePassword" method="post">
-                                <input type="email" placeholder="Email Address" name="email"/>
+                                <input type="email" value="${email}" placeholder="Email Address" name="email"/>
                                 <input type="password" placeholder="Current Password" name="currentPassword"/>
                                 <input type="password" placeholder="New Password" name="newPassword"/>
                                 <input type="password" placeholder="Cofirm New Password" name="confirmNewPassword"/>

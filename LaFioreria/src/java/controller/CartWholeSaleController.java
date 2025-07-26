@@ -73,8 +73,8 @@ public class CartWholeSaleController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
-        
-        if(session.getAttribute("currentAcc") == null){
+
+        if (session.getAttribute("currentAcc") == null) {
             request.setAttribute("error", "You need login to go to this feature!!!");
             request.setAttribute("isGuest", true);
             request.getRequestDispatcher("./ZeShopper/cartWholeSale.jsp").forward(request, response);
@@ -92,13 +92,13 @@ public class CartWholeSaleController extends HttpServlet {
         for (CartWholeSaleDetail cartWholeSaleDetail : cartDetail) {
             totalOrderValue += cartWholeSaleDetail.getTotalValue();
         }
-        
+
         String requestGroupId = null;
         for (CartWholeSaleDetail cartWholeSaleDetail : cartDetail) {
             requestGroupId = cartWholeSaleDetail.getRequest_group_id();
             break;
         }
-        
+
         request.setAttribute("requestGroupId", requestGroupId);
         request.setAttribute("totalOrderValue", totalOrderValue);
         request.setAttribute("listBQ", listBouquet);
@@ -113,57 +113,68 @@ public class CartWholeSaleController extends HttpServlet {
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("currentAcc");
         String requestDateStr = request.getParameter("requestDate");
-        String requestGroupId = request.getParameter("requestGroupId").trim(); 
+        String requestGroupId = request.getParameter("requestGroupId").trim();
+        String action = request.getParameter("action");
 
-        LocalDate requestDate = LocalDate.parse(requestDateStr);
+        if (action == null || !action.equalsIgnoreCase("delete")) {
+            LocalDate requestDate = LocalDate.parse(requestDateStr);
 
-        if (currentUser == null) {
-            request.setAttribute("error", "You need login to go to this feature!!!");
-            request.getRequestDispatcher("/cartWholeSale").forward(request, response);
-            return;
-        }
+            if (currentUser == null) {
+                request.setAttribute("error", "You need login to go to this feature!!!");
+                request.getRequestDispatcher("/cartWholeSale").forward(request, response);
+                return;
+            }
 
-        List<WholeSale> listWS = (List<WholeSale>) session.getAttribute("listWS");
+            List<WholeSale> listWS = (List<WholeSale>) session.getAttribute("listWS");
 
-        if (listWS == null || listWS.isEmpty()) {
-            request.setAttribute("error", "Không có sản phẩm nào để thêm vào giỏ.");
-            request.getRequestDispatcher("/cartWholeSale").forward(request, response);
-            return;
-        }
+            if (listWS == null || listWS.isEmpty()) {
+                request.setAttribute("error", "Không có sản phẩm nào để thêm vào giỏ.");
+                request.getRequestDispatcher("/cartWholeSale").forward(request, response);
+                return;
+            }
 
-        int userId = currentUser.getUserid();
-        CartWholeSaleDAO dao = new CartWholeSaleDAO();
-        WholeSaleDAO wsDao = new WholeSaleDAO();
+            int userId = currentUser.getUserid();
+            CartWholeSaleDAO dao = new CartWholeSaleDAO();
+            WholeSaleDAO wsDao = new WholeSaleDAO();
 
-        int addedCount = 0;
-        for (WholeSale item : listWS) {
-            if (item.getStatus().equalsIgnoreCase("EMAILED")) {
-                boolean isValidQuote = item.getQuoted_price() != null && item.getQuoted_price() > 0
-                        && item.getTotal_price() != null && item.getTotal_price() > 0;
-                boolean isNotExist = !dao.hasPendingWholesale(userId, item.getBouquet_id());
+            int addedCount = 0;
+            for (WholeSale item : listWS) {
+                if (item.getStatus().equalsIgnoreCase("EMAILED")) {
+                    boolean isValidQuote = item.getQuoted_price() != null && item.getQuoted_price() > 0
+                            && item.getTotal_price() != null && item.getTotal_price() > 0;
+                    boolean isNotExist = !dao.hasPendingWholesale(userId, item.getBouquet_id());
 
-                if (isValidQuote && isNotExist) {
-                    dao.insertCartWholeSaleItem(
-                            userId,
-                            item.getBouquet_id(),
-                            item.getRequested_quantity(),
-                            item.getQuoted_price(),
-                            item.getTotal_price(),
-                            item.getExpense(),
-                            item.getRequest_group_id()
-                    );
+                    if (isValidQuote && isNotExist) {
+                        dao.insertCartWholeSaleItem(
+                                userId,
+                                item.getBouquet_id(),
+                                item.getRequested_quantity(),
+                                item.getQuoted_price(),
+                                item.getTotal_price(),
+                                item.getExpense(),
+                                item.getRequest_group_id()
+                        );
 
-                    addedCount++;
+                        addedCount++;
+                    }
                 }
             }
-        }
 
-        if (addedCount > 0) {
-            wsDao.updateWholeSaleStatusAndRespond(userId, requestDate, requestGroupId, "ACCEPTED", LocalDate.now());
-            response.sendRedirect(request.getContextPath() + "/cartWholeSale");
+            if (addedCount > 0) {
+                wsDao.updateWholeSaleStatusAndRespond(userId, requestDate, requestGroupId, "ACCEPTED", LocalDate.now());
+                response.sendRedirect(request.getContextPath() + "/cartWholeSale");
+            } else {
+                request.setAttribute("error", "Không có sản phẩm mới nào được thêm vì tất cả đã tồn tại trong giỏ.");
+                request.getRequestDispatcher("./ZeShopper/quotationDetails.jsp").forward(request, response);
+            }
         } else {
-            request.setAttribute("error", "Không có sản phẩm mới nào được thêm vì tất cả đã tồn tại trong giỏ.");
-            request.getRequestDispatcher("./ZeShopper/quotationDetails.jsp").forward(request, response);
+            CartWholeSaleDAO cwsDao = new CartWholeSaleDAO();
+            WholeSaleDAO wsDao = new WholeSaleDAO();
+            String bouquetIdStr = request.getParameter("bouquetId");
+            Integer bouquetId = Integer.parseInt(bouquetIdStr);
+            String requestGroupId2 = request.getParameter("requestGroupId");
+            cwsDao.deleteByBouquetAndRequestGroup( bouquetId, requestGroupId2);
+            response.sendRedirect(request.getContextPath() + "/cartWholeSale");
         }
     }
 

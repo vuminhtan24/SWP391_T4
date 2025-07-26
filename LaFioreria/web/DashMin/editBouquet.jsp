@@ -299,7 +299,7 @@
                                                                     </select>
                                                                 </td>
                                                                 <td>
-                                                                    <span class="form-text price-text">0.00 VND</span>
+                                                                    <span class="form-text price-text"></span>
                                                                     <input type="hidden" class="price-input" name="prices[]" value="0" />
                                                                 </td>
                                                                 <td>
@@ -314,10 +314,10 @@
                                                     <tfoot>
                                                         <tr>
                                                             <td colspan="5" class="text-start fw-bold text-primary">
-                                                                Price: <span id="totalValueDisplay">0.00 VND</span>
+                                                                Price: <span id="totalValueDisplay"></span>
                                                                 <input type="hidden" id="totalValueInput" name="totalValue" value="0" />
                                                                 <br/>
-                                                                Sell Price: <span id="sellValueDisplay">0.00 VND</span>
+                                                                Sell Price: <span id="sellValueDisplay"></span>
                                                                 <input type="hidden" id="sellValueInput" name="sellValue" value="0" />
                                                             </td>
                                                         </tr>
@@ -352,7 +352,7 @@
                                 </select>
                             </td>
                             <td>
-                                <span class="form-text price-text">0.00 VND</span>
+                                <span class="form-text price-text"></span>
                                 <input type="hidden" class="price-input" name="prices[]" value="0" />
                             </td>
                             <td>
@@ -415,8 +415,13 @@
                     const oldBatchId = '${param.oldBatchId}';
 
                     function formatCurrency(val) {
-                        return parseFloat(val).toFixed(2) + ' VND';
+                        const num = isNaN(val) ? 0 : val;
+                        return new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND'
+                        }).format(num);
                     }
+
 
                     function getSelectedFlowers() {
                         const map = new Map();
@@ -464,9 +469,15 @@
                         const priceIn = row.querySelector('.price-input');
                         const priceTxt = row.querySelector('.price-text');
                         const sel = batchSel.selectedOptions[0];
-                        const unit = sel ? parseFloat(sel.dataset.price) : 0;
-                        priceIn.value = unit;
-                        priceTxt.textContent = formatCurrency(unit);
+                        let unit = (sel && sel.dataset && sel.dataset.price) ? parseFloat(sel.dataset.price) : null;
+
+                        if (unit !== null && !isNaN(unit)) {
+                            priceIn.value = unit;
+                            priceTxt.textContent = formatCurrency(unit);
+                        } else {
+                            priceIn.value = 0;
+                            priceTxt.textContent = '0 ₫';
+                        }
                     }
 
                     function updateTotals() {
@@ -551,7 +562,7 @@
                         newRow.style.display = '';
                         newRow.querySelector('.flower-select').value = '';
                         newRow.querySelector('.batch-select').innerHTML = '<option value="" disabled selected>-- Chọn lô --</option>';
-                        newRow.querySelector('.price-text').textContent = '0.00 VND';
+                        newRow.querySelector('.price-text').textContent = '0 ₫';
                         newRow.querySelector('.price-input').value = 0;
                         newRow.querySelector('.quantity-input').value = 1;
                         document.querySelector('#flowerTable tbody').appendChild(newRow);
@@ -603,6 +614,11 @@
                                 fileInput.files = dt.files;
                             }
 
+                            function checkUploadMoreButton() {
+                                const totalImages = serverImageUrls.length + acceptedFiles.length;
+                                btnUploadMore.disabled = totalImages >= MAX_FILES;
+                            }
+
                             function renderPreview() {
                                 const items = getCurrentItems();
                                 previewContainer.innerHTML = '';
@@ -644,6 +660,7 @@
                                     previewContainer.appendChild(wrap);
                                 });
                                 btnDeleteSelected.disabled = true;
+                                checkUploadMoreButton();
                             }
 
                             if (triggerImg) {
@@ -661,11 +678,12 @@
                                 const newFiles = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
                                 const slots = MAX_FILES - (serverImageUrls.length + acceptedFiles.length);
                                 if (slots <= 0) {
-                                    alert(`Bạn chỉ được tải tối đa ${MAX_FILES} ảnh.`);
+                                    alert(`Bạn chỉ được tải tối đa 5 ảnh.`);
                                 } else {
                                     acceptedFiles = acceptedFiles.concat(newFiles.slice(0, slots));
                                     updateInputFiles();
                                     renderPreview();
+                                    checkUploadMoreButton();
                                 }
                                 e.target.value = '';
                             });
@@ -682,12 +700,14 @@
                                 updateInputFiles();
                                 updateServerInputs();
                                 renderPreview();
+                                checkUploadMoreButton();
                             });
 
                             btnAccept.addEventListener('click', () => {
                                 updateInputFiles();
                                 updateServerInputs();
                                 previewModal.hide();
+                                checkUploadMoreButton();
                             });
                         });
             </script>

@@ -380,6 +380,102 @@ public class WholeSaleDAO extends BaseDao {
         return list;
     }
 
+    public List<WholeSale> getUserWholeSaleSummary(int userID, LocalDate createdAt2, String statusFilter) {
+        List<WholeSale> list = new ArrayList<>();
+
+        StringBuilder sqlBuilder = new StringBuilder("""
+        SELECT 
+            user_id,
+            created_at,
+            request_group_id,
+            MIN(quoted_at) AS quoted_at,
+            MIN(responded_at) AS responded_at,
+            CASE 
+                WHEN SUM(CASE WHEN status = 'ACCEPTED' THEN 1 ELSE 0 END) > 0
+                     AND SUM(CASE WHEN status NOT IN ('ACCEPTED') THEN 1 ELSE 0 END) = 0 THEN 'ACCEPTED'
+                WHEN SUM(CASE WHEN status = 'EMAILED' THEN 1 ELSE 0 END) > 0
+                     AND SUM(CASE WHEN status NOT IN ('EMAILED') THEN 1 ELSE 0 END) = 0 THEN 'EMAILED'
+                WHEN SUM(CASE WHEN status = 'REJECTED' THEN 1 ELSE 0 END) > 0
+                     AND SUM(CASE WHEN status NOT IN ('REJECTED') THEN 1 ELSE 0 END) = 0 THEN 'REJECTED'
+                WHEN SUM(CASE WHEN status = 'QUOTED' THEN 1 ELSE 0 END) > 0
+                     AND SUM(CASE WHEN status NOT IN ('QUOTED') THEN 1 ELSE 0 END) = 0 THEN 'QUOTED'
+                WHEN SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) > 0
+                     AND SUM(CASE WHEN status NOT IN ('COMPLETED') THEN 1 ELSE 0 END) = 0 THEN 'COMPLETED'
+                WHEN SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) > 0 THEN 'PENDING'
+                ELSE 'UNKNOWN'
+            END AS status
+        FROM wholesale_quote_request
+        WHERE status <> 'SHOPPING'
+          AND user_id = ?
+    """);
+
+        // Điều kiện động
+        if (createdAt2 != null) {
+            sqlBuilder.append(" AND created_at = ? ");
+        }
+
+        if (statusFilter != null && !statusFilter.isBlank()) {
+            sqlBuilder.append(" AND status = ? ");
+        }
+
+        sqlBuilder.append(" GROUP BY user_id, created_at, request_group_id ");
+        sqlBuilder.append(" ORDER BY created_at DESC, user_id, request_group_id;");
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sqlBuilder.toString());
+
+            // Gán tham số
+            int paramIndex = 1;
+            ps.setInt(paramIndex++, userID);
+
+            if (createdAt2 != null) {
+                ps.setDate(paramIndex++, java.sql.Date.valueOf(createdAt2));
+            }
+
+            if (statusFilter != null && !statusFilter.isBlank()) {
+                ps.setString(paramIndex++, statusFilter);
+            }
+
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int userId = rs.getInt("user_id");
+                String requestGroupId = rs.getString("request_group_id");
+
+                LocalDate createdAt = rs.getDate("created_at").toLocalDate();
+
+                LocalDate quotedAt = null;
+                java.sql.Date quotedDateSql = rs.getDate("quoted_at");
+                if (quotedDateSql != null) {
+                    quotedAt = quotedDateSql.toLocalDate();
+                }
+
+                LocalDate respondedAt = null;
+                java.sql.Date respondedDateSql = rs.getDate("responded_at");
+                if (respondedDateSql != null) {
+                    respondedAt = respondedDateSql.toLocalDate();
+                }
+
+                String resultStatus = rs.getString("status");
+
+                WholeSale ws = new WholeSale(userId, createdAt, quotedAt, respondedAt, resultStatus, requestGroupId);
+                list.add(ws);
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return list;
+    }
+
     public List<WholeSale> filterWholeSaleSummary(LocalDate createdAt, String statusFilter) {
         List<WholeSale> list = new ArrayList<>();
 

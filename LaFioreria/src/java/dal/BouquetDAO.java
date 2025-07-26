@@ -97,6 +97,50 @@ public class BouquetDAO extends BaseDao {
         return listBouquet;
 
     }
+    public List<Bouquet> getMostSellBouquet2() {
+        List<Bouquet> listBouquet = new ArrayList<>();
+
+        String sql = "SELECT \n"
+                + "    b.Bouquet_ID,\n"
+                + "    b.bouquet_name,\n"
+                + "    b.description,\n"
+                + "    b.cid,\n"
+                + "    b.price,\n"
+                + "    b.sellPrice,\n"
+                + "    b.status,\n"
+                + "    SUM(oi.quantity) AS total_quantity\n"
+                + "FROM bouquet b\n"
+                + "JOIN order_item oi ON b.Bouquet_ID = oi.bouquet_id\n"
+                + "GROUP BY \n"
+                + "    b.Bouquet_ID, b.bouquet_name, b.description, b.cid, b.price, b.sellPrice, b.status;";
+
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int bouquet_id = rs.getInt("Bouquet_ID");
+                String bouquet_name = rs.getString("bouquet_name").trim();
+                String description = rs.getString("description").trim();
+                int cid = rs.getInt("cid");
+                int price = rs.getInt("price");
+                int sellPrice = rs.getInt("sellPrice");
+                String status = rs.getString("status");
+                Bouquet newBouquet = new Bouquet(bouquet_id, bouquet_name, description, cid, price, sellPrice, status);
+                listBouquet.add(newBouquet);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+
+        return listBouquet;
+
+    }
 
     public List<Bouquet> searchBouquet(String name, Integer minPrice, Integer maxPrice, Integer categoryID, Integer rawId) {
         List<Bouquet> searchListBQ = new ArrayList<>();
@@ -718,7 +762,7 @@ public class BouquetDAO extends BaseDao {
 //        System.out.println(big);
 //        System.out.println(dao.bouquetAvailable(1));
 
-        System.out.println(dao.getBouquetFullInfoById(1));
+        System.out.println(dao.getMostSellBouquet2());
     }
 
 }

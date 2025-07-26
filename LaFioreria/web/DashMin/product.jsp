@@ -6,9 +6,10 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List,model.Bouquet" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<fmt:setLocale value="vi_VN" />
 <!DOCTYPE html>
 <html>
     <head>
@@ -375,8 +376,10 @@
                                                 <c:if test="${!matched}">Unknown</c:if>
                                                 </td>
 
-                                                <td>${bouquet.getPrice()} VND</td>
-                                            <td>${bouquet.getSellPrice()} VND</td>
+                                                <td><fmt:formatNumber value="${bouquet.getPrice()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</td>
+                                            
+                                            
+                                            <td><fmt:formatNumber value="${bouquet.getSellPrice()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫</td>
                                             <td>${bouquet.getStatus()}</td>
                                             <td>
                                                 <button type="button"

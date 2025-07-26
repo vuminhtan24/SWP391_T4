@@ -75,6 +75,26 @@ public class CartWholeSaleDAO extends BaseDao {
         }
     }
 
+    public void deleteByBouquetAndRequestGroup(int bouquetId, String requestGroupId) {
+        String sql = "DELETE FROM cartwholesaledetails WHERE bouquetID = ? AND request_group_id = ?";
+        try {
+            connection = dbc.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, bouquetId);
+            ps.setString(2, requestGroupId);
+            ps.executeUpdate();
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                this.closeResources();
+            } catch (Exception e) {
+            }
+        }
+
+    }
+
     public List<CartWholeSaleDetail> getCartWholeSaleByUser(int userId) {
         List<CartWholeSaleDetail> list = new ArrayList<>();
 
@@ -110,7 +130,7 @@ public class CartWholeSaleDAO extends BaseDao {
 
         return list;
     }
-    
+
     public static void main(String[] args) {
         CartWholeSaleDAO dao = new CartWholeSaleDAO();
         System.out.println(dao.getCartWholeSaleByUser(13));

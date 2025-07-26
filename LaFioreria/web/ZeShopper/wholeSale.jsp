@@ -255,11 +255,6 @@
                                                 <small id="updateQuantityError" class="text-danger d-none font-weight-bold"></small>
                                             </div>
 
-                                            <div class="form-group">
-                                                <label for="updateNote"><strong>Ghi chú:</strong></label>
-                                                <textarea class="form-control" name="note" id="updateNote" rows="3"></textarea>
-                                            </div>
-
                                             <!-- Có thể thêm hidden input chứa id đơn hàng nếu cần -->
                                             <input type="hidden" name="wholesale_id" id="updateWholesaleId">
                                         </div>
@@ -286,14 +281,12 @@
                 const name = button.data('name');
                 const image = button.data('image');
                 const quantity = button.data('quantity');
-                const note = button.data('note');
                 const bouquetId = button.data('bouquet-id'); // 👈 Lấy bouquet_id
 
                 const modal = $(this);
                 modal.find('#modalBouquetName').text(name);
                 modal.find('#modalBouquetImage').attr('src', image);
                 modal.find('#updateQuantity').val(quantity);
-                modal.find('#updateNote').val(note);
                 modal.find('#modalBouquetId').val(bouquetId); // 👈 Gán vào hidden input
             });
         </script>
