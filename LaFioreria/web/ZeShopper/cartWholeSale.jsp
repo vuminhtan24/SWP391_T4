@@ -171,7 +171,7 @@
                     <a href="${pageContext.request.contextPath}/ZeShopper/cart" class="btn-retail">Retail Cart</a>
                     <a href="${pageContext.request.contextPath}/cartWholeSale" class="btn-wholesale">Wholesale Cart</a>
                 </div>
-                
+
                 <!-- Guest User Notice -->
                 <c:if test="${isGuest}">
                     <div class="guest-notice">
@@ -244,6 +244,14 @@
                                         <td class="cart_total">
                                             <fmt:formatNumber value="${item.getTotalValue()}" type="number" groupingUsed="true" maxFractionDigits="0" /> ₫
                                         </td>
+                                        <td class="cart_delete">
+                                            <form action="cartWholeSale" method="post">
+                                                <input type="hidden" name="requestGroupId" value="${requestGroupId}">
+                                                <input type="hidden" name="bouquetId" value="${item.getBouquetID()}">
+                                                <input type="hidden" name="action" value="delete">
+                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 </c:forEach>
                             </tbody>
@@ -263,7 +271,7 @@
                                     <li style="background-color: white"><strong>Total</strong> <span><p><fmt:formatNumber value="${totalOrderValue}" pattern="#,##0" /> ₫</p></span></li>
                                 </ul>
                                 <div style="display: flex; justify-content: end;">
-                                    <<a class="btn btn-default check_out" href="${pageContext.request.contextPath}/checkout?mode=wholesale&requestGroupId=${requestGroupId}">Check Out</a>
+                                    <a class="btn btn-default check_out" href="${pageContext.request.contextPath}/checkout?mode=wholesale&requestGroupId=${requestGroupId}">Check Out</a>
 
                                 </div>
                             </div>

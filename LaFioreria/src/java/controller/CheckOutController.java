@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects; // Import Objects để so sánh an toàn hơn
 import dal.DiscountCodeDAO;
+import dal.FlowerBatchDAO;
 import dal.WholeSaleDAO;
 import jakarta.servlet.http.HttpSession;
 import model.Bouquet;
@@ -551,7 +552,20 @@ public class CheckOutController extends HttpServlet {
             int bouquetId = Integer.parseInt(request.getParameter("bouquetId"));
 
             CartDAO dao = new CartDAO();
+            
+            FlowerBatchDAO fbdao = new FlowerBatchDAO();
+
+            // Cleanup soft hold hết hạn trước
+            fbdao.cleanupExpiredSoftHolds();
+
+            int cartId = dao.getCartIdByCustomerAndBouquet(customerId, bouquetId);
+
+            // Huỷ soft hold trước
+            fbdao.cancelSoftHoldByCartId(cartId);
+            
             dao.deleteItem(customerId, bouquetId);
+            
+            
             request.setAttribute("successMessage", "Sản phẩm đã được xóa khỏi giỏ hàng!");
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "Định dạng ID bó hoa không hợp lệ.");

@@ -614,6 +614,11 @@
                                 fileInput.files = dt.files;
                             }
 
+                            function checkUploadMoreButton() {
+                                const totalImages = serverImageUrls.length + acceptedFiles.length;
+                                btnUploadMore.disabled = totalImages >= MAX_FILES;
+                            }
+
                             function renderPreview() {
                                 const items = getCurrentItems();
                                 previewContainer.innerHTML = '';
@@ -655,6 +660,7 @@
                                     previewContainer.appendChild(wrap);
                                 });
                                 btnDeleteSelected.disabled = true;
+                                checkUploadMoreButton();
                             }
 
                             if (triggerImg) {
@@ -672,11 +678,12 @@
                                 const newFiles = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
                                 const slots = MAX_FILES - (serverImageUrls.length + acceptedFiles.length);
                                 if (slots <= 0) {
-                                    alert(`Bạn chỉ được tải tối đa ${MAX_FILES} ảnh.`);
+                                    alert(`Bạn chỉ được tải tối đa 5 ảnh.`);
                                 } else {
                                     acceptedFiles = acceptedFiles.concat(newFiles.slice(0, slots));
                                     updateInputFiles();
                                     renderPreview();
+                                    checkUploadMoreButton();
                                 }
                                 e.target.value = '';
                             });
@@ -693,12 +700,14 @@
                                 updateInputFiles();
                                 updateServerInputs();
                                 renderPreview();
+                                checkUploadMoreButton();
                             });
 
                             btnAccept.addEventListener('click', () => {
                                 updateInputFiles();
                                 updateServerInputs();
                                 previewModal.hide();
+                                checkUploadMoreButton();
                             });
                         });
             </script>

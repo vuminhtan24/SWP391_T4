@@ -416,7 +416,7 @@
                                         <label class="form-label fw-semibold">Description:</label>
                                         <textarea name="bqDescription" class="form-control" rows="4" readonly>${bouquetDetail.getDescription()}</textarea>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label class="form-label fw-semibold">Status: </label>
                                         <h6>${bouquetDetail.getStatus()}</h6>
@@ -470,7 +470,7 @@
 
                                                         <!-- Price -->
                                                         <td>
-                                                            <span class="form-text price-text">$0.00</span>
+                                                            <span class="form-text price-text"></span>
                                                             <input type="hidden" class="price-input" name="prices[]" value="0" />
                                                         </td>
 
@@ -571,6 +571,12 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
+                                                    function formatCurrencyVND(amount) {
+                                                        return new Intl.NumberFormat('vi-VN', {
+                                                            style: 'currency',
+                                                            currency: 'VND'
+                                                        }).format(amount);
+                                                    }
                                                     function updatePrice(selectElement) {
                                                         const selectedOption = selectElement.options[selectElement.selectedIndex];
                                                         const price = selectedOption ? parseFloat(selectedOption.getAttribute('data-price') || "0") : 0;
@@ -579,7 +585,7 @@
                                                         const priceText = row.querySelector('.price-text');
                                                         const priceInput = row.querySelector('.price-input');
 
-                                                        priceText.textContent = price.toFixed(2) + 'VND';
+                                                        priceText.textContent = formatCurrencyVND(price);
                                                         priceInput.value = price;
 
                                                         calculateTotal();
@@ -596,12 +602,12 @@
                                                         });
 
                                                         // Cập nhật Total Price
-                                                        document.getElementById('totalValueDisplay').textContent = total.toFixed(2) + ' VND';
+                                                        document.getElementById('totalValueDisplay').textContent = formatCurrencyVND(total);
                                                         document.getElementById('totalValueInput').value = total.toFixed(2);
 
                                                         // Tính và cập nhật Sell Price ra ngoài bảng
                                                         const sellTotal = total * 5;
-                                                        document.getElementById('sellValueDisplay').textContent = sellTotal.toFixed(2) + ' VND';
+                                                        document.getElementById('sellValueDisplay').textContent = formatCurrencyVND(sellTotal);
                                                         document.getElementById('sellValueInput').value = sellTotal.toFixed(2);
                                                     }
 
