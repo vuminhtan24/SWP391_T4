@@ -124,7 +124,7 @@ public class DiscountCodeController extends HttpServlet {
 
             // Basic validation
             if (code.isEmpty() || description.isEmpty() || type.isEmpty() || valueRaw == null || startRaw == null || endRaw == null) {
-                request.setAttribute("error", "Vui lòng điền đầy đủ thông tin bắt buộc (Code, Description, Type, Value, Start Date, End Date).");
+                request.setAttribute("error", "Please fill in all required information (Code, Description, Type, Value, Start Date, End Date).");
                 doGet(request, response);
                 return;
             }
@@ -151,7 +151,7 @@ public class DiscountCodeController extends HttpServlet {
                 dc.setStartDate(Timestamp.valueOf(startRaw.trim().replace("T", " ") + ":00"));
                 dc.setEndDate(Timestamp.valueOf(endRaw.trim().replace("T", " ") + ":00"));
                 if (dc.getStartDate().after(dc.getEndDate())) {
-                    request.setAttribute("error", "Ngày bắt đầu không được sau ngày kết thúc.");
+                    request.setAttribute("error", "Start date cannot be later than end date");
                     doGet(request, response);
                     return;
                 }
@@ -163,7 +163,7 @@ public class DiscountCodeController extends HttpServlet {
 
             } catch (Exception e) {
                 System.err.println("Error adding discount code: " + e.getMessage());
-                request.setAttribute("error", "Dữ liệu không hợp lệ hoặc sai định dạng: " + e.getMessage());
+                request.setAttribute("error", "Invalid data " + e.getMessage());
                 doGet(request, response);
                 return;
             }
@@ -174,7 +174,7 @@ public class DiscountCodeController extends HttpServlet {
                 dao.deactivateDiscountCode(codeToDeactivate);
                 response.sendRedirect(redirectUrl);
             } else {
-                request.setAttribute("error", "Mã giảm giá để hủy kích hoạt không hợp lệ.");
+                request.setAttribute("error", "Invalid deactivation coupon code.");
                 doGet(request, response);
             }
         } else if ("delete".equals(action)) {
@@ -183,7 +183,7 @@ public class DiscountCodeController extends HttpServlet {
                 dao.deleteDiscountCode(codeToDelete);
                 response.sendRedirect(redirectUrl);
             } else {
-                request.setAttribute("error", "Mã giảm giá để xóa không hợp lệ.");
+                request.setAttribute("error", "The coupon code to delete is invalid.");
                 doGet(request, response);
             }
         } else {
